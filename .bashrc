@@ -7,9 +7,16 @@ BLUE='\e[1;34m'
 cyan='\e[0;36m'
 CYAN='\e[1;36m'
 NC='\e[0m'
-. ~/.profile
-export LS_OPTIONS='-G'
-#eval `dircolors`
+#. ~/.profile
+if [ $(uname) == "FreeBSD" ]
+then
+    export LS_OPTIONS='-G'
+    eval `dircolors`
+fi
+if [ $(uname) == "Linux" ]
+then
+    LS_OPTIONS='--color'
+fi
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
 alias vi='vim'
