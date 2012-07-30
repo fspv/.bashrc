@@ -72,8 +72,21 @@ On_ICyan='\e[0;106m'    # Cyan
 On_IWhite='\e[0;107m'   # White
 
 
-FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
-echo -e "${BICyan}$FORTUNE"
+if command -v fortune >/dev/null 2>&1
+then
+    if command -v fmt >/dev/null 2>&1
+    then
+        if command -v cowsay >/dev/null 2>&1
+        then
+            if command -v shuf >/dev/null 2>&1
+            then
+                FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
+                echo -e "${BICyan}$FORTUNE"
+            fi
+        fi
+    fi
+fi
+            
 PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -ne "\033[0;32m$RET\033[0m ;)"; else echo -ne "\033[0;31m$RET\033[0m ;("; fi; echo -n " "; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
 
 # check the window size after each command and, if necessary,
@@ -88,17 +101,20 @@ complete -cf man
 if [ $(uname) == "FreeBSD" ]
 then
     export LS_OPTIONS='-G'
-    eval $(dircolors)
+    if command -v dircolors >/dev/null 2>&1
+    then
+        eval $(dircolors)
+    fi
 fi
 
 if [ $(uname) == "Linux" ]
 then
     LS_OPTIONS='--color=auto'
     alias grep='grep --color=auto'
-    alias df='df -h'
-    alias du='du -hs'
-    alias mkdir='mkdir -p -v'
 fi
+alias df='df -h'
+alias du='du -hs'
+alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
 alias vi='vim'
