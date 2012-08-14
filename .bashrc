@@ -109,12 +109,9 @@ fi
 
 if [ $(uname) == "Linux" ]
 then
-<<<<<<< HEAD
     alias chown='chown --preserve-root'
     alias chmod='chmod --preserve-root'
     alias chgrp='chgrp --preserve-root'
-=======
->>>>>>> 58c11a1940d271af9d06e7ceb635baca1cee130b
     LS_OPTIONS='--color=auto'
     alias grep='grep --color=auto'
 fi
@@ -129,12 +126,9 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -I'                    # 'rm -i' prompts for every file
 alias ln='ln -i'
-<<<<<<< HEAD
-=======
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
->>>>>>> 58c11a1940d271af9d06e7ceb635baca1cee130b
 
 EDITOR=vim
 export EDITOR
