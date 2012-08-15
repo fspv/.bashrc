@@ -1,5 +1,6 @@
 set tabstop=4
 set shiftwidth=4
+set ruler
 set smarttab
 set et
 set showmatch 
