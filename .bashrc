@@ -88,7 +88,7 @@ then
     fi
 fi
             
-PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -ne "\033[0;32m$RET\033[0m ;)"; else echo -ne "\033[0;31m$RET\033[0m ;("; fi; echo -n " "; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
+PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
