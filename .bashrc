@@ -1,4 +1,3 @@
-TERM=xterm-color
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
 
@@ -88,7 +87,7 @@ then
     fi
 fi
             
-PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
+PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -n ''; else echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -112,30 +111,30 @@ if [ $(uname) == "Linux" ]
 then
     LS_OPTIONS='--color=auto'
     alias grep='grep --color=auto'
-    alias chown='chown --preserve-root'
-    alias chmod='chmod --preserve-root'
-    alias chgrp='chgrp --preserve-root'
 fi
 alias df='df -h'
 alias du='du -hs'
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
-alias ll='ls -lhA $LS_OPTIONS'
+alias ll='ls -lA $LS_OPTIONS'
 alias vi='vim'
 # safety features
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -I'                    # 'rm -i' prompts for every file
 alias ln='ln -i'
+alias chown='chown --preserve-root'
+alias chmod='chmod --preserve-root'
+alias chgrp='chgrp --preserve-root'
 
 EDITOR=vim
 export EDITOR
 if [[ $UID -ne 0 ]]
 then
     PROMPT='$'
-    export PS1="$BIGreen\u$BIRed@$BIBlue\h $BICyan\W $BIPurple$PROMPT $Color_Off"
+    export PS1="$BIGreen\u$BIRed@$BIBlue\h $BICyan\W $BIBlue$PROMPT $Color_Off"
     alias reboot='sudo reboot'
 else
     PROMPT='#'
-    export PS1="$BIRed\u$BIGreen@$BIBlue\h $BICyan\W $BIPurple$PROMPT $Color_Off"
+    export PS1="$BIRed\u$BIGreen@$BIBlue\h $BICyan\W $BIBlue$PROMPT $Color_Off"
 fi
