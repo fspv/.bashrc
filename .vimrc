@@ -13,4 +13,5 @@ syntax on
 set nocompatible
 set backspace=2
 set encoding=utf-8
-:map <F2> :NERDTree <CR>
+set fileencoding=utf8
+map <F2> :NERDTree <CR>
