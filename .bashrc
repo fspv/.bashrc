@@ -98,20 +98,30 @@ complete -cf sudo
 complete -cf man
 
 
-if [ $(uname) == "FreeBSD" ]
-then
-    export LS_OPTIONS='-G'
-    if command -v dircolors >/dev/null 2>&1
-    then
-        eval $(dircolors)
-    fi
-fi
-
-if [ $(uname) == "Linux" ]
-then
-    LS_OPTIONS='--color=auto'
-    alias grep='grep --color=auto'
-fi
+case $(uname) in
+    FreeBSD)
+        MD5SUM='md5'
+        STAT_TIME='stat -f%m'
+        export LS_OPTIONS='-G'
+        if command -v dircolors >/dev/null 2>&1
+        then
+            eval $(dircolors)
+        fi
+        ;;
+    Linux)
+        MD5SUM='md5sum'
+        STAT_TIME='stat -c%Z'
+        LS_OPTIONS='--color=auto'
+        alias grep='grep --color=auto'    
+        alias chown='chown --preserve-root'
+        alias chmod='chmod --preserve-root'
+        alias chgrp='chgrp --preserve-root'
+        ;;
+    *)
+        MD5SUM='md5sum'
+        STAT_TIME='stat -c%Z'
+        ;;
+esac
 alias df='df -h'
 alias du='du -hs'
 alias mkdir='mkdir -p -v'
@@ -123,9 +133,6 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -I'                    # 'rm -i' prompts for every file
 alias ln='ln -i'
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
 
 EDITOR=vim
 export EDITOR
