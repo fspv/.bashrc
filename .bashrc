@@ -139,9 +139,9 @@ export EDITOR
 if [[ $UID -ne 0 ]]
 then
     PROMPT='$'
-    export PS1="$BIGreen\u$BIRed@$BIBlue\h $BICyan\W $BIBlue$PROMPT $Color_Off"
+    export PS1="$BIGreen\u$BIRed@$BICyan\h $BIYellow\W $BICyan$PROMPT $Color_Off"
     alias reboot='sudo reboot'
 else
     PROMPT='#'
-    export PS1="$BIRed\u$BIGreen@$BIBlue\h $BICyan\W $BIBlue$PROMPT $Color_Off"
+    export PS1="$BIRed\u$BIGreen@$BICyan\h $BIYellow\W $BICyan$PROMPT $Color_Off"
 fi
