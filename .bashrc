@@ -1,3 +1,4 @@
+export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
 
