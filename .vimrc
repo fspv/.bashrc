@@ -14,4 +14,5 @@ set nocompatible
 set backspace=2
 set encoding=utf-8
 set fileencoding=utf8
+:autocmd FileType make set noexpandtab
 map <F2> :NERDTree <CR>
