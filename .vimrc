@@ -11,6 +11,8 @@ set ffs=unix,dos,mac
 set fencs=utf-8,cp1251,koi8-r,ucs-2,cp866
 syntax on
 set nocompatible
+set modeline
+set modelines=2
 set backspace=2
 set encoding=utf-8
 set fileencoding=utf8
