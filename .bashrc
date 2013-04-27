@@ -1,4 +1,12 @@
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+
+# Ignore duplicates in .bash_history
+export HISTCONTROL=ignoredups
+# The  maximum  number of lines contained in the history file.
+export HISTFILESIZE=99999
+# Controls output of `history` command end enables time logging in .bash_history
+
+export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
 
@@ -98,7 +106,6 @@ set show-all-if-unmodified on
 complete -cf sudo
 complete -cf man
 
-
 case $(uname) in
     FreeBSD)
         MD5SUM='md5'
@@ -123,8 +130,7 @@ case $(uname) in
         STAT_TIME='stat -c%Z'
         ;;
 esac
-alias df='df -h'
-alias du='du -hs'
+
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
