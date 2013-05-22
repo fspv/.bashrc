@@ -105,6 +105,10 @@ set show-all-if-ambiguous on
 set show-all-if-unmodified on
 complete -cf sudo
 complete -cf man
+# Requires package bash-completion to be installed
+if [ -f /etc/bash_completion ]; then
+ . /etc/bash_completion
+fi
 
 case $(uname) in
     FreeBSD)
