@@ -1,5 +1,8 @@
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 
+# Load local rc file for this machine
+source .bashrc.local 2>/dev/null
+
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
 # The  maximum  number of lines contained in the history file.
