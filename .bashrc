@@ -3,6 +3,9 @@ export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bi
 # Load local rc file for this machine
 source .bashrc.local 2>/dev/null
 
+# Load git-completion file
+source .git-completion.bash
+
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
 # The  maximum  number of lines contained in the history file.
