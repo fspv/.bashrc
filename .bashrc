@@ -1,10 +1,10 @@
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 
 # Load local rc file for this machine
-source .bashrc.local 2>/dev/null
+source ~/.bashrc.local 2>/dev/null
 
 # Load git-completion file
-source .git-completion.bash
+source ~/.git-completion.bash
 
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
