@@ -30,7 +30,7 @@ complete -cf sudo
 complete -cf man
 
 # SSHRC config
-if [ "x${SSHHOME}" != "x" ]; then export VIM="${SSHHOME}/.sshrc.d"; fi
+[ "x${SSHHOME}" != "x" ] && alias vim="vim -u ${SSHHOME}/.sshrc.d/.vimrc"
 
 case $(uname) in
     FreeBSD)
