@@ -1,18 +1,71 @@
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 
 # Load local rc file for this machine
-source ~/.bashrc.local 2>/dev/null
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
 # Load git-completion file
-source ~/.git-completion.bash
+[ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
+
+# Requires package bash-completion to be installed
+[ -f /etc/bash_completion ] && source /etc/bash_completion
+
+# Create alias for sshrc
+[ -f /usr/bin/sshrc ] && alias s='sshrc -lroot'
 
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
 # The  maximum  number of lines contained in the history file.
 export HISTFILESIZE=99999
 # Controls output of `history` command end enables time logging in .bash_history
-
 export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+complete -cf sudo
+complete -cf man
+
+case $(uname) in
+    FreeBSD)
+        MD5SUM='md5'
+        STAT_TIME='stat -f%m'
+        export LS_OPTIONS='-G'
+        if command -v dircolors >/dev/null 2>&1
+        then
+            eval $(dircolors)
+        fi
+        ;;
+    Linux)
+        MD5SUM='md5sum'
+        STAT_TIME='stat -c%Z'
+        LS_OPTIONS='--color=auto'
+        alias grep='grep --color=auto'    
+        alias chown='chown --preserve-root'
+        alias chmod='chmod --preserve-root'
+        alias chgrp='chgrp --preserve-root'
+        ;;
+    *)
+        MD5SUM='md5sum'
+        STAT_TIME='stat -c%Z'
+        ;;
+esac
+
+# Aliases
+alias mkdir='mkdir -p -v'
+alias ls='ls $LS_OPTIONS'
+alias ll='ls -lA $LS_OPTIONS'
+alias vi='vim'
+# safety features
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -I'                    # 'rm -i' prompts for every file
+alias ln='ln -i'
+
+EDITOR=vim
+export EDITOR
+
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
 
@@ -96,7 +149,7 @@ then
             if command -v shuf >/dev/null 2>&1
             then
                 FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
-                echo -e "${BICyan}$FORTUNE"
+                echo -e "\e[1;36m$FORTUNE"
             fi
         fi
     fi
@@ -104,55 +157,6 @@ fi
             
 PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -n ''; else echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-set show-all-if-ambiguous on
-set show-all-if-unmodified on
-complete -cf sudo
-complete -cf man
-# Requires package bash-completion to be installed
-if [ -f /etc/bash_completion ]; then
- . /etc/bash_completion
-fi
-
-case $(uname) in
-    FreeBSD)
-        MD5SUM='md5'
-        STAT_TIME='stat -f%m'
-        export LS_OPTIONS='-G'
-        if command -v dircolors >/dev/null 2>&1
-        then
-            eval $(dircolors)
-        fi
-        ;;
-    Linux)
-        MD5SUM='md5sum'
-        STAT_TIME='stat -c%Z'
-        LS_OPTIONS='--color=auto'
-        alias grep='grep --color=auto'    
-        alias chown='chown --preserve-root'
-        alias chmod='chmod --preserve-root'
-        alias chgrp='chgrp --preserve-root'
-        ;;
-    *)
-        MD5SUM='md5sum'
-        STAT_TIME='stat -c%Z'
-        ;;
-esac
-
-alias mkdir='mkdir -p -v'
-alias ls='ls $LS_OPTIONS'
-alias ll='ls -lA $LS_OPTIONS'
-alias vi='vim'
-# safety features
-alias cp='cp -i'
-alias mv='mv -i'
-alias rm='rm -I'                    # 'rm -i' prompts for every file
-alias ln='ln -i'
-
-EDITOR=vim
-export EDITOR
 if [[ $UID -ne 0 ]]
 then
     PROMPT='$'
