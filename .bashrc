@@ -22,10 +22,15 @@ export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
+
+# Autocompletion options
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
 complete -cf sudo
 complete -cf man
+
+# SSHRC config
+if [ "x${SSHHOME}" != "x" ]; then export VIM="${SSHHOME}/.sshrc.d"; fi
 
 case $(uname) in
     FreeBSD)
