@@ -62,6 +62,7 @@ alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
 alias vi='vim'
+alias debuild='debuild; debuild clean'
 # safety features
 alias cp='cp -i'
 alias mv='mv -i'
