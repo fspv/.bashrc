@@ -1,4 +1,7 @@
 export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # Load local rc file for this machine
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
@@ -19,6 +22,10 @@ export HISTFILESIZE=99999
 # Controls output of `history` command end enables time logging in .bash_history
 export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
 
+function hs {
+    grep "$*" $HISTFILE
+}
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -30,7 +37,9 @@ complete -cf sudo
 complete -cf man
 
 # SSHRC config
-[ "x${SSHHOME}" != "x" ] && alias vim="vim -u ${SSHHOME}/.sshrc.d/.vimrc"
+
+# Set vim to /usr/bin/vim, because on some systems /bin/vim is alias for /bin/vi
+[ "x${SSHHOME}" != "x" ] && alias vim="/usr/bin/vim -u ${SSHHOME}/.sshrc.d/.vimrc"
 
 case $(uname) in
     FreeBSD)
@@ -65,8 +74,16 @@ alias vi='vim'
 # safety features
 alias cp='cp -i'
 alias mv='mv -i'
-alias rm='rm -I'                    # 'rm -i' prompts for every file
 alias ln='ln -i'
+
+# add -i or -I (for newer coreutils versions) option to /bin/rm command
+rmtemp=$(mktemp)
+if rm -I $rmtemp &>/dev/null; then
+    alias rm="rm -I"
+else
+    alias rm="rm -i"
+    rm $rmtemp;
+fi
 
 EDITOR=vim
 export EDITOR
@@ -159,6 +176,11 @@ then
         fi
     fi
 fi
+
+# Print system info
+echo -e "\e[1;36m     FQDN: "$(hostname -f)
+echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
+echo -e "\e[1;36m MEM FREE: "$(free -m | grep -- '-/+ buffers/cache:' | awk '{print $4"/"$3+$4}')
             
 PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -n ''; else echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
 
