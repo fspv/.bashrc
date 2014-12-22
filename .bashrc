@@ -13,7 +13,7 @@ export LC_ALL=en_US.UTF-8
 [ -f /etc/bash_completion ] && source /etc/bash_completion
 
 # Create alias for sshrc
-[ -f /usr/bin/sshrc ] && alias s='sshrc -lroot'
+[ -f /usr/bin/sshrc ] && alias s='sshrc'
 
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
