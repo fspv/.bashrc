@@ -15,6 +15,10 @@ export LC_ALL=en_US.UTF-8
 # Create alias for sshrc
 [ -f /usr/bin/sshrc ] && alias s='sshrc'
 
+# Create systemd aliases
+[ -f /usr/bin/systemctl ] && alias sctl='sudo systemctl'
+[ -f /usr/bin/journalctl ] && alias jctl='sudo journalctl'
+
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups
 # The  maximum  number of lines contained in the history file.
