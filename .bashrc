@@ -71,15 +71,27 @@ case $(uname) in
 esac
 
 # Aliases
+# http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
+alias sudo='sudo '
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
 alias vi='vim'
 alias debuild='debuild; debuild clean'
+alias acp='apt-cache policy'
+alias acs='apt-cache show'
+alias agi='apt-get -V install'
+
 # safety features
 alias cp='cp -i'
 alias mv='mv -i'
 alias ln='ln -i'
+
+# some functions
+function mkdircd {
+    mkdir $1
+    cd $1
+}
 
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
 rmtemp=$(mktemp)
