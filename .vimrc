@@ -71,3 +71,5 @@ set fileencoding=utf8
 " <F2> calls NerdTree plugin
 map <F2> :NERDTree <CR>
 
+" Set some filetypes
+au BufNewFile,BufRead *.sls setf yaml
