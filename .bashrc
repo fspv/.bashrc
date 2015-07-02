@@ -3,6 +3,9 @@ export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+case "$-" in
+*i*)
+
 # Load local rc file for this machine
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
@@ -210,3 +213,7 @@ else
     PROMPT='#'
     export PS1="$BIRed\u$BIGreen@$BICyan\h $BIYellow\W $BICyan$PROMPT $Color_Off"
 fi
+
+;;
+esac
+
