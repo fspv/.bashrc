@@ -6,6 +6,9 @@ export LC_ALL=en_US.UTF-8
 case "$-" in
 *i*)
 
+# systemd variables
+export SYSTEMD_PAGER=less
+
 # Load local rc file for this machine
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
