@@ -203,8 +203,7 @@ case "$-" in
     # Print system info
     echo -e "\e[1;36m     FQDN: "$(hostname -f)
     echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
-    echo -e "\e[1;36m MEM FREE: "$(free -m | grep -- '-/+ buffers/cache:' | awk '{print $4"/"$3+$4}')
-                
+    
     PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -n ''; else echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
     
     if [[ $UID -ne 0 ]]
