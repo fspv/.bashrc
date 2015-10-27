@@ -6,6 +6,12 @@ export LC_ALL=en_US.UTF-8
 # Check if session is interactive and do nothing if it is
 case "$-" in
 *i*)
+    # setup SSH agent
+    if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
+        eval $(ssh-agent -s) >/dev/null
+        ssh-add >/dev/null 2>&1
+    fi
+    
     # systemd variables
     export SYSTEMD_PAGER=less
     
