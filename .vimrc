@@ -1,3 +1,12 @@
+
+if filereadable(".vim/autoload/pathogen.vim")
+  execute pathogen#infect()
+endif
+
+" Set autoindent and key to disable it during paste
+set autoindent
+set pastetoggle=<F3>
+
 " Set number of spaces to replace \t
 set tabstop=4
 set shiftwidth=4
@@ -73,3 +82,18 @@ map <F2> :NERDTree <CR>
 
 " Set some filetypes
 au BufNewFile,BufRead *.sls setf yaml
+
+" Set yaml tab indentation to 2
+au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
+au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
+
+" json
+augroup json_autocmd 
+  autocmd! 
+  autocmd FileType json set formatoptions=tcq2l 
+  autocmd FileType json set textwidth=78 shiftwidth=2 
+  autocmd FileType json set softtabstop=2 tabstop=8 
+  autocmd FileType json set expandtab 
+  autocmd FileType json set foldmethod=syntax 
+  autocmd FileType json set conceallevel=0
+augroup END
