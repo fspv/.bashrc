@@ -93,6 +93,8 @@ case "$-" in
     alias acp='apt-cache policy'
     alias acs='apt-cache show'
     alias agi='apt-get -V install'
+    alias less='less --line-numbers --ignore-case --underline-special -R'
+    alias sqlplus='rlwrap sqlplus'
     
     # safety features
     alias cp='cp -i'
