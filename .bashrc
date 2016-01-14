@@ -212,16 +212,17 @@ case "$-" in
     echo -e "\e[1;36m     FQDN: "$(hostname -f)
     echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
     
-    PROMPT_COMMAND='RET=$?; if [[ $RET -eq 0 ]]; then echo -n ''; else echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@$(hostname) : $PWD\007";'
+    # Convert c1.h1.domain.com to c1.h1 except h1
+    SHORT_HOSTNAME=$(hostname -f | sed "s/\.[^\.]*\.[^\.]*$//g")
     
     if [[ $UID -ne 0 ]]
     then
         PROMPT='$'
-        export PS1="$BIGreen\u$BIRed@$BICyan\h $BIYellow\W $BICyan$PROMPT $Color_Off"
+        export PS1="$BIGreen\u$BIRed@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
         alias reboot='sudo reboot'
     else
         PROMPT='#'
-        export PS1="$BIRed\u$BIGreen@$BICyan\h $BIYellow\W $BICyan$PROMPT $Color_Off"
+        export PS1="$BIRed\u$BIGreen@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
     fi
 ;;
 esac
