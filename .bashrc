@@ -222,7 +222,6 @@ case "$-" in
     then
         PROMPT='$'
         export PS1="$BIGreen\u$BIRed@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
-        alias reboot='sudo reboot'
     else
         PROMPT='#'
         export PS1="$BIRed\u$BIGreen@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
