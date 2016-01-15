@@ -215,6 +215,9 @@ case "$-" in
     # Convert c1.h1.domain.com to c1.h1 except h1
     SHORT_HOSTNAME=$(hostname -f | sed "s/\.[^\.]*\.[^\.]*$//g")
     
+    # Display nonzero exitcode
+    PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
+    
     if [[ $UID -ne 0 ]]
     then
         PROMPT='$'
