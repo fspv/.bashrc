@@ -216,7 +216,8 @@ case "$-" in
     SHORT_HOSTNAME=$(hostname -f | sed "s/\.[^\.]*\.[^\.]*$//g")
     
     # Display nonzero exitcode
-    PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
+    PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
+    PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; '$PROMPT_COMMAND
     
     if [[ $UID -ne 0 ]]
     then
