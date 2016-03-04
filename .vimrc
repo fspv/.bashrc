@@ -97,3 +97,8 @@ augroup json_autocmd
   autocmd FileType json set foldmethod=syntax 
   autocmd FileType json set conceallevel=0
 augroup END
+
+" Highlight line overflow
+highlight OverLength ctermbg=red ctermfg=white guibg=#592929
+match OverLength /\%81v.\+/
+
