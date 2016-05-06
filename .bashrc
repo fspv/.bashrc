@@ -218,9 +218,12 @@ echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
 # Convert c1.h1.domain.com to c1.h1 except h1
 SHORT_HOSTNAME=$(hostname -f | sed "s/\.[^\.]*\.[^\.]*$//g")
 
-# Display nonzero exitcode
-PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
-PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; '$PROMPT_COMMAND
+# Display nonzero exitcode (if we are allowed to modify PROMPT_COMMAND)
+if unset $PROMPT_COMMAND 2>/dev/null;
+then
+    PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
+    PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; '$PROMPT_COMMAND
+fi
 
 if [[ $UID -ne 0 ]]
 then
