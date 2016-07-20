@@ -1,3 +1,7 @@
+" Include default system config
+if filereadable("/etc/vim/vimrc")
+  source /etc/vim/vimrc
+endif
 
 if filereadable(".vim/autoload/pathogen.vim")
   execute pathogen#infect()
