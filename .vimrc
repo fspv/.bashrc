@@ -65,6 +65,7 @@ set fencs=utf-8,cp1251,koi8-r,ucs-2,cp866
 
 " Enable syntax highlighting
 syntax on
+let python_highlight_all=1
 
 " Necesary for lots of cool vim things
 set nocompatible
@@ -77,6 +78,36 @@ set backspace=2
 
 set encoding=utf-8
 set fileencoding=utf8
+
+" Enable folding
+set foldmethod=indent
+set foldlevel=99
+
+"split navigations
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+" Enable folding with the spacebar
+nnoremap <space> za
+
+if !empty(glob("~/.vim/bundle/Vundle.vim"))
+    " set the runtime path to include Vundle and initialize
+    set rtp+=~/.vim/bundle/Vundle.vim
+    call vundle#begin()
+    
+    " let Vundle manage Vundle, required
+    Plugin 'gmarik/Vundle.vim'
+    Plugin 'tmhedberg/SimpylFold'
+    Bundle 'Valloric/YouCompleteMe'
+    Plugin 'scrooloose/syntastic'
+    Plugin 'nvie/vim-flake8'
+    
+    " All of your Plugins must be added before the following line
+    call vundle#end()
+    filetype plugin indent on
+endif
 
 " Disable expandtab for Makefiles
 :autocmd FileType make set noexpandtab
@@ -105,4 +136,8 @@ augroup END
 " Highlight line overflow
 highlight OverLength ctermbg=red ctermfg=white guibg=#592929
 match OverLength /\%81v.\+/
+
+" Highlight extraneous whitespaces
+highlight BadWhitespace ctermbg=red ctermfg=white guibg=#592929
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 
