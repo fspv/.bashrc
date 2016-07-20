@@ -42,7 +42,7 @@ export HISTFILESIZE=99999
 export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
 
 function hs {
-    grep "$*" $HISTFILE
+    grep -a "$*" $HISTFILE
 }
 
 # check the window size after each command and, if necessary,
