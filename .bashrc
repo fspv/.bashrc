@@ -25,7 +25,50 @@ export SYSTEMD_PAGER=less
 [ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
 
 # Requires package bash-completion to be installed
-[ -f /etc/bash_completion ] && source /etc/bash_completion
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# Autocompletion options
+set show-all-if-ambiguous on
+set show-all-if-unmodified on
+
+# Fix upstart completion (autocomplete all jobs to all states)
+_upstart_all() {
+    find /etc/init/ -name '*.conf' -printf '%f\n' | sed 's/\.conf$//'
+}
+
+_upstart_complete_new() {
+    _get_comp_words_by_ref cur prev
+
+    case "$prev" in
+        --help|--version)
+            COMPREPLY=()
+            return 0
+            ;;
+        status)
+            opts="--help --version -q --quiet -v --verbose --session --system \
+                  --dest= -n --no-wait"
+            ;;
+        start|stop|restart|reload)
+            opts="--help --version -q -d --detail -e --enumerate --quiet \
+                  -v --verbose --session --system --dest="
+            ;;
+    esac
+
+    COMPREPLY=( $(compgen -W "$opts $(_upstart_all)" -- ${cur}) )
+    return 0
+}
+
+complete -F _upstart_complete_new reload
+complete -F _upstart_complete_new stop
+complete -F _upstart_complete_new start
+complete -F _upstart_complete_new restart
+complete -F _upstart_complete_new status
 
 # Create alias for sshrc
 [ -f /usr/bin/sshrc ] && alias s='sshrc'
@@ -48,12 +91,6 @@ function hs {
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
-
-# Autocompletion options
-set show-all-if-ambiguous on
-set show-all-if-unmodified on
-complete -cf sudo
-complete -cf man
 
 # SSHRC config
 
