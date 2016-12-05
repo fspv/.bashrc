@@ -96,14 +96,14 @@ if !empty(glob("~/.vim/bundle/Vundle.vim"))
     " set the runtime path to include Vundle and initialize
     set rtp+=~/.vim/bundle/Vundle.vim
     call vundle#begin()
-    
+
     " let Vundle manage Vundle, required
     Plugin 'gmarik/Vundle.vim'
     Plugin 'tmhedberg/SimpylFold'
     Bundle 'Valloric/YouCompleteMe'
     Plugin 'scrooloose/syntastic'
     Plugin 'nvie/vim-flake8'
-    
+
     " All of your Plugins must be added before the following line
     call vundle#end()
     filetype plugin indent on
@@ -123,21 +123,18 @@ au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
 
 " json
-augroup json_autocmd 
-  autocmd! 
-  autocmd FileType json set formatoptions=tcq2l 
-  autocmd FileType json set textwidth=78 shiftwidth=2 
-  autocmd FileType json set softtabstop=2 tabstop=8 
-  autocmd FileType json set expandtab 
-  autocmd FileType json set foldmethod=syntax 
+augroup json_autocmd
+  autocmd!
+  autocmd FileType json set formatoptions=tcq2l
+  autocmd FileType json set textwidth=78 shiftwidth=2
+  autocmd FileType json set softtabstop=2 tabstop=8
+  autocmd FileType json set expandtab
+  autocmd FileType json set foldmethod=syntax
   autocmd FileType json set conceallevel=0
 augroup END
 
-" Highlight line overflow
-highlight OverLength ctermbg=red ctermfg=white guibg=#592929
-match OverLength /\%81v.\+/
-
-" Highlight extraneous whitespaces
-highlight BadWhitespace ctermbg=red ctermfg=white guibg=#592929
-au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+" Highlight style issues
+syntax match HighlightRed /\s\+$/ " Spaces at the end of line
+syntax match HighlightRed /\%81v.\+/ " Symbols over 80 in line
+highlight HighlightRed ctermbg=red ctermfg=white guibg=#592929
 
