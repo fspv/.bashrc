@@ -1,19 +1,16 @@
-"Ubuntu One"
-"VirtualBox VMs"
-.ICEauthority
-.Skype
-.TelegramDesktop
-.Xauthority
-.Xmodmap
+*~
+*.swo
+*.swp
 .adobe
 .android
 .asoundrc
+.asterisk_history
 .audacity-data
 .avcd
 .bash_history
 .bash_logout
-.bashrc-master
 .bashrc.local
+.bashrc-master
 .bin
 .cache
 .chef
@@ -39,8 +36,8 @@
 .gnome2
 .gnome2_private
 .gnupg
-.gnuplot-wxt
 .gnuplot_history
+.gnuplot-wxt
 .goldendict
 .gphoto
 .gradle
@@ -50,6 +47,7 @@
 .gtkrc-2.0
 .gtkrc-2.0-kde4
 .gvfs
+.ICEauthority
 .icons
 .java
 .kde
@@ -66,6 +64,7 @@
 .mono
 .mozilla
 .mysql_history
+.nano
 .nano_history
 .nbprofiler
 .novaclient
@@ -80,6 +79,7 @@
 .pulse
 .pulse-cookie
 .purple
+.python_history
 .qttest
 .recently-used
 .remmina
@@ -87,6 +87,9 @@
 .rpmdb
 .rpmmacros
 .shutter
+.Skype
+.sqldeveloper
+.sqlplus_history
 .ssh
 .sshrc
 .steam
@@ -94,6 +97,7 @@
 .steampid
 .subversion
 .telegram-cli
+.TelegramDesktop
 .texmf-var
 .themes
 .thumbnails
@@ -101,6 +105,7 @@
 .twinkle
 .vagrant.d
 .vim
+.viminfo
 .vimrc
 .virt-manager
 .visualvm
@@ -109,20 +114,28 @@
 .wget-hsts
 .wine
 .wireshark
+.Xauthority
+.xinitrc
 .xinputrc
+.Xmodmap
 .xsession-errors
+backup
 Desktop
 Documents
 Downloads
+git
+hg
 Images
 Music
 Pictures
 Public
 RPM
-Templates
-Videos
-git
-hg
+Steam
 svn
+Templates
+testdisk.log
 tmp
+Ubuntu One
+Videos
+VirtualBox VMs
 
