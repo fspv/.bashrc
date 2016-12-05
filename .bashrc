@@ -9,6 +9,14 @@ case "$-" in
 *) return;;
 esac
 
+if [ "x${SSHRC}" = "xyes" ]
+then
+    test -f /etc/profile && source /etc/profile
+    test -f ~/.bash_profile && source ~/.bash_profile
+    test -f ~/.bash_login && source ~/.bash_login
+    test -f ~/.profile && source ~/.profile
+fi
+
 # setup SSH agent
 if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
     eval $(ssh-agent -s) >/dev/null
@@ -23,15 +31,6 @@ export SYSTEMD_PAGER=less
 
 # Load git-completion file
 [ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
-
-# Requires package bash-completion to be installed
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
 
 # Autocompletion options
 set show-all-if-ambiguous on
@@ -78,11 +77,11 @@ complete -F _upstart_complete_new status
 [ -f /usr/bin/journalctl ] && alias jctl='sudo journalctl'
 
 # Ignore duplicates in .bash_history
-export HISTCONTROL=ignoredups
+export HISTCONTROL=ignoredups 2>/dev/null
 # The  maximum  number of lines contained in the history file.
-export HISTFILESIZE=99999
+export HISTFILESIZE=99999 2>/dev/null
 # Controls output of `history` command end enables time logging in .bash_history
-export HISTTIMEFORMAT="%a, %d %b %Y %T %z"
+export HISTTIMEFORMAT="%a, %d %b %Y %T %z" 2>/dev/null
 
 function hs {
     grep -a "$*" $HISTFILE
@@ -248,25 +247,46 @@ then
     fi
 fi
 
-# Print system info
-echo -e "\e[1;36m     FQDN: "$(hostname -f)
-echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
-
 # Convert c1.h1.domain.com to c1.h1 except h1
-SHORT_HOSTNAME=$(hostname -f | sed "s/\.[^\.]*\.[^\.]*$//g")
-
-# Display nonzero exitcode (if we are allowed to modify PROMPT_COMMAND)
-if unset $PROMPT_COMMAND 2>/dev/null;
+if command -v timeout >/dev/null 2>&1
 then
-    PROMPT_COMMAND='echo -ne "\033]0;$(whoami)@'${SHORT_HOSTNAME}' : $PWD\007";'
-    PROMPT_COMMAND='RET=$?; if ! [[ $RET -eq 0 ]]; then echo -e "\033[0;31m$RET\033[0m ;("; fi; '$PROMPT_COMMAND
+    FQDN=$(timeout -s 9 5 hostname -f)
+else
+    FQDN=$(hostname -f)
 fi
+SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
+
+echo -e "\e[1;36m     FQDN: "$FQDN
+echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
 
 if [[ $UID -ne 0 ]]
 then
     PROMPT='$'
-    export PS1="$BIGreen\u$BIRed@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
+    USERNAME_COLOR=$BIGreen
+    AT_COLOR=$BIRed
 else
     PROMPT='#'
-    export PS1="$BIRed\u$BIGreen@$BICyan${SHORT_HOSTNAME} $BIYellow\W $BICyan$PROMPT $Color_Off"
+    USERNAME_COLOR=$BIRed
+    AT_COLOR=$BIGreen
 fi
+
+PS1=""
+# Print return code if non-zero at the beginning of line
+PS1=$PS1'$(RET=$?;'
+PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
+PS1=$PS1'  then echo -e "'"${BIRed}"'[${RET}]";'
+PS1=$PS1'fi)'
+# Allways populate .bash_history
+PS1=$PS1'$(history -a 2>/dev/null)'
+PS1=$PS1'\[\033]0;' # ESC
+# Set terminal header
+PS1=$PS1'${USER}@${SHORT_HOSTNAME} : ${PWD}'
+PS1=$PS1'\007\]' # BELL
+# Set prompt
+PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} $BIYellow\W "
+PS1=$PS1"$BICyan$PROMPT $Color_Off"
+
+# Wrong line wrapping? Follow the link:
+# https://unix.stackexchange.com/questions/105958/terminal-prompt-not-wrapping-correctly
+
+export PS1
