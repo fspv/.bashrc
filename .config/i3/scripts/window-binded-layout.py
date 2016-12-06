@@ -9,7 +9,7 @@ import i3ipc
 log = logging.getLogger()
 log_handler = logging.StreamHandler(sys.stdout)
 log.addHandler(log_handler)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 windows = {}
 prev_window_id = 0
@@ -62,28 +62,34 @@ def window_change(conn, e):
 
     log.debug(vars(e.container))
 
-    if e.container.focused:
-        # Update layout for previous window
-        prev_layout = get_layout()
-        if prev_window_id in windows:
-            windows[prev_window_id]['layout'] = prev_layout
+    if not e.container.focused:
+        return 0
 
-        # Restore layout to current window
-        cur_window_id = e.container.id
-        if not cur_window_id in windows:
-            # If there was no layout for this window
-            # before = not doing anything, just create
-            # new key for it
-            windows[cur_window_id] = {}
-            windows[cur_window_id]['layout'] = prev_layout
-        elif windows[cur_window_id]['layout'] != prev_layout:
-            # Try to set layout to saved
-            set_layout(windows[cur_window_id]['layout'])
-        windows[cur_window_id]['last_access_time'] = int(time.time())
+    # Update layout for previous window
+    prev_layout = get_layout()
+    if prev_window_id in windows:
+        windows[prev_window_id]['layout'] = prev_layout
 
-        # Current window become previous for next window change focus
-        prev_window_id = cur_window_id
-        log.debug(windows)
+    # Restore layout to current window
+    cur_window_id = e.container.id
+    if not cur_window_id in windows:
+        # If there was no layout for this window
+        # before = not doing anything, just create
+        # new key for it
+        log.debug('Store layout for {}'.format(cur_window_id))
+        windows[cur_window_id] = {}
+        windows[cur_window_id]['layout'] = prev_layout
+    elif windows[cur_window_id]['layout'] != prev_layout:
+        # Try to set layout to saved
+        log.debug('Restore layout for {}'.format(cur_window_id))
+        set_layout(windows[cur_window_id]['layout'])
+    windows[cur_window_id]['last_access_time'] = int(time.time())
+
+    # Current window become previous for next window change focus
+    prev_window_id = cur_window_id
+    log.debug(windows)
+
+    return 0
 
 
 def main():
