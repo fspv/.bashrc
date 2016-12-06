@@ -17,6 +17,9 @@ then
     test -f ~/.profile && source ~/.profile
 fi
 
+# Remove note about using sudo
+test -f ~/.sudo_as_admin_successful || touch ~/.sudo_as_admin_successful
+
 # setup SSH agent
 if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
     eval $(ssh-agent -s) >/dev/null
