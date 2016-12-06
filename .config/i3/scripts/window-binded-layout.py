@@ -60,27 +60,30 @@ def window_change(conn, e):
     global windows
     global prev_window_id
 
-    # Update layout for previous window
-    prev_layout = get_layout()
-    if prev_window_id in windows:
-        windows[prev_window_id]['layout'] = prev_layout
+    log.debug(vars(e.container))
 
-    # Restore layout to current window
-    cur_window_id = e.container.id
-    if not cur_window_id in windows:
-        # If there was no layout for this window
-        # before = not doing anything, just create
-        # new key for it
-        windows[cur_window_id] = {}
-        windows[cur_window_id]['layout'] = prev_layout
-    elif windows[cur_window_id]['layout'] != prev_layout:
-        # Try to set layout to saved
-        set_layout(windows[cur_window_id]['layout'])
-    windows[cur_window_id]['last_access_time'] = int(time.time())
+    if e.container.focused:
+        # Update layout for previous window
+        prev_layout = get_layout()
+        if prev_window_id in windows:
+            windows[prev_window_id]['layout'] = prev_layout
 
-    # Current window become previous for next window change focus
-    prev_window_id = cur_window_id
-    log.debug(windows)
+        # Restore layout to current window
+        cur_window_id = e.container.id
+        if not cur_window_id in windows:
+            # If there was no layout for this window
+            # before = not doing anything, just create
+            # new key for it
+            windows[cur_window_id] = {}
+            windows[cur_window_id]['layout'] = prev_layout
+        elif windows[cur_window_id]['layout'] != prev_layout:
+            # Try to set layout to saved
+            set_layout(windows[cur_window_id]['layout'])
+        windows[cur_window_id]['last_access_time'] = int(time.time())
+
+        # Current window become previous for next window change focus
+        prev_window_id = cur_window_id
+        log.debug(windows)
 
 
 def main():
