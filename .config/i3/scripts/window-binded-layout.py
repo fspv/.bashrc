@@ -9,7 +9,7 @@ import i3ipc
 log = logging.getLogger()
 log_handler = logging.StreamHandler(sys.stdout)
 log.addHandler(log_handler)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 windows = {}
 prev_window_id = 0
