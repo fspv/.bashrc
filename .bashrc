@@ -124,6 +124,10 @@ case $(uname) in
         ;;
 esac
 
+# Bind arrows up/down for reverse search
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
 # Aliases
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias sudo='sudo '
