@@ -72,6 +72,29 @@ complete -F _upstart_complete_new start
 complete -F _upstart_complete_new restart
 complete -F _upstart_complete_new status
 
+# Completion for hosts for ssh
+resolv_search_domains=$(grep '^search .*$' /etc/resolv.conf | sed 's/^search //')
+
+_complete_ssh_get_hosts_from_bash_history() {
+    grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' .bash_history | \
+        cut -f2 -d' ' | cut -f2 -d'@' | \
+        sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'$d'$|'; done))//g" | \
+        sort | uniq
+}
+
+_complete_ssh() {
+    _get_comp_words_by_ref cur prev
+
+    COMPREPLY=( $(compgen -W \
+        "$opts $(_complete_ssh_get_hosts_from_bash_history)" \
+        -- ${cur})
+    )
+    return 0
+}
+
+complete -F _complete_ssh s
+complete -F _complete_ssh ssh
+
 # Create alias for sshrc
 [ -f /usr/bin/sshrc ] && alias s='sshrc'
 
@@ -123,10 +146,6 @@ case $(uname) in
         STAT_TIME='stat -c%Z'
         ;;
 esac
-
-# Bind arrows up/down for reverse search
-bind '"\e[A": history-search-backward'
-bind '"\e[B": history-search-forward'
 
 # Aliases
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
