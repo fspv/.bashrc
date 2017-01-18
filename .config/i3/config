@@ -9,6 +9,10 @@
 exec --no-startup-id xautolock -time 5 -locker 'i3lock -c 000000'
 exec --no-startup-id setxkbmap -model pc105 -layout us,ru -option grp:ctrl_shift_toggle,grp_led:scroll
 exec --no-startup-id ${HOME}/.config/i3/scripts/window-binded-layout.py
+exec --no-startup-id dunst -config ${HOME}/.dunstrc
+
+# Run local stuff
+exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
 # Lock screen
 bindsym Mod1+Control+l exec i3lock -c 000000
