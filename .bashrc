@@ -76,7 +76,7 @@ complete -F _upstart_complete_new status
 resolv_search_domains=$(grep '^search .*$' /etc/resolv.conf | sed 's/^search //')
 
 _complete_ssh_get_hosts_from_bash_history() {
-    grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' .bash_history | \
+    grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' ~/.bash_history | \
         cut -f2 -d' ' | cut -f2 -d'@' | \
         sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'$d'$|'; done))//g" | \
         sort | uniq
