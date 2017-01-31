@@ -1,7 +1,6 @@
 # Prevent double .bashrc sourcing in different files
 if test "x$BASHRC_ALREADY_EXECUTED" = "x"
 then
-    export BASHRC_ALREADY_EXECUTED="yes"
     export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
     export LANGUAGE=en_US.UTF-8
     export LANG=en_US.UTF-8
@@ -9,6 +8,7 @@ then
     case "$-" in
     *i*)
         # Interactive session
+        export BASHRC_ALREADY_EXECUTED="yes"
         test -f /etc/profile && source /etc/profile
         test -f ~/.bash_profile && source ~/.bash_profile || \
         test -f ~/.bash_login && source ~/.bash_login || \
