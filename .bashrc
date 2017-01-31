@@ -1,20 +1,26 @@
-export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-# Check if session is interactive and do nothing if it is
-case "$-" in
-*i*) true;;
-*) return;;
-esac
-
-if [ "x${SSHRC}" = "xyes" ]
+# Prevent double .bashrc sourcing in different files
+if test "x$BASHRC_ALREADY_EXECUTED" = "x"
 then
-    test -f /etc/profile && source /etc/profile
-    test -f ~/.bash_profile && source ~/.bash_profile
-    test -f ~/.bash_login && source ~/.bash_login
-    test -f ~/.profile && source ~/.profile
+    export BASHRC_ALREADY_EXECUTED="yes"
+    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    export LANGUAGE=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    case "$-" in
+    *i*)
+        # Interactive session
+        test -f /etc/profile && source /etc/profile
+        test -f ~/.bash_profile && source ~/.bash_profile || \
+        test -f ~/.bash_login && source ~/.bash_login || \
+        test -f ~/.profile && source ~/.profile
+        ;;
+    *)
+        # Non-interactive session
+        return
+        ;;
+    esac
+else
+    return
 fi
 
 # Remove note about using sudo
