@@ -306,7 +306,7 @@ PS1=""
 # Print return code if non-zero at the beginning of line
 PS1=$PS1'$(RET=$?;'
 PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
-PS1=$PS1'  then echo -e "'"${BIRed}"'[${RET}]";'
+PS1=$PS1'  then echo -e "'"${BIRed}"'${RET}'" ${BIYellow};(\n\n"'";'
 PS1=$PS1'fi)'
 # Allways populate .bash_history
 PS1=$PS1'$(history -a 2>/dev/null)'
