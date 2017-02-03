@@ -10,9 +10,9 @@ then
         # Interactive session
         export BASHRC_ALREADY_EXECUTED="yes"
         test -f /etc/profile && source /etc/profile
-        test -f ~/.bash_profile && source ~/.bash_profile || \
-        test -f ~/.bash_login && source ~/.bash_login || \
-        test -f ~/.profile && source ~/.profile
+        (test -f ~/.bash_profile && source ~/.bash_profile) || \
+        (test -f ~/.bash_login && source ~/.bash_login) || \
+        (test -f ~/.profile && source ~/.profile)
         ;;
     *)
         # Non-interactive session
