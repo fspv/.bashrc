@@ -119,6 +119,9 @@ function hs {
     grep -a "$*" $HISTFILE
 }
 
+# Disable auto prompt for virtualenv
+VIRTUAL_ENV_DISABLE_PROMPT=yes
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
@@ -306,16 +309,23 @@ PS1=""
 # Print return code if non-zero at the beginning of line
 PS1=$PS1'$(RET=$?;'
 PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
-PS1=$PS1'  then echo -e "'"${BIRed}"'${RET}'" ${BIYellow};(\n\n"'";'
+PS1=$PS1'  then echo -e "'"${BIRed}"'[${RET}]";'
 PS1=$PS1'fi)'
 # Allways populate .bash_history
 PS1=$PS1'$(history -a 2>/dev/null)'
 PS1=$PS1'\[\033]0;' # ESC
 # Set terminal header
-PS1=$PS1'${USER}@${SHORT_HOSTNAME} : ${PWD}'
+PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
+PS1=$PS1': ${PWD}'
 PS1=$PS1'\007\]' # BELL
 # Set prompt
-PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} $BIYellow\W "
+PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
+PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
+PS1=$PS1'then'
+PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
+PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
+PS1=$PS1'fi)'
+PS1=$PS1"$BIYellow\W "
 PS1=$PS1"$BICyan$PROMPT $Color_Off"
 
 # Wrong line wrapping? Follow the link:
