@@ -10,9 +10,9 @@ then
         # Interactive session
         export BASHRC_ALREADY_EXECUTED="yes"
         test -f /etc/profile && source /etc/profile
-        (test -f ~/.bash_profile && source ~/.bash_profile) || \
-        (test -f ~/.bash_login && source ~/.bash_login) || \
-        (test -f ~/.profile && source ~/.profile)
+#        (test -f ~/.bash_profile && source ~/.bash_profile) || \
+#        (test -f ~/.bash_login && source ~/.bash_login) || \
+#        (test -f ~/.profile && source ~/.profile)
         ;;
     *)
         # Non-interactive session
@@ -305,19 +305,24 @@ else
     AT_COLOR=$BIGreen
 fi
 
+# Move cursor to the begining of the next line.
+# This is a hack! Will break on lines longer than 999999
+#LINE_BREAK='\n\[\033[1B\]\[\033[999D\]'
+#LINE_BREAK='\n\n'
+
+# Help with <ESC> codes http://www.termsys.demon.co.uk/vtansi.htm
 PS1=""
+# Set terminal header
+# http://tldp.org/HOWTO/Xterm-Title-3.html
+PS1=$PS1'\[\033]0;'
+PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
+PS1=$PS1': ${PWD}'
+PS1=$PS1'\007\]'
 # Print return code if non-zero at the beginning of line
 PS1=$PS1'$(RET=$?;'
 PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
-PS1=$PS1'  then echo -e "'"${BIRed}"'[${RET}]";'
+PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]""';"
 PS1=$PS1'fi)'
-# Allways populate .bash_history
-PS1=$PS1'$(history -a 2>/dev/null)'
-PS1=$PS1'\[\033]0;' # ESC
-# Set terminal header
-PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
-PS1=$PS1': ${PWD}'
-PS1=$PS1'\007\]' # BELL
 # Set prompt
 PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
 PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
@@ -327,6 +332,8 @@ PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
 PS1=$PS1'fi)'
 PS1=$PS1"$BIYellow\W "
 PS1=$PS1"$BICyan$PROMPT $Color_Off"
+# Allways populate .bash_history
+PS1=$PS1'$(history -a 2>&1 >/dev/null)'
 
 # Wrong line wrapping? Follow the link:
 # https://unix.stackexchange.com/questions/105958/terminal-prompt-not-wrapping-correctly
