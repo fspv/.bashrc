@@ -136,7 +136,6 @@ augroup json_autocmd
 augroup END
 
 " Highlight style issues
-syntax match HighlightRed /\s\+$/ " Spaces at the end of line
-syntax match HighlightRed /\%81v.\+/ " Symbols over 80 in line
-highlight HighlightRed ctermbg=red ctermfg=white guibg=#592929
+match ErrorMsg /\s\+$/
+2match ErrorMsg /\%81v.\+/
 
