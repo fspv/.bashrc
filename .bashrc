@@ -169,6 +169,8 @@ alias acs='apt-cache show'
 alias agi='apt-get -V install'
 alias less='less --line-numbers --ignore-case --underline-special -R'
 alias sqlplus='rlwrap sqlplus'
+alias str='strace -s 999999999 -f -tt -T -y'
+alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 
 # safety features
 alias cp='cp -i'
