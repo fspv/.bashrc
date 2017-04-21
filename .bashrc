@@ -269,19 +269,19 @@ On_ICyan='\[\e[0;106m\]'    # Cyan
 On_IWhite='\[\e[0;107m\]'   # White
 
 
-if command -v fortune >/dev/null 2>&1
+if command -v ponysay >/dev/null 2>&1 && \
+   command -v fortune >/dev/null 2>&1 && \
+   command -v fmt >/dev/null 2>&1 && \
+   command -v shuf >/dev/null 2>&1
 then
-    if command -v fmt >/dev/null 2>&1
-    then
-        if command -v cowsay >/dev/null 2>&1
-        then
-            if command -v shuf >/dev/null 2>&1
-            then
-                FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
-                echo -e "\e[1;36m$FORTUNE"
-            fi
-        fi
-    fi
+    fortune -a | fmt -80 -s | ponysay -F $(shuf -n 1 -e $(ls /usr/share/ponysay/ponies/ | sed s/\.pony//g | tail -n +2))
+elif command -v cowsay >/dev/null 2>&1 && \
+     command -v fortune >/dev/null 2>&1 && \
+     command -v fmt >/dev/null 2>&1 && \
+     command -v shuf >/dev/null 2>&1
+then
+    FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
+    echo -e "\e[1;36m$FORTUNE"
 fi
 
 # Convert c1.h1.domain.com to c1.h1 except h1
