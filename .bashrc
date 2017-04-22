@@ -177,7 +177,6 @@ alias debuild='debuild -i; debuild clean'
 alias acp='apt-cache policy'
 alias acs='apt-cache show'
 alias agi='apt-get -V install'
-alias less='less --line-numbers --ignore-case --underline-special -R'
 alias sqlplus='rlwrap sqlplus'
 alias str='strace -s 999999999 -f -tt -T -y'
 alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
@@ -225,6 +224,13 @@ mmysql() {
 alias cp='cp -i'
 alias mv='mv -i'
 alias ln='ln -i'
+
+# Less options
+LESS=' '
+LESS=${LESS}'--line-numbers --ignore-case --underline-special '
+LESS=${LESS}'--RAW-CONTROL-CHARS --chop-long-lines --quit-if-one-screen '
+LESS=${LESS}'--no-init '
+export LESS
 
 # some functions
 function mkdircd {
