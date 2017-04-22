@@ -216,7 +216,7 @@ mmysql() {
         --secure-auth \
         --show-warnings \
         --tee=.${USER}.mysql_history \
-        --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d '"${MYSQL_RW_PROMPT}"'> ' \
+        --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d (\R:\m:\s) '"${MYSQL_RW_PROMPT}"'> ' \
         --pager=less ${@:2}
 }
 
