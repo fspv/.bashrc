@@ -32,8 +32,18 @@ if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
     ssh-add >/dev/null 2>&1
 fi
 
+# Convert c1.h1.domain.com to c1.h1 except h1
+if command -v timeout >/dev/null 2>&1
+then
+    FQDN=$(timeout -s 9 5 hostname -f)
+else
+    FQDN=$(hostname -f)
+fi
+SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
+
 # systemd variables
-export SYSTEMD_PAGER=less
+export SYSTEMD_PAGER="less -S -F -X"
+export PAGER="less -S -F -X"
 
 # Load local rc file for this machine
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
@@ -171,6 +181,45 @@ alias less='less --line-numbers --ignore-case --underline-special -R'
 alias sqlplus='rlwrap sqlplus'
 alias str='strace -s 999999999 -f -tt -T -y'
 alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
+alias sudoe='sudo -E -H'
+
+mmysql() {
+    # MySQL alias
+    MYSQL_READ_ONLY=$(
+        grep -E '(read[-_]only)' /etc/mysql/my.cnf \
+                                 /etc/mysql/conf.d/*.cnf 2>/dev/null \
+                                 | tail -n1 | sed 's/ //g' | cut -f2 -d'='
+    )
+
+    if [[ "x${MYSQL_READ_ONLY}" = "x0" ]]
+    then
+        MYSQL_RW_PROMPT="{>MASTER<} "
+    fi
+
+    if [[ "x$1" = "xroot" ]]
+    then
+        MYSQL_HOME=/root
+        MYSQL_SUDO='sudo -E -H'
+    else
+        MYSQL_HOME=${HOME}
+    fi
+
+    if ! ${MYSQL_SUDO} test -f ${MYSQL_HOME}/.editrc
+    then
+        echo 'bind "^U" vi-kill-line-prev' | \
+            ${MYSQL_SUDO} tee ${MYSQL_HOME}/.editrc
+        echo 'bind "^W" ed-delete-prev-word' | \
+            ${MYSQL_SUDO} tee -a ${MYSQL_HOME}/.editrc
+    fi
+
+    ${MYSQL_SUDO} mysql \
+        --protocol=TCP \
+        --secure-auth \
+        --show-warnings \
+        --tee=.${USER}.mysql_history \
+        --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d '"${MYSQL_RW_PROMPT}"'> ' \
+        --pager='less -F -S -X' ${@:2}
+}
 
 # safety features
 alias cp='cp -i'
@@ -283,15 +332,6 @@ then
     FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
     echo -e "\e[1;36m$FORTUNE"
 fi
-
-# Convert c1.h1.domain.com to c1.h1 except h1
-if command -v timeout >/dev/null 2>&1
-then
-    FQDN=$(timeout -s 9 5 hostname -f)
-else
-    FQDN=$(hostname -f)
-fi
-SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
 
 echo -e "\e[1;36m     FQDN: "$FQDN
 echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
