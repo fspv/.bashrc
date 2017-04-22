@@ -42,8 +42,8 @@ fi
 SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
 
 # systemd variables
-export SYSTEMD_PAGER="less -S -F -X"
-export PAGER="less -S -F -X"
+export SYSTEMD_PAGER=less
+export PAGER=less
 
 # Load local rc file for this machine
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
@@ -217,7 +217,7 @@ mmysql() {
         --show-warnings \
         --tee=.${USER}.mysql_history \
         --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d '"${MYSQL_RW_PROMPT}"'> ' \
-        --pager='less -F -S -X' ${@:2}
+        --pager=less ${@:2}
 }
 
 # safety features
