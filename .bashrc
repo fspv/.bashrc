@@ -217,7 +217,7 @@ mmysql() {
         --show-warnings \
         --tee=.${USER}.mysql_history \
         --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d (\R:\m:\s) '"${MYSQL_RW_PROMPT}"'> ' \
-        --pager=less ${@:2}
+        --pager='less --quit-if-one-screen --no-init'
 }
 
 # safety features
@@ -228,8 +228,7 @@ alias ln='ln -i'
 # Less options
 LESS=' '
 LESS=${LESS}'--line-numbers --ignore-case --underline-special '
-LESS=${LESS}'--RAW-CONTROL-CHARS --chop-long-lines --quit-if-one-screen '
-LESS=${LESS}'--no-init '
+LESS=${LESS}'--RAW-CONTROL-CHARS --chop-long-lines'
 export LESS
 
 # some functions
