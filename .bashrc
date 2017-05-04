@@ -54,6 +54,7 @@ export PAGER=less
 # Autocompletion options
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
+set completion-ignore-case on
 
 # Fix upstart completion (autocomplete all jobs to all states)
 _upstart_all() {
