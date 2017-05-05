@@ -116,8 +116,8 @@ complete -F _complete_ssh ssh
 [ -f /usr/bin/sshrc ] && alias s='sshrc'
 
 # Create systemd aliases
-[ -f /usr/bin/systemctl ] && alias sctl='sudo systemctl'
-[ -f /usr/bin/journalctl ] && alias jctl='sudo journalctl'
+which systemctl 2>&1 >/dev/null && alias sctl='sudo systemctl'
+which journalctl 2>&1 >/dev/null && alias jctl='sudo journalctl'
 
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups 2>/dev/null
