@@ -20,7 +20,7 @@ bindsym Mod1+Control+l exec i3lock -c 000000
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
 bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
-bindsym XF86AudioMute exec amixer -q set Master toggle
+bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 
 # PrintScr
 bindsym Print exec shutter
