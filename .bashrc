@@ -113,7 +113,7 @@ complete -F _complete_ssh s
 complete -F _complete_ssh ssh
 
 # Create alias for sshrc
-[ -f /usr/bin/sshrc ] && alias s='sshrc'
+[ -f ~/.bin/sshrc ] && alias s='~/.bin/sshrc'
 
 # Create systemd aliases
 which systemctl 2>&1 >/dev/null && alias sctl='sudo systemctl'
