@@ -1,5 +1,5 @@
 [global_config]
-  enabled_plugins = InactivityWatch, LaunchpadCodeURLHandler, APTURLHandler, LaunchpadBugURLHandler
+  enabled_plugins = InactivityWatch,
   geometry_hinting = False
 [keybindings]
 [layouts]
