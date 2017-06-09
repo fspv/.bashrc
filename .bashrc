@@ -194,6 +194,8 @@ mmysql() {
     if [[ "x${MYSQL_READ_ONLY}" = "x0" ]]
     then
         MYSQL_RW_PROMPT="{>MASTER<} "
+    else
+        MYSQL_RW_PROMPT="{>SECONDARY(?)<} "
     fi
 
     if [[ "x$1" = "xroot" ]]
