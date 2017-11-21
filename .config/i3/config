@@ -15,7 +15,7 @@ exec --no-startup-id dunst -config ${HOME}/.dunstrc
 exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
 # Lock screen
-bindsym Mod1+Control+l exec i3lock -c 000000
+bindsym Mod1+Control+l exec ${HOME}/.config/i3/scripts/lock-screen.sh
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
