@@ -138,4 +138,7 @@ augroup END
 " Highlight style issues
 match ErrorMsg /\s\+$/
 2match ErrorMsg /\%81v.\+/
+map <F4> :2match ErrorMsg //
 
+" Extend copy buffer
+set viminfo='20,<1000
