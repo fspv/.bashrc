@@ -3,6 +3,7 @@ Type=Application
 Name=SSH Key Agent
 Comment=GNOME Keyring: SSH Agent
 Exec=/usr/bin/gnome-keyring-daemon --start --components=ssh
+Hidden=true
 OnlyShowIn=GNOME;Unity;MATE;
 X-GNOME-Autostart-Phase=Initialization
 X-GNOME-AutoRestart=false
