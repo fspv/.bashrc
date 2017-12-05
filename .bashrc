@@ -182,6 +182,7 @@ alias sqlplus='rlwrap sqlplus'
 alias str='strace -s 999999999 -f -tt -T -y'
 alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 alias sudoe='sudo -E -H'
+alias git-sup='git submodule init && git submodule update && git submodule status'
 
 mmysql() {
     # MySQL alias
