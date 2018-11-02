@@ -175,6 +175,7 @@ alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 alias sudoe='sudo -E -H'
 alias git-sup='git submodule init && git submodule update && git submodule status'
 alias fukkit="sudo rm -rf /*"
+alias gg="shutdown -h now"
 
 mmysql() {
     # MySQL alias
