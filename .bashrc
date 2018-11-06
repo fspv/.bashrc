@@ -115,7 +115,7 @@ export HISTCONTROL=ignoredups 2>/dev/null
 # The  maximum  number of lines contained in the history file.
 export HISTFILESIZE=99999 2>/dev/null
 # Controls output of `history` command end enables time logging in .bash_history
-export HISTTIMEFORMAT="%a, %d %b %Y %T %z" 2>/dev/null
+export HISTTIMEFORMAT="%a, %d %b %Y %T %z " 2>/dev/null
 
 function hs {
     grep -a "$*" $HISTFILE
