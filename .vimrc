@@ -136,9 +136,10 @@ augroup json_autocmd
 augroup END
 
 " Highlight style issues
-match ErrorMsg /\s\+$/
-2match ErrorMsg /\%81v.\+/
-map <F4> :2match ErrorMsg //
+:au BufWinEnter * let w:over_80_symbols=matchadd('ErrorMsg', '\%>80v.\+', -1)
+:au BufWinEnter *.tex,*.log,*.txt
+    \ call matchdelete(w:over_80_symbols)
+map <F4> :call matchdelete(w:over_80_symbols)
 
 " Extend copy buffer
 set viminfo='20,<1000
