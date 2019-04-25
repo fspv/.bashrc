@@ -1,18 +1,27 @@
 # Prevent double .bashrc sourcing in different files
-export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-case "$-" in
-*i*)
-    # Interactive session
-    test -f /etc/profile && source /etc/profile
-    ;;
-*)
-    # Non-interactive session
+if test "x$BASHRC_ALREADY_EXECUTED" = "x"
+then
+    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    export LANGUAGE=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    case "$-" in
+    *i*)
+        # Interactive session
+        export BASHRC_ALREADY_EXECUTED="yes"
+        test -f /etc/profile && source /etc/profile
+#        (test -f ~/.bash_profile && source ~/.bash_profile) || \
+#        (test -f ~/.bash_login && source ~/.bash_login) || \
+#        (test -f ~/.profile && source ~/.profile)
+        ;;
+    *)
+        # Non-interactive session
+        return
+        ;;
+    esac
+else
     return
-    ;;
-esac
+fi
 
 # Remove note about using sudo
 test -f ~/.sudo_as_admin_successful || touch ~/.sudo_as_admin_successful
@@ -174,8 +183,6 @@ alias str='strace -s 999999999 -f -tt -T -y'
 alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 alias sudoe='sudo -E -H'
 alias git-sup='git submodule init && git submodule update && git submodule status'
-alias fukkit="sudo rm -rf /*"
-alias gg="sudo shutdown -h now"
 
 mmysql() {
     # MySQL alias
@@ -230,24 +237,8 @@ export LESS
 
 # some functions
 function mkdircd {
-    # Make specified dir and cd to it
-    mkdir -p $1
+    mkdir $1
     cd $1
-}
-
-function cdtemp {
-    # Create temporary dir, switch to it and run bash inside.
-    # Remove dir after logging out of bash.
-    TEMP_DIR=$(mktemp -d)
-    if ! [ -d "${TEMP_DIR}" ]
-    then
-        return 1
-    fi
-    (
-        trap "rm -rf "${TEMP_DIR} EXIT
-        cd ${TEMP_DIR}
-        bash
-    )
 }
 
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
