@@ -143,5 +143,3 @@ map <F4> :call matchdelete(w:over_80_symbols)
 
 " Extend copy buffer
 set viminfo='20,<1000
-
-call system("xset r rate 250 60")
