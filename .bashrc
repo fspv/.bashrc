@@ -1,17 +1,27 @@
-export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-case "$-" in
-*i*)
-    # Interactive session
-    test -f /etc/profile && source /etc/profile
-    ;;
-*)
-    # Non-interactive session
+# Prevent double .bashrc sourcing in different files
+if test "x$BASHRC_ALREADY_EXECUTED" = "x"
+then
+    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    export LANGUAGE=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    case "$-" in
+    *i*)
+        # Interactive session
+        export BASHRC_ALREADY_EXECUTED="yes"
+        test -f /etc/profile && source /etc/profile
+#        (test -f ~/.bash_profile && source ~/.bash_profile) || \
+#        (test -f ~/.bash_login && source ~/.bash_login) || \
+#        (test -f ~/.profile && source ~/.profile)
+        ;;
+    *)
+        # Non-interactive session
+        return
+        ;;
+    esac
+else
     return
-    ;;
-esac
+fi
 
 # Remove note about using sudo
 test -f ~/.sudo_as_admin_successful || touch ~/.sudo_as_admin_successful
@@ -212,15 +222,6 @@ mmysql() {
         --tee=.${USER}.mysql_history \
         --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d (\R:\m:\s) '"${MYSQL_RW_PROMPT}"'> ' \
         --pager='less --quit-if-one-screen --no-init'
-}
-
-function cdtemp() {
-    TMP_DIR=$(mktemp -d)
-    (
-        cd ${TMP_DIR}
-        bash -i
-        rm -rf ${TMP_DIR}
-    )
 }
 
 # safety features
