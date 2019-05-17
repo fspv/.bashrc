@@ -25,7 +25,7 @@ bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
 bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 
 # PrintScr
-bindsym Print exec shutter
+bindsym Print exec shutter -f
 bindsym Shift+Print exec shutter -s
 
 # Disable mouse warping (jump when you switch to new window/workspace)
