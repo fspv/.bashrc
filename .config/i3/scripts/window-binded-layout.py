@@ -93,9 +93,11 @@ def window_change(conn, e):
 
 
 def main():
-    conn = i3ipc.Connection()
-    conn.on('window', window_change)
-    conn.main()
+    while True:
+        time.sleep(2) # give i3 time to start
+        conn = i3ipc.Connection()
+        conn.on('window', window_change)
+        conn.main()
 
 
 if __name__ == "__main__":
