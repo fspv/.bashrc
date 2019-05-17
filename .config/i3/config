@@ -15,6 +15,10 @@ exec --no-startup-id dunst -config ${HOME}/.dunstrc
 # Run local stuff
 exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
+# switch between the current and the previously focused one
+bindsym $mod+b workspace back_and_forth
+bindsym $mod+Shift+b move container to workspace back_and_forth
+
 # Lock screen
 bindsym Mod1+Control+l exec ${HOME}/.config/i3/scripts/lock-screen.sh
 
