@@ -1,0 +1,47 @@
+general {
+    output_format = "i3bar"
+    colors = true
+    markup = "pango"
+    interval = 5
+    color_good = "#88b090"
+    color_degraded  = "#ccdc90"
+    color_bad = "#e89393"
+}
+
+order += "run_watch VPN"
+order += "disk /"
+order += "battery 0"
+order += "load"
+order += "tztime local"
+order += "tztime CET"
+order += "tztime UK"
+
+tztime local {
+    format = "<span color='#00FF00'>%time</span>"
+    format_time = "%Y-%m-%d %I:%M:%S %Z"
+    timezone = "Europe/Moscow"
+}
+
+tztime CET {
+    format = "<span color='#555555'>%time</span>"
+    format_time = "%Y-%m-%d %I:%M:%S %Z"
+    timezone = "CET"
+}
+
+tztime UK {
+    format = "<span color='#555555'>%time</span>"
+    format_time = "%Y-%m-%d %I:%M:%S %Z"
+    timezone = "Europe/London"
+}
+
+load {
+    format = "<span color='#AAAAAA'>LA:%1min %5min %15min</span>"
+}
+
+disk / {
+    format = "<span color='#AAAAAA'>/: %percentage_used</span>"
+}
+
+run_watch VPN {
+    pidfile = "/var/run/openvpn/*.pid"
+}
