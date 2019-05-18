@@ -8,13 +8,12 @@ general {
     color_bad = "#e89393"
 }
 
-order += "run_watch VPN"
-order += "disk /"
-order += "battery 0"
-order += "load"
-order += "tztime local"
 order += "tztime CET"
 order += "tztime UK"
+order += "disk /"
+order += "load"
+order += "run_watch VPN"
+order += "tztime local"
 
 tztime local {
     format = "<span color='#00FF00'>%time</span>"
@@ -39,7 +38,7 @@ load {
 }
 
 disk / {
-    format = "<span color='#AAAAAA'>/: %percentage_used</span>"
+    format = "<span color='#AAAAAA'>/: %percentage_free left</span>"
 }
 
 run_watch VPN {
