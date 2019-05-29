@@ -137,7 +137,7 @@ augroup END
 
 " Highlight style issues
 :au BufWinEnter * let w:over_80_symbols=matchadd('ErrorMsg', '\%>80v.\+', -1)
-:au BufWinEnter *.tex,*.log,*.txt
+:au BufWinEnter *.tex,*.log,*.txt,*.csv
     \ call matchdelete(w:over_80_symbols)
 map <F4> :call matchdelete(w:over_80_symbols)
 
