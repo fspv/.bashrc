@@ -143,3 +143,6 @@ map <F4> :call matchdelete(w:over_80_symbols)
 
 " Extend copy buffer
 set viminfo='20,<1000
+
+" Increase the number of open tabs limit
+set tabpagemax=999
