@@ -332,7 +332,7 @@ if command -v ponysay >/dev/null 2>&1 && \
    command -v fmt >/dev/null 2>&1 && \
    command -v shuf >/dev/null 2>&1
 then
-    fortune -a | fmt -80 -s | ponysay -F $(shuf -n 1 -e $(ls /usr/share/ponysay/ponies/ | sed s/\.pony//g | tail -n +2))
+    fortune -a | fmt -80 -s | ponysay -F
 elif command -v cowsay >/dev/null 2>&1 && \
      command -v fortune >/dev/null 2>&1 && \
      command -v fmt >/dev/null 2>&1 && \
