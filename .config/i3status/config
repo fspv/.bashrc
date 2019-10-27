@@ -8,28 +8,28 @@ general {
     color_bad = "#e89393"
 }
 
+order += "tztime Moscow"
 order += "tztime CET"
-order += "tztime UK"
 order += "disk /"
 order += "load"
 order += "run_watch VPN"
-order += "tztime local"
+order += "tztime UK"
 
-tztime local {
-    format = "<span color='#00FF00'>%time</span>"
-    format_time = "%Y-%m-%d %I:%M:%S %Z"
+tztime Moscow {
+    format = "<span color='#555555'>%time</span>"
+    format_time = "%Y-%m-%d %I:%M%P %Z"
     timezone = "Europe/Moscow"
 }
 
 tztime CET {
     format = "<span color='#555555'>%time</span>"
-    format_time = "%Y-%m-%d %I:%M:%S %Z"
+    format_time = "%Y-%m-%d %I:%M%P %Z"
     timezone = "CET"
 }
 
 tztime UK {
-    format = "<span color='#555555'>%time</span>"
-    format_time = "%Y-%m-%d %I:%M:%S %Z"
+    format = "<span color='#00FF00'>%time</span>"
+    format_time = "%Y-%m-%d %I:%M:%S %P %Z"
     timezone = "Europe/London"
 }
 
