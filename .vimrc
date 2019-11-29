@@ -122,6 +122,7 @@ au BufNewFile,BufRead *.sls setf yaml
 au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
+au BufNewFile,BufRead *.php setl sw=2 sts=2 et
 au BufNewFile,BufRead tnsnames.ora setl sw=2 sts=2 et syn=lisp
 
 " json
