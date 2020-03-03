@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Software Updater
+GenericName=Software Updates
+Comment=Show and install available updates
+Exec=/usr/bin/update-manager
+X-GNOME-Autostart-enabled=false
+Hidden=true
