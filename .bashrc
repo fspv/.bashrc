@@ -56,6 +56,13 @@ set show-all-if-ambiguous on
 set show-all-if-unmodified on
 set completion-ignore-case on
 
+# Set vim mode
+set -o vi
+set editing-mode vi
+set show-mode-in-prompt on
+set vi-ins-mode-string +
+set vi-cmd-mode-string :
+
 # Fix upstart completion (autocomplete all jobs to all states)
 _upstart_all() {
     find /etc/init/ -name '*.conf' -printf '%f\n' | sed 's/\.conf$//'
