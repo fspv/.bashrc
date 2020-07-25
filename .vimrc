@@ -15,6 +15,9 @@ set pastetoggle=<F3>
 set tabstop=4
 set shiftwidth=4
 set smarttab
+if has("autocmd")
+  filetype plugin indent on
+endif
 " Autoreplace tab by default
 set et
 " Show tabs at the begining of line by dots
@@ -74,7 +77,7 @@ set nocompatible
 set modeline
 set modelines=2
 
-set backspace=2
+set backspace=indent,eol,start
 
 set encoding=utf-8
 set fileencoding=utf8
