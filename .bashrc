@@ -184,7 +184,8 @@ alias sudo='sudo '
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
-alias vi='vim'
+alias vi='nvim'
+alias vim='nvim'
 alias debuild='debuild -i; debuild clean'
 alias acp='apt-cache policy'
 alias acs='apt-cache show'
@@ -261,7 +262,7 @@ else
     rm $rmtemp;
 fi
 
-EDITOR=vim
+EDITOR=nvim
 export EDITOR
 
 # Reset
