@@ -1,5 +1,5 @@
 # Prevent double .bashrc sourcing in different files
-if test "x$BASHRC_ALREADY_EXECUTED" = "x"
+if (test "x${TMUX}" != "x" && test "x${TMUX_BASHRC_ALREADY_EXECUTED}" = "x") || test "x$BASHRC_ALREADY_EXECUTED" = "x"
 then
     export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
     export LANGUAGE=en_US.UTF-8
@@ -9,6 +9,10 @@ then
     *i*)
         # Interactive session
         export BASHRC_ALREADY_EXECUTED="yes"
+        if test "x${TMUX}" != "x"
+        then
+            export TMUX_BASHRC_ALREADY_EXECUTED="yes"
+        fi
         test -f /etc/profile && source /etc/profile
 #        (test -f ~/.bash_profile && source ~/.bash_profile) || \
 #        (test -f ~/.bash_login && source ~/.bash_login) || \
@@ -190,7 +194,6 @@ alias str='strace -s 999999999 -f -tt -T -y'
 alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 alias sudoe='sudo -E -H'
 alias git-sup='git submodule init && git submodule update && git submodule status'
-alias tmux='BASHRC_ALREADY_EXECUTED="" tmux'
 
 mmysql() {
     # MySQL alias
