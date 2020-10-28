@@ -146,6 +146,13 @@ augroup END
     \ call matchdelete(w:over_80_symbols)
 map <F4> :call matchdelete(w:over_80_symbols)
 
+highlight ExtraWhitespace ctermfg=166 guifg=#d65d0e 
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+
 " Extend copy buffer
 set viminfo='20,<1000
 
