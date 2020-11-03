@@ -3,6 +3,11 @@ if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
 endif
 
+" Read custom configuration
+if filereadable("~/.vimrc_local_before")
+  source ~/.vimrc_local_before
+endif
+
 if filereadable(".vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
