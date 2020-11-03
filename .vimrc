@@ -12,6 +12,9 @@ if filereadable(".vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
 
+" Enable vim-plug
+call plug#begin()
+
 " Set autoindent and key to disable it during paste
 set autoindent
 set pastetoggle=<F3>
