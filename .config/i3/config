@@ -8,7 +8,7 @@
 # After-start actions
 exec --no-startup-id xss-lock -- ${HOME}/.config/i3/scripts/lock-screen.sh
 # FIXME: pip3 install i3ipc
-exec --no-startup-id ${HOME}/.config/i3/scripts/window-binded-layout.py
+exec --no-startup-id ${HOME}/.config/i3/scripts/window-binded-layout.sh
 exec --no-startup-id setxkbmap -model pc105 -layout us,ru -option grp:ctrl_shift_toggle,grp_led:caps,caps:escape
 exec --no-startup-id dunst -config ${HOME}/.dunstrc
 exec --no-startup-id volumeicon
