@@ -13,7 +13,9 @@ if filereadable(".vim/autoload/pathogen.vim")
 endif
 
 " Enable vim-plug
-call plug#begin()
+if filereadable(".vim/autoload/plug.vim")
+  call plug#begin()
+endif
 
 " Set autoindent and key to disable it during paste
 set autoindent
