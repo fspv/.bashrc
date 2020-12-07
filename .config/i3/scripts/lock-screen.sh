@@ -13,3 +13,4 @@ i3lock --nofork -c 000000
 
 ${HOME}/.config/i3/scripts/xkblayout-state set ${PREV_LAYOUT}
 
+setxkbmap -model pc105 -layout us,ru -option grp:ctrl_shift_toggle,grp_led:caps,caps:escape,lv3:lalt_switch
