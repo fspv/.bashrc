@@ -1,16 +1,20 @@
-" Include default system config
+" Read custom after configuration
+if filereadable($HOME . '/.vim/manual/before.vim')
+    source <sfile>:h/.vim/manual/before.vim
+endif
+
+" Python3 for neovim
+" virtualenv -p python3 ~/venv/neovim
+" . ~/venv/neovim/bin/activate
+" pip install neovim jedi
+let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
+
 if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
 endif
 
 if filereadable($HOME . "/.vim/autoload/pathogen.vim")
   execute pathogen#infect()
-endif
-
-" Load plug plugins
-if filereadable($HOME . "/.vim/autoload/plug.vim")
-    call plug#begin()
-    call plug#end()
 endif
 
 " Set autoindent and key to disable it during paste
@@ -113,15 +117,6 @@ if !empty(glob("~/.vim/bundle/Vundle.vim"))
     " set the runtime path to include Vundle and initialize
     set rtp+=~/.vim/bundle/Vundle.vim
     call vundle#begin()
-
-    " let Vundle manage Vundle, required
-    Plugin 'gmarik/Vundle.vim'
-    Plugin 'tmhedberg/SimpylFold'
-    Bundle 'Valloric/YouCompleteMe'
-    Plugin 'scrooloose/syntastic'
-    Plugin 'nvie/vim-flake8'
-
-    " All of your Plugins must be added before the following line
     call vundle#end()
     filetype plugin indent on
 endif
@@ -160,7 +155,66 @@ set viminfo='20,<1000
 " Increase the number of open tabs limit
 set tabpagemax=999
 
-" Read custom configuration
-if filereadable($HOME . '/.vim/init.vim')
-    source <sfile>:h/.vim/init.vim
+" Load plug plugins
+if filereadable($HOME . "/.vim/autoload/plug.vim")
+    " run nvim
+    " :PlugInstall
+    " :UpdateRemotePlugins
+    call plug#begin()
+        Plug 'dense-analysis/ale' " Linting, formatting
+        Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " fuzzy search
+        Plug 'junegunn/fzf.vim' " fuzzy search 2
+        Plug 'ntpeters/vim-better-whitespace' " Highlight trailing whitespace
+        Plug 'raimondi/delimitMate' " Auto-complete matching quotes, brackets, etc
+        Plug 'scrooloose/nerdtree' " Graphical file manager
+        Plug 'tpope/vim-sensible' " Universally good defaults
+        Plug 'tpope/vim-speeddating' " Use ctrl-a and ctrl-x to increment/decrement times/dates
+        Plug 'vim-scripts/PreserveNoEOL' " Omit the final newline of a file if it wasn't present when we opened it
+        if filereadable(python3_host_prog)
+            Plug 'shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }  " Completion
+        endif
+        Plug 'morhetz/gruvbox' " Colors!
+        Plug 'vim-python/python-syntax' " Updated Python syntax highlighting
+        Plug 'junegunn/rainbow_parentheses.vim' " Color-matched parens
+        Plug 'easymotion/vim-easymotion' " Faster navigation
+        Plug 'haya14busa/incsearch.vim' " Highlight incremental search
+        Plug 'haya14busa/incsearch-fuzzy.vim' " Fuzzy incremental search
+        Plug 'haya14busa/incsearch-easymotion.vim' " Easymotion integration for for incremental fuzzy search
+        Plug 'tpope/vim-dispatch' " Async builds
+
+        " Read custom plugins configuration
+        if filereadable($HOME . '/.vim/manual/plug.vim')
+            source <sfile>:h/.vim/manual/plug.vim
+        endif
+    call plug#end()
+endif
+
+"
+" Plugin configuration
+" ====================
+
+" Fuzzy search
+map z/ <Plug>(incsearch-fuzzy-/)
+map z? <Plug>(incsearch-fuzzy-?)
+map zg/ <Plug>(incsearch-fuzzy-stay)
+
+" ALE keybinds
+nmap <leader>d <Plug>(ale_detail)
+nmap <leader>n <Plug>(ale_next)
+nmap <leader>g <Plug>(ale_go_to_definition)
+
+" ALE
+let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+
+" Deoplete + ALE
+let g:deoplete#enable_at_startup = 1
+call deoplete#custom#source('ale', 'rank', 999)
+call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
+
+" Close preview window when done with completions
+autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+
+" Read custom after configuration
+if filereadable($HOME . '/.vim/manual/after.vim')
+    source <sfile>:h/.vim/manual/after.vim
 endif
