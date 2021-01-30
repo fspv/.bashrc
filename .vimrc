@@ -207,9 +207,11 @@ nmap <leader>g <Plug>(ale_go_to_definition)
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
 " Deoplete + ALE
-let g:deoplete#enable_at_startup = 1
-call deoplete#custom#source('ale', 'rank', 999)
-call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
+if filereadable(python3_host_prog)
+    let g:deoplete#enable_at_startup = 1
+    call deoplete#custom#source('ale', 'rank', 999)
+    call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
+endif
 
 " Close preview window when done with completions
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
