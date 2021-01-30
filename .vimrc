@@ -181,6 +181,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'haya14busa/incsearch-fuzzy.vim' " Fuzzy incremental search
         Plug 'haya14busa/incsearch-easymotion.vim' " Easymotion integration for for incremental fuzzy search
         Plug 'tpope/vim-dispatch' " Async builds
+        Plug 'preservim/tagbar' " File navigation
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
@@ -226,6 +227,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " Open files in a new tab by default
     let NERDTreeMapOpenInTab='<ENTER>'
+
+    " Tagbar
+    " apt-get install ctags
+    nmap <F8> :TagbarToggle<CR>
 endif
 
 " Close preview window when done with completions
