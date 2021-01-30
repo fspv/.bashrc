@@ -3,18 +3,14 @@ if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
 endif
 
-" Read custom configuration
-if filereadable("~/.vimrc_local_before")
-  source ~/.vimrc_local_before
-endif
-
-if filereadable(".vim/autoload/pathogen.vim")
+if filereadable($HOME . "/.vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
 
-" Enable vim-plug
-if filereadable(".vim/autoload/plug.vim")
-  call plug#begin()
+" Load plug plugins
+if filereadable($HOME . "/.vim/autoload/plug.vim")
+    call plug#begin()
+    call plug#end()
 endif
 
 " Set autoindent and key to disable it during paste
@@ -35,6 +31,10 @@ set et
 "set listchars=tab:»\ ,trail:·,eol:¶
 "set list
 
+" Disable automatic visual mode on mouse select
+" (breaks identation and other stuff)
+set mouse-=a
+
 " Show us the command we're typing
 set showcmd
 
@@ -52,7 +52,11 @@ set wildignore=*.o,*~
 "set foldmethod=syntax
 
 " Correct indents on Ctrl-CV
-set paste
+if $DISPLAY != ""
+    set paste
+else
+    set nopaste
+endif
 
 " Enable ruler
 set ruler
@@ -150,21 +154,13 @@ augroup json_autocmd
   autocmd FileType json set conceallevel=0
 augroup END
 
-" Highlight style issues
-:au BufWinEnter * let w:over_80_symbols=matchadd('ErrorMsg', '\%>80v.\+', -1)
-:au BufWinEnter *.tex,*.log,*.txt,*.csv
-    \ call matchdelete(w:over_80_symbols)
-map <F4> :call matchdelete(w:over_80_symbols)
-
-highlight ExtraWhitespace ctermfg=166 guifg=#d65d0e 
-match ExtraWhitespace /\s\+$/
-autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
-autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
-autocmd InsertLeave * match ExtraWhitespace /\s\+$/
-autocmd BufWinLeave * call clearmatches()
-
 " Extend copy buffer
 set viminfo='20,<1000
 
 " Increase the number of open tabs limit
 set tabpagemax=999
+
+" Read custom configuration
+if filereadable($HOME . '/.vim/init.vim')
+    source <sfile>:h/.vim/init.vim
+endif
