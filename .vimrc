@@ -209,6 +209,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes
     " snap install pyls
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
+    let b:ale_fixers = ['black', 'isort']
+    let b:ale_fix_on_save = 1
 
     " Deoplete + ALE
     if filereadable(python3_host_prog)
