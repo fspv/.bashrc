@@ -157,6 +157,8 @@ set tabpagemax=999
 
 " Load plug plugins
 if filereadable($HOME . "/.vim/autoload/plug.vim")
+    " Install vim-plug https://github.com/junegunn/vim-plug
+    " (use vim installation instruction, not nvim
     " run nvim
     " :PlugInstall
     " :UpdateRemotePlugins
@@ -187,30 +189,30 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             source <sfile>:h/.vim/manual/plug.vim
         endif
     call plug#end()
-endif
 
-"
-" Plugin configuration
-" ====================
+    "
+    " Plugin configuration
+    " ====================
 
-" Fuzzy search
-map z/ <Plug>(incsearch-fuzzy-/)
-map z? <Plug>(incsearch-fuzzy-?)
-map zg/ <Plug>(incsearch-fuzzy-stay)
+    " Fuzzy search
+    map z/ <Plug>(incsearch-fuzzy-/)
+    map z? <Plug>(incsearch-fuzzy-?)
+    map zg/ <Plug>(incsearch-fuzzy-stay)
 
-" ALE keybinds
-nmap <leader>d <Plug>(ale_detail)
-nmap <leader>n <Plug>(ale_next)
-nmap <leader>g <Plug>(ale_go_to_definition)
+    " ALE keybinds
+    nmap <leader>d <Plug>(ale_detail)
+    nmap <leader>n <Plug>(ale_next)
+    nmap <leader>g <Plug>(ale_go_to_definition)
 
-" ALE
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+    " ALE
+    let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 
-" Deoplete + ALE
-if filereadable(python3_host_prog)
-    let g:deoplete#enable_at_startup = 1
-    call deoplete#custom#source('ale', 'rank', 999)
-    call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
+    " Deoplete + ALE
+    if filereadable(python3_host_prog)
+        let g:deoplete#enable_at_startup = 1
+        call deoplete#custom#source('ale', 'rank', 999)
+        call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
+    endif
 endif
 
 " Close preview window when done with completions
