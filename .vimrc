@@ -204,7 +204,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " ALE
     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-    " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes vulture
+    " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes
     " snap install pyls
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
 
@@ -214,6 +214,18 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         call deoplete#custom#source('ale', 'rank', 999)
         call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
     endif
+
+    " NERDTree
+    " Start NERDTree. If a file is specified, move the cursor to its window.
+    autocmd StdinReadPre * let s:std_in=1
+    autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+
+    " Exit Vim if NERDTree is the only window left.
+    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
+        \ quit | endif
+
+    " Open files in a new tab by default
+    let NERDTreeMapOpenInTab='<ENTER>'
 endif
 
 " Close preview window when done with completions
