@@ -182,6 +182,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'haya14busa/incsearch-easymotion.vim' " Easymotion integration for for incremental fuzzy search
         Plug 'tpope/vim-dispatch' " Async builds
         Plug 'preservim/tagbar' " File navigation
+        Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
@@ -225,12 +226,12 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
         \ quit | endif
 
-    " Open files in a new tab by default
-    let NERDTreeMapOpenInTab='<ENTER>'
-
     " Tagbar
     " apt-get install ctags
     nmap <F8> :TagbarToggle<CR>
+
+    " CtrlP
+    let g:ctrlp_cmd = 'CtrlPBuffer'
 endif
 
 " Close preview window when done with completions
