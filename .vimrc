@@ -7,6 +7,7 @@ endif
 " virtualenv -p python3 ~/venv/neovim
 " . ~/venv/neovim/bin/activate
 " pip install neovim jedi
+" or apt-get install python3-neovim
 let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
 
 if filereadable("/etc/vim/vimrc")
@@ -55,12 +56,8 @@ set wildignore=*.o,*~
 "set foldenable
 "set foldmethod=syntax
 
-" Correct indents on Ctrl-CV
-if $DISPLAY != ""
-    set paste
-else
-    set nopaste
-endif
+" Autocompletion requires nopaste
+set nopaste
 
 " Enable ruler
 set ruler
@@ -175,6 +172,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         if filereadable(python3_host_prog)
             Plug 'shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }  " Completion
         endif
+        Plug 'deoplete-plugins/deoplete-jedi' " Another way to have completion (pyls default)
         Plug 'morhetz/gruvbox' " Colors!
         Plug 'vim-python/python-syntax' " Updated Python syntax highlighting
         Plug 'junegunn/rainbow_parentheses.vim' " Color-matched parens
@@ -206,6 +204,9 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " ALE
     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+    " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes
+    " snap install pyls
+    let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
 
     " Deoplete + ALE
     if filereadable(python3_host_prog)
