@@ -132,6 +132,7 @@ au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.php setl sw=2 sts=2 et
+au BufNewFile,BufRead *.cpp setl sw=2 sts=2 et
 au BufNewFile,BufRead *.go setl noet
 au BufNewFile,BufRead tnsnames.ora setl sw=2 sts=2 et syn=lisp
 
@@ -203,13 +204,16 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     nmap <leader>d <Plug>(ale_detail)
     nmap <leader>n <Plug>(ale_next)
     nmap <leader>g <Plug>(ale_go_to_definition)
+    nmap <leader>h <Plug>(ale_hover)
+    let g:ale_hover_cursor = 1
 
     " ALE
     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes
+    " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
-    let b:ale_fixers = ['black', 'isort']
+    let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
     let b:ale_fix_on_save = 1
 
     " Deoplete + ALE
