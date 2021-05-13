@@ -184,6 +184,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'tpope/vim-dispatch' " Async builds
         Plug 'preservim/tagbar' " File navigation
         Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
+        Plug 'octol/vim-cpp-enhanced-highlight' " Better C++ syntax highlight
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
