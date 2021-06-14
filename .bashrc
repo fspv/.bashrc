@@ -344,7 +344,7 @@ if command -v ponysay >/dev/null 2>&1 && \
    command -v fmt >/dev/null 2>&1 && \
    command -v shuf >/dev/null 2>&1
 then
-    fortune -a | fmt -80 -s | ponysay -F
+    fortune -a | fmt -80 -s | ponysay -F 2>/dev/null
 elif command -v cowsay >/dev/null 2>&1 && \
      command -v fortune >/dev/null 2>&1 && \
      command -v fmt >/dev/null 2>&1 && \
