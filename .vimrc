@@ -210,7 +210,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " ALE
     let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-    " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes
+    " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black
     " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
