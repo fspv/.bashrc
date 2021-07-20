@@ -21,3 +21,6 @@ xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-
 xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -t bool -s true --create
 xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/show-tray-icon -t int -s 1 --create
 xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/sleep-button-action -t int -s 1 --create
+
+# Disable annoying power manager notifications
+xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/general-notification -t bool -s false --create
