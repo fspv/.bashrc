@@ -67,6 +67,10 @@ set show-mode-in-prompt on
 set vi-ins-mode-string +
 set vi-cmd-mode-string :
 
+# Load fzf completion files
+[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
+
 # Fix upstart completion (autocomplete all jobs to all states)
 _upstart_all() {
     find /etc/init/ -name '*.conf' -printf '%f\n' | sed 's/\.conf$//'
