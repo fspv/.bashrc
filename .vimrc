@@ -43,6 +43,23 @@ set mouse-=a
 " Show us the command we're typing
 set showcmd
 
+" More space for errors
+set cmdheight=2
+
+" Make autocomplete and other things more responsive
+set updatetime=100
+
+" Show line numbers
+set number
+
+" Show warning/error signs over numbers on the left
+if has("nvim-0.5.0") || has("patch-8.1.1564")
+  " Recently vim can merge signcolumn and number column into one
+  set signcolumn=number
+else
+  set signcolumn=yes
+endif
+
 " Try to show at least three lines and two columns of context when
 " scrolling
 set scrolloff=3
@@ -185,6 +202,15 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'preservim/tagbar' " File navigation
         Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
         Plug 'octol/vim-cpp-enhanced-highlight' " Better C++ syntax highlight
+        Plug 'vim-airline/vim-airline' " Nice status bar
+        Plug 'vim-airline/vim-airline-themes' " Themes for the status bar
+        Plug 'ludovicchabant/vim-lawrencium' " HG plugin
+        Plug 'tpope/vim-fugitive' " Git plugin
+        if has('nvim') || has('patch-8.0.902')
+          Plug 'mhinz/vim-signify'
+        else
+          Plug 'mhinz/vim-signify', { 'branch': 'legacy' }
+        endif
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
@@ -226,8 +252,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " NERDTree
     " Start NERDTree. If a file is specified, move the cursor to its window.
-    autocmd StdinReadPre * let s:std_in=1
-    autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
+    " autocmd StdinReadPre * let s:std_in=1
+    " autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
 
     " Exit Vim if NERDTree is the only window left.
     autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
@@ -239,6 +265,12 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " CtrlP
     let g:ctrlp_cmd = 'CtrlPBuffer'
+
+    " Vim airline
+    let g:airline_theme='wombat'
+    let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#ale#enabled = 1
+    let g:airline#extensions#branch#enabled = 1
 endif
 
 " Close preview window when done with completions
