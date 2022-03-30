@@ -202,10 +202,11 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'preservim/tagbar' " File navigation
         Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
         Plug 'octol/vim-cpp-enhanced-highlight' " Better C++ syntax highlight
-        Plug 'vim-airline/vim-airline' " Nice status bar
-        Plug 'vim-airline/vim-airline-themes' " Themes for the status bar
+        " Plug 'vim-airline/vim-airline' " Nice status bar
+        " Plug 'vim-airline/vim-airline-themes' " Themes for the status bar
         Plug 'ludovicchabant/vim-lawrencium' " HG plugin
         Plug 'tpope/vim-fugitive' " Git plugin
+        Plug 'airblade/vim-rooter' " Automatically detect project root
         if has('nvim') || has('patch-8.0.902')
           Plug 'mhinz/vim-signify'
         else
@@ -242,6 +243,20 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
     let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
     let b:ale_fix_on_save = 1
+    let g:ale_float_preview = 1
+    let g:ale_floating_preview = 1
+    let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
+    let g:ale_hover_to_preview = 1
+    let g:ale_hover_to_floating_preview = 1
+    let g:ale_cursor_detail = 1
+    let g:ale_detail_to_floating_preview = 1
+    " let g:ale_list_window_size = 10
+    " let g:ale_set_balloons = 1
+
+    augroup ale_hover_cursor
+      autocmd!
+      autocmd CursorHold * ALEHover
+    augroup END
 
     " Deoplete + ALE
     if filereadable(python3_host_prog)
@@ -271,6 +286,29 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#ale#enabled = 1
     let g:airline#extensions#branch#enabled = 1
+
+    " Vim rooter
+    " let g:rooter_cd_cmd = 'lcd' " Change dir only for current window
+    let g:rooter_manual_only = 1
+
+    " FZF
+    " FindRootDirectory() comes from vim rooter
+    command! -bang -nargs=? -complete=dir ProjectFiles
+        \ call fzf#vim#files(
+        \   <q-args>,
+        \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
+        \   <bang>0
+        \ )
+    command! -bang -nargs=* ProjectRg
+        \ call fzf#vim#grep(
+        \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>),
+        \   1,
+        \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
+        \   <bang>0
+        \ )
+
+    map ff/ :ProjectFiles<CR>
+    map fc/ :ProjectRg<CR>
 endif
 
 " Close preview window when done with completions
