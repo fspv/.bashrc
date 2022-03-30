@@ -8,7 +8,12 @@ endif
 " . ~/venv/neovim/bin/activate
 " pip install neovim jedi
 " or apt-get install python3-neovim
-let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
+if empty($VIRTUAL_ENV)
+    let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
+else
+    let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server pylint')
+endif
 
 if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
@@ -240,7 +245,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
     " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
-    let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit']}
+    let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit', 'pylsp']}
     let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
     let b:ale_fix_on_save = 1
     let g:ale_float_preview = 1
