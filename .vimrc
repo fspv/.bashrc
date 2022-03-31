@@ -12,7 +12,7 @@ if empty($VIRTUAL_ENV)
     let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
 else
     let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server pylint')
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server[all] pylint')
 endif
 
 if filereadable("/etc/vim/vimrc")
@@ -250,7 +250,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     let b:ale_fix_on_save = 1
     let g:ale_float_preview = 1
     let g:ale_floating_preview = 1
-    let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
+    let g:ale_floating_window_border = []
     let g:ale_hover_to_preview = 1
     let g:ale_hover_to_floating_preview = 1
     let g:ale_cursor_detail = 1
