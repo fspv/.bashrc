@@ -217,6 +217,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         else
           Plug 'mhinz/vim-signify', { 'branch': 'legacy' }
         endif
+        Plug 'tomlion/vim-solidity'
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
