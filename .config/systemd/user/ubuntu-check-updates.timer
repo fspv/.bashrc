@@ -1,0 +1,10 @@
+[Unit]
+Description=Checks number of ubuntu updates and logs the result
+Requires=ubuntu-check-updates.service
+
+[Timer]
+Unit=ubuntu-check-updates.service
+OnCalendar=*-*-* *:00:00
+
+[Install]
+WantedBy=timers.target
