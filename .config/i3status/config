@@ -5,7 +5,7 @@ general {
     interval = 5
     color_good = "#88b090"
     color_degraded  = "#ccdc90"
-    color_bad = "#e89393"
+    color_bad = "#ff0000"
 }
 
 order += "tztime Moscow"
@@ -34,13 +34,18 @@ tztime UK {
 }
 
 load {
-    format = "<span color='#AAAAAA'>LA:%1min %5min %15min</span>"
+    format_above_threshold = "LA:%1min %5min %15min"
+    format = ""
+    max_threshold = 4
 }
 
 disk / {
-    format = "<span color='#AAAAAA'>/: %percentage_free left</span>"
+    format_below_threshold = "/: %percentage_free left"
+    format = ""
+    low_threshold = 10
 }
 
 run_watch VPN {
     pidfile = "/var/run/openvpn/*.pid"
+    format_down=""
 }
