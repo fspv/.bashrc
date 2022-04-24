@@ -7,4 +7,4 @@ Type=oneshot
 ExecStart=/bin/bash -c "find /tmp/updates-available-cache -mmin +10000 || /usr/lib/update-notifier/apt-check 2>&1 | cut -d';' -f1 > /tmp/updates-available-cache"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
