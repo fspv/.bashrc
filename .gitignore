@@ -14,8 +14,10 @@ backup
 .bashrc.local
 .bashrc-master
 .bin
+.boto
 .cache
 .chef
+.chromium-bsu
 .codeblocks
 .config
 .cups
@@ -29,11 +31,13 @@ Desktop
 Documents
 Downloads
 .dupload.conf
+.ethereum/
 .fontconfig
 .fonts
 .fonts.conf
 .freerdp
 .gconf
+.gem/
 .gimp-2.8
 .git
 git
@@ -56,6 +60,7 @@ git
 .gtkrc-2.0-kde4
 .gvfs
 hg
+.hplip/
 .ICEauthority
 .icons
 Images
@@ -69,6 +74,7 @@ Images
 .linphone-history.db
 .linphonerc
 .local
+.m2/
 .macromedia
 .minecraft
 .mission-control
@@ -84,6 +90,7 @@ Music
 .nano_history
 .nbprofiler
 nohup.out
+.notion-py/
 .novaclient
 .npm
 .octave_hist
@@ -91,6 +98,7 @@ nohup.out
 .openvas
 .openvasrc
 .pam_environment
+.pdbhistory
 .pex
 Pictures
 .pki
@@ -113,6 +121,7 @@ RPM
 .Skype
 snap
 .sqldeveloper
+.sqlmap/
 .sqlplus_history
 .ssh
 .sshrc
@@ -147,6 +156,7 @@ Videos
 VirtualBox VMs
 .visualvm
 .vscode
+.wdm/
 .webex
 .wget-hsts
 .wine
@@ -158,3 +168,4 @@ VirtualBox VMs
 .Xmodmap
 .xscreensaver
 .xsession-errors
+.yarnrc
