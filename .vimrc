@@ -246,8 +246,29 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
     " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
-    let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit', 'pylsp']}
+    let g:ale_linters = {'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls']}
     let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
+
+    let g:ale_python_pyls_executable = "pylsp"
+
+    let g:ale_python_pyls_config = {
+    \   'pylsp': {
+    \     'plugins': {
+    \       'pycodestyle': {
+    \         'enabled': v:false,
+    \       },
+    \       'pyflakes': {
+    \         'enabled': v:false,
+    \       },
+    \       'pydocstyle': {
+    \         'enabled': v:false,
+    \       },
+    \     },
+    \   },
+    \}
+
+    call ale#Set('python_flake8_options', '--config=$HOME/.config/flake8')
+
     let b:ale_fix_on_save = 1
     " let g:ale_float_preview = 1
     let g:ale_floating_preview = 1
