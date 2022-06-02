@@ -26,6 +26,9 @@ bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 bindsym Print exec shutter -f
 bindsym Shift+Print exec shutter -s
 
+# Switch language with Super + Space (to match macos)
+bindsym $mod+space exec ${HOME}/.config/i3/scripts/xkblayout-state set +1
+
 # Disable mouse warping (jump when you switch to new window/workspace)
 mouse_warping none
 
@@ -51,6 +54,7 @@ bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d exec "rofi -combi-modi window,drun,run,ssh,keys -show combi -terminal terminator -sort -sorting-method fzf -show-icons -matching fuzzy -pid /tmp/${USER}_i3wm_rofi.pid"
+
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
@@ -81,11 +85,12 @@ bindsym $mod+Shift+l move right
 #bindsym $mod+Shift+Up move up
 #bindsym $mod+Shift+Right move right
 
+# Disable the next two as I don't really use them
 # split in horizontal orientation
-bindsym $mod+h split h
+# bindsym $mod+h split h
 
 # split in vertical orientation
-bindsym $mod+v split v
+# bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
 bindsym $mod+f fullscreen toggle
@@ -95,11 +100,12 @@ bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
+# Super + Space is rebound to language switcher
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
+# bindsym $mod+Shift+space floating toggle
 
 # change focus between tiling / floating windows
-bindsym $mod+space focus mode_toggle
+# bindsym $mod+space focus mode_toggle
 
 # focus the parent container
 bindsym $mod+a focus parent
