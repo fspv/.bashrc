@@ -17,6 +17,14 @@ exec --no-startup-id volumeicon
 # Run local stuff
 exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
+# MacOS-like keybinding
+bindsym --release Mod4+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
+bindsym --release Mod4+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
+bindsym --release Mod4+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
+bindsym --release Mod4+t exec --no-startup-id xdotool key --clearmodifiers Ctrl+t
+bindsym --release Mod4+y exec --no-startup-id xdotool key --clearmodifiers Ctrl+h
+bindsym --release Mod4+w exec --no-startup-id xdotool key --clearmodifiers Ctrl+w
+
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
 bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
