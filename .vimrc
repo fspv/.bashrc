@@ -249,15 +249,20 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     let g:ale_linters = {'python': ['flake8', 'mypy', 'pyls', 'pylint', 'bandit', 'pylsp']}
     let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
     let b:ale_fix_on_save = 1
-    let g:ale_float_preview = 1
+    " let g:ale_float_preview = 1
     let g:ale_floating_preview = 1
     let g:ale_floating_window_border = []
-    let g:ale_hover_to_preview = 1
-    let g:ale_hover_to_floating_preview = 1
+    let g:ale_close_preview_on_insert = 1
+    " let g:ale_hover_to_preview = 1
+    " let g:ale_hover_to_floating_preview = 1
     let g:ale_cursor_detail = 1
-    let g:ale_detail_to_floating_preview = 1
+    " let g:ale_detail_to_floating_preview = 1
     " let g:ale_list_window_size = 10
     " let g:ale_set_balloons = 1
+    "
+    let g:ale_completion_autoimport = 1
+    let g:ale_keep_list_window_open = 1
+    let g:ale_open_list = 1
 
     augroup ale_hover_cursor
       autocmd!
