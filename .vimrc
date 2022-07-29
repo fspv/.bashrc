@@ -12,7 +12,7 @@ if empty($VIRTUAL_ENV)
     let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
 else
     let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server[all] pylint')
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server[all] pylint pyre-check')
 endif
 
 if filereadable("/etc/vim/vimrc")
@@ -43,7 +43,8 @@ set et
 
 " Disable automatic visual mode on mouse select
 " (breaks identation and other stuff)
-set mouse-=a
+" set mouse-=a
+set mouse=
 
 " Show us the command we're typing
 set showcmd
@@ -246,8 +247,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
     " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
-    let g:ale_linters = {'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls']}
-    let b:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
+    let g:ale_linters = {'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls', 'pylsp', 'pyre']}
+    let g:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
 
     let g:ale_python_pyls_executable = "pylsp"
 
