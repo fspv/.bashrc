@@ -247,8 +247,15 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
     " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
     " snap install pyls
-    let g:ale_linters = {'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls', 'pylsp', 'pyre']}
-    let g:ale_fixers = {'python': ['black', 'isort'], 'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify']}
+    let g:ale_linters = {
+    \   'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls', 'pylsp', 'pyre'],
+    \   'sql': ['sqlfluff']
+    \}
+    let g:ale_fixers = {
+    \   'python': ['black', 'isort'],
+    \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
+    \   'sql': ['pgformatter'],
+    \}
 
     let g:ale_python_pyls_executable = "pylsp"
 
