@@ -277,7 +277,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     call ale#Set('python_flake8_options', '--config=$HOME/.config/flake8')
 
-    let b:ale_fix_on_save = 1
+    let g:ale_fix_on_save = 1
     " let g:ale_float_preview = 1
     let g:ale_floating_preview = 1
     let g:ale_floating_window_border = []
