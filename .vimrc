@@ -15,6 +15,8 @@ else
     call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server[all] pylint pyre-check')
 endif
 
+autocmd FileType go call system('GO111MODULE=on go get golang.org/x/tools/gopls')
+
 if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
 endif
@@ -219,6 +221,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
           Plug 'mhinz/vim-signify', { 'branch': 'legacy' }
         endif
         Plug 'tomlion/vim-solidity'
+        Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+        Plug 'ellisonleao/gruvbox.nvim'
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
@@ -255,6 +259,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     \   'python': ['black', 'isort'],
     \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
     \   'sql': ['pgformatter'],
+    \   'go': ['gofmt', 'goimports', 'golines', 'remove_trailing_lines', 'trim_whitespace']
     \}
 
     let g:ale_python_pyls_executable = "pylsp"
@@ -282,6 +287,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     let g:ale_floating_preview = 1
     let g:ale_floating_window_border = []
     let g:ale_close_preview_on_insert = 1
+    let g:ale_completion_enabled = 1
     " let g:ale_hover_to_preview = 1
     " let g:ale_hover_to_floating_preview = 1
     let g:ale_cursor_detail = 1
@@ -349,6 +355,9 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     map ff/ :ProjectFiles<CR>
     map fc/ :ProjectRg<CR>
+
+    set background=dark " or light if you want light mode
+    colorscheme gruvbox
 endif
 
 " Close preview window when done with completions
