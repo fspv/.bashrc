@@ -1,0 +1,11 @@
+{
+  "diagnostic.errorSign": ">>",
+  "diagnostic.warningSign": ">",
+  "coc.preferences.hoverTarget": "float",
+  "python.formatting.provider": "black",
+  "python.sortImports.path": "isort",
+  "python.linting.flake8Enabled": true,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "python"
+  ]
+}
