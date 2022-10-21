@@ -498,7 +498,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     set background=dark
     " let g:gruvbox_contrast_dark='hard'
-    " colorscheme gruvbox
+    colorscheme gruvbox
 endif
 
 " Close preview window when done with completions
