@@ -18,12 +18,12 @@ exec --no-startup-id volumeicon
 exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
 # MacOS-like keybinding
-bindsym --release Mod4+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
-bindsym --release Mod4+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
-bindsym --release Mod4+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
-bindsym --release Mod4+t exec --no-startup-id xdotool key --clearmodifiers Ctrl+t
-bindsym --release Mod4+y exec --no-startup-id xdotool key --clearmodifiers Ctrl+h
-bindsym --release Mod4+w exec --no-startup-id xdotool key --clearmodifiers Ctrl+w
+bindsym --release Mod4+c exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Ctrl+Insert key --delay 0 Super_L
+bindsym --release Mod4+x exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Shift+Delete key --delay 0 Super_L
+bindsym --release Mod4+v exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Shift+Insert key --delay 0 Super_L
+bindsym --release Mod4+t exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Ctrl+t key --delay 0 Super_L
+bindsym --release Mod4+y exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Ctrl+h key --delay 0 Super_L
+bindsym --release Mod4+w exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Ctrl+w key --delay 0 Super_L
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
@@ -105,7 +105,7 @@ bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+s layout stacking
-bindsym $mod+w layout tabbed
+# bindsym $mod+w layout tabbed  # not really using it, interferes with closing tab
 bindsym $mod+e layout toggle split
 
 # Super + Space is rebound to language switcher
