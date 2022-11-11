@@ -257,6 +257,12 @@ function mkdircd {
     cd $1
 }
 
+path_push_left() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:${PATH:+"$PATH"}"
+    fi
+}
+
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
 rmtemp=$(mktemp)
 if rm -I $rmtemp &>/dev/null; then
@@ -268,6 +274,11 @@ fi
 
 EDITOR=nvim
 export EDITOR
+
+[ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
+[ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
+
+path_push_left ${GOBIN}
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
