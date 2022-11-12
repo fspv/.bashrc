@@ -4,5 +4,7 @@ disable=
     C0115,  # missing-class-docstringA
     C0116,  # missing-function-docstring
 
+init-hook='import sys; sys.path.append(".")'
+
 [FORMAT]
 max-line-length=88  # Default black line length
