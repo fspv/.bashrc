@@ -485,6 +485,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " Tagbar
     " apt-get install ctags
+    " go get -u github.com/jstemmer/gotags
+    " go install github.com/jstemmer/gotags
     autocmd FileType python,c,cpp,go TagbarOpen
 
     " CtrlP
