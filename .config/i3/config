@@ -17,6 +17,8 @@ exec --no-startup-id volumeicon
 # Run local stuff
 exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
 
+set $mod Mod4
+
 # MacOS-like keybinding
 bindsym --release Mod4+c exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Ctrl+Insert key --delay 0 Super_L
 bindsym --release Mod4+x exec --no-startup-id xdotool getactivewindow key --clearmodifiers --delay 0 Shift+Delete key --delay 0 Super_L
@@ -42,8 +44,6 @@ mouse_warping none
 
 # Disable change focus by moving mouse to new window
 focus_follows_mouse no
-
-set $mod Mod4
 
 font pango:Ubuntu Mono 11
 

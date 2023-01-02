@@ -15,6 +15,7 @@ order += "load"
 order += "run_watch VPN"
 order += "read_file updates"
 order += "tztime UK"
+order += "battery 0"
 
 tztime Moscow {
     format = "<span color='#555555'>%time</span>"
@@ -54,4 +55,9 @@ run_watch VPN {
 read_file updates {
     path = "/tmp/updates-available-cache"
     format = "OS updates: %content"
+}
+
+battery 0 {
+    format = "%status %percentage %remaining"
+    path = "/sys/class/power_supply/BAT0/uevent"
 }
