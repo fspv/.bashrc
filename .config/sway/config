@@ -7,10 +7,14 @@
 
 # After-start actions
 
-# FIXME: pip3 install i3ipc
-exec --no-startup-id ${HOME}/.config/sway/scripts/window-bound-layout.sh
+exec systemctl --user import-environment
 
-exec --no-startup-id dunst -layer overlay -config ${HOME}/.dunstrc
+# FIXME: pip3 install i3ipc
+exec pkill -f window-bound-layout
+exec --no-startup-id ${HOME}/.config/sway/scripts/window-bound-layout.sh 2>&1
+
+exec_always pkill -f dunst
+exec_always dunst -layer overlay -config ${HOME}/.dunstrc 2>&1
 
 set $mod Mod4
 
@@ -40,19 +44,22 @@ focus_follows_mouse no
 font pango:Ubuntu Mono 11
 
 # lock screen before suspend. Use loginctl lock-session to lock your screen.
-exec swayidle -w \
+exec_always pkill -f swayidle
+exec_always swayidle -w -d \
     timeout 180 'swaymsg "output * dpms off"' \
-    timeout 300 "flock -x -n ${HOME}/.config/swaylock/flock swaylock -f" \
+    timeout 300 "flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log" \
     timeout 420 'systemctl suspend' \
     resume 'swaymsg "output * dpms on"' \
-    before-sleep "flock -x -n ${HOME}/.config/swaylock/flock swaylock -f" \
-    lock 'flock -x -n ${HOME}/.config/swaylock/flock swaylock -f' \
-    unlock 'kill -s 1 $(pgrep swaylock)'
+    before-sleep "flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log" \
+    after-resume 'swaymsg "output * dpms on"' \
+    lock "flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log" \
+    unlock 'kill -s 1 $(pgrep swaylock)' \
+    2>&1
 
 # Lock screen
-bindsym Mod1+Control+l exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f
-bindsym $mod+Control+l exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f
-bindsym $mod+Control+q exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f
+bindsym Mod1+Control+l exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log
+bindsym $mod+Control+l exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log
+bindsym $mod+Control+q exec flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d 2>&1 >swaylock.log
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -220,7 +227,7 @@ input type:touchpad {
 
 
 bar {
-    swaybar_command waybar
+    swaybar_command .config/waybar/cmd
 }
 # exec waybar
 exec_always nm-applet --indicator

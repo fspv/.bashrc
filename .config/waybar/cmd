@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export XDG_CURRENT_DESKTOP=Unity
+
+waybar --log-level debug $@ 2>&1
