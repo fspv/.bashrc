@@ -16,6 +16,13 @@ exec --no-startup-id ${HOME}/.config/sway/scripts/window-bound-layout.sh 2>&1
 exec_always pkill -f dunst
 exec_always dunst -layer overlay -config ${HOME}/.dunstrc 2>&1
 
+exec_always {
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+    gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+
+    gsettings set org.gnome.desktop.interface font-name 'Ubuntu Mono 11'
+}
+
 set $mod Mod4
 
 bindsym $mod+x exec wtype -P XF86Cut
@@ -200,6 +207,19 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
+# Generated windows.
+for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] floating enable;
+for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] resize set 800 400
+for_window [app_id="xdg-desktop-portal.*"] floating enable;
+for_window [app_id="xdg-desktop-portal.*"] resize set 800 400;
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_type="menu"] floating enable
+
+# Disable output on laptop lid close
 set $laptop eDP-1
 bindswitch --reload --locked lid:on output $laptop disable
 bindswitch --reload --locked lid:off output $laptop enable
