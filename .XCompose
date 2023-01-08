@@ -1,0 +1,43 @@
+include "/usr/share/X11/locale/en_US.UTF-8/Compose"
+
+# See
+# http://s.arboreus.com/2008/02/compose.html
+# http://shoorick.livejournal.com/tag/compose
+
+# Punctuation
+# знаки препинания, необходимые в русском, которых нет в en_US.UTF-8/Compose
+<Multi_key> <period> <minus> : "…" U2026 # HORIZONTAL ELLIPSIS, многоточие
+<Multi_key> <period> <space> : "…" U2026 # HORIZONTAL ELLIPSIS, многоточие
+<Multi_key> <?> <!> : "⁈" U2048 # QUESTION EXCLAMATION, ?!
+<Multi_key> <period> <colon> : "…" # ELLIPSIS
+
+# №: набирается в русской раскладке без ухищрений,
+# « » кавычки: Compose + < + <  и Compose + > + > соответственно
+# ­— тире: Compose + 3 раза дефис
+
+# COMBINING SIGNS, модифицирующие знаки (меняют предыдущий символ)
+<Multi_key> <apostrophe> <apostrophe> : "́" U0301 # ударение
+<Multi_key> <v> <v> : "⃗" U20D7 # знак вектора
+<Multi_key> <z> <z> : "̶"  U0336 # зачёркивание
+<Multi_key> <v> <i> : "̅" U0305 # COMBINING OVERLINE, vinculum, надчёркивание
+
+# Удобная пунктуация в русской раскладке
+<Multi_key> <Cyrillic_be> <Cyrillic_be>	: "„" # открывающая кавычка-лапка (RUS)
+<Multi_key> <Cyrillic_yu> <Cyrillic_yu>	: "“" # закрывающая кавычка-лапка (RUS)
+<Multi_key> <Cyrillic_io> <Cyrillic_io>	: "“" # закрывающая кавычка-лапка (RUS)
+<Multi_key> <slash> <slash> : "«" # открывающая кавычка-ёлочка (RUS)
+<Multi_key> <bar> <bar> : "»" # закрывающая кавычка-ёлочка (RUS)
+<Multi_key> <Cyrillic_BE> <Cyrillic_BE>: "«" # открывающая кавычка-ёлочка (RUS)
+<Multi_key> <Cyrillic_YU> <Cyrillic_YU>: "»" # закрывающая кавычка-ёлочка (RUS)
+<Multi_key> <Cyrillic_ya> : "̶"  # зачеркивание (комбинирующееся)
+<Multi_key> <Cyrillic_e> <Cyrillic_e> : "́" # ударениее (комбинирующееся)
+
+# Ukrainian
+<Multi_key> <Cyrillic_IE>                       : "Є"   U04D8 # CYRILLIC CAPITAL LETTER IE
+<Multi_key> <Cyrillic_ie>                       : "є"   U04D8 # CYRILLIC SMALL LETTER IE
+<Multi_key> <Cyrillic_SHORTI>                   : "Ї"   U0407 # CYRILLIC CAPITAL LETTER YI
+<Multi_key> <Cyrillic_shorti>                   : "ї"   U0457 # CYRILLIC SMALL LETTER YI
+<Multi_key> <Cyrillic_I>                        : "І"   U0406 # CYRILLIC CAPITAL LETTER I
+<Multi_key> <Cyrillic_i>                        : "і"   U0456 # CYRILLIC SMALL LETTER I
+<Multi_key> <Cyrillic_GHE>                        : "Ґ"   U0490 # CYRILLIC CAPITAL LETTER GE
+<Multi_key> <Cyrillic_ghe>                        : "ґ"   U04911 # CYRILLIC SMALL LETTER GE

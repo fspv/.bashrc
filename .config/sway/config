@@ -220,6 +220,9 @@ for_window [window_role="Preferences"] floating enable
 for_window [window_type="dialog"] floating enable
 for_window [window_type="menu"] floating enable
 
+# Don't capture sway keys
+for_window [app_id=".*"] shortcuts_inhibitor disable
+
 # Disable output on laptop lid close
 set $laptop eDP-1
 bindswitch --reload --locked lid:on output $laptop disable
@@ -234,7 +237,7 @@ input type:keyboard {
 
   # Capslock key should work as escape key
   # See /usr/share/X11/xkb/rules/xorg.lst for options
-  xkb_options grp:win_space_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps
+  xkb_options grp:win_space_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps,compose:rwin
 
   repeat_delay 250
   repeat_rate 45
