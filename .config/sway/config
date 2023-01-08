@@ -20,7 +20,8 @@ exec_always {
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
     gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 
-    gsettings set org.gnome.desktop.interface font-name 'Ubuntu Mono 11'
+    gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'
 }
 
 set $mod Mod4
