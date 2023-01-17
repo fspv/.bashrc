@@ -64,6 +64,11 @@ font pango:Ubuntu Mono 11
 set $lock_screen flock -x -n ${HOME}/.config/swaylock/flock sh -c 'swaymsg input "*" xkb_switch_layout 0; swaylock -f -d 2>&1 >swaylock.log'
 set $disable_display swaymsg "output * dpms off"
 set $enable_display swaymsg "output * dpms on"
+
+# Don't sleep when fullscreen app is open
+for_window [class=.*] inhibit_idle fullscreen
+for_window [app_id=.*] inhibit_idle fullscreen
+
 exec_always pkill -f swayidle
 exec_always swayidle -w -d \
     timeout 180 '$disable_display' \
