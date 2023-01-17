@@ -7,7 +7,7 @@
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["sway/window"],
-    "modules-right": ["network", "sway/language", "battery", "clock", "tray"],
+    "modules-right": ["idle_inhibitor", "network", "sway/language", "battery", "clock", "tray"],
     "sway/mode": {
         "format": "<span style=\"italic\">{}</span>"
     },
@@ -42,5 +42,12 @@
         "format-linked": "{ifname} (No IP)",
         "format-disconnected": "Disconnected",
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "idle_inhibitor": {
+      "format": "{icon}",
+      "format-icons": {
+        "activated": "",
+        "deactivated": ""
+      }
     }
 }
