@@ -56,7 +56,8 @@ class LayoutCache:
 
     @log_params_and_output
     def discard(self, window_id: int) -> None:
-        del self._cache[window_id]
+        if window_id in self._cache:
+            del self._cache[window_id]
 
 
 @log_params_and_output
