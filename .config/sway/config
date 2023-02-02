@@ -12,8 +12,8 @@ exec systemctl --user import-environment
 exec ibus-daemon -drt auto
 
 # FIXME: pip3 install i3ipc
-exec pkill -f window-bound-layout
-exec --no-startup-id ${HOME}/.config/sway/scripts/window-bound-layout.sh 2>&1
+exec_always pkill -f window-bound-layout
+exec_always ${HOME}/.config/sway/scripts/window-bound-layout.sh 2>&1
 
 exec_always pkill -f dunst
 exec_always dunst -layer overlay -config ${HOME}/.dunstrc 2>&1
