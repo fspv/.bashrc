@@ -248,6 +248,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'ray-x/lsp_signature.nvim'
 
         Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+        " sudo snap install rustup --classic
+        " sudo snap install rust-analyzer --beta
+        Plug 'rust-lang/rust.vim'
     call plug#end()
 
     "
@@ -411,12 +415,14 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         " snap install pyls
         let g:ale_linters = {
         \   'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls', 'pylsp', 'pyre', 'jedils'],
+        \   'rust': ['analyzer', 'cargo', 'rls'],
         \   'sql': ['sqlfluff']
         \}
         let g:ale_fixers = {
         \   'python': ['black', 'isort'],
         \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
         \   'sql': ['pgformatter'],
+        \   'rust': ['rustfmt'],
         \   'go': ['gofmt', 'goimports', 'golines', 'remove_trailing_lines', 'trim_whitespace']
         \}
 
@@ -527,6 +533,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
       require("lspconfig").pylsp.setup{}
       require("lspconfig").gopls.setup{}
       require("lspconfig").clangd.setup{}
+      require("lspconfig").rust_analyzer.setup{}
 
       -- Set up nvim-cmp.
       local cmp = require'cmp'
