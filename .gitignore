@@ -8,6 +8,7 @@ AndroidStudioProjects
 .asterisk_history
 .audacity-data
 .avcd
+.aws/
 backup
 .bash_history
 .bash_logout
@@ -16,6 +17,7 @@ backup
 .bin
 .boto
 .cache
+.cargo/
 .chef
 .chromium-bsu
 .codeblocks
@@ -31,6 +33,7 @@ Desktop
 Documents
 Downloads
 .dupload.conf
+.eclipse/
 .ethereum/
 .fontconfig
 .fonts
@@ -50,6 +53,7 @@ git
 .gnupg
 .gnuplot_history
 .gnuplot-wxt
+go
 .goldendict
 .gphoto
 .gradle
@@ -71,6 +75,7 @@ Images
 .launchpadlib
 .leechcraft
 .lesshst
+.links2/
 .linphone-history.db
 .linphonerc
 .local
@@ -97,11 +102,13 @@ nohup.out
 .openshot_qt
 .openvas
 .openvasrc
+.p2/
 .pam_environment
 .pdbhistory
 .pex
 Pictures
 .pki
+.presage/
 .profile
 Public
 .pulse
@@ -109,6 +116,7 @@ Public
 .purple
 *.pyc
 .pylint.d
+.pyre/
 .python_history
 .qttest
 .recently-used
@@ -121,6 +129,7 @@ RPM
 .Skype
 snap
 .sqldeveloper
+.sqlite_history
 .sqlmap/
 .sqlplus_history
 .ssh
@@ -132,6 +141,7 @@ Steam
 .subversion
 .sudo_as_admin_successful
 svn
+sway*
 *.swo
 *.swp
 .telegram-cli
@@ -143,6 +153,7 @@ testdisk.log
 .thumbnails
 .thunderbird
 tmp
+.tmux/
 .twinkle
 Ubuntu One
 .vagrant.d
@@ -169,3 +180,4 @@ VirtualBox VMs
 .xscreensaver
 .xsession-errors
 .yarnrc
+.zoom/
