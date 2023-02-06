@@ -493,7 +493,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " apt-get install ctags
     " go get -u github.com/jstemmer/gotags
     " go install github.com/jstemmer/gotags
-    autocmd FileType python,c,cpp,go TagbarOpen
+    autocmd FileType python,c,cpp,go,rust TagbarOpen
+    " apt install universal-ctags
+    let g:tagbar_ctags_bin="ctags-universal"
+    let g:rust_use_custom_ctags_defs=1
 
     " CtrlP
     let g:ctrlp_cmd = 'CtrlPBuffer'
