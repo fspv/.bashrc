@@ -9,8 +9,10 @@ xfconf-query -c xfce4-session -p /sessions/Failsafe/Count -t int -s 1
 # Keyboard config
 xfconf-query -c xfce4-session -p /keyboard/KeyRepeat/Delay -t int -s 200 --create
 xfconf-query -c xfce4-session -p /keyboard/KeyRepeat/Rate -t int -s 100 --create
-xfconf-query -c keyboard-layout -p /Default/XkbLayout -t string -s us,ru --create
-xfconf-query -c keyboard-layout -p /Default/XkbOptions/Group -t string -s grp:lctrl_lshift_toggle --create
+xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s true --create
+xfconf-query -c keyboard-layout -p /Default/XkbLayout -t string -s us --create
+xfconf-query -c keyboard-layout -p /Default/XkbOptions/Group -t string -s grp:win_space_toggle --create
+xfconf-query -c keyboard-layout -p /Default/XkbOptions/Comopose -t string -s compose:ralt --create
 
 # Lock on lid close
 xfconf-query -c xfce4-session -p /shutdown/LockScreen -s true
