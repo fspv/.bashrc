@@ -252,16 +252,43 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         " sudo snap install rustup --classic
         " sudo snap install rust-analyzer --beta
         Plug 'rust-lang/rust.vim'
+
+        Plug 'nvim-lua/plenary.nvim'
+        Plug 'mfussenegger/nvim-dap'
+        Plug 'marcuscaisey/please.nvim'
+
+        Plug 'wellle/context.vim'
     call plug#end()
 
     "
     " Plugin configuration
     " ====================
 
-    " Fuzzy search
-    map z/ <Plug>(incsearch-fuzzy-/)
-    map z? <Plug>(incsearch-fuzzy-?)
-    map zg/ <Plug>(incsearch-fuzzy-stay)
+    " FZF
+    if has_key(plugs, 'coc.nvim')
+        " Fuzzy search
+        map z/ <Plug>(incsearch-fuzzy-/)
+        map z? <Plug>(incsearch-fuzzy-?)
+        map zg/ <Plug>(incsearch-fuzzy-stay)
+
+        " FindRootDirectory() comes from vim rooter
+        command! -bang -nargs=? -complete=dir ProjectFiles
+            \ call fzf#vim#files(
+            \   <q-args>,
+            \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
+            \   <bang>0
+            \ )
+        command! -bang -nargs=* ProjectRg
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>),
+            \   1,
+            \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
+            \   <bang>0
+            \ )
+
+        map ff/ :ProjectFiles<CR>
+        map fc/ :ProjectRg<CR>
+    endif
 
     if has_key(plugs, 'coc.nvim')
         " COC
@@ -490,153 +517,173 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \ quit | endif
 
     " Tagbar
-    " apt-get install ctags
-    " go get -u github.com/jstemmer/gotags
-    " go install github.com/jstemmer/gotags
-    autocmd FileType python,c,cpp,go,rust TagbarOpen
-    " apt install universal-ctags
-    let g:tagbar_ctags_bin="ctags-universal"
-    let g:rust_use_custom_ctags_defs=1
+    if has_key(plugs, 'tagbar')
+        " apt-get install ctags
+        " go get -u github.com/jstemmer/gotags
+        " go install github.com/jstemmer/gotags
+        autocmd FileType python,c,cpp,go,rust TagbarOpen
+        " apt install universal-ctags
+        let g:tagbar_ctags_bin="ctags-universal"
+        let g:rust_use_custom_ctags_defs=1
+    endif
 
     " CtrlP
-    let g:ctrlp_cmd = 'CtrlPBuffer'
+    if has_key(plugs, 'ctrlp.vim')
+        let g:ctrlp_cmd = 'CtrlPBuffer'
+    endif
 
     " Vim airline
-    let g:airline_theme='wombat'
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#ale#enabled = 1
-    let g:airline#extensions#branch#enabled = 1
+    if has_key(plugs, 'vim-airline')
+        let g:airline_theme='wombat'
+        let g:airline#extensions#tabline#enabled = 1
+        let g:airline#extensions#ale#enabled = 1
+        let g:airline#extensions#branch#enabled = 1
+    endif
 
     " Vim rooter
     " let g:rooter_cd_cmd = 'lcd' " Change dir only for current window
-    let g:rooter_manual_only = 1
-
-    " FZF
-    " FindRootDirectory() comes from vim rooter
-    command! -bang -nargs=? -complete=dir ProjectFiles
-        \ call fzf#vim#files(
-        \   <q-args>,
-        \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
-        \   <bang>0
-        \ )
-    command! -bang -nargs=* ProjectRg
-        \ call fzf#vim#grep(
-        \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>),
-        \   1,
-        \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
-        \   <bang>0
-        \ )
-
-    map ff/ :ProjectFiles<CR>
-    map fc/ :ProjectRg<CR>
+    if has_key(plugs, 'vim-rooter')
+        let g:rooter_manual_only = 1
+    endif
 
     set completeopt=menu,menuone,noselect
 
-    lua <<EOF
-      require("lspconfig").pylsp.setup{}
-      require("lspconfig").gopls.setup{}
-      require("lspconfig").clangd.setup{}
-      require("lspconfig").rust_analyzer.setup{}
+    " vim-go
+    if has_key(plugs, 'vim-go')
+        " automatic import management
+        let g:go_fmt_command = "goimports"
+        " syntax highlighting
+        let g:go_highlight_fields = 1
+        let g:go_highlight_functions = 1
+        let g:go_highlight_function_calls = 1
+        let g:go_highlight_extra_types = 1
+        " status bar
+        let g:go_auto_type_info = 1
+        " matching identifiers
+        let g:go_auto_sameids = 1
+    endif
 
-      -- Set up nvim-cmp.
-      local cmp = require'cmp'
+    if has_key(plugs, 'please') && executable('plz')
+        nnoremap <leader>pj silent <cmd>Please jump_to_target<cr>
+        nnoremap <leader>pb silent <cmd>Please build<cr>
+        nnoremap <leader>pt silent <cmd>Please test<cr>
+        nnoremap <leader>pct silent <cmd>Please test under_cursor<cr>
+        nnoremap <leader>pr silent <cmd>Please run<cr>
+        nnoremap <leader>py silent <cmd>Please yank<cr>
+        nnoremap <leader>pd silent <cmd>Please debug<cr>
 
-      cmp.setup({
-        snippet = {
-          -- REQUIRED - you must specify a snippet engine
-          expand = function(args)
-            vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-            -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-            -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-            -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-          end,
-        },
-        window = {
-          -- completion = cmp.config.window.bordered(),
-          -- documentation = cmp.config.window.bordered(),
-        },
-        mapping = cmp.mapping.preset.insert({
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-          ['<C-Space>'] = cmp.mapping.complete(),
-          ['<C-e>'] = cmp.mapping.abort(),
-          ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-        }),
-        sources = cmp.config.sources({
-          { name = 'nvim_lsp' },
-          { name = 'vsnip' }, -- For vsnip users.
-          -- { name = 'luasnip' }, -- For luasnip users.
-          -- { name = 'ultisnips' }, -- For ultisnips users.
-          -- { name = 'snippy' }, -- For snippy users.
-        }, {
-          { name = 'buffer' },
-        })
-      })
+        au BufWritePost *.go silent exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
+    endif
 
-      -- Set configuration for specific filetype.
-      cmp.setup.filetype('gitcommit', {
-        sources = cmp.config.sources({
-          { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-        }, {
-          { name = 'buffer' },
-        })
-      })
+    if has_key(plugs, 'nvim-lspconfig') && has_key(plugs, 'nvim-cmp') && has_key(plugs, 'cmp-vsnip')
+        lua <<EOF
+          require("lspconfig").pylsp.setup{}
+          require("lspconfig").gopls.setup{}
+          require("lspconfig").clangd.setup{}
+          require("lspconfig").rust_analyzer.setup{}
 
-      -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-      cmp.setup.cmdline({ '/', '?' }, {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = {
-          { name = 'buffer' }
-        }
-      })
+          -- Set up nvim-cmp.
+          local cmp = require'cmp'
 
-      -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-      cmp.setup.cmdline(':', {
-        mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources({
-          { name = 'path' }
-        }, {
-          { name = 'cmdline' }
-        })
-      })
+          cmp.setup({
+            snippet = {
+              -- REQUIRED - you must specify a snippet engine
+              expand = function(args)
+                vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+                -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+                -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+                -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+              end,
+            },
+            window = {
+              -- completion = cmp.config.window.bordered(),
+              -- documentation = cmp.config.window.bordered(),
+            },
+            mapping = cmp.mapping.preset.insert({
+              ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+              ['<C-f>'] = cmp.mapping.scroll_docs(4),
+              ['<C-Space>'] = cmp.mapping.complete(),
+              ['<C-e>'] = cmp.mapping.abort(),
+              ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+            }),
+            sources = cmp.config.sources({
+              { name = 'nvim_lsp' },
+              { name = 'vsnip' }, -- For vsnip users.
+              -- { name = 'luasnip' }, -- For luasnip users.
+              -- { name = 'ultisnips' }, -- For ultisnips users.
+              -- { name = 'snippy' }, -- For snippy users.
+            }, {
+              { name = 'buffer' },
+            })
+          })
 
-      -- Set up lspconfig.
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+          -- Set configuration for specific filetype.
+          cmp.setup.filetype('gitcommit', {
+            sources = cmp.config.sources({
+              { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
+            }, {
+              { name = 'buffer' },
+            })
+          })
+
+          -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+          cmp.setup.cmdline({ '/', '?' }, {
+            mapping = cmp.mapping.preset.cmdline(),
+            sources = {
+              { name = 'buffer' }
+            }
+          })
+
+          -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+          cmp.setup.cmdline(':', {
+            mapping = cmp.mapping.preset.cmdline(),
+            sources = cmp.config.sources({
+              { name = 'path' }
+            }, {
+              { name = 'cmdline' }
+            })
+          })
+
+          -- Set up lspconfig.
+          local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 
-      -- lsp_signature plugin
-      require "lsp_signature".setup({})
+          -- lsp_signature plugin
+          require "lsp_signature".setup({})
 EOF
 
-    " Expand
-    imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-    smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+        " Expand
+        imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+        smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
 
-    " Expand or jump
-    imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-    smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+        " Expand or jump
+        imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+        smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
 
-    " Jump forward or backward
-    imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-    smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-    imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-    smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+        " Jump forward or backward
+        imap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+        smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+        imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+        smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 
-    " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
-    " See https://github.com/hrsh7th/vim-vsnip/pull/50
-    nmap        s   <Plug>(vsnip-select-text)
-    xmap        s   <Plug>(vsnip-select-text)
-    nmap        S   <Plug>(vsnip-cut-text)
-    xmap        S   <Plug>(vsnip-cut-text)
+        " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+        " See https://github.com/hrsh7th/vim-vsnip/pull/50
+        nmap        s   <Plug>(vsnip-select-text)
+        xmap        s   <Plug>(vsnip-select-text)
+        nmap        S   <Plug>(vsnip-cut-text)
+        xmap        S   <Plug>(vsnip-cut-text)
 
-    " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
-    let g:vsnip_filetypes = {}
-    let g:vsnip_filetypes.javascriptreact = ['javascript']
-    let g:vsnip_filetypes.typescriptreact = ['typescript']
+        " If you want to use snippet for multiple filetypes, you can `g:vsnip_filetypes` for it.
+        let g:vsnip_filetypes = {}
+        let g:vsnip_filetypes.javascriptreact = ['javascript']
+        let g:vsnip_filetypes.typescriptreact = ['typescript']
+    endif
 
     set background=dark
     " let g:gruvbox_contrast_dark='hard'
-    colorscheme gruvbox
+    if has_key(plugs, 'gruvbox')
+        colorscheme gruvbox
+    endif
 endif
 
 " Close preview window when done with completions
