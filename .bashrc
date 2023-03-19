@@ -240,6 +240,48 @@ mmysql() {
         --pager='less --quit-if-one-screen --no-init'
 }
 
+plz_path() {
+    FILE=$1
+
+    SHORTEST=100000
+    SHORTEST_PATH=""
+
+    BASE_DIR="${PLZ_BASE_DIR}"
+    BASE_DIR_LEN=${#BASE_DIR}
+
+    # Prune the base dir from the path if absolute
+    if [[ "${FILE}" == "${BASE_DIR}"* ]]
+    then
+        B=${FILE:BASE_DIR_LEN}
+    else
+        B=${FILE}
+    fi;
+
+    for path in $(plz query changes "$B" --include_dependees=transitive | grep -v ":_")
+    do
+        AC_PATH=$(echo "$path" | tr : /)
+        RELATIVE_PATH=$(realpath --relative-to="$BASE_DIR$B" "$BASE_DIR$AC_PATH")
+        LENGTH=$(echo "$RELATIVE_PATH" | grep -o "../" | wc -l)
+        if (( SHORTEST > LENGTH ));
+        then
+            SHORTEST=$LENGTH
+            SHORTEST_PATH=$path
+        fi;
+    done
+
+    echo "${SHORTEST_PATH}"
+}
+
+plz_build() {
+    path=$(plz_path "$1")
+    plz build "${path}"
+}
+
+plz_test() {
+    path=$(plz_path "$1")
+    plz test "${path}" "$2"
+}
+
 # safety features
 alias cp='cp -i'
 alias mv='mv -i'
@@ -259,8 +301,10 @@ function mkdircd {
 
 path_push_left() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        PATH="$1:${PATH:+"$PATH"}"
+        path="$1:${PATH:+"$PATH"}"
     fi
+
+    export PATH=${path}
 }
 
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
@@ -278,7 +322,14 @@ export EDITOR
 [ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
 [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
 
-path_push_left ${GOBIN}
+path_push_left "${GOBIN}"
+path_push_left "${HOME}/.local/bin"
+
+# kube config
+export KUBECONFIG=$HOME/.kube/config
+for file in "$HOME/.kube/configs"/*.yaml; do
+  export KUBECONFIG=$KUBECONFIG:$file
+done
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
