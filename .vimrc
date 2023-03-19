@@ -473,7 +473,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
                 \}
             else
                 let g:ale_fixers = {
-                \   'python': ['arc', 'black', 'isort'],
+                \   'python': ['black', 'isort'],
                 \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
                 \   'sql': ['pgformatter'],
                 \   'rust': ['rustfmt'],
@@ -483,6 +483,17 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         endfunction
 
         autocmd VimEnter * call ALEDetectArcanist()
+
+        function ALEDetectFlake8Config()
+            let flake8_config = FindRootDirectory() . '/.flake8'
+            if filereadable(flake8_config)
+                let g:ale_python_flake8_options = '--config=' . flake8_config
+            else
+                let g:ale_python_flake8_options = '--config=$HOME/.config/flake8'
+            endif
+        endfunction
+
+        autocmd VimEnter * call ALEDetectFlake8Config()
 
         let g:ale_python_pylsp_executable = "pylsp"
 
@@ -508,9 +519,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \     },
         \   },
         \}
-
-        " FIXME: probably not needed anymore
-        " call ale#Set('python_flake8_options', '--config=$HOME/.config/flake8')
 
         let g:ale_fix_on_save = 1
         " let g:ale_float_preview = 1
