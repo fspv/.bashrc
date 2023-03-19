@@ -12,7 +12,9 @@ if empty($VIRTUAL_ENV)
     let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
 else
     let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8 python-lsp-server[all] pylint pyre-check')
+    " FIXME: flake8 version is frozen due to multiple issues like:
+    " https://github.com/aleGpereira/flake8-mock/issues/10
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pyre-check pynvim')
 endif
 
 autocmd FileType go call system('GO111MODULE=on go get golang.org/x/tools/gopls')
@@ -186,6 +188,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " :PlugInstall
     " :UpdateRemotePlugins
     call plug#begin()
+        Plug 'airblade/vim-rooter' " Automatically detect project root
         " Plug 'neoclide/coc.nvim', {'branch': 'release'}
         Plug 'dense-analysis/ale' " Linting, formatting
         Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " fuzzy search
@@ -215,7 +218,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         " Plug 'vim-airline/vim-airline-themes' " Themes for the status bar
         Plug 'ludovicchabant/vim-lawrencium' " HG plugin
         Plug 'tpope/vim-fugitive' " Git plugin
-        Plug 'airblade/vim-rooter' " Automatically detect project root
         if has('nvim') || has('patch-8.0.902')
           Plug 'mhinz/vim-signify'
         else
@@ -265,7 +267,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " ====================
 
     " FZF
-    if has_key(plugs, 'coc.nvim')
+    if has_key(plugs, 'fzf')
         " Fuzzy search
         map z/ <Plug>(incsearch-fuzzy-/)
         map z? <Plug>(incsearch-fuzzy-?)
@@ -436,6 +438,20 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         let g:ale_hover_cursor = 1
 
         " ALE
+
+        " Add a fixer for arcanist https://github.com/phacility/arcanist
+        function! FormatArc(buffer) abort
+            return {
+            \   'command': 'arc lint --apply-patches %t',
+            \   'read_buffer': 0,
+            \   'read_temporary_file': 1,
+            \}
+        endfunction
+
+        if executable('arc')
+            execute ale#fix#registry#Add('arc', 'FormatArc', ['python', 'go'], 'arc lint for arcanist')
+        endif
+
         let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
         " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
         " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
@@ -445,20 +461,39 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \   'rust': ['analyzer', 'cargo', 'rls'],
         \   'sql': ['sqlfluff']
         \}
-        let g:ale_fixers = {
-        \   'python': ['black', 'isort'],
-        \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
-        \   'sql': ['pgformatter'],
-        \   'rust': ['rustfmt'],
-        \   'go': ['gofmt', 'goimports', 'golines', 'remove_trailing_lines', 'trim_whitespace']
-        \}
 
-        let g:ale_python_pyls_executable = "pylsp"
+        function ALEDetectArcanist()
+            if filereadable(FindRootDirectory() . '/.arclint')
+                let g:ale_fixers = {
+                \   'python': ['arc'],
+                \   'go': ['arc']
+                \}
+            else
+                let g:ale_fixers = {
+                \   'python': ['arc', 'black', 'isort'],
+                \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
+                \   'sql': ['pgformatter'],
+                \   'rust': ['rustfmt'],
+                \   'go': ['gofmt', 'goimports', 'golines', 'remove_trailing_lines', 'trim_whitespace']
+                \}
+            endif
+        endfunction
 
-        let g:ale_python_pyls_config = {
+        autocmd VimEnter * call ALEDetectArcanist()
+
+        let g:ale_python_pylsp_executable = "pylsp"
+
+        let g:ale_python_pylsp_config = {
         \   'pylsp': {
+        \     'configurationSources': ['flake8'],
         \     'plugins': {
+        \       'flake8': {
+        \         'enabled': v:true,
+        \       },
         \       'pycodestyle': {
+        \         'enabled': v:false,
+        \       },
+        \       'mccabe': {
         \         'enabled': v:false,
         \       },
         \       'pyflakes': {
@@ -471,7 +506,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \   },
         \}
 
-        call ale#Set('python_flake8_options', '--config=$HOME/.config/flake8')
+        " FIXME: probably not needed anymore
+        " call ale#Set('python_flake8_options', '--config=$HOME/.config/flake8')
 
         let g:ale_fix_on_save = 1
         " let g:ale_float_preview = 1
@@ -563,21 +599,65 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         let g:go_auto_sameids = 1
     endif
 
-    if has_key(plugs, 'please') && executable('plz')
-        nnoremap <leader>pj silent <cmd>Please jump_to_target<cr>
-        nnoremap <leader>pb silent <cmd>Please build<cr>
-        nnoremap <leader>pt silent <cmd>Please test<cr>
-        nnoremap <leader>pct silent <cmd>Please test under_cursor<cr>
-        nnoremap <leader>pr silent <cmd>Please run<cr>
-        nnoremap <leader>py silent <cmd>Please yank<cr>
-        nnoremap <leader>pd silent <cmd>Please debug<cr>
+        autocmd VimEnter * call ALEDetectArcanist()
 
-        au BufWritePost *.go silent exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
+    if has_key(plugs, 'please.nvim') && executable('plz')
+        function DetectPlz()
+            if filereadable(FindRootDirectory() . '/.plzconfig')
+                au BufWritePost *.go silent exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
+                au BufRead,BufNewFile BUILD,*.build_def set filetype=please
+                au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
+            endif
+        endfunction
+        autocmd VimEnter *.go call DetectPlz()
+
+        lua <<EOF
+            vim.keymap.set('n', '<leader>pj', require('please').jump_to_target)
+            vim.keymap.set('n', '<leader>pb', require('please').build)
+            vim.keymap.set('n', '<leader>pt', require('please').test)
+            vim.keymap.set('n', '<leader>pct', function()
+            require('please').test({ under_cursor = true })
+            end)
+            vim.keymap.set('n', '<leader>plt', function()
+            require('please').test({ list = true })
+            end)
+            vim.keymap.set('n', '<leader>pft', function()
+            require('please').test({ failed = true })
+            end)
+            vim.keymap.set('n', '<leader>pr', require('please').run)
+            vim.keymap.set('n', '<leader>py', require('please').yank)
+            vim.keymap.set('n', '<leader>pd', require('please').debug)
+            vim.keymap.set('n', '<leader>pa', require('please').action_history)
+            vim.keymap.set('n', '<leader>pp', require('please.runners.popup').restore)
+EOF
     endif
 
     if has_key(plugs, 'nvim-lspconfig') && has_key(plugs, 'nvim-cmp') && has_key(plugs, 'cmp-vsnip')
         lua <<EOF
-          require("lspconfig").pylsp.setup{}
+          require("lspconfig").pylsp.setup{
+            settings = {
+              pylsp = {
+                configurationSources = {"flake8"},
+                plugins = {
+                  flake8 = {
+                    enabled = true
+                  },
+                  pycodestyle = {
+                    enabled = false
+                  },
+                  mccabe = {
+                    enabled = false
+                  },
+                  pyflakes = {
+                    enabled = false
+                  },
+                  pydocstyle = {
+                    enabled = false
+                  }
+                }
+              }
+            }
+          }
           require("lspconfig").gopls.setup{}
           require("lspconfig").clangd.setup{}
           require("lspconfig").rust_analyzer.setup{}
