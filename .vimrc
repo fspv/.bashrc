@@ -269,6 +269,9 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " FZF
     if has_key(plugs, 'fzf')
         " Fuzzy search
+        map /  <Plug>(incsearch-forward)
+        map ?  <Plug>(incsearch-backward)
+        map g/ <Plug>(incsearch-stay)
         map z/ <Plug>(incsearch-fuzzy-/)
         map z? <Plug>(incsearch-fuzzy-?)
         map zg/ <Plug>(incsearch-fuzzy-stay)
