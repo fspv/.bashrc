@@ -319,8 +319,14 @@ fi
 EDITOR=nvim
 export EDITOR
 
-[ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
-[ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
+if [ "${GOPATH}" = "" ]
+then
+    [ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
+fi
+if [ "${GOBIN}" = "" ]
+then
+    [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
+fi
 
 path_push_left "${GOBIN}"
 path_push_left "${HOME}/.local/bin"
