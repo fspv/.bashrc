@@ -6,16 +6,16 @@
 #
 
 # After-start actions
-exec --no-startup-id xss-lock -- ${HOME}/.config/i3/scripts/lock-screen.sh
+exec_always --no-startup-id sh -c "xss-lock -- ${HOME}/.config/i3/scripts/lock-screen.sh"
 # FIXME: pip3 install i3ipc
-exec --no-startup-id ${HOME}/.config/i3/scripts/window-binded-layout.sh
-exec --no-startup-id setxkbmap -model pc105 -layout us,ru -option grp:ctrl_shift_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps
+exec --no-startup-id sh -c "${HOME}/.config/i3/scripts/window-binded-layout.sh"
+exec_always --no-startup-id sh -c "setxkbmap -model pc105 -layout us,ru -option grp:win_space_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps,compose:rwin"
 
-exec --no-startup-id dunst -config ${HOME}/.dunstrc
-exec --no-startup-id volumeicon
+exec_always --no-startup-id sh -c "dunst -layer overlay -config ${HOME}/.dunstrc"
+exec --no-startup-id sh -c "volumeicon"
 
 # Run local stuff
-exec --no-startup-id ${HOME}/.config/i3/scripts/local.sh
+exec --no-startup-id sh -c "${HOME}/.config/i3/scripts/local.sh"
 
 set $mod Mod4
 
@@ -32,9 +32,59 @@ bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
 bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
 bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 
+# Gnome settings
+exec_always sh -c "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
+exec_always sh -c "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'"
+
+exec_always sh -c "gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'"
+exec_always sh -c "gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'"
+
+exec_always sh -c "gsettings set org.freedesktop.ibus.general.hotkey triggers '[]'"
+exec_always sh -c "gsettings set org.freedesktop.ibus.general.hotkey next-engine '[]'"
+exec_always sh -c "gsettings set org.freedesktop.ibus.general engines-order \"['xkb:us::eng', 'xkb:ru::rus']\""
+exec_always sh -c "gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'xkb:ru::rus']\""
+exec_always sh -c "gsettings set org.freedesktop.ibus.general use-global-engine 'false'"
+exec_always sh -c "gsettings set org.freedesktop.ibus.general use-system-keyboard-layout 'true'"
+
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command -t string -sa 'i3'"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client1_Command -t string -sa ''"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client2_Command -t string -sa ''"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client3_Command -t string -sa ''"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client4_Command -t string -sa ''"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Count -t int -s 1"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s true --create"
+
+
+# Keyboard config
+exec_always --no-startup-id sh -c "xfconf-query -c keyboards -p /Default/KeyRepeat/Delay -t int -s 250 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c keyboards -p /Default/KeyRepeat/Rate -t int -s 45 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c keyboard-layout -p /Default/XkbLayout -t string -s us --create"
+exec_always --no-startup-id sh -c "xfconf-query -c keyboard-layout -p /Default/XkbOptions/Group -t string -s grp:win_space_toggle --create"
+exec_always --no-startup-id sh -c "xfconf-query -c keyboard-layout -p /Default/XkbOptions/Comopose -t string -s compose:ralt --create"
+
+# Lock on lid close
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /shutdown/LockScreen -s true"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/hibernate-button-action -t int -s 1 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lid-action-on-ac -t int -s 0 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lid-action-on-battery -t int -s 1 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/lock-screen-suspend-hibernate -t bool -s true --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/logind-handle-lid-switch -t bool -s true --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/show-tray-icon -t int -s 1 --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/sleep-button-action -t int -s 1 --create"
+
+# Appearance
+exec_always --no-startup-id sh -c "xfconf-query -c xsettings -p /Net/ThemeName -t string -s Adwaita-dark --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xsettings -p /Net/IconThemeName -t string -s Yaru-dark --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xsettings -p /Gtk/FontName -t string -s 'Ubuntu 11' --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xsettings -p /Gtk/MonospaceFontName -t string -s 'Ubuntu Mono 11' --create"
+
+# Disable annoying power manager notifications
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-power-manager -p /xfce4-power-manager/general-notification -t bool -s false --create"
+
+
 # PrintScr
-bindsym Print exec shutter -f
-bindsym Shift+Print exec shutter -s
+bindsym Print exec flameshot full -p ${HOME}/Pictures
+bindsym Shift+Print exec flameshot gui -p ${HOME}/Pictures
 
 # Switch language with Super + Space (to match macos)
 bindsym $mod+space exec ${HOME}/.config/i3/scripts/xkblayout-state set +1
