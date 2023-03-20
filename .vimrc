@@ -6,6 +6,7 @@ endif
 " Python3 for neovim
 " virtualenv -p python3 ~/venv/neovim
 " . ~/venv/neovim/bin/activate
+" pip install -U setuptools
 " pip install neovim jedi
 " or apt-get install python3-neovim
 if empty($VIRTUAL_ENV)
@@ -14,7 +15,9 @@ else
     let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
     " FIXME: flake8 version is frozen due to multiple issues like:
     " https://github.com/aleGpereira/flake8-mock/issues/10
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pyre-check pynvim')
+    call system($VIRTUAL_ENV . '/bin/pip install -U setuptools')
+
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pynvim python-language-server[all]')
 endif
 
 autocmd FileType go call system('GO111MODULE=on go get golang.org/x/tools/gopls')
@@ -442,19 +445,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
         " ALE
 
-        " Add a fixer for arcanist https://github.com/phacility/arcanist
-        function! FormatArc(buffer) abort
-            return {
-            \   'command': 'arc lint --apply-patches %t',
-            \   'read_buffer': 0,
-            \   'read_temporary_file': 1,
-            \}
-        endfunction
-
-        if executable('arc')
-            execute ale#fix#registry#Add('arc', 'FormatArc', ['python', 'go'], 'arc lint for arcanist')
-        endif
-
         let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
         " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
         " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
@@ -466,11 +456,13 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \}
 
         function ALEDetectArcanist()
-            if filereadable(FindRootDirectory() . '/.arclint')
+            " Add a fixer for arcanist https://github.com/phacility/arcanist
+            if executable('arc') && filereadable(FindRootDirectory() . '/.arclint')
                 let g:ale_fixers = {
-                \   'python': ['arc'],
-                \   'go': ['arc']
+                \   'python': [],
+                \   'go': []
                 \}
+                au BufWritePost *.py,*.go,BUILD,*.build_def,*.build_defs exec '!arc lint --apply-patches' shellescape(expand('%:p'), 1)
             else
                 let g:ale_fixers = {
                 \   'python': ['black', 'isort'],
@@ -610,12 +602,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         let g:go_auto_sameids = 1
     endif
 
-        autocmd VimEnter * call ALEDetectArcanist()
-
     if has_key(plugs, 'please.nvim') && executable('plz')
         function DetectPlz()
             if filereadable(FindRootDirectory() . '/.plzconfig')
-                au BufWritePost *.go silent exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
+                au BufWritePost *.go exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
                 au BufRead,BufNewFile BUILD,*.build_def set filetype=please
                 au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
             endif
