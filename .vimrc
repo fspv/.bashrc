@@ -80,7 +80,7 @@ set sidescrolloff=2
 
 " Use the cool tab complete menu
 set wildmenu
-set wildignore=*.o,*~
+set wildignore=*.o,*~,tmp/*,*.so,*.swp,*.zip,*.json,*.html,*.pb.go,*_pb2.py,*_pb2_grpc.py,plz-out/*
 
 " Enable folds
 "set foldenable
@@ -130,6 +130,9 @@ set fileencoding=utf8
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
+
+" Remap leader
+let mapleader = ","
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
@@ -202,10 +205,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'tpope/vim-sensible' " Universally good defaults
         Plug 'tpope/vim-speeddating' " Use ctrl-a and ctrl-x to increment/decrement times/dates
         Plug 'vim-scripts/PreserveNoEOL' " Omit the final newline of a file if it wasn't present when we opened it
-        if filereadable(python3_host_prog)
-            Plug 'shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }  " Completion
-        endif
-        Plug 'deoplete-plugins/deoplete-jedi' " Another way to have completion (pyls default)
+        " if filereadable(python3_host_prog)
+        "     Plug 'shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }  " Completion
+        " endif
+        " Plug 'deoplete-plugins/deoplete-jedi' " Another way to have completion (pyls default)
         Plug 'morhetz/gruvbox' " Colors!
         Plug 'vim-python/python-syntax' " Updated Python syntax highlighting
         Plug 'junegunn/rainbow_parentheses.vim' " Color-matched parens
@@ -263,6 +266,12 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'marcuscaisey/please.nvim'
 
         Plug 'wellle/context.vim'
+
+        Plug 'kosayoda/nvim-lightbulb'
+        Plug 'antoinemadec/FixCursorHold.nvim'
+        Plug 'weilbith/nvim-code-action-menu'
+
+        Plug 'skywind3000/vim-quickui'
     call plug#end()
 
     "
@@ -555,12 +564,14 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
         \ quit | endif
 
+    let NERDTreeRespectWildIgnore = 1
+
     " Tagbar
     if has_key(plugs, 'tagbar')
         " apt-get install ctags
         " go get -u github.com/jstemmer/gotags
         " go install github.com/jstemmer/gotags
-        autocmd FileType python,c,cpp,go,rust TagbarOpen
+        autocmd FileType python,c,cpp,go,rust,proto TagbarOpen
         " apt install universal-ctags
         let g:tagbar_ctags_bin="ctags-universal"
         let g:rust_use_custom_ctags_defs=1
@@ -663,6 +674,26 @@ EOF
           require("lspconfig").clangd.setup{}
           require("lspconfig").rust_analyzer.setup{}
 
+          vim.lsp.handlers['textDocument/hover'] = function(_, method, result)
+          vim.lsp.util.focusable_float(method, function()
+              if not (result and result.contents) then
+                -- return { 'No information available' }
+                return
+              end
+              local markdown_lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
+              markdown_lines = vim.lsp.util.trim_empty_lines(markdown_lines)
+              if vim.tbl_isempty(markdown_lines) then
+                -- return { 'No information available' }
+                return
+              end
+              local bufnr, winnr = vim.lsp.util.fancy_floating_markdown(markdown_lines, {
+                pad_left = 1; pad_right = 1;
+              })
+              vim.lsp.util.close_preview_autocmd({"CursorMoved", "BufHidden"}, winnr)
+              return bufnr, winnr
+            end)
+          end
+
           -- Set up nvim-cmp.
           local cmp = require'cmp'
 
@@ -764,6 +795,24 @@ EOF
     " let g:gruvbox_contrast_dark='hard'
     if has_key(plugs, 'gruvbox')
         colorscheme gruvbox
+    endif
+
+    if has_key(plugs, 'nvim-lightbulb')
+        autocmd CursorHold,CursorHoldI * lua require('nvim-lightbulb').update_lightbulb()
+    endif
+
+    if has_key(plugs, 'vim-quickui')
+        " clear all the menus
+        call quickui#menu#reset()
+
+        call quickui#menu#install(
+        \    '&Please',
+        \    [
+        \       ["&Build", ",pb"],
+        \    ]
+        \)
+
+        noremap <leader>m :call quickui#menu#open()<cr>
     endif
 endif
 
