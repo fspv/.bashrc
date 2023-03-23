@@ -71,6 +71,15 @@ set vi-cmd-mode-string :
 [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
 [ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
 
+FD_CMD="/usr/lib/cargo/bin/fd"
+alias fd="${FD_CMD}"
+
+if test -f "${FD_CMD}"
+then
+    export FZF_DEFAULT_COMMAND="/usr/lib/cargo/bin/fd --type f --strip-cwd-prefix"
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
+
 # Fix upstart completion (autocomplete all jobs to all states)
 _upstart_all() {
     find /etc/init/ -name '*.conf' -printf '%f\n' | sed 's/\.conf$//'
