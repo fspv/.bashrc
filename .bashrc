@@ -311,9 +311,8 @@ function mkdircd {
 path_push_left() {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         path="$1:${PATH:+"$PATH"}"
+        export PATH=${path}
     fi
-
-    export PATH=${path}
 }
 
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
