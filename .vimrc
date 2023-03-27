@@ -80,7 +80,7 @@ set sidescrolloff=2
 
 " Use the cool tab complete menu
 set wildmenu
-set wildignore=*.o,*~,tmp/*,*.so,*.swp,*.zip,*.json,*.html,*.pb.go,*_pb2.py,*_pb2_grpc.py,plz-out/*
+set wildignore=*.o,*~,tmp/*,*.so,*.swp,*.zip,*.json,*.html,*.pb.go,*.pb.[a-z]*.go,*_pb2.py,*_pb2_grpc.py,plz-out/*
 
 " Enable folds
 "set foldenable
@@ -299,7 +299,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             \ call fzf#vim#grep(
             \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>),
             \   1,
-            \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
+            \   fzf#vim#with_preview({'dir': FindRootDirectory(), 'options': '--delimiter : --nth 4..'}),
             \   <bang>0
             \ )
 
@@ -806,11 +806,61 @@ EOF
         call quickui#menu#reset()
 
         call quickui#menu#install(
-        \    '&Please',
+        \    '&Vim',
         \    [
-        \       ["&Build", ",pb"],
+        \       ["&Reload config", "source $MYVIMRC"],
         \    ]
         \)
+
+        if has_key(plugs, 'please.nvim') && executable('plz')
+            call quickui#menu#install(
+            \    '&Please',
+            \    [
+            \       ["&Show window\t<leader>pp", "lua require('please.runners.popup').restore()"],
+            \       ["&Build\t<leader>pj", "lua require('please').build()"],
+            \       ["&Test\t<leader>pt", "lua require('please').test()"],
+            \       ["&Jump to target\t<leader>pj", "lua require('please').jump_to_target()"],
+            \       ["&Test under cursor\t<leader>pct", "lua require('please').test({ under_cursor = true })"],
+            \       ["&List tests\t<leader>plt", "lua require('please').test({ list = true })"],
+            \       ["&List failed tests\t<leader>plt", "lua require('please').test({ failed = true })"],
+            \       ["&Run\t<leader>pr", "lua require('please').run())"],
+            \       ["&Yank\t<leader>py", "lua require('please').yank())"],
+            \       ["&Debug\t<leader>pd", "lua require('please').debug())"],
+            \       ["&Action history\t<leader>pa", "lua require('please').action_history())"],
+            \    ]
+            \)
+        endif
+
+        if has_key(plugs, 'fzf')
+            call quickui#menu#install(
+            \    '&Fuzzy search',
+            \    [
+            \       ["&Files\tff/", "ProjectFiles"],
+            \       ["&File content\tfc/", "ProjectRg"],
+            \       ["&Git files\t:GFiles", "GFiles"],
+            \       ["&Git staged files\t:GFiles?", "GFiles?"],
+            \       ["&Git commits\t:Commits [LOG_OPTS]", "Commits"],
+            \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]", "BCommits"],
+            \       ["&Buffers\tBuffers:", "Buffers"],
+            \       ["&Lines (all buffers)\t:Lines", "Lines"],
+            \       ["&Lines (current buffer)\t:BLines", "BLines"],
+            \       ["&Tags (project)\t:Tags", "Tags"],
+            \       ["&Tags (current buffer)\t:BTags", "BTags"],
+            \       ["&Colors\t:Colors", "Colors"],
+            \       ["&Marks\t:Marks", "Marks"],
+            \       ["&Windows\t:Windows", "Windows"],
+            \       ["&Snippets\t:Snippets", "Snippets"],
+            \       ["&Commands\t:Commands", "Commands"],
+            \       ["&Maps\t:Maps", "Maps"],
+            \       ["&Help tags\t:Helptags", "Helptags"],
+            \       ["&File types\t:Filetypes", "Filetypes"],
+            \       ["&Command history\t:History:", "History:"],
+            \       ["&Old files and open buffers history\t:History", "History"],
+            \       ["&Ripgrep\t:Rg [PATTERN]", "Rg"],
+            \       ["&Locate\t:Locate [PATTERN]", "Locate"],
+            \    ]
+            \)
+        endif
 
         noremap <leader>m :call quickui#menu#open()<cr>
     endif
