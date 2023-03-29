@@ -33,18 +33,18 @@ bindsym XF86AudioLowerVolume exec amixer -q set Master 2dB- unmute
 bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 
 # Gnome settings
-exec_always sh -c "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
-exec_always sh -c "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'"
+exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
+exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'"
 
-exec_always sh -c "gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'"
-exec_always sh -c "gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'"
+exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'"
+exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'"
 
-exec_always sh -c "gsettings set org.freedesktop.ibus.general.hotkey triggers '[]'"
-exec_always sh -c "gsettings set org.freedesktop.ibus.general.hotkey next-engine '[]'"
-exec_always sh -c "gsettings set org.freedesktop.ibus.general engines-order \"['xkb:us::eng', 'xkb:ru::rus']\""
-exec_always sh -c "gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'xkb:ru::rus']\""
-exec_always sh -c "gsettings set org.freedesktop.ibus.general use-global-engine 'false'"
-exec_always sh -c "gsettings set org.freedesktop.ibus.general use-system-keyboard-layout 'true'"
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general.hotkey triggers '[]'"
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general.hotkey next-engine '[]'"
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general engines-order \"['xkb:us::eng', 'xkb:ru::rus']\""
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'xkb:ru::rus']\""
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general use-global-engine 'false'"
+exec_always --no-startup-id sh -c "gsettings set org.freedesktop.ibus.general use-system-keyboard-layout 'true'"
 
 exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command -t string -sa 'i3'"
 exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client1_Command -t string -sa ''"
