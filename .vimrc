@@ -194,9 +194,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     " :PlugInstall
     " :UpdateRemotePlugins
     call plug#begin()
+        Plug 'williamboman/mason.nvim', {'do': 'MasonUpdate'} " Yet another package manager
         Plug 'airblade/vim-rooter' " Automatically detect project root
-        " Plug 'neoclide/coc.nvim', {'branch': 'release'}
-        Plug 'dense-analysis/ale' " Linting, formatting
         Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " fuzzy search
         Plug 'junegunn/fzf.vim' " fuzzy search 2
         Plug 'ntpeters/vim-better-whitespace' " Highlight trailing whitespace
@@ -205,13 +204,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'tpope/vim-sensible' " Universally good defaults
         Plug 'tpope/vim-speeddating' " Use ctrl-a and ctrl-x to increment/decrement times/dates
         Plug 'vim-scripts/PreserveNoEOL' " Omit the final newline of a file if it wasn't present when we opened it
-        " if filereadable(python3_host_prog)
-        "     Plug 'shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }  " Completion
-        " endif
-        " Plug 'deoplete-plugins/deoplete-jedi' " Another way to have completion (pyls default)
         Plug 'morhetz/gruvbox' " Colors!
         Plug 'vim-python/python-syntax' " Updated Python syntax highlighting
-        Plug 'junegunn/rainbow_parentheses.vim' " Color-matched parens
         Plug 'easymotion/vim-easymotion' " Faster navigation
         Plug 'haya14busa/incsearch.vim' " Highlight incremental search
         Plug 'haya14busa/incsearch-fuzzy.vim' " Fuzzy incremental search
@@ -220,8 +214,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'preservim/tagbar' " File navigation
         Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
         Plug 'octol/vim-cpp-enhanced-highlight' " Better C++ syntax highlight
-        " Plug 'vim-airline/vim-airline' " Nice status bar
-        " Plug 'vim-airline/vim-airline-themes' " Themes for the status bar
         Plug 'ludovicchabant/vim-lawrencium' " HG plugin
         Plug 'tpope/vim-fugitive' " Git plugin
         if has('nvim') || has('patch-8.0.902')
@@ -244,6 +236,9 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'hrsh7th/cmp-path'
         Plug 'hrsh7th/cmp-cmdline'
         Plug 'hrsh7th/nvim-cmp'
+
+        Plug 'williamboman/mason-lspconfig.nvim' " Automatically install LS
+        Plug 'VonHeikemen/lsp-zero.nvim' " Boilerplate configuration for lspconfig
 
         Plug 'hrsh7th/cmp-vsnip'
         Plug 'hrsh7th/vim-vsnip'
@@ -268,7 +263,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'wellle/context.vim'
 
         Plug 'kosayoda/nvim-lightbulb'
-        Plug 'antoinemadec/FixCursorHold.nvim'
         Plug 'weilbith/nvim-code-action-menu'
 
         Plug 'skywind3000/vim-quickui'
@@ -307,253 +301,15 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         map fc/ :ProjectRg<CR>
     endif
 
-    if has_key(plugs, 'coc.nvim')
-        " COC
-        " Use tab for trigger completion with characters ahead and navigate.
-        " NOTE: There's always complete item selected by default, you may want to enable
-        " no select by `"suggest.noselect": true` in your configuration file.
-        " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-        " other plugin before putting this into your config.
-        inoremap <silent><expr> <TAB>
-              \ coc#pum#visible() ? coc#pum#next(1) :
-              \ CheckBackspace() ? "\<Tab>" :
-              \ coc#refresh()
-        inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-
-        " Make <CR> to accept selected completion item or notify coc.nvim to format
-        " <C-g>u breaks current undo, please make your own choice.
-        inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                                      \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-        function! CheckBackspace() abort
-          let col = col('.') - 1
-          return !col || getline('.')[col - 1]  =~# '\s'
-        endfunction
-
-        " Use <c-space> to trigger completion.
-        if has('nvim')
-          inoremap <silent><expr> <c-space> coc#refresh()
-        else
-          inoremap <silent><expr> <c-@> coc#refresh()
+    function EnableArcanistAutoformat()
+        " Add a fixer for arcanist https://github.com/phacility/arcanist
+        if executable('arc') && filereadable(FindRootDirectory() . '/.arclint')
+            " TODO: check if it overwrites other commands
+            au BufWritePost *.py,*.go,BUILD,*.build_def,*.build_defs exec '!arc lint --apply-patches' shellescape(expand('%:p'), 1)
         endif
+    endfunction
 
-        " Use `[g` and `]g` to navigate diagnostics
-        " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-        nmap <silent> [g <Plug>(coc-diagnostic-prev)
-        nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-        " GoTo code navigation.
-        nmap <silent> gd <Plug>(coc-definition)
-        nmap <silent> gy <Plug>(coc-type-definition)
-        nmap <silent> gi <Plug>(coc-implementation)
-        nmap <silent> gr <Plug>(coc-references)
-
-        " Use K to show documentation in preview window.
-        nnoremap <silent> K :call ShowDocumentation()<CR>
-
-        function! ShowDocumentation()
-          if CocAction('hasProvider', 'hover')
-            call CocActionAsync('doHover')
-          else
-            call feedkeys('K', 'in')
-          endif
-        endfunction
-
-        " Highlight the symbol and its references when holding the cursor.
-        autocmd CursorHold * silent call CocActionAsync('highlight')
-
-        " Symbol renaming.
-        nmap <leader>rn <Plug>(coc-rename)
-
-        " Formatting selected code.
-        xmap <leader>f  <Plug>(coc-format-selected)
-        nmap <leader>f  <Plug>(coc-format-selected)
-
-        " Applying codeAction to the selected region.
-        " Example: `<leader>aap` for current paragraph
-        xmap <leader>a  <Plug>(coc-codeaction-selected)
-        nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-        " Remap keys for applying codeAction to the current buffer.
-        nmap <leader>ac  <Plug>(coc-codeaction)
-        " Apply AutoFix to problem on the current line.
-        nmap <leader>qf  <Plug>(coc-fix-current)
-
-        " Run the Code Lens action on the current line.
-        nmap <leader>cl  <Plug>(coc-codelens-action)
-
-        " Map function and class text objects
-        " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-        xmap if <Plug>(coc-funcobj-i)
-        omap if <Plug>(coc-funcobj-i)
-        xmap af <Plug>(coc-funcobj-a)
-        omap af <Plug>(coc-funcobj-a)
-        xmap ic <Plug>(coc-classobj-i)
-        omap ic <Plug>(coc-classobj-i)
-        xmap ac <Plug>(coc-classobj-a)
-        omap ac <Plug>(coc-classobj-a)
-
-        " Remap <C-f> and <C-b> for scroll float windows/popups.
-        if has('nvim-0.4.0') || has('patch-8.2.0750')
-          nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-          nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-          inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-          inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-          vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-          vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-        endif
-
-        " Use CTRL-S for selections ranges.
-        " Requires 'textDocument/selectionRange' support of language server.
-        nmap <silent> <C-s> <Plug>(coc-range-select)
-        xmap <silent> <C-s> <Plug>(coc-range-select)
-
-        " Add `:Format` command to format current buffer.
-        command! -nargs=0 Format :call CocActionAsync('format')
-
-        " Add `:Fold` command to fold current buffer.
-        command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-        " Add `:OR` command for organize imports of the current buffer.
-        command! -nargs=0 OR   :call     CocActionAsync('runCommand', 'editor.action.organizeImport')
-
-        " Add (Neo)Vim's native statusline support.
-        " NOTE: Please see `:h coc-status` for integrations with external plugins that
-        " provide custom statusline: lightline.vim, vim-airline.
-        set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-        " Mappings for CoCList
-        " Show all diagnostics.
-        nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-        " Manage extensions.
-        nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-        " Show commands.
-        nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-        " Find symbol of current document.
-        nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-        " Search workspace symbols.
-        nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-        " Do default action for next item.
-        nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-        " Do default action for previous item.
-        nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-        " Resume latest coc list.
-        nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
-
-        " Sort python imports on save
-        autocmd BufWrite *.py :CocCommand python.sortImports
-    endif
-
-    if has_key(plugs, 'ale')
-        " ALE keybinds
-        nmap <leader>d <Plug>(ale_detail)
-        nmap <leader>n <Plug>(ale_next)
-        nmap <leader>g <Plug>(ale_go_to_definition)
-        nmap <leader>h <Plug>(ale_hover)
-        let g:ale_hover_cursor = 1
-
-        " ALE
-
-        let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-        " apt-get install flake8 bandit mypy pylint3 pycodestyle pyflakes black isort
-        " apt-get install clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
-        " snap install pyls
-        let g:ale_linters = {
-        \   'python': ['flake8', 'mypy', 'pylint', 'bandit', 'pyls', 'pylsp', 'pyre', 'jedils'],
-        \   'rust': ['analyzer', 'cargo', 'rls'],
-        \   'sql': ['sqlfluff']
-        \}
-
-        function ALEDetectArcanist()
-            " Add a fixer for arcanist https://github.com/phacility/arcanist
-            if executable('arc') && filereadable(FindRootDirectory() . '/.arclint')
-                let g:ale_fixers = {
-                \   'python': [],
-                \   'go': []
-                \}
-                au BufWritePost *.py,*.go,BUILD,*.build_def,*.build_defs exec '!arc lint --apply-patches' shellescape(expand('%:p'), 1)
-            else
-                let g:ale_fixers = {
-                \   'python': ['black', 'isort'],
-                \   'cpp': ['astyle', 'clang-format', 'clangtidy', 'remove_trailing_lines', 'trim_whitespace', 'uncrustify'],
-                \   'sql': ['pgformatter'],
-                \   'rust': ['rustfmt'],
-                \   'go': ['gofmt', 'goimports', 'golines', 'remove_trailing_lines', 'trim_whitespace']
-                \}
-            endif
-        endfunction
-
-        autocmd VimEnter * call ALEDetectArcanist()
-
-        function ALEDetectFlake8Config()
-            let flake8_config = FindRootDirectory() . '/.flake8'
-            if filereadable(flake8_config)
-                let g:ale_python_flake8_options = '--config=' . flake8_config
-            else
-                let g:ale_python_flake8_options = '--config=$HOME/.config/flake8'
-            endif
-        endfunction
-
-        autocmd VimEnter * call ALEDetectFlake8Config()
-
-        let g:ale_python_pylsp_executable = "pylsp"
-
-        let g:ale_python_pylsp_config = {
-        \   'pylsp': {
-        \     'configurationSources': ['flake8'],
-        \     'plugins': {
-        \       'flake8': {
-        \         'enabled': v:true,
-        \       },
-        \       'pycodestyle': {
-        \         'enabled': v:false,
-        \       },
-        \       'mccabe': {
-        \         'enabled': v:false,
-        \       },
-        \       'pyflakes': {
-        \         'enabled': v:false,
-        \       },
-        \       'pydocstyle': {
-        \         'enabled': v:false,
-        \       },
-        \     },
-        \   },
-        \}
-
-        let g:ale_fix_on_save = 1
-        " let g:ale_float_preview = 1
-        let g:ale_floating_preview = 1
-        let g:ale_floating_window_border = []
-        let g:ale_close_preview_on_insert = 1
-        let g:ale_completion_enabled = 0
-        " let g:ale_hover_to_preview = 1
-        " let g:ale_hover_to_floating_preview = 1
-        let g:ale_cursor_detail = 1
-        " let g:ale_detail_to_floating_preview = 1
-        " let g:ale_list_window_size = 10
-        " let g:ale_set_balloons = 1
-        "
-        let g:ale_completion_autoimport = 1
-        let g:ale_keep_list_window_open = 0
-        let g:ale_set_loclist = 0
-        let g:ale_open_list = 0
-        let g:ale_virtualtext_cursor = 2
-
-        augroup ale_hover_cursor
-          autocmd!
-          autocmd CursorHold * ALEHover
-        augroup END
-
-        if has_key(plugs, 'deoplete.nvim')
-            " Deoplete + ALE
-            if filereadable(python3_host_prog)
-                let g:deoplete#enable_at_startup = 0
-                call deoplete#custom#source('ale', 'rank', 999)
-                call deoplete#custom#source('_', 'matchers', ['matcher_full_fuzzy'])
-            endif
-        endif
-    endif
+    autocmd VimEnter * call EnableArcanistAutoformat()
 
     " NERDTree
     " Start NERDTree. If a file is specified, move the cursor to its window.
@@ -616,154 +372,16 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     if has_key(plugs, 'please.nvim') && executable('plz')
         function DetectPlz()
             if filereadable(FindRootDirectory() . '/.plzconfig')
+                " TODO: check if it overwrites other commands
                 au BufWritePost *.go exec '!plz update-go-targets' shellescape(expand('%:p:h'), 1)
                 au BufRead,BufNewFile BUILD,*.build_def set filetype=please
                 au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
             endif
         endfunction
         autocmd VimEnter *.go call DetectPlz()
-
-        lua <<EOF
-            vim.keymap.set('n', '<leader>pj', require('please').jump_to_target)
-            vim.keymap.set('n', '<leader>pb', require('please').build)
-            vim.keymap.set('n', '<leader>pt', require('please').test)
-            vim.keymap.set('n', '<leader>pct', function()
-            require('please').test({ under_cursor = true })
-            end)
-            vim.keymap.set('n', '<leader>plt', function()
-            require('please').test({ list = true })
-            end)
-            vim.keymap.set('n', '<leader>pft', function()
-            require('please').test({ failed = true })
-            end)
-            vim.keymap.set('n', '<leader>pr', require('please').run)
-            vim.keymap.set('n', '<leader>py', require('please').yank)
-            vim.keymap.set('n', '<leader>pd', require('please').debug)
-            vim.keymap.set('n', '<leader>pa', require('please').action_history)
-            vim.keymap.set('n', '<leader>pp', require('please.runners.popup').restore)
-EOF
     endif
 
-    if has_key(plugs, 'nvim-lspconfig') && has_key(plugs, 'nvim-cmp') && has_key(plugs, 'cmp-vsnip')
-        lua <<EOF
-          require("lspconfig").pylsp.setup{
-            settings = {
-              pylsp = {
-                configurationSources = {"flake8"},
-                plugins = {
-                  flake8 = {
-                    enabled = true
-                  },
-                  pycodestyle = {
-                    enabled = false
-                  },
-                  mccabe = {
-                    enabled = false
-                  },
-                  pyflakes = {
-                    enabled = false
-                  },
-                  pydocstyle = {
-                    enabled = false
-                  }
-                }
-              }
-            }
-          }
-          require("lspconfig").gopls.setup{}
-          require("lspconfig").clangd.setup{}
-          require("lspconfig").rust_analyzer.setup{}
-
-          vim.lsp.handlers['textDocument/hover'] = function(_, method, result)
-          vim.lsp.util.focusable_float(method, function()
-              if not (result and result.contents) then
-                -- return { 'No information available' }
-                return
-              end
-              local markdown_lines = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
-              markdown_lines = vim.lsp.util.trim_empty_lines(markdown_lines)
-              if vim.tbl_isempty(markdown_lines) then
-                -- return { 'No information available' }
-                return
-              end
-              local bufnr, winnr = vim.lsp.util.fancy_floating_markdown(markdown_lines, {
-                pad_left = 1; pad_right = 1;
-              })
-              vim.lsp.util.close_preview_autocmd({"CursorMoved", "BufHidden"}, winnr)
-              return bufnr, winnr
-            end)
-          end
-
-          -- Set up nvim-cmp.
-          local cmp = require'cmp'
-
-          cmp.setup({
-            snippet = {
-              -- REQUIRED - you must specify a snippet engine
-              expand = function(args)
-                vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-                -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-                -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-                -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-              end,
-            },
-            window = {
-              -- completion = cmp.config.window.bordered(),
-              -- documentation = cmp.config.window.bordered(),
-            },
-            mapping = cmp.mapping.preset.insert({
-              ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-              ['<C-f>'] = cmp.mapping.scroll_docs(4),
-              ['<C-Space>'] = cmp.mapping.complete(),
-              ['<C-e>'] = cmp.mapping.abort(),
-              ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-            }),
-            sources = cmp.config.sources({
-              { name = 'nvim_lsp' },
-              { name = 'vsnip' }, -- For vsnip users.
-              -- { name = 'luasnip' }, -- For luasnip users.
-              -- { name = 'ultisnips' }, -- For ultisnips users.
-              -- { name = 'snippy' }, -- For snippy users.
-            }, {
-              { name = 'buffer' },
-            })
-          })
-
-          -- Set configuration for specific filetype.
-          cmp.setup.filetype('gitcommit', {
-            sources = cmp.config.sources({
-              { name = 'cmp_git' }, -- You can specify the `cmp_git` source if you were installed it.
-            }, {
-              { name = 'buffer' },
-            })
-          })
-
-          -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-          cmp.setup.cmdline({ '/', '?' }, {
-            mapping = cmp.mapping.preset.cmdline(),
-            sources = {
-              { name = 'buffer' }
-            }
-          })
-
-          -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-          cmp.setup.cmdline(':', {
-            mapping = cmp.mapping.preset.cmdline(),
-            sources = cmp.config.sources({
-              { name = 'path' }
-            }, {
-              { name = 'cmdline' }
-            })
-          })
-
-          -- Set up lspconfig.
-          local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
-
-          -- lsp_signature plugin
-          require "lsp_signature".setup({})
-EOF
-
+    if has_key(plugs, 'vim-vsnip')
         " Expand
         imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
         smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
@@ -809,6 +427,10 @@ EOF
         \    '&Vim',
         \    [
         \       ["&Reload config", "source $MYVIMRC"],
+        \       ["&Health", "checkhealth"],
+        \       ["&LSP capabilities", "lua =vim.lsp.get_active_clients()[1].server_capabilities"],
+        \       ["&LSP Info", "LspInfo"],
+        \       ["&Error log", "messages"],
         \    ]
         \)
 
