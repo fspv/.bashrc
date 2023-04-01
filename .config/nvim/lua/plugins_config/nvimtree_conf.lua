@@ -22,7 +22,7 @@ require("nvim-tree").setup({
     },
     renderer = {
         full_name = true,
-        group_empty = true,
+        group_empty = false,
         special_files = {},
         highlight_git = true,
         indent_markers = {
