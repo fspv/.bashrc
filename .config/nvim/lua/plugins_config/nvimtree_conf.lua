@@ -6,14 +6,12 @@ vim.g.loaded_netrwPlugin = 1
 -- set termguicolors to enable highlight groups
 vim.opt.termguicolors = true
 
--- empty setup using defaults
-require("nvim-tree").setup()
-
 -- OR setup with some options
 require("nvim-tree").setup({
     sort_by = "case_sensitive",
     hijack_cursor = true,
     reload_on_bufenter = true,
+    prefer_startup_root = true,
     view = {
         adaptive_size = true,
         width = {
