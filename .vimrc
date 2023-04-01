@@ -484,7 +484,37 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             \)
         endif
 
-        noremap <leader>m :call quickui#menu#open()<cr>
+        call quickui#menu#install('Help (&?)', [
+			\ ["&Index", 'tab help index', ''],
+			\ ['Ti&ps', 'tab help tips', ''],
+			\ ['--',''],
+			\ ["&Tutorial", 'tab help tutor', ''],
+			\ ['&Quick Reference', 'tab help quickref', ''],
+			\ ['&Summary', 'tab help summary', ''],
+			\ ['--',''],
+			\ ['&Vim Script', 'tab help eval', ''],
+			\ ['&Function List', 'tab help function-list', ''],
+			\ ], 10000)
+
+        noremap <leader>c :call quickui#context#open(
+        \    [
+        \       ["&Display hover\tK", "lua vim.lsp.buf.hover()"],
+        \       ["&Jump to definition\tgd", "lua vim.lsp.buf.definition()"],
+        \       ["&Jump to declaration\tgD", "lua vim.lsp.buf.declaration()"],
+        \       ["&List implementations\tgi", "lua vim.lsp.buf.implementation()"],
+        \       ["&Jumps to the definition of the type\tgo", "lua vim.lsp.buf.references()"],
+        \       ["&Display signature\tgo", "lua vim.lsp.buf.signature_help()"],
+        \       ["&Rename all references\t<F2>", "lua vim.lsp.buf.rename()"],
+        \       ["&Format\t<F3>", "lua vim.lsp.buf.format()"],
+        \       ["&Code action\t<F4>", "lua vim.lsp.buf.code_action()"],
+        \       ["&Show diagnostics\tgl", "lua vim.diagnostic.open_float()"],
+        \       ["&Previous diagnostics\t[d", "lua vim.diagnostic.goto_prev()"],
+        \       ["&Next diagnostics\t]d", "lua vim.diagnostic.goto_next()"],
+        \    ],
+        \    {'index':g:quickui#context#cursor}
+        \)<CR>
+
+        noremap <leader>m :call quickui#menu#open()<CR>
     endif
 endif
 
