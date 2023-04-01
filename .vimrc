@@ -110,6 +110,7 @@ set ignorecase
 " Order of encondings application
 set ffs=unix,dos,mac
 set fencs=utf-8,cp1251,koi8-r,ucs-2,cp866
+set encoding=UTF-8
 
 " Enable syntax highlighting
 syntax on
@@ -154,9 +155,6 @@ endif
 " Disable expandtab for Makefiles
 :autocmd FileType make set noexpandtab
 
-" <F2> calls NerdTree plugin
-map <F2> :NERDTree <CR>
-
 " Set some filetypes
 au BufNewFile,BufRead *.sls setf yaml
 
@@ -200,7 +198,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'junegunn/fzf.vim' " fuzzy search 2
         Plug 'ntpeters/vim-better-whitespace' " Highlight trailing whitespace
         Plug 'raimondi/delimitMate' " Auto-complete matching quotes, brackets, etc
-        Plug 'scrooloose/nerdtree' " Graphical file manager
+        Plug 'nvim-tree/nvim-tree.lua' " Graphical file manager
         Plug 'tpope/vim-sensible' " Universally good defaults
         Plug 'tpope/vim-speeddating' " Use ctrl-a and ctrl-x to increment/decrement times/dates
         Plug 'vim-scripts/PreserveNoEOL' " Omit the final newline of a file if it wasn't present when we opened it
@@ -265,7 +263,11 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'kosayoda/nvim-lightbulb'
         Plug 'weilbith/nvim-code-action-menu'
 
-        Plug 'skywind3000/vim-quickui'
+        Plug 'skywind3000/vim-quickui' " Menubar
+
+        Plug 'nvim-tree/nvim-web-devicons' " Icons for tabs
+        Plug 'ryanoasis/vim-devicons'
+        Plug 'romgrk/barbar.nvim' " Tabs
     call plug#end()
 
     "
@@ -311,16 +313,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     autocmd VimEnter * call EnableArcanistAutoformat()
 
-    " NERDTree
-    " Start NERDTree. If a file is specified, move the cursor to its window.
-    " autocmd StdinReadPre * let s:std_in=1
-    " autocmd VimEnter * NERDTree | if argc() > 0 || exists("s:std_in") | wincmd p | endif
-
-    " Exit Vim if NERDTree is the only window left.
-    autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() |
-        \ quit | endif
-
-    let NERDTreeRespectWildIgnore = 1
+    " NvimTree
+    map <leader>nn :NvimTreeFindFile <CR>
 
     " Tagbar
     if has_key(plugs, 'tagbar')
