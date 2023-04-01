@@ -1,7 +1,16 @@
 [global_config]
   enabled_plugins = InactivityWatch,
-  geometry_hinting = False
 [keybindings]
+[profiles]
+  [[default]]
+    background_darkness = 0.9
+    background_type = transparent
+    cursor_color = "#00ff00"
+    font = JetBrainsMono NF 11
+    foreground_color = "#00ff00"
+    scrollback_infinite = True
+    use_system_font = False
+    background_image = None
 [layouts]
   [[default]]
     [[[child1]]]
@@ -11,12 +20,3 @@
       parent = ""
       type = Window
 [plugins]
-[profiles]
-  [[default]]
-    background_darkness = 0.9
-    background_image = None
-    background_type = transparent
-    font = Ubuntu Mono 12
-    foreground_color = "#00ff00"
-    scrollback_infinite = True
-    use_system_font = False
