@@ -268,6 +268,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'nvim-tree/nvim-web-devicons' " Icons for tabs
         Plug 'ryanoasis/vim-devicons'
         Plug 'romgrk/barbar.nvim' " Tabs
+
+        Plug 'onsails/lspkind.nvim' " Completion icons
     call plug#end()
 
     "
