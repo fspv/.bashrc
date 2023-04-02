@@ -27,6 +27,9 @@ go install github.com/jstemmer/gotags@latest
 
 mkdir -p ~/.local/share/fonts/fonts/nerdfonts
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/JetBrainsMono.zip -O ~/.local/share/fonts/fonts/tmp.zip
-unzip ~/.local/share/fonts/fonts/tmp.zip -d ~/.local/share/fonts/fonts/nerdfonts
+unzip -o ~/.local/share/fonts/fonts/tmp.zip -d ~/.local/share/fonts/fonts/nerdfonts
 rm -rf ~/.local/share/fonts/fonts/tmp.zip
 fc-cache -fv
+
+curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
+chmod +x ~/.bin/src
