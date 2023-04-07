@@ -242,9 +242,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'hrsh7th/vim-vsnip'
         Plug 'hrsh7th/vim-vsnip-integ'
 
-        Plug 'golang/vscode-go'
-        Plug 'microsoft/vscode-python'
-
         Plug 'rafamadriz/friendly-snippets'
         Plug 'ray-x/lsp_signature.nvim'
 
@@ -270,6 +267,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'romgrk/barbar.nvim' " Tabs
 
         Plug 'onsails/lspkind.nvim' " Completion icons
+
+        Plug 'tpope/vim-commentary' " Comment code with gc
     call plug#end()
 
     "
@@ -287,22 +286,31 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         " map zg/ <Plug>(incsearch-fuzzy-stay)
 
         " FindRootDirectory() comes from vim rooter
-        command! -bang -nargs=? -complete=dir ProjectFiles
+        command! -bang -nargs=? -complete=dir FF
             \ call fzf#vim#files(
             \   <q-args>,
             \   fzf#vim#with_preview({'dir': FindRootDirectory()}),
             \   <bang>0
             \ )
-        command! -bang -nargs=* ProjectRg
+        command! -bang -nargs=* FC
             \ call fzf#vim#grep(
-            \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>),
+            \   'rg --column --line-number --no-heading --color=always --smart-case '.<q-args>.' || true',
             \   1,
             \   fzf#vim#with_preview({'dir': FindRootDirectory(), 'options': '--delimiter : --nth 4..'}),
             \   <bang>0
             \ )
 
-        map ff/ :ProjectFiles<CR>
-        map fc/ :ProjectRg<CR>
+        command! -bang -nargs=* FCC
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --color=always --smart-case --max-depth 0'.shellescape(expand("<cword>")).' || true',
+            \   1,
+            \   fzf#vim#with_preview({'dir': FindRootDirectory(), 'options': ''}),
+            \   <bang>0
+            \ )
+
+        map ff/ :FF<CR>
+        map fc/ :FC ''<CR>
+        map fcc/ :FCC<CR>
     endif
 
     function EnableArcanistAutoformat()
@@ -352,17 +360,24 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
     " vim-go
     if has_key(plugs, 'vim-go')
-        " automatic import management
-        let g:go_fmt_command = "goimports"
-        " syntax highlighting
-        let g:go_highlight_fields = 1
-        let g:go_highlight_functions = 1
-        let g:go_highlight_function_calls = 1
-        let g:go_highlight_extra_types = 1
         " status bar
-        let g:go_auto_type_info = 1
+        let g:go_auto_type_info = 0
         " matching identifiers
-        let g:go_auto_sameids = 1
+        let g:go_auto_sameids = 0
+
+        let g:go_code_completion_enabled = 0
+        let g:go_fmt_autosave = 0
+        let g:go_mod_fmt_autosave = 0
+        let g:go_template_autocreate = 0
+        let g:go_imports_autosave = 0
+        let g:go_list_autoclose = 0
+        let g:go_asmfmt_autosave = 0
+
+        let g:go_doc_keywordprg_enabled = 0
+        let g:go_def_mapping_enabled = 0
+        let g:go_debug_mappings = {}
+        let g:go_jump_to_error = 0
+        let g:go_echo_go_info = 0
     endif
 
     if has_key(plugs, 'please.nvim') && executable('plz')
@@ -443,7 +458,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             \       ["&List failed tests\t<leader>plt", "lua require('please').test({ failed = true })"],
             \       ["&Run\t<leader>pr", "lua require('please').run())"],
             \       ["&Yank\t<leader>py", "lua require('please').yank())"],
-            \       ["&Debug\t<leader>pd", "lua require('please').debug())"],
+            \       ["&Debug\t<leader>pd", "lua require('please').debug()"],
             \       ["&Action history\t<leader>pa", "lua require('please').action_history())"],
             \    ]
             \)
