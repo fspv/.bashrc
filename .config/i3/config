@@ -52,7 +52,7 @@ exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Fa
 exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client3_Command -t string -sa ''"
 exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Client4_Command -t string -sa ''"
 exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /sessions/Failsafe/Count -t int -s 1"
-exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s true --create"
+exec_always --no-startup-id sh -c "xfconf-query -c xfce4-session -p /compat/LaunchGNOME -t bool -s false --create"
 
 
 # Keyboard config
