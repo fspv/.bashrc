@@ -10,12 +10,32 @@ local lsp = require('lsp-zero').preset({
 lsp.nvim_workspace()
 
 lsp.on_attach(function(_, bufnr)
-    lsp.default_keymaps({ buffer = bufnr })
+    local opts = { buffer = bufnr }
+    lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
     -- Format the buffer using gq using ls (use gw to wrap to line length)
     vim.keymap.set({ 'n', 'x' }, 'gq', function()
         vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
     end)
+
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', '<c-k>', vim.lsp.buf.hover, { buffer = bufnr })
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wl', function()
+        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, opts)
+    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', '<space>f', function()
+        vim.lsp.buf.format { async = true }
+    end, opts)
+
 
     -- Definition highlight on cover
     vim.api.nvim_create_autocmd(
@@ -23,18 +43,20 @@ lsp.on_attach(function(_, bufnr)
         {
             pattern = { "*" },
             callback = function()
-                if not require("cmp").visible() then
-                    -- Disable focus on hover
-                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                        vim.lsp.handlers.hover, { focusable = false }
-                    )
-                    -- Hover
-                    vim.lsp.buf.hover()
-                    -- Enable focus again (in case I need to focus manually)
-                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                        vim.lsp.handlers.hover, {}
-                    )
-                end
+                -- local mode = vim.api.nvim_get_mode().mode
+
+                -- if mode == "n" then
+                --     -- Disable focus on hover
+                --     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+                --         vim.lsp.handlers.hover, { focusable = false }
+                --     )
+                --     -- Hover
+                --     vim.lsp.buf.hover()
+                --     -- Enable focus again (in case I need to focus manually)
+                --     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+                --         vim.lsp.handlers.hover, {}
+                --     )
+                -- end
             end
         }
     )
@@ -78,6 +100,20 @@ require 'lspconfig'.lua_ls.setup {
             -- Do not send telemetry data containing a randomized but unique identifier
             telemetry = {
                 enable = false,
+            },
+        },
+    },
+}
+
+-- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+require 'lspconfig'.gopls.setup {
+    settings = {
+        gopls = {
+            staticcheck = true,
+            diagnosticsDelay = "2s",
+            directoryFilters = { "-plz-out" },
+            completion = {
+                completionBudget = "1s",
             },
         },
     },
