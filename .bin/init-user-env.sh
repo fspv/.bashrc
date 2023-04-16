@@ -36,3 +36,10 @@ chmod +x ~/.bin/src
 
 ~/go/bin/go1.19 download
 ln -sf ~/go/bin/go1.19 ~/go/bin/go
+
+systemctl --user enable pipewire-media-session
+systemctl --user start pipewire-media-session
+systemctl --user restart xdg-desktop-portal-gnome
+systemctl --user restart xdg-desktop-portal.service
+systemctl --user enable xdg-desktop-portal-wlr.service
+systemctl --user start xdg-desktop-portal-wlr.service
