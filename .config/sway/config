@@ -33,6 +33,19 @@ exec_always {
     gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
 }
 
+# Make pipewire (camera and sound sharing) work
+exec_always {
+    systemctl --user enable pipewire-media-session || true
+    systemctl --user start pipewire-media-session || true
+    systemctl --user enable wireplumber.service || true
+    systemctl --user start wireplumber.service || true
+    systemctl --user restart xdg-desktop-portal-gnome || true
+    systemctl --user restart xdg-desktop-portal.service || true
+    systemctl --user enable xdg-desktop-portal-wlr.service || true
+    systemctl --user start xdg-desktop-portal-wlr.service || true
+    systemctl --user restart wireplumber.service || true
+}
+
 set $mod Mod4
 
 bindsym $mod+x exec wtype -P XF86Cut
