@@ -64,6 +64,8 @@ bindsym --locked XF86MonBrightnessDown exec light -T 0.72
 # PrintScr
 bindsym Print exec grim
 bindsym Shift+Print exec slurp | grim -g -
+bindsym $mod+p exec grim
+bindsym $mod+shift+p exec slurp | grim -g -
 
 # Disable mouse warping (jump when you switch to new window/workspace)
 mouse_warping none
