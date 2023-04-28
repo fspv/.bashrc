@@ -43,7 +43,6 @@ exec_always {
     systemctl --user restart xdg-desktop-portal.service || true
     systemctl --user enable xdg-desktop-portal-wlr.service || true
     systemctl --user start xdg-desktop-portal-wlr.service || true
-    systemctl --user restart wireplumber.service || true
 }
 
 set $mod Mod4
