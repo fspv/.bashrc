@@ -269,10 +269,11 @@ bindsym --locked --release Ctrl+Shift_L input * xkb_switch_layout next
 input type:touchpad {
     left_handed enabled
     tap enabled
-    natural_scroll disabled
+    natural_scroll enabled
     dwt enabled
     accel_profile "adaptive" # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
-    pointer_accel 0.5 # set mouse sensitivity (between -1 and 1)
+    pointer_accel 0.2 # set mouse sensitivity (between -1 and 1)
+    scroll_factor 0.3
 }
 
 
