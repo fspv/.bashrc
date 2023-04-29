@@ -48,11 +48,11 @@ exec_always {
 set $mod Mod4
 
 # MacOS-like keybindings
-bindsym $mod+x exec wtype -M shift -P delete
-bindsym $mod+c exec wtype -M ctrl -P insert
-bindsym $mod+v exec wtype -M shift -P insert
-bindsym $mod+t exec wtype -M ctrl -P t
-bindsym $mod+w exec wtype -M ctrl -P w
+bindsym --to-code $mod+x exec wtype -M shift -P delete
+bindsym --to-code $mod+c exec wtype -M ctrl -P insert
+bindsym --to-code $mod+v exec wtype -M shift -P insert
+bindsym --to-code $mod+t exec wtype -M ctrl -P t
+bindsym --to-code $mod+w exec wtype -M ctrl -P w
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
@@ -66,8 +66,8 @@ bindsym --locked XF86MonBrightnessDown exec light -T 0.72
 # PrintScr
 bindsym Print exec grim
 bindsym Shift+Print exec slurp | grim -g -
-bindsym $mod+p exec grim
-bindsym $mod+shift+p exec slurp | grim -g -
+bindsym --to-code $mod+p exec grim
+bindsym --to-code $mod+shift+p exec slurp | grim -g -
 
 # Disable mouse warping (jump when you switch to new window/workspace)
 mouse_warping none
@@ -101,9 +101,9 @@ exec_always swayidle -w -d \
     2>&1
 
 # Lock screen
-bindsym Mod1+Control+l exec $lock_screen
-bindsym $mod+Control+l exec $lock_screen
-bindsym $mod+Control+q exec $lock_screen
+bindsym --to-code Mod1+Control+l exec $lock_screen
+bindsym --to-code $mod+Control+l exec $lock_screen
+bindsym --to-code $mod+Control+q exec $lock_screen
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -112,7 +112,7 @@ floating_modifier $mod
 bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
-bindsym $mod+Shift+q kill
+bindsym --to-code $mod+Shift+q kill
 
 # start dmenu (a program launcher)
 bindsym --to-code $mod+d exec "swaymsg input '*' xkb_switch_layout 0 && rofi -combi-modi window,drun,run,ssh,keys -show combi -terminal terminator -sort -sorting-method fzf -show-icons -matching fuzzy -pid /tmp/${USER}_sway_rofi.pid"
@@ -123,10 +123,10 @@ bindsym --to-code $mod+d exec "swaymsg input '*' xkb_switch_layout 0 && rofi -co
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # change focus
-bindsym $mod+h focus left
-bindsym $mod+j focus down
-bindsym $mod+k focus up
-bindsym $mod+l focus right
+bindsym --to-code $mod+h focus left
+bindsym --to-code $mod+j focus down
+bindsym --to-code $mod+k focus up
+bindsym --to-code $mod+l focus right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Left focus left
@@ -135,10 +135,10 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym $mod+Shift+h move left
-bindsym $mod+Shift+j move down
-bindsym $mod+Shift+k move up
-bindsym $mod+Shift+l move right
+bindsym --to-code $mod+Shift+h move left
+bindsym --to-code $mod+Shift+j move down
+bindsym --to-code $mod+Shift+k move up
+bindsym --to-code $mod+Shift+l move right
 #bindsym $mod+Shift+semicolon move right
 
 # alternatively, you can use the cursor keys:
@@ -155,12 +155,12 @@ bindsym $mod+Shift+l move right
 # bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
-bindsym $mod+f fullscreen toggle
+bindsym --to-code $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+s layout stacking
+bindsym --to-code $mod+s layout stacking
 # bindsym $mod+w layout tabbed  # not really using it, interferes with closing tab
-bindsym $mod+e layout toggle split
+bindsym --to-code $mod+e layout toggle split
 
 # Super + Space is rebound to language switcher
 # toggle tiling / floating
@@ -170,7 +170,7 @@ bindsym $mod+e layout toggle split
 # bindsym $mod+space focus mode_toggle
 
 # focus the parent container
-bindsym $mod+a focus parent
+bindsym --to-code $mod+a focus parent
 
 # focus the child container
 #bindsym $mod+d focus child
@@ -200,25 +200,25 @@ bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
 # switch between the current and the previously focused one
-bindsym $mod+b workspace back_and_forth
-bindsym $mod+Shift+b move container to workspace back_and_forth
+bindsym --to-code $mod+b workspace back_and_forth
+bindsym --to-code $mod+Shift+b move container to workspace back_and_forth
 
 # reload the configuration file
-bindsym $mod+Shift+c reload
+bindsym --to-code $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
+bindsym --to-code $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e exec "swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your X session.' -b 'Yes, exit sway' 'swaymsg exit'"
+bindsym --to-code $mod+Shift+e exec "swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your X session.' -b 'Yes, exit sway' 'swaymsg exit'"
 
 # move all windows to the primary display
-bindsym $mod+Shift+m [class=".*"] move workspace to output primary
+bindsym --to-code $mod+Shift+m [class=".*"] move workspace to output primary
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
-        bindsym h resize shrink width 10 px or 10 ppt
-        bindsym j resize grow height 10 px or 10 ppt
-        bindsym k resize shrink height 10 px or 10 ppt
-        bindsym l resize grow width 10 px or 10 ppt
+        bindsym --to-code h resize shrink width 10 px or 10 ppt
+        bindsym --to-code j resize grow height 10 px or 10 ppt
+        bindsym --to-code k resize shrink height 10 px or 10 ppt
+        bindsym --to-code l resize grow width 10 px or 10 ppt
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
@@ -231,7 +231,7 @@ mode "resize" {
         bindsym Escape mode "default"
 }
 
-bindsym $mod+r mode "resize"
+bindsym --to-code $mod+r mode "resize"
 
 # Generated windows.
 for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] floating enable;
