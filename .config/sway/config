@@ -53,6 +53,8 @@ bindsym --to-code $mod+c exec wtype -M ctrl -P insert
 bindsym --to-code $mod+v exec wtype -M shift -P insert
 bindsym --to-code $mod+t exec wtype -M ctrl -P t
 bindsym --to-code $mod+w exec wtype -M ctrl -P w
+bindsym --to-code $mod+z exec wtype -M ctrl -P z
+bindsym --to-code $mod+f exec wtype -M ctrl -P f
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
@@ -139,7 +141,6 @@ bindsym --to-code $mod+Shift+h move left
 bindsym --to-code $mod+Shift+j move down
 bindsym --to-code $mod+Shift+k move up
 bindsym --to-code $mod+Shift+l move right
-#bindsym $mod+Shift+semicolon move right
 
 # alternatively, you can use the cursor keys:
 #bindsym $mod+Shift+Left move left
@@ -155,7 +156,7 @@ bindsym --to-code $mod+Shift+l move right
 # bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
-bindsym --to-code $mod+f fullscreen toggle
+bindsym --to-code $mod+Shift+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym --to-code $mod+s layout stacking
