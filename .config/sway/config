@@ -50,11 +50,22 @@ set $mod Mod4
 bindsym --to-code $mod+x exec wtype -M shift -P delete
 bindsym --to-code $mod+c exec wtype -M ctrl -P insert
 bindsym --to-code $mod+v exec wtype -M shift -P insert
-bindsym --to-code $mod+t exec wtype -M ctrl -P t
-bindsym --to-code $mod+w exec wtype -M ctrl -P w
 bindsym --to-code $mod+z exec wtype -M ctrl -P z
-bindsym --to-code $mod+f exec wtype -M ctrl -P f
 bindsym --to-code $mod+a exec wtype -M ctrl -P a
+# Search
+bindsym --to-code $mod+f exec wtype -M ctrl -P f
+# Print
+bindsym --to-code $mod+p exec wtype -M ctrl -P p
+# Chrome new tab
+bindsym --to-code $mod+t exec wtype -M ctrl -P t
+# Chrome close tab
+bindsym --to-code $mod+w exec wtype -M ctrl -P w
+# Chrome page reload
+bindsym --to-code $mod+r exec wtype -M ctrl -P r
+# Chrome history
+bindsym --to-code $mod+y exec wtype -M ctrl -P h
+# Chrome downloads (overlaps with window movements, disabled)
+# bindsym --to-code $mod+shift+j exec wtype -M ctrl -P j
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
@@ -68,7 +79,7 @@ bindsym --locked XF86MonBrightnessDown exec light -T 0.72
 # PrintScr
 bindsym Print exec grim
 bindsym Shift+Print exec slurp | grim -g -
-bindsym --to-code $mod+p exec grim
+bindsym --to-code $mod+ctrl+p exec grim
 bindsym --to-code $mod+shift+p exec slurp | grim -g -
 
 # Disable mouse warping (jump when you switch to new window/workspace)
@@ -218,7 +229,7 @@ mode "resize" {
         bindsym Escape mode "default"
 }
 
-bindsym --to-code $mod+r mode "resize"
+bindsym --to-code $mod+ctrl+r mode "resize"
 
 # Generated windows.
 for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] floating enable;
