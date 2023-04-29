@@ -47,9 +47,11 @@ exec_always {
 
 set $mod Mod4
 
-bindsym $mod+x exec wtype -P XF86Cut
-bindsym $mod+c exec wtype -P XF86Copy
-bindsym $mod+v exec wtype -P XF86Paste
+bindsym $mod+x exec wtype -M shift -P delete
+bindsym $mod+c exec wtype -M crtl -P insert
+bindsym $mod+v exec wtype -M shift -P insert
+bindsym $mod+t exec wtype -M ctrl -P t
+bindsym $mod+w exec wtype -M ctrl -P w
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
