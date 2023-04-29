@@ -44,7 +44,6 @@ exec_always {
     systemctl --user enable xdg-desktop-portal-wlr.service || true
     systemctl --user start xdg-desktop-portal-wlr.service || true
 }
-
 set $mod Mod4
 
 # MacOS-like keybindings
@@ -55,6 +54,7 @@ bindsym --to-code $mod+t exec wtype -M ctrl -P t
 bindsym --to-code $mod+w exec wtype -M ctrl -P w
 bindsym --to-code $mod+z exec wtype -M ctrl -P z
 bindsym --to-code $mod+f exec wtype -M ctrl -P f
+bindsym --to-code $mod+a exec wtype -M ctrl -P a
 
 # Tune volume
 bindsym XF86AudioRaiseVolume exec amixer -q set Master 2dB+ unmute
@@ -160,21 +160,7 @@ bindsym --to-code $mod+Shift+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym --to-code $mod+s layout stacking
-# bindsym $mod+w layout tabbed  # not really using it, interferes with closing tab
 bindsym --to-code $mod+e layout toggle split
-
-# Super + Space is rebound to language switcher
-# toggle tiling / floating
-# bindsym $mod+Shift+space floating toggle
-
-# change focus between tiling / floating windows
-# bindsym $mod+space focus mode_toggle
-
-# focus the parent container
-bindsym --to-code $mod+a focus parent
-
-# focus the child container
-#bindsym $mod+d focus child
 
 # switch to workspace
 bindsym $mod+1 workspace 1
