@@ -44,9 +44,7 @@ endif
 " Autoreplace tab by default
 set et
 " Show tabs at the begining of line by dots
-"set listchars=tab:··
-"set listchars=tab:»\ ,trail:·,eol:¶
-"set list
+set list listchars=tab:»·,trail:·,extends:»,precedes:«,nbsp:×
 
 " Disable automatic visual mode on mouse select
 " (breaks identation and other stuff)
