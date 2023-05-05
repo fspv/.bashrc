@@ -1,6 +1,6 @@
 require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all"
-    ensure_installed = { "c", "python", "go" },
+    ensure_installed = { "c", "python", "go", "markdown", "markdown_inline" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -30,4 +30,8 @@ require 'nvim-treesitter.configs'.setup {
     },
     incremental_selection = { enable = true },
     textobjects = { enable = true },
+    matchup = {
+        enable = true, -- mandatory, false will disable the whole extension
+        disable = {},  -- optional, list of language that will be disabled
+    },
 }

@@ -207,7 +207,6 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'haya14busa/incsearch-fuzzy.vim' " Fuzzy incremental search
         Plug 'haya14busa/incsearch-easymotion.vim' " Easymotion integration for for incremental fuzzy search
         Plug 'tpope/vim-dispatch' " Async builds
-        Plug 'preservim/tagbar' " File navigation
         Plug 'ctrlpvim/ctrlp.vim' " fuzzy file, buffer, mru, tag, ... finder
         Plug 'octol/vim-cpp-enhanced-highlight' " Better C++ syntax highlight
         Plug 'ludovicchabant/vim-lawrencium' " HG plugin
@@ -275,7 +274,20 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'nvim-telescope/telescope.nvim' " Alternative to fzf
 
         Plug 'Yggdroot/indentLine' " Identation indication for spaces
+
+        Plug 'andymass/vim-matchup' " Matching parentheses improvement
+
+        Plug 'folke/trouble.nvim' " Show diagnostics window
+
+        Plug 'RRethy/vim-illuminate' " Highlight other uses of symbol under cursor
+
+        Plug 'glepnir/lspsaga.nvim' " More convenient lsp
+
+        Plug 'simrat39/symbols-outline.nvim' " Tag bar
     call plug#end()
+
+    let g:matchup_matchparen_deferred = 1
+    let g:matchup_matchparen_hi_surround_always = 1
 
     "
     " Plugin configuration

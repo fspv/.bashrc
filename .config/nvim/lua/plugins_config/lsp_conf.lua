@@ -2,7 +2,7 @@
 -- lsp-zero doc: https://github.com/VonHeikemen/lsp-zero.nvim/blob/ea4c9511c94df9596c450036502b7ff43d40f816/doc/md/lsp.md
 local lsp = require('lsp-zero').preset({
     name = 'minimal',
-    set_lsp_keymaps = true,
+    set_lsp_keymaps = false,
     manage_nvim_cmp = true,
     suggest_lsp_servers = false,
 })
@@ -26,7 +26,6 @@ lsp.on_attach(function(_, bufnr)
     end)
 
     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<space>wl', function()
@@ -48,30 +47,12 @@ lsp.on_attach(function(_, bufnr)
     vim.keymap.set('n', 'gd', require("telescope.builtin").lsp_definitions, opts)
     vim.keymap.set('n', '<space>D', require("telescope.builtin").lsp_type_definitions, opts)
 
+    vim.keymap.set({ "n", "v" }, "<leader>ca", "<cmd>Lspsaga code_action<CR>", opts)
+    vim.keymap.set("n", "gp", "<cmd>Lspsaga peek_definition<CR>", opts)
+    vim.keymap.set("n", "gtp", "<cmd>Lspsaga peek_type_definition<CR>", opts)
+    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", opts)
 
-    -- Definition highlight on cover
-    vim.api.nvim_create_autocmd(
-        "CursorHold",
-        {
-            pattern = { "*" },
-            callback = function()
-                local mode = vim.api.nvim_get_mode().mode
-
-                if mode == "n" then
-                    -- Disable focus on hover
-                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                        vim.lsp.handlers.hover, { focusable = false }
-                    )
-                    -- Hover
-                    vim.lsp.buf.hover()
-                    -- Enable focus again (in case I need to focus manually)
-                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                        vim.lsp.handlers.hover, {}
-                    )
-                end
-            end
-        }
-    )
+    require('symbols-outline').open_outline()
 end)
 
 require("lspconfig").pylsp.setup {
