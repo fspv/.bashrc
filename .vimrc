@@ -271,6 +271,10 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'tpope/vim-commentary' " Comment code with gc
 
         Plug 'fspv/sourcegraph.nvim'
+
+        Plug 'nvim-lualine/lualine.nvim' " Status line
+
+        Plug 'nvim-telescope/telescope.nvim' " Alternative to fzf
     call plug#end()
 
     "
