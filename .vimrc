@@ -44,7 +44,7 @@ endif
 " Autoreplace tab by default
 set et
 " Show tabs at the begining of line by dots
-set list listchars=tab:»·,trail:·,extends:»,precedes:«,nbsp:×
+set list listchars=tab:¦\ ,trail:·,extends:»,precedes:«,nbsp:×
 
 " Disable automatic visual mode on mouse select
 " (breaks identation and other stuff)
@@ -273,6 +273,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'nvim-lualine/lualine.nvim' " Status line
 
         Plug 'nvim-telescope/telescope.nvim' " Alternative to fzf
+
+        Plug 'Yggdroot/indentLine' " Identation indication for spaces
     call plug#end()
 
     "
