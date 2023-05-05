@@ -468,7 +468,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             \    '&Please',
             \    [
             \       ["&Show window\t<leader>pp", "lua require('please.runners.popup').restore()"],
-            \       ["&Build\t<leader>pj", "lua require('please').build()"],
+            \       ["&Build\t<leader>pb", "lua require('please').build()"],
             \       ["&Test\t<leader>pt", "lua require('please').test()"],
             \       ["&Jump to target\t<leader>pj", "lua require('please').jump_to_target()"],
             \       ["&Test under cursor\t<leader>pct", "lua require('please').test({ under_cursor = true })"],
@@ -478,6 +478,27 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
             \       ["&Yank\t<leader>py", "lua require('please').yank())"],
             \       ["&Debug\t<leader>pd", "lua require('please').debug()"],
             \       ["&Action history\t<leader>pa", "lua require('please').action_history())"],
+            \    ]
+            \)
+        endif
+
+        if has_key(plugs, 'vim-signify')
+            call quickui#menu#install(
+            \    '&Signify',
+            \    [
+            \       ["Diff", "SignifyDiff"],
+            \       ["Diff!", "SignifyDiff!"],
+            \       ["Fold", "SignifyFold"],
+            \       ["Fold!", "SignifyFold!"],
+            \       ["List", "SignifyList"],
+            \       ["Enable", "SignifyEnable"],
+            \       ["Enable All", "SignifyEnableAll"],
+            \       ["Disable", "SignifyDisable"],
+            \       ["Disable All", "SignifyDisableAll"],
+            \       ["Toggle", "SignifyToggle"],
+            \       ["Toggle Highlight", "SignifyToggleHighlight"],
+            \       ["Refresh", "SignifyRefresh"],
+            \       ["Debug", "SignifyDebug"],
             \    ]
             \)
         endif
@@ -539,6 +560,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         \       ["&Show diagnostics\tgl", "lua vim.diagnostic.open_float()"],
         \       ["&Previous diagnostics\t[d", "lua vim.diagnostic.goto_prev()"],
         \       ["&Next diagnostics\t]d", "lua vim.diagnostic.goto_next()"],
+        \       ["Hunk Diff", "SignifyHunkDiff"],
+        \       ["Hunk Undo", "SignifyHunkUndo"],
         \    ],
         \    {'index':g:quickui#context#cursor}
         \)<CR>
