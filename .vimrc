@@ -269,6 +269,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'onsails/lspkind.nvim' " Completion icons
 
         Plug 'tpope/vim-commentary' " Comment code with gc
+
+        Plug 'fspv/sourcegraph.nvim'
     call plug#end()
 
     "
