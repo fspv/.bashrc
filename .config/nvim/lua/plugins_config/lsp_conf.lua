@@ -9,7 +9,14 @@ local lsp = require('lsp-zero').preset({
 
 lsp.nvim_workspace()
 
+
 lsp.on_attach(function(_, bufnr)
+    local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+    for type, icon in pairs(signs) do
+        local hl = "DiagnosticSign" .. type
+        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+    end
+
     local opts = { buffer = bufnr }
     lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
@@ -21,8 +28,6 @@ lsp.on_attach(function(_, bufnr)
     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set('n', '<c-k>', vim.lsp.buf.hover, { buffer = bufnr })
-    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
     vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<space>wl', function()
@@ -31,10 +36,17 @@ lsp.on_attach(function(_, bufnr)
     vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
     vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
     vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
     vim.keymap.set('n', '<space>f', function()
         vim.lsp.buf.format { async = true }
     end, opts)
+
+    local function find_symbols()
+        return require("telescope.builtin").lsp_workspace_symbols({ query = vim.call('expand', '<cword>') })
+    end
+
+    vim.keymap.set("n", "gf", find_symbols, opts)
+    vim.keymap.set('n', 'gr', require("telescope.builtin").lsp_references, opts)
+    vim.keymap.set('n', 'gi', require("telescope.builtin").lsp_implementations, opts)
 
 
     -- Definition highlight on cover
@@ -43,20 +55,20 @@ lsp.on_attach(function(_, bufnr)
         {
             pattern = { "*" },
             callback = function()
-                -- local mode = vim.api.nvim_get_mode().mode
+                local mode = vim.api.nvim_get_mode().mode
 
-                -- if mode == "n" then
-                --     -- Disable focus on hover
-                --     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                --         vim.lsp.handlers.hover, { focusable = false }
-                --     )
-                --     -- Hover
-                --     vim.lsp.buf.hover()
-                --     -- Enable focus again (in case I need to focus manually)
-                --     vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-                --         vim.lsp.handlers.hover, {}
-                --     )
-                -- end
+                if mode == "n" then
+                    -- Disable focus on hover
+                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+                        vim.lsp.handlers.hover, { focusable = false }
+                    )
+                    -- Hover
+                    vim.lsp.buf.hover()
+                    -- Enable focus again (in case I need to focus manually)
+                    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+                        vim.lsp.handlers.hover, {}
+                    )
+                end
             end
         }
     )
