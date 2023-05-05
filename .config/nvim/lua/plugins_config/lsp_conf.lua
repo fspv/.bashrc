@@ -107,14 +107,14 @@ require 'lspconfig'.lua_ls.setup {
 
 -- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
 require 'lspconfig'.gopls.setup {
+    cmd = { "gopls" },
+    root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git", "BUILD"),
     settings = {
         gopls = {
             staticcheck = true,
             diagnosticsDelay = "2s",
             directoryFilters = { "-plz-out" },
-            completion = {
-                completionBudget = "1s",
-            },
+            completionBudget = "1s",
         },
     },
 }
