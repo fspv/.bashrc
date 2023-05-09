@@ -156,6 +156,7 @@ svn
 sway*
 *.swo
 *.swp
+.tcc
 .telegram-cli
 .TelegramDesktop
 Templates
@@ -192,5 +193,6 @@ VirtualBox VMs
 .Xmodmap
 .xscreensaver
 .xsession-errors
+.xsession-errors.old
 .yarnrc
 .zoom/
