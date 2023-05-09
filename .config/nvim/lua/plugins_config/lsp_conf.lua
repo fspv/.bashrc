@@ -75,6 +75,9 @@ require("lspconfig").pylsp.setup {
     },
 }
 
+require("lspconfig").pyright.setup({})
+require("lspconfig").pyre.setup({})
+
 require 'lspconfig'.lua_ls.setup {
     settings = {
         Lua = {
