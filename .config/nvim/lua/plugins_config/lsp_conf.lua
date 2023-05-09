@@ -55,28 +55,7 @@ lsp.on_attach(function(_, bufnr)
     require('symbols-outline').open_outline()
 end)
 
-require("lspconfig").pylsp.setup {
-    settings = {
-        pylsp = {
-            configurationSources = { "flake8" },
-            plugins = {
-                flake8 = { enabled = true },
-                pycodestyle = { enabled = false },
-                mccabe = { enabled = false
-                },
-                pyflakes = {
-                    enabled = false
-                },
-                pydocstyle = {
-                    enabled = false
-                }
-            }
-        }
-    },
-}
-
 require("lspconfig").pyright.setup({})
-require("lspconfig").pyre.setup({})
 
 require 'lspconfig'.lua_ls.setup {
     settings = {
@@ -129,4 +108,6 @@ lsp.format_on_save({
     }
 })
 
+
+lsp.skip_server_setup({ 'pyre', 'pylsp' })
 lsp.setup()
