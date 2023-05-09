@@ -252,6 +252,8 @@ bindswitch --reload --locked lid:on output $laptop disable
 bindswitch --reload --locked lid:off output $laptop enable
 exec_always ${HOME}/.config/sway/scripts/laptop-display-state-on-reload.sh
 
+output * adaptive_sync on
+
 input type:keyboard {
 
   # Modified programmer Dvorak. File at ~/.xkb/symbols/dvp_alt_gr_remapped_to_super
