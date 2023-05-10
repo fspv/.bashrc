@@ -55,7 +55,17 @@ lsp.on_attach(function(_, bufnr)
     require('symbols-outline').open_outline()
 end)
 
-require("lspconfig").pyright.setup({})
+require("lspconfig").pyright.setup(
+    {
+        settings = {
+            analysis = {
+                extraPaths = {
+                    "plz-out/gen", -- For please build system
+                },
+            },
+        },
+    }
+)
 
 require 'lspconfig'.lua_ls.setup {
     settings = {
