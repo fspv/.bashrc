@@ -10,7 +10,7 @@ vim.opt.termguicolors = true
 require("nvim-tree").setup({
     sort_by = "case_sensitive",
     hijack_cursor = true,
-    reload_on_bufenter = true,
+    reload_on_bufenter = false,
     prefer_startup_root = true,
     view = {
         adaptive_size = true,

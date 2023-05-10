@@ -17,7 +17,7 @@ lsp.on_attach(function(_, bufnr)
         vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
     end
 
-    local opts = { buffer = bufnr }
+    local opts = { buffer = bufnr, noremap = true }
     lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
     -- Format the buffer using gq using ls (use gw to wrap to line length)
@@ -119,5 +119,9 @@ lsp.format_on_save({
 })
 
 
+local lsp = require('lsp-zero').preset({
+    float_border = 'none',
+    configure_diagnostics = false,
+})
 lsp.skip_server_setup({ 'pyre', 'pylsp' })
 lsp.setup()
