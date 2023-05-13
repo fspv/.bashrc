@@ -62,6 +62,8 @@ bindsym --to-code $mod+a exec wtype -M ctrl -P a
 bindsym --to-code $mod+f exec wtype -M ctrl -P f
 # Print
 bindsym --to-code $mod+p exec wtype -M ctrl -P p
+# Save
+bindsym --to-code $mod+s exec wtype -M ctrl -P s
 # Chrome new tab
 bindsym --to-code $mod+t exec wtype -M ctrl -P t
 # Chrome close tab
@@ -120,9 +122,8 @@ exec_always swayidle -w -d \
     2>&1
 
 # Lock screen
-bindsym --to-code Mod1+Control+l exec $lock_screen
-bindsym --to-code $mod+Control+l exec $lock_screen
-bindsym --to-code $mod+Control+q exec $lock_screen
+bindsym --to-code $mod+Ctrl+q exec $lock_screen
+bindsym --to-code $mod+Shift+l exec $lock_screen
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -131,7 +132,7 @@ floating_modifier $mod
 bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
-bindsym --to-code $mod+Shift+q kill
+bindsym --to-code $mod+q kill
 
 # start dmenu (a program launcher)
 bindsym --to-code $mod+d exec "swaymsg input '*' xkb_switch_layout 0 && rofi -combi-modi window,drun,run,ssh,keys -show combi -terminal terminator -sort -sorting-method fzf -show-icons -matching fuzzy -pid /tmp/${USER}_sway_rofi.pid"
@@ -154,16 +155,16 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-bindsym --to-code $mod+Shift+h move left
-bindsym --to-code $mod+Shift+j move down
-bindsym --to-code $mod+Shift+k move up
-bindsym --to-code $mod+Shift+l move right
+bindsym --to-code $mod+Ctrl+h move left
+bindsym --to-code $mod+Ctrl+j move down
+bindsym --to-code $mod+Ctrl+k move up
+bindsym --to-code $mod+Ctrl+l move right
 
 # alternatively, you can use the cursor keys:
-#bindsym $mod+Shift+Left move left
-#bindsym $mod+Shift+Down move down
-#bindsym $mod+Shift+Up move up
-#bindsym $mod+Shift+Right move right
+bindsym $mod+Ctrl+Left move left
+bindsym $mod+Ctrl+Down move down
+bindsym $mod+Ctrl+Up move up
+bindsym $mod+Ctrl+Right move right
 
 # Disable the next two as I don't really use them
 # split in horizontal orientation
@@ -173,11 +174,11 @@ bindsym --to-code $mod+Shift+l move right
 # bindsym $mod+v split v
 
 # enter fullscreen mode for the focused container
-bindsym --to-code $mod+Shift+f fullscreen toggle
+bindsym --to-code $mod+Ctrl+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym --to-code $mod+s layout stacking
-bindsym --to-code $mod+e layout toggle split
+bindsym --to-code $mod+Ctrl+s layout stacking
+bindsym --to-code $mod+Ctrl+e layout toggle split
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -268,7 +269,7 @@ input type:keyboard {
 
   # Capslock key should work as escape key
   # See /usr/share/X11/xkb/rules/xorg.lst for options
-  xkb_options grp:win_space_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps,compose:rwin
+  xkb_options grp:win_space_toggle,grp_led:caps,ctrl:nocaps,compose:ralt
 
   repeat_delay 250
   repeat_rate 45
