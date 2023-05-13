@@ -33,6 +33,12 @@ exec_always {
     gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
 }
 
+# Start required services
+exec_always {
+    systemctl --user enable plasma-polkit-agent.service
+    systemctl --user start plasma-polkit-agent.service
+}
+
 # Make pipewire (camera and sound sharing) work
 exec_always {
     systemctl --user enable pipewire-media-session || true
