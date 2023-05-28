@@ -106,7 +106,7 @@ set $disable_display swaymsg "output * dpms off"
 set $enable_display swaymsg "output * dpms on"
 
 # Don't sleep when fullscreen app is open
-for_window [class=.*] inhibit_idle fullscreen
+# for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
 exec_always pkill -f swayidle
@@ -182,6 +182,10 @@ bindsym --to-code $mod+Ctrl+f fullscreen toggle
 bindsym --to-code $mod+Ctrl+s layout stacking
 bindsym --to-code $mod+Ctrl+e layout toggle split
 
+# Allow switching between workspaces with left and right swipes
+bindgesture swipe:right exec wtype -M alt -k left -m alt
+bindgesture swipe:left exec wtype -M alt -k right -m alt
+
 # switch to workspace
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
@@ -245,12 +249,12 @@ for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] 
 for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] resize set 800 400
 for_window [app_id="xdg-desktop-portal.*"] floating enable;
 for_window [app_id="xdg-desktop-portal.*"] resize set 800 400;
-for_window [window_role="pop-up"] floating enable
-for_window [window_role="bubble"] floating enable
-for_window [window_role="task_dialog"] floating enable
-for_window [window_role="Preferences"] floating enable
-for_window [window_type="dialog"] floating enable
-for_window [window_type="menu"] floating enable
+# for_window [window_role="pop-up"] floating enable
+# for_window [window_role="bubble"] floating enable
+# for_window [window_role="task_dialog"] floating enable
+# for_window [window_role="Preferences"] floating enable
+# for_window [window_type="dialog"] floating enable
+# for_window [window_type="menu"] floating enable
 
 # Don't capture sway keys
 for_window [app_id=".*"] shortcuts_inhibitor disable
