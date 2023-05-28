@@ -1,0 +1,41 @@
+#!/bin/sh
+
+export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORMTHEME=gtk3
+export ECORE_EVAS_ENGINE=wayland_egl
+export ELM_ENGINE=wayland_egl
+export SDL_VIDEODRIVER=wayland
+export _JAVA_AWT_WM_NONREPARENTING=1
+export MOZ_ENABLE_WAYLAND=1
+
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+
+export XDG_CURRENT_DESKTOP=sway
+
+# flatpak run \
+#     --env=QT_QPA_PLATFORM=wayland \
+#     --env=QT_QPA_PLATFORMTHEME=gtk3 \
+#     --env=ECORE_EVAS_ENGINE=wayland_egl \
+#     --env=ELM_ENGINE=wayland_egl \
+#     --env=SDL_VIDEODRIVER=wayland \
+#     --env=_JAVA_AWT_WM_NONREPARENTING=1 \
+#     --env=MOZ_ENABLE_WAYLAND=1 \
+#     --env=GTK_IM_MODULE=ibus \
+#     --env=QT_IM_MODULE=ibus \
+#     --env=XMODIFIERS=@im=ibus \
+#     --env=XDG_CURRENT_DESKTOP=sway \
+#     --env=WLR_XWAYLAND=/bin/Xwayland \
+#     --env=WAYLAND_DISPLAY=$XDG_RUNTIME_DIR/app/org.swaywm.sway/wayland-1 \
+#     --filesystem=xdg-run/app/org.swaywm.sway \
+#     org.swaywm.sway \
+#     --debug --verbose >sway.log 2>&1
+
+# Run sway from flatpak
+APP=$(flatpak info -l org.swaywm.sway)
+export LD_LIBRARY_PATH="${APP}/files/lib:${LD_LIBRARY_PATH}"
+export PATH="${APP}/files/bin:${PATH}"
+export WLR_XWAYLAND=${APP}/files/bin/Xwayland
+
+sway --debug --verbose >sway.log 2>&1
