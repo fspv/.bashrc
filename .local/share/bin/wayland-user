@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh --norc
 
 export QT_QPA_PLATFORM=wayland
 export QT_QPA_PLATFORMTHEME=gtk3
@@ -33,9 +33,40 @@ export XDG_CURRENT_DESKTOP=sway
 #     --debug --verbose >sway.log 2>&1
 
 # Run sway from flatpak
-APP=$(flatpak info -l org.swaywm.sway)
-export LD_LIBRARY_PATH="${APP}/files/lib:${LD_LIBRARY_PATH}"
-export PATH="${APP}/files/bin:${PATH}"
-export WLR_XWAYLAND=${APP}/files/bin/Xwayland
+APP=$(flatpak info -l org.swaywm.sway)/files
+export LD_LIBRARY_PATH="${APP}/lib:${LD_LIBRARY_PATH}"
+export PATH="${APP}/bin:${PATH}"
+echo "MANDATORY_MANPATH ${APP}/share/man" > ${HOME}/.manpath
+export WLR_XWAYLAND=${APP}/bin/Xwayland
+export LIBINPUT_QUIRKS_DIR=${APP}/share/libinput
 
-sway --debug --verbose >sway.log 2>&1
+# bwrap \
+#     --bind /cdrom /cdrom \
+#     --bind /etc /etc \
+#     --bind /home /home \
+#     --bind /media /media \
+#     --bind /mnt /mnt \
+#     --bind /opt /opt \
+#     --bind /root /root \
+#     --bind /run /run \
+#     --bind /snap /snap \
+#     --bind /srv /srv \
+#     --bind /tmp /tmp \
+#     --bind /usr /usr \
+#     --symlink usr/bin /bin \
+#     --symlink usr/sbin /sbin \
+#     --symlink usr/lib /lib \
+#     --symlink usr/lib32 /lib32 \
+#     --symlink usr/lib64 /lib64 \
+#     --symlink usr/libx32 /libx32 \
+#     --bind /sys /sys \
+#     --proc /proc \
+#     --dev /dev \
+#     --ro-bind ${APP} /app \
+#     /app/bin/sway --debug --verbose >sway.log 2>&1
+
+LOG=/run/user/$(id -u)/sway_log.log
+echo "Env variables dump" > ${LOG}
+env >> ${LOG}
+echo "Starting sway" >> ${LOG}
+sway --verbose >> ${LOG} 2>&1
