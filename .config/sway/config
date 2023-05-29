@@ -9,48 +9,47 @@
 
 xwayland enable
 
-exec systemctl --user import-environment
+set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
+exec_always rm -rf "/run/user/$(id -u)/sway_log"
 
-exec ibus-daemon -drt auto
+exec $log systemctl --user import-environment
+
+exec $log ibus-daemon -drt auto
 
 # FIXME: pip3 install i3ipc
 exec_always pkill -f window-bound-layout
-exec_always ${HOME}/.config/sway/scripts/window-bound-layout.sh 2>&1
+exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
 
 exec_always pkill -f dunst
-exec_always dunst -layer overlay -config ${HOME}/.dunstrc 2>&1
+exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 
 exec_always {
-    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-    gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
+    $log gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+    $log gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
 
-    gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
-    gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'
+    $log gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
+    $log gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'
 
-    gsettings set org.freedesktop.ibus.general.hotkey triggers "[]"
-    gsettings set org.freedesktop.ibus.general.hotkey next-engine "[]"
-    gsettings set org.freedesktop.ibus.general engines-order "['xkb:us::eng', 'xkb:ru::rus']"
-    gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', 'xkb:ru::rus']"
-    gsettings set org.freedesktop.ibus.general use-global-engine "false"
-    gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
+    $log gsettings set org.freedesktop.ibus.general.hotkey triggers "[]"
+    $log gsettings set org.freedesktop.ibus.general.hotkey next-engine "[]"
+    $log gsettings set org.freedesktop.ibus.general engines-order "['xkb:us::eng', 'xkb:ru::rus']"
+    $log gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', 'xkb:ru::rus']"
+    $log gsettings set org.freedesktop.ibus.general use-global-engine "false"
+    $log gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
 }
 
 # Start required services
 exec_always {
-    systemctl --user enable plasma-polkit-agent.service
-    systemctl --user start plasma-polkit-agent.service
+    $log systemctl --user enable plasma-polkit-agent.service
+    $log systemctl --user start plasma-polkit-agent.service
 }
 
 # Make pipewire (camera and sound sharing) work
 exec_always {
-    systemctl --user enable pipewire-media-session || true
-    systemctl --user start pipewire-media-session || true
-    systemctl --user enable wireplumber.service || true
-    systemctl --user start wireplumber.service || true
-    systemctl --user restart xdg-desktop-portal-gnome || true
-    systemctl --user restart xdg-desktop-portal.service || true
-    systemctl --user enable xdg-desktop-portal-wlr.service || true
-    systemctl --user start xdg-desktop-portal-wlr.service || true
+    $log systemctl --user start wireplumber.service
+    $log systemctl --user restart xdg-desktop-portal-gnome
+    $log systemctl --user restart xdg-desktop-portal.service
+    $log systemctl --user start xdg-desktop-portal-wlr.service
 }
 set $mod Mod4
 
@@ -87,10 +86,10 @@ bindsym --locked XF86MonBrightnessUp exec light -T 1.4
 bindsym --locked XF86MonBrightnessDown exec light -T 0.72
 
 # PrintScr
-bindsym Print exec grim
-bindsym Shift+Print exec slurp | grim -g -
-bindsym --to-code $mod+ctrl+p exec grim
-bindsym --to-code $mod+shift+p exec slurp | grim -g -
+bindsym Print exec $log grim
+bindsym Shift+Print exec $log slurp | grim -g -
+bindsym --to-code $mod+ctrl+p exec $log grim
+bindsym --to-code $mod+shift+p exec $log slurp | grim -g -
 
 # Disable mouse warping (jump when you switch to new window/workspace)
 mouse_warping none
@@ -101,16 +100,16 @@ focus_follows_mouse no
 font pango:Ubuntu Mono 11
 
 # lock screen before suspend. Use loginctl lock-session to lock your screen.
-set $lock_screen flock -x -n ${HOME}/.config/swaylock/flock sh -c 'swaymsg input "*" xkb_switch_layout 0; swaylock -f -d 2>&1 >swaylock.log'
-set $disable_display swaymsg "output * dpms off"
-set $enable_display swaymsg "output * dpms on"
+set $lock_screen $log flock -x -n ${HOME}/.config/swaylock/flock sh -c 'swaymsg input "*" xkb_switch_layout 0; swaylock -f -d'
+set $disable_display $log swaymsg "output * dpms off"
+set $enable_display $log swaymsg "output * dpms on"
 
 # Don't sleep when fullscreen app is open
 # for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
 exec_always pkill -f swayidle
-exec_always swayidle -w -d \
+exec_always $log swayidle -w -d \
     timeout 180 '$disable_display' \
     resume '$enable_display' \
     timeout 300 "$lock_screen" \
@@ -120,8 +119,7 @@ exec_always swayidle -w -d \
     before-sleep "$lock_screen" \
     after-resume '$enable_display' \
     lock "$lock_screen" \
-    unlock 'kill -s 1 $(pgrep swaylock)' \
-    2>&1
+    unlock 'kill -s 1 $(pgrep swaylock)'
 
 # Lock screen
 bindsym --to-code $mod+Ctrl+q exec $lock_screen
@@ -263,7 +261,7 @@ for_window [app_id=".*"] shortcuts_inhibitor disable
 set $laptop eDP-1
 bindswitch --reload --locked lid:on output $laptop disable
 bindswitch --reload --locked lid:off output $laptop enable
-exec_always ${HOME}/.config/sway/scripts/laptop-display-state-on-reload.sh
+exec_always $log ${HOME}/.config/sway/scripts/laptop-display-state-on-reload.sh
 
 output * adaptive_sync on
 
@@ -295,8 +293,8 @@ input type:touchpad {
 
 
 bar {
-    swaybar_command .config/waybar/cmd
+    swaybar_command $log ${HOME}/.config/waybar/cmd
 }
 # exec waybar
-exec_always nm-applet --indicator
-exec_always blueman-applet
+exec_always $log nm-applet --indicator
+exec_always $log blueman-applet
