@@ -293,7 +293,7 @@ input type:touchpad {
 
 
 bar {
-    swaybar_command $log ${HOME}/.config/waybar/cmd
+    swaybar_command .config/waybar/cmd
 }
 # exec waybar
 exec_always $log nm-applet --indicator

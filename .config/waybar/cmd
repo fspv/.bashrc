@@ -2,4 +2,4 @@
 
 export XDG_CURRENT_DESKTOP=Unity
 
-waybar --log-level debug $@ 2>&1
+${HOME}/.config/sway/scripts/log_wrapper.sh waybar --log-level debug $@
