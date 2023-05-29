@@ -10,6 +10,11 @@ TMP_DIR=$(mktemp -d)
 wget $ARTIFACT_URL -O $TMP_DIR/sway.flatpak
 flatpak install -y --noninteractive --user $TMP_DIR/sway.flatpak || true
 
+# Install telegram
+flatpak install -y --user flathub org.telegram.desktop
+flatpak override --user org.telegram.desktop --filesystem=${HOME}/Pictures
+flatpak override --user org.telegram.desktop --filesystem=${HOME}/Downloads
+
 mkdir -p ~/venv
 virtualenv -p python3 ~/venv/neovim
 
