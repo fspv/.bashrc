@@ -252,7 +252,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'mfussenegger/nvim-dap'
         Plug 'marcuscaisey/please.nvim'
 
-        Plug 'wellle/context.vim'
+        " Plug 'wellle/context.vim'
 
         Plug 'kosayoda/nvim-lightbulb'
         Plug 'weilbith/nvim-code-action-menu'
