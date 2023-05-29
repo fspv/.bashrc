@@ -2,6 +2,14 @@
 
 set -uex
 
+# Install sway flatpak
+LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/fspv/flatpaks/releases/latest)
+LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+ARTIFACT_URL="https://github.com/fspv/flatpaks/releases/download/$LATEST_VERSION/sway.flatpak"
+TMP_DIR=$(mktemp -d)
+wget $ARTIFACT_URL -O $TMP_DIR/sway.flatpak
+flatpak install -y --noninteractive --user $TMP_DIR/sway.flatpak || true
+
 mkdir -p ~/venv
 virtualenv -p python3 ~/venv/neovim
 
@@ -36,10 +44,3 @@ chmod +x ~/.bin/src
 
 ~/go/bin/go1.19 download
 ln -sf ~/go/bin/go1.19 ~/go/bin/go
-
-systemctl --user enable pipewire-media-session
-systemctl --user start pipewire-media-session
-systemctl --user restart xdg-desktop-portal-gnome
-systemctl --user restart xdg-desktop-portal.service
-systemctl --user enable xdg-desktop-portal-wlr.service
-systemctl --user start xdg-desktop-portal-wlr.service
