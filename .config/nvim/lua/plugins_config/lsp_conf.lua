@@ -52,7 +52,7 @@ lsp.on_attach(function(_, bufnr)
     vim.keymap.set("n", "gtp", "<cmd>Lspsaga peek_type_definition<CR>", opts)
     vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", opts)
 
-    require('symbols-outline').open_outline()
+    -- require('symbols-outline').open_outline()
 end)
 
 require("lspconfig").pyright.setup(
