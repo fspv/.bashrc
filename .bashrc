@@ -1,3 +1,11 @@
+# Idempotent configs
+
+# kube config
+export KUBECONFIG=$HOME/.kube/config
+for file in "$HOME/.kube/configs"/*.yaml; do
+  export KUBECONFIG=$KUBECONFIG:$file
+done
+
 # Prevent double .bashrc sourcing in different files
 if (test "x${TMUX}" != "x" && test "x${TMUX_BASHRC_ALREADY_EXECUTED}" = "x") || test "x$BASHRC_ALREADY_EXECUTED" = "x"
 then
@@ -338,12 +346,6 @@ fi
 
 path_push_left "${GOBIN}"
 path_push_left "${HOME}/.local/bin"
-
-# kube config
-export KUBECONFIG=$HOME/.kube/config
-for file in "$HOME/.kube/configs"/*.yaml; do
-  export KUBECONFIG=$KUBECONFIG:$file
-done
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
