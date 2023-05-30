@@ -106,8 +106,6 @@ focus_follows_mouse no
 font pango:Ubuntu Mono 11
 
 # Lock screen
-bindsym Mod1+Control+l exec ${HOME}/.config/i3/scripts/lock-screen.sh
-bindsym $mod+Control+l exec ${HOME}/.config/i3/scripts/lock-screen.sh
 bindsym $mod+Control+q exec ${HOME}/.config/i3/scripts/lock-screen.sh
 bindsym $mod+Shift+l exec ${HOME}/.config/i3/scripts/lock-screen.sh
 
