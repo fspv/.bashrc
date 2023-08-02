@@ -9,8 +9,16 @@ local lsp = require('lsp-zero').preset({
 
 lsp.nvim_workspace()
 
-
 lsp.on_attach(function(_, bufnr)
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+        vim.lsp.diagnostic.on_publish_diagnostics, {
+            underline = true,
+            update_in_insert = false,
+            signs = true,
+            virtual_text = true,
+        }
+    )
+
     local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
     for type, icon in pairs(signs) do
         local hl = "DiagnosticSign" .. type
@@ -58,9 +66,12 @@ end)
 require("lspconfig").pyright.setup(
     {
         settings = {
-            analysis = {
-                extraPaths = {
-                    "plz-out/gen", -- For please build system
+            python = {
+                analysis = {
+                    extraPaths = {
+                        "plz-out/gen", -- For please build system
+                    },
+                    typeCheckingMode = "strict",
                 },
             },
         },
