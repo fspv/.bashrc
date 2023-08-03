@@ -2,6 +2,14 @@
 
 set -uex
 
+if test -f "${HOME}/.local/bin/nvim"
+then
+    mv "${HOME}/.local/bin/nvim" "${HOME}/.local/bin/nvim.$(date +%s)"
+fi
+
+wget https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage -O "${HOME}/.local/bin/nvim"
+chmod u+x "${HOME}/.local/bin/nvim"
+
 # Install sway flatpak
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/fspv/flatpaks/releases/latest)
 LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
