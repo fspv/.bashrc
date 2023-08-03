@@ -284,6 +284,9 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'glepnir/lspsaga.nvim' " More convenient lsp
 
         Plug 'simrat39/symbols-outline.nvim' " Tag bar
+
+        Plug 'tversteeg/registers.nvim'  " Show registers when trying to access
+
     call plug#end()
 
     let g:matchup_matchparen_deferred = 1

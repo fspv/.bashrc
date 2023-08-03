@@ -10,4 +10,5 @@ require("plugins_config/trouble_conf")
 require("plugins_config/symbols_outline_conf")
 require("plugins_config/lspsaga_conf")
 require("plugins_config/telescope_conf")
+require("plugins_config/registers_conf")
 pcall(require, "plugins_config_manual/config") -- Best effort
