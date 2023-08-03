@@ -162,6 +162,7 @@ au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.php setl sw=2 sts=2 et
 au BufNewFile,BufRead *.cpp setl sw=2 sts=2 et
+au BufNewFile,BufRead *.lua setl sw=2 sts=2 et
 au BufNewFile,BufRead *.go setl noet
 au BufNewFile,BufRead tnsnames.ora setl sw=2 sts=2 et syn=lisp
 
@@ -345,6 +346,17 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
     autocmd VimEnter * call EnableArcanistAutoformat()
 
     " NvimTree
+    " Remap gx, because nvim tree hijacks netrw
+    function! OpenURLUnderCursor()
+      let s:uri = matchstr(shellescape(expand('<cWORD>')), "[a-z]*:\/\/[^ >,;'" .. '"' .. "]*")
+      echo s:uri
+      if s:uri != ""
+        silent exec "!xdg-open '".s:uri."'"
+      else
+        echo "No URI found in line."
+      endif
+    endfunction
+    nnoremap <silent> gx :call OpenURLUnderCursor()<cr>
     map <leader>nn :NvimTreeFindFile <CR>
 
     " Tagbar
