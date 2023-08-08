@@ -148,22 +148,23 @@ complete -F _complete_ssh ssh
 [ -f ~/.bin/sshrc ] && alias s='~/.bin/sshrc'
 
 # Create systemd aliases
-which systemctl 2>&1 >/dev/null && alias sctl='sudo systemctl'
-which journalctl 2>&1 >/dev/null && alias jctl='sudo journalctl'
+which systemctl >/dev/null 2>&1 && alias sctl='sudo systemctl'
+which journalctl >/dev/null 2>&1 && alias jctl='sudo journalctl'
 
 # Ignore duplicates in .bash_history
 export HISTCONTROL=ignoredups 2>/dev/null
 # The  maximum  number of lines contained in the history file.
+export HISTSIZE=99999 2>/dev/null
 export HISTFILESIZE=99999 2>/dev/null
 # Controls output of `history` command end enables time logging in .bash_history
 export HISTTIMEFORMAT="%a, %d %b %Y %T %z " 2>/dev/null
 
 function hs {
-    grep -a "$*" $HISTFILE
+    grep -a "$*" "${HISTFILE}"
 }
 
 # Disable auto prompt for virtualenv
-VIRTUAL_ENV_DISABLE_PROMPT=yes
+export VIRTUAL_ENV_DISABLE_PROMPT=yes
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
