@@ -49,7 +49,8 @@ set list listchars=tab:¦\ ,trail:·,extends:»,precedes:«,nbsp:×
 " Disable automatic visual mode on mouse select
 " (breaks identation and other stuff)
 " set mouse-=a
-set mouse=
+" set mouse=
+set mouse=nv
 
 " Show us the command we're typing
 set showcmd
@@ -97,7 +98,7 @@ if has("autocmd")
 endif
 
 " Use X clipboard
-set clipboard+=unnamed
+" set clipboard+=unnamed
 
 " Search settings
 set showmatch
