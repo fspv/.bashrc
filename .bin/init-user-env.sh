@@ -57,3 +57,5 @@ chmod +x ~/.bin/src
 
 ~/go/bin/go1.19 download
 ln -sf ~/go/bin/go1.19 ~/go/bin/go
+
+cargo install kubie --locked

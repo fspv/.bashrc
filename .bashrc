@@ -1,10 +1,13 @@
 # Idempotent configs
 
 # kube config
-export KUBECONFIG=$HOME/.kube/config
-for file in "$HOME/.kube/configs"/*.yaml; do
-  export KUBECONFIG=$KUBECONFIG:$file
-done
+if [ "${KUBECONFIG/:*}" = "$HOME/.kube/config" ]
+then
+    export KUBECONFIG=$HOME/.kube/config
+    for file in "$HOME/.kube/configs"/*.yaml; do
+      export KUBECONFIG=$KUBECONFIG:$file
+    done
+fi
 
 # Prevent double .bashrc sourcing in different files
 if (test "x${TMUX}" != "x" && test "x${TMUX_BASHRC_ALREADY_EXECUTED}" = "x") || test "x$BASHRC_ALREADY_EXECUTED" = "x"
@@ -69,7 +72,8 @@ export PAGER=less
 [ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
 
 # Load completion for kubectl
-which kubectl 2>/dev/null && source <(kubectl completion bash)
+which kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
+alias kubie="BASHRC_ALREADY_EXECUTED= kubie"
 
 # Autocompletion options
 set show-all-if-ambiguous on
@@ -362,6 +366,7 @@ fi
 
 path_push_left "${GOBIN}"
 path_push_left "${HOME}/.local/bin"
+path_push_left "${HOME}/.cargo/bin"
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
@@ -436,7 +441,6 @@ On_IPurple='\[\e[10;95m\]'  # Purple
 On_ICyan='\[\e[0;106m\]'    # Cyan
 On_IWhite='\[\e[0;107m\]'   # White
 
-
 if command -v ponysay >/dev/null 2>&1 && \
    command -v fortune >/dev/null 2>&1 && \
    command -v fmt >/dev/null 2>&1 && \
@@ -486,12 +490,16 @@ PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]"
 PS1=$PS1'fi)'
 # Set prompt
 PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
-PS1=$PS1'$(KUBECTL_CONTEXT=$(test -f ${HOME}/.kube/config && cat ${HOME}/.kube/config | grep "current-context:" | sed "s/current-context: //");'
-PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}" = "x";'
-PS1=$PS1'then'
-PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
-PS1=$PS1'${KUBECTL_CONTEXT}'${BIRed}'] ";'
-PS1=$PS1'fi)'
+if which kubectl >/dev/null 2>&1
+then
+    PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context);'
+    PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}");'
+    PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x";'
+    PS1=$PS1'then'
+    PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
+    PS1=$PS1'${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}'${BIRed}'] ";'
+    PS1=$PS1'fi)'
+fi
 PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
 PS1=$PS1'then'
 PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
