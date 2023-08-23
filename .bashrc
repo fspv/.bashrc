@@ -44,6 +44,11 @@ if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
     ssh-add >/dev/null 2>&1
 fi
 
+if test -f "${HOME}/homebrew/bin/brew"
+then
+    eval "$(homebrew/bin/brew shellenv)"
+fi
+
 # Convert c1.h1.domain.com to c1.h1 except h1
 if command -v timeout >/dev/null 2>&1
 then
@@ -189,7 +194,7 @@ case $(uname) in
         MD5SUM='md5sum'
         STAT_TIME='stat -c%Z'
         LS_OPTIONS='--color=auto'
-        alias grep='grep --color=auto'    
+        alias grep='grep --color=auto'
         alias chown='chown --preserve-root'
         alias chmod='chmod --preserve-root'
         alias chgrp='chgrp --preserve-root'
@@ -206,8 +211,11 @@ alias sudo='sudo '
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
-alias vi='nvim'
-alias vim='nvim'
+if which nvim >/dev/null 2>&1
+then
+    alias vi='nvim'
+    alias vim='nvim'
+fi
 alias debuild='debuild -i; debuild clean'
 alias acp='apt-cache policy'
 alias acs='apt-cache show'
@@ -438,7 +446,7 @@ then
 fi
 
 echo -e "\e[1;36m     FQDN: "$FQDN
-echo -e "\e[1;36m       LA: "$(cat /proc/loadavg | cut -f 1-4 -d' ')
+echo -e "\e[1;36m       LA: "$(cat /proc/loadavg 2>/dev/null | cut -f 1-4 -d' ')
 
 if [[ $UID -ne 0 ]]
 then
@@ -471,6 +479,12 @@ PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]"
 PS1=$PS1'fi)'
 # Set prompt
 PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
+PS1=$PS1'$(KUBECTL_CONTEXT=$(test -f ${HOME}/.kube/config && cat ${HOME}/.kube/config | grep "current-context:" | sed "s/current-context: //");'
+PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}" = "x";'
+PS1=$PS1'then'
+PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
+PS1=$PS1'${KUBECTL_CONTEXT}'${BIRed}'] ";'
+PS1=$PS1'fi)'
 PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
 PS1=$PS1'then'
 PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
