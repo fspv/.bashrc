@@ -68,6 +68,9 @@ export PAGER=less
 # Load git-completion file
 [ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
 
+# Load completion for kubectl
+which kubectl 2>/dev/null && source <(kubectl completion bash)
+
 # Autocompletion options
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
