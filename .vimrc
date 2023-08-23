@@ -249,6 +249,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         " sudo snap install rustup --classic
         " sudo snap install rust-analyzer --beta
         Plug 'rust-lang/rust.vim'
+        Plug 'simrat39/rust-tools.nvim'
 
         Plug 'nvim-lua/plenary.nvim'
         Plug 'mfussenegger/nvim-dap'

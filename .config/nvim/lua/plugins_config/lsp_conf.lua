@@ -123,6 +123,15 @@ require 'lspconfig'.gopls.setup {
   },
 }
 
+require("lspconfig").rust_analyzer.setup(
+  {
+    settings = {
+      ["rust-analyzer"] = {
+      }
+    }
+  }
+)
+
 lsp.ensure_installed({
   'gopls',
   'clangd',
