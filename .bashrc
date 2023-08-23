@@ -75,6 +75,9 @@ export PAGER=less
 which kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
 alias kubie="BASHRC_ALREADY_EXECUTED= kubie"
 
+# Make python poetry work
+export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+
 # Autocompletion options
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
