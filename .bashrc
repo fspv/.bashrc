@@ -226,6 +226,10 @@ alias ltr='ltrace -s 999999999 -f -tt -T -n 2'
 alias sudoe='sudo -E -H'
 alias git-sup='git submodule init && git submodule update && git submodule status'
 
+csv_view() {
+    column -s, -t  "$1" | less -#2 -N -S
+}
+
 mmysql() {
     # MySQL alias
     MYSQL_READ_ONLY=$(
