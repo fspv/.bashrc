@@ -281,7 +281,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
         Plug 'simrat39/symbols-outline.nvim' " Tag bar
 
-        Plug 'tversteeg/registers.nvim'  " Show registers when trying to access
+        Plug 'folke/which-key.nvim'  " Show command help as you enter it
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')

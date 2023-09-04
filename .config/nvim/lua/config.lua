@@ -74,10 +74,6 @@ if has_plug("telescope.nvim")
 then
   require("plugins_config/telescope_conf")
 end
-if has_plug("registers.nvim")
-then
-  require("plugins_config/registers_conf")
-end
 if has_plug("vim-matchup")
 then
   require("plugins_config/matchup_conf")
@@ -113,6 +109,10 @@ end
 if has_plug("vim-quickui")
 then
   require("plugins_config/quickui_conf")
+end
+if has_plug("which-key.nvim")
+then
+  require("plugins_config/which_key_conf")
 end
 require("plugins_config/arcanist_conf")
 
