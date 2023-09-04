@@ -110,10 +110,6 @@ require 'lspconfig'.gopls.setup {
       staticcheck = true,
       diagnosticsDelay = "2s",
       directoryFilters = { "-plz-out" },
-      completion = {
-        usePlaceholders = true,
-        completionBudget = "1s"
-      },
       analyses = {
         unusedparams = true,
         unusedwrite = true,
