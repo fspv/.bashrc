@@ -13,7 +13,6 @@ vim.cmd(
       endif
     endfunction
     nnoremap <silent> gx :call OpenURLUnderCursor()<cr>
-    map <leader>nn :NvimTreeFindFile <CR>
 ]]
 )
 

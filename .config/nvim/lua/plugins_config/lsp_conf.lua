@@ -72,6 +72,8 @@ require("lspconfig").pyright.setup(
             "plz-out/gen", -- For please build system
           },
           typeCheckingMode = "strict",
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = false,
         },
       },
     },

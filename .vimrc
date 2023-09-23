@@ -237,6 +237,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'hrsh7th/vim-vsnip-integ'
 
         Plug 'rafamadriz/friendly-snippets'
+        Plug 'nvim-neo-tree/neo-tree.nvim'
+        Plug 'MunifTanjim/nui.nvim'
         Plug 'ray-x/lsp_signature.nvim'
 
         Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
@@ -265,9 +267,13 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
         Plug 'fspv/sourcegraph.nvim'
 
-        Plug 'nvim-lualine/lualine.nvim' " Status line
+        " Plug 'itchyny/lightline.vim' " Status Line
+        Plug 'nvim-lualine/lualine.nvim' " Status Line
+
 
         Plug 'nvim-telescope/telescope.nvim' " Alternative to fzf
+
+        Plug 'nvim-telescope/telescope-live-grep-args.nvim' " Live grep with args
 
         Plug 'Yggdroot/indentLine' " Identation indication for spaces
 
@@ -282,6 +288,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
         Plug 'simrat39/symbols-outline.nvim' " Tag bar
 
         Plug 'folke/which-key.nvim'  " Show command help as you enter it
+
+        Plug 'voldikss/vim-floaterm'  " Floating terminal
 
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')

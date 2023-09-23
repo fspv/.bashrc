@@ -50,6 +50,10 @@ if has_plug("nvim-tree.lua")
 then
   require("plugins_config/nvimtree_conf")
 end
+if has_plug("neo-tree.nvim")
+then
+  require("plugins_config/neotree_conf")
+end
 if has_plug("mason.nvim") and has_plug("mason-lspconfig.nvim")
 then
   require("plugins_config/mason_lspconfig_conf")
@@ -58,6 +62,10 @@ if has_plug("lualine.nvim")
 then
   require("plugins_config/lualine_conf")
 end
+-- if has_plug("lightline.vim")
+-- then
+--   require("plugins_config/lightline_conf")
+-- end
 if has_plug("trouble.nvim")
 then
   require("plugins_config/trouble_conf")
@@ -115,6 +123,10 @@ then
   require("plugins_config/which_key_conf")
 end
 require("plugins_config/arcanist_conf")
+if has_plug("vim-floaterm")
+then
+  require("plugins_config/floaterm_conf")
+end
 
 -- TODO: assign this to some config module
 vim.cmd("set completeopt=menu,menuone,noselect")
