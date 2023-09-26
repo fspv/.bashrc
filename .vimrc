@@ -30,6 +30,8 @@ if filereadable($HOME . "/.vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
 
+nnoremap <BS> <C-^>
+
 " Set autoindent and key to disable it during paste
 set autoindent
 set pastetoggle=<F3>
