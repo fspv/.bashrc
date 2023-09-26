@@ -279,6 +279,7 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
         Plug 'andymass/vim-matchup' " Matching parentheses improvement
 
+        Plug 'stevearc/profile.nvim'
         Plug 'folke/trouble.nvim' " Show diagnostics window
 
         Plug 'RRethy/vim-illuminate' " Highlight other uses of symbol under cursor
