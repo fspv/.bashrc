@@ -462,58 +462,64 @@ fi
 echo -e "\e[1;36m     FQDN: "$FQDN
 echo -e "\e[1;36m       LA: "$(cat /proc/loadavg 2>/dev/null | cut -f 1-4 -d' ')
 
-if [[ $UID -ne 0 ]]
-then
-    PROMPT='$'
-    USERNAME_COLOR=$BIGreen
-    AT_COLOR=$BIRed
-else
-    PROMPT='#'
-    USERNAME_COLOR=$BIRed
-    AT_COLOR=$BIGreen
-fi
+shell="$(cat /proc/$$/comm 2>&1 || true)"
 
-# Move cursor to the begining of the next line.
-# This is a hack! Will break on lines longer than 999999
-#LINE_BREAK='\n\[\033[1B\]\[\033[999D\]'
-#LINE_BREAK='\n\n'
-
-# Help with <ESC> codes http://www.termsys.demon.co.uk/vtansi.htm
-PS1=""
-# Set terminal header
-# http://tldp.org/HOWTO/Xterm-Title-3.html
-PS1=$PS1'\[\033]0;'
-PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
-PS1=$PS1': ${PWD}'
-PS1=$PS1'\007\]'
-# Print return code if non-zero at the beginning of line
-PS1=$PS1'$(RET=$?;'
-PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
-PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]""';"
-PS1=$PS1'fi)'
-# Set prompt
-PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
-if which kubectl >/dev/null 2>&1
+if [[ "${shell}" != "zsh" ]];
 then
-    PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context);'
-    PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}");'
-    PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x";'
-    PS1=$PS1'then'
-    PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
-    PS1=$PS1'${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}'${BIRed}'] ";'
+    if [[ $UID -ne 0 ]]
+    then
+        PROMPT='$'
+        USERNAME_COLOR=$BIGreen
+        AT_COLOR=$BIRed
+    else
+        PROMPT='#'
+        USERNAME_COLOR=$BIRed
+        AT_COLOR=$BIGreen
+    fi
+
+    # Move cursor to the begining of the next line.
+    # This is a hack! Will break on lines longer than 999999
+    #LINE_BREAK='\n\[\033[1B\]\[\033[999D\]'
+    #LINE_BREAK='\n\n'
+
+    # Help with <ESC> codes http://www.termsys.demon.co.uk/vtansi.htm
+    PS1=""
+    # Set terminal header
+    # http://tldp.org/HOWTO/Xterm-Title-3.html
+    PS1=$PS1'\[\033]0;'
+    PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
+    PS1=$PS1': ${PWD}'
+    PS1=$PS1'\007\]'
+    # Print return code if non-zero at the beginning of line
+    PS1=$PS1'$(RET=$?;'
+    PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
+    PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]""';"
     PS1=$PS1'fi)'
+    # Set prompt
+    PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
+    if which kubectl >/dev/null 2>&1
+    then
+        PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context);'
+        PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}");'
+        PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x";'
+        PS1=$PS1'then'
+        PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
+        PS1=$PS1'${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}'${BIRed}'] ";'
+        PS1=$PS1'fi)'
+    fi
+    PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
+    PS1=$PS1'then'
+    PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
+    PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
+    PS1=$PS1'fi)'
+    PS1=$PS1"$BIYellow\W "
+    PS1=$PS1"$BICyan$PROMPT $Color_Off"
+
+    # Always populate .bash_history
+    PS1=$PS1'$(history -a 2>&1 >/dev/null)'
+
+    # Wrong line wrapping? Follow the link:
+    # https://unix.stackexchange.com/questions/105958/terminal-prompt-not-wrapping-correctly
+
+    export PS1
 fi
-PS1=$PS1'$(if ! test "x${VIRTUAL_ENV}" = "x";'
-PS1=$PS1'then'
-PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
-PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
-PS1=$PS1'fi)'
-PS1=$PS1"$BIYellow\W "
-PS1=$PS1"$BICyan$PROMPT $Color_Off"
-# Allways populate .bash_history
-PS1=$PS1'$(history -a 2>&1 >/dev/null)'
-
-# Wrong line wrapping? Follow the link:
-# https://unix.stackexchange.com/questions/105958/terminal-prompt-not-wrapping-correctly
-
-export PS1
