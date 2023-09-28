@@ -11,6 +11,7 @@ AndroidStudioProjects
 .audacity-data
 .avcd
 .aws/
+.azure
 backup
 .bash_aliases
 .bash_history
@@ -102,6 +103,7 @@ Music
 .nano
 .nano_history
 .nbprofiler
+.NERDTreeBookmarks
 .netrc
 nohup.out
 .notion-py/
@@ -111,6 +113,7 @@ nohup.out
 .openshot_qt
 .openvas
 .openvasrc
+.p10k.zsh
 .p2/
 .pam_environment
 .pdbhistory
@@ -195,4 +198,7 @@ VirtualBox VMs
 .xsession-errors
 .xsession-errors.old
 .yarnrc
+.zcompdump*
 .zoom/
+.zsh_history
+.zshrc.pre-oh-my-zsh*
