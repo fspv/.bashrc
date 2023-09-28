@@ -17,7 +17,7 @@ else
     " https://github.com/aleGpereira/flake8-mock/issues/10
     call system($VIRTUAL_ENV . '/bin/pip install -U setuptools')
 
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pynvim python-language-server[all]')
+    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pynvim python-language-server[all] ruff-lsp')
 endif
 
 autocmd FileType go call system('GO111MODULE=on go get golang.org/x/tools/gopls')
@@ -30,6 +30,10 @@ if filereadable($HOME . "/.vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
 
+" Ctrl-C doesn't trigger InsertLeave event, so doesn't work well with LSP
+inoremap <C-c> <Esc>
+
+" Go to the previous open file with backspace
 nnoremap <BS> <C-^>
 
 " Set autoindent and key to disable it during paste
