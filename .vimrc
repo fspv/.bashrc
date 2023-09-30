@@ -298,6 +298,8 @@ if filereadable($HOME . "/.vim/autoload/plug.vim")
 
         Plug 'voldikss/vim-floaterm'  " Floating terminal
 
+        Plug 'solarnz/arcanist.vim'
+
         " Read custom plugins configuration
         if filereadable($HOME . '/.vim/manual/plug.vim')
             source <sfile>:h/.vim/manual/plug.vim
