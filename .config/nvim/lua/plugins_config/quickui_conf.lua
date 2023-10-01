@@ -15,7 +15,7 @@ vim.cmd(
     \    ]
     \)
 
-    if has_key(plugs, 'please.nvim') && executable('plz')
+    if executable('plz')
         call quickui#menu#install(
         \    '&Please',
         \    [
@@ -34,57 +34,53 @@ vim.cmd(
         \)
     endif
 
-    if has_key(plugs, 'vim-signify')
-        call quickui#menu#install(
-        \    '&Signify',
-        \    [
-        \       ["Diff", "SignifyDiff"],
-        \       ["Diff!", "SignifyDiff!"],
-        \       ["Fold", "SignifyFold"],
-        \       ["Fold!", "SignifyFold!"],
-        \       ["List", "SignifyList"],
-        \       ["Enable", "SignifyEnable"],
-        \       ["Enable All", "SignifyEnableAll"],
-        \       ["Disable", "SignifyDisable"],
-        \       ["Disable All", "SignifyDisableAll"],
-        \       ["Toggle", "SignifyToggle"],
-        \       ["Toggle Highlight", "SignifyToggleHighlight"],
-        \       ["Refresh", "SignifyRefresh"],
-        \       ["Debug", "SignifyDebug"],
-        \    ]
-        \)
-    endif
+    call quickui#menu#install(
+    \    '&Signify',
+    \    [
+    \       ["Diff", "SignifyDiff"],
+    \       ["Diff!", "SignifyDiff!"],
+    \       ["Fold", "SignifyFold"],
+    \       ["Fold!", "SignifyFold!"],
+    \       ["List", "SignifyList"],
+    \       ["Enable", "SignifyEnable"],
+    \       ["Enable All", "SignifyEnableAll"],
+    \       ["Disable", "SignifyDisable"],
+    \       ["Disable All", "SignifyDisableAll"],
+    \       ["Toggle", "SignifyToggle"],
+    \       ["Toggle Highlight", "SignifyToggleHighlight"],
+    \       ["Refresh", "SignifyRefresh"],
+    \       ["Debug", "SignifyDebug"],
+    \    ]
+    \)
 
-    if has_key(plugs, 'fzf')
-        call quickui#menu#install(
-        \    '&Fuzzy search',
-        \    [
-        \       ["&Files\tff/", "ProjectFiles"],
-        \       ["&File content\tfc/", "ProjectRg"],
-        \       ["&Git files\t:GFiles", "GFiles"],
-        \       ["&Git staged files\t:GFiles?", "GFiles?"],
-        \       ["&Git commits\t:Commits [LOG_OPTS]", "Commits"],
-        \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]", "BCommits"],
-        \       ["&Buffers\tBuffers:", "Buffers"],
-        \       ["&Lines (all buffers)\t:Lines", "Lines"],
-        \       ["&Lines (current buffer)\t:BLines", "BLines"],
-        \       ["&Tags (project)\t:Tags", "Tags"],
-        \       ["&Tags (current buffer)\t:BTags", "BTags"],
-        \       ["&Colors\t:Colors", "Colors"],
-        \       ["&Marks\t:Marks", "Marks"],
-        \       ["&Windows\t:Windows", "Windows"],
-        \       ["&Snippets\t:Snippets", "Snippets"],
-        \       ["&Commands\t:Commands", "Commands"],
-        \       ["&Maps\t:Maps", "Maps"],
-        \       ["&Help tags\t:Helptags", "Helptags"],
-        \       ["&File types\t:Filetypes", "Filetypes"],
-        \       ["&Command history\t:History:", "History:"],
-        \       ["&Old files and open buffers history\t:History", "History"],
-        \       ["&Ripgrep\t:Rg [PATTERN]", "Rg"],
-        \       ["&Locate\t:Locate [PATTERN]", "Locate"],
-        \    ]
-        \)
-    endif
+    call quickui#menu#install(
+    \    '&Fuzzy search',
+    \    [
+    \       ["&Files\tff/", "ProjectFiles"],
+    \       ["&File content\tfc/", "ProjectRg"],
+    \       ["&Git files\t:GFiles", "GFiles"],
+    \       ["&Git staged files\t:GFiles?", "GFiles?"],
+    \       ["&Git commits\t:Commits [LOG_OPTS]", "Commits"],
+    \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]", "BCommits"],
+    \       ["&Buffers\tBuffers:", "Buffers"],
+    \       ["&Lines (all buffers)\t:Lines", "Lines"],
+    \       ["&Lines (current buffer)\t:BLines", "BLines"],
+    \       ["&Tags (project)\t:Tags", "Tags"],
+    \       ["&Tags (current buffer)\t:BTags", "BTags"],
+    \       ["&Colors\t:Colors", "Colors"],
+    \       ["&Marks\t:Marks", "Marks"],
+    \       ["&Windows\t:Windows", "Windows"],
+    \       ["&Snippets\t:Snippets", "Snippets"],
+    \       ["&Commands\t:Commands", "Commands"],
+    \       ["&Maps\t:Maps", "Maps"],
+    \       ["&Help tags\t:Helptags", "Helptags"],
+    \       ["&File types\t:Filetypes", "Filetypes"],
+    \       ["&Command history\t:History:", "History:"],
+    \       ["&Old files and open buffers history\t:History", "History"],
+    \       ["&Ripgrep\t:Rg [PATTERN]", "Rg"],
+    \       ["&Locate\t:Locate [PATTERN]", "Locate"],
+    \    ]
+    \)
 
     call quickui#menu#install('Help (&?)', [
         \ ["&Index", 'tab help index', ''],
