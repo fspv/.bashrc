@@ -7,9 +7,11 @@ local lsp = require('lsp-zero').preset({
   suggest_lsp_servers = false,
 })
 
-lsp.nvim_workspace()
+lsp.extend_lspconfig()
 
-lsp.on_attach(function(_, bufnr)
+-- lsp.nvim_workspace()
+
+on_attach_func = function(_, bufnr)
   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
     vim.lsp.diagnostic.on_publish_diagnostics, {
       underline = true,
@@ -61,7 +63,9 @@ lsp.on_attach(function(_, bufnr)
   vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", opts)
 
   -- require('symbols-outline').open_outline()
-end)
+end
+
+lsp.on_attach(on_attach_func)
 
 require("lspconfig").pyright.setup(
   {
@@ -130,11 +134,11 @@ require("lspconfig").rust_analyzer.setup(
   }
 )
 
-lsp.ensure_installed({
-  'gopls',
-  'clangd',
-  'rust_analyzer'
-})
+-- lsp.ensure_installed({
+--   'gopls',
+--   'clangd',
+--   'rust_analyzer'
+-- })
 
 -- TODO: pylsp installation doesn't work from within existing virtualenv
 lsp.format_on_save({
@@ -149,5 +153,5 @@ local lsp = require('lsp-zero').preset({
   float_border = 'none',
   configure_diagnostics = false,
 })
-lsp.skip_server_setup({ 'pyre', 'pylsp' })
+-- lsp.skip_server_setup({ 'pyre', 'pylsp' })
 lsp.setup()
