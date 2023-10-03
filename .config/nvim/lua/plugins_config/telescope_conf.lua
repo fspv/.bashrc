@@ -42,8 +42,11 @@ require("telescope").setup(
   }
 )
 
-vim.keymap.set("n", "ts/", require("telescope.builtin").lsp_document_symbols, {})
-vim.keymap.set("n", "tf/", require("telescope.builtin").git_files, {})
-vim.keymap.set("n", "tc/", require("telescope").extensions.live_grep_args.live_grep_args, {})
-vim.keymap.set("n", "tr/", require("telescope.builtin").resume, {})
-vim.keymap.set("n", "tt/", require("telescope.builtin").pickers, {})
+vim.keymap.set("n", "ts/", require("telescope.builtin").lsp_document_symbols, { desc = "Search Document Symbols" })
+vim.keymap.set("n", "tf/", require("telescope.builtin").git_files, { desc = "Search Git Files" })
+vim.keymap.set("n", "tc/", require("telescope").extensions.live_grep_args.live_grep_args,
+  { desc = "Live Grep (with args)" })
+vim.keymap.set("n", "tr/", require("telescope.builtin").resume, { desc = "Resume the previous search" })
+vim.keymap.set("n", "tt/", require("telescope.builtin").pickers, { desc = "Search Open Telescope Pickers" })
+vim.keymap.set("n", "to/", function() require("telescope.builtin").live_grep({ grep_open_files = true }) end,
+  { desc = "Search Open Files" })

@@ -643,7 +643,7 @@ local function toggle_profile()
 end
 
 if should_profile then
-  vim.keymap.set("", "<leader>xx", toggle_profile)
+  vim.keymap.set("", "<leader>xx", toggle_profile, { desc = "Toggle Profile" })
   require("profile").instrument_autocmds()
   if should_profile:lower():match("^start") then
     require("profile").start("*")

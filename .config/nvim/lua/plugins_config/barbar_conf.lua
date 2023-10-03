@@ -1,7 +1,6 @@
 -- Move to previous/next
-local opts = { noremap = true, silent = true }
-vim.api.nvim_set_keymap('n', 'gT', '<Cmd>BufferPrevious<CR>', opts)
-vim.api.nvim_set_keymap('n', 'gt', '<Cmd>BufferNext<CR>', opts)
+vim.keymap.set('n', 'gT', '<Cmd>BufferPrevious<CR>', { noremap = true, silent = true, desc = "Prev Tab" })
+vim.keymap.set('n', 'gt', '<Cmd>BufferNext<CR>', { noremap = true, silent = true, desc = "Next Tab" })
 
 -- vim.api.nvim_create_autocmd('FileType', {
 --     callback = function(tbl)
