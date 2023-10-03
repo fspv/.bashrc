@@ -148,7 +148,12 @@ require("lazy").setup(
         require("plugins_config/cmp_conf")
       end,
       dependencies = {
-        'hrsh7th/vim-vsnip-integ',
+        'hrsh7th/cmp-nvim-lsp',
+        'hrsh7th/cmp-path',
+        'hrsh7th/cmp-cmdline',
+        'hrsh7th/cmp-buffer',
+        'hrsh7th/cmp-vsnip',
+        "saadparwaiz1/cmp_luasnip",
         'ray-x/lsp_signature.nvim',
         'onsails/lspkind.nvim',
       }
@@ -160,7 +165,7 @@ require("lazy").setup(
       -- https://github.com/hrsh7th/cmp-vsnip/issues/5
       commit = "1ae05c6",
       dependencies = {
-        'hrsh7th/nvim-cmp',
+        'hrsh7th/vim-vsnip-integ',
       },
     },
     -- Luasnip
@@ -184,33 +189,25 @@ require("lazy").setup(
     },
     {
       'hrsh7th/cmp-nvim-lsp',
-      lazy = false,
       dependencies = {
-        'hrsh7th/nvim-cmp',
       },
     },
     -- Source for buffer words
     {
       'hrsh7th/cmp-buffer',
-      lazy = false,
       dependencies = {
-        'hrsh7th/nvim-cmp',
       },
     },
     -- Source for filesystem paths
     {
       'hrsh7th/cmp-path',
-      lazy = false,
       dependencies = {
-        'hrsh7th/nvim-cmp',
       },
     },
     -- Source for vim cmdline
     {
       'hrsh7th/cmp-cmdline',
-      lazy = false,
       dependencies = {
-        'hrsh7th/nvim-cmp',
       },
     },
 
@@ -255,7 +252,6 @@ require("lazy").setup(
         -- Empty, loaded together with nvim-lspconfig
       end,
       dependencies = {
-        'neovim/nvim-lspconfig',
       },
     },
     -- Main LSP plugin
@@ -263,17 +259,16 @@ require("lazy").setup(
       'neovim/nvim-lspconfig',
       lazy = true,
       cmd = 'LspInfo',
-      event = { 'BufReadPre', 'BufNewFile' },
+      event = { 'BufReadPre', 'BufNewFile', 'LspAttach' },
       config = function()
         require("plugins_config/lsp_conf")
       end,
       dependencies = {
-        'nvim-treesitter/nvim-treesitter',
         'nvim-tree/nvim-web-devicons',
         'williamboman/mason-lspconfig.nvim',
+        'glepnir/lspsaga.nvim',
         'hrsh7th/cmp-nvim-lsp',
         'VonHeikemen/lsp-zero.nvim',
-        'glepnir/lspsaga.nvim',
       },
     },
     -- Highlight other uses of symbol under cursor
@@ -402,24 +397,50 @@ require("lazy").setup(
     {
       'fatih/vim-go',
       lazy = false,
-      priority = 1000,
       ft = "go",
       build = ':GoUpdateBinaries',
       config = function()
         require("plugins_config/vim_go_conf")
       end,
     },
-    -- Go code snippets come from here
-    -- FIXME: doesn't work due to different file format.
-    -- Compare:
-    --  - `~/.local/share/nvim/lazy/friendly-snippets/snippets/go.json`
-    --  - `~/.local/share/nvim/lazy/vscode-go/snippets/go.json`
-    -- {
-    --   'golang/vscode-go',
-    --   priority = 1000,
-    --   lazy = false,
-    --   ft = "go",
-    -- },
+    {
+      'golang/vscode-go',
+      ft = "go",
+      build = function(plugin)
+        -- Pop top level `.source.go` key from the vscode json. It is not
+        -- compatible with both vsnip and luasnip
+        vim.print("Got plugin path " .. plugin.dir)
+        local snippets_path = plugin.dir .. "/snippets/go.json"
+
+        vim.print("Got file path " .. snippets_path)
+        local snippet_file = io.open(snippets_path, "r")
+
+        vim.print("Reading " .. snippets_path)
+        ---@diagnostic disable-next-line: need-check-nil
+        local initial_json = snippet_file:read("*a")
+        ---@diagnostic disable-next-line: need-check-nil
+        snippet_file:close()
+
+        vim.print("Decoding " .. snippets_path)
+        local decoded_json = vim.json.decode(initial_json)
+
+        if decoded_json[".source.go"] == nil then
+          return
+        end
+
+        vim.print("Encoding " .. snippets_path)
+        local fixed_json = vim.json.encode(decoded_json[".source.go"])
+
+        vim.print("Writing " .. snippets_path)
+        snippet_file = io.open(snippets_path, "w+")
+        ---@diagnostic disable-next-line: need-check-nil
+        snippet_file:write(fixed_json)
+        ---@diagnostic disable-next-line: need-check-nil
+        snippet_file:close()
+
+        vim.print("Written " .. snippets_path)
+      end
+    },
     -- sudo snap install rustup --classic,
     -- sudo snap install rust-analyzer --beta,
     {
