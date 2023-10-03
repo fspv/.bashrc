@@ -128,6 +128,7 @@ require("lazy").setup(
       'hrsh7th/vim-vsnip',
       dependencies = {
         'rafamadriz/friendly-snippets',
+        'golang/vscode-go',
       }
     },
     -- Snippet completion and expansion integration
@@ -177,6 +178,7 @@ require("lazy").setup(
       dependencies = {
         'rafamadriz/friendly-snippets',
         'hrsh7th/nvim-cmp',
+        'golang/vscode-go',
       }
     },
     -- Source for luasnip
