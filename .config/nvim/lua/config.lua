@@ -97,8 +97,8 @@ require("lazy").setup(
     -- Arcanist diff highlight
     {
       'solarnz/arcanist.vim',
-      ft = 'arcanist',
-      config = function()
+      ft = 'arcanistdiff',
+      init = function()
         require("plugins_config/arcanist_conf")
       end,
     },
@@ -491,6 +491,9 @@ require("lazy").setup(
     -- Identation indication for spaces
     {
       'Yggdroot/indentLine',
+      init = function()
+        vim.g.indentLine_concealcursor = "nc"
+      end
     },
     -- Matching parentheses improvement
     {

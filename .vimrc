@@ -136,6 +136,7 @@ set fileencoding=utf8
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
+set conceallevel=2
 
 " Remap leader
 let mapleader = ","
@@ -158,7 +159,7 @@ if !empty(glob("~/.vim/bundle/Vundle.vim"))
 endif
 
 " Disable expandtab for Makefiles
-:autocmd FileType make set noexpandtab
+autocmd FileType make set noexpandtab
 
 " Set some filetypes
 au BufNewFile,BufRead *.sls setf yaml
@@ -181,7 +182,6 @@ augroup json_autocmd
   autocmd FileType json set softtabstop=2 tabstop=8
   autocmd FileType json set expandtab
   autocmd FileType json set foldmethod=syntax
-  autocmd FileType json set conceallevel=0
 augroup END
 
 " Extend copy buffer
