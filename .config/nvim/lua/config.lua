@@ -108,77 +108,110 @@ require("lazy").setup(
     -- Completion icons
     {
       'onsails/lspkind.nvim',
-      lazy = true,
     },
     -- Show function signature when you type
     {
       'ray-x/lsp_signature.nvim',
-      lazy = true,
+      event = "VeryLazy",
+      setup = true,
+    },
+    -- Snippets collection for a set of different programming languages
+    {
+      'rafamadriz/friendly-snippets',
+      dependencies = {
+        'hrsh7th/cmp-vsnip',
+        'fatih/vim-go',
+      }
+    },
+    -- VSCode(LSP)'s snippet feature
+    {
+      'hrsh7th/vim-vsnip',
+      dependencies = {
+        'rafamadriz/friendly-snippets',
+      }
+    },
+    -- Snippet completion and expansion integration
+    {
+      'hrsh7th/vim-vsnip-integ',
+      init = function()
+        require("plugins_config/vsnip_conf")
+      end,
+      dependencies = {
+        'hrsh7th/vim-vsnip',
+      }
+    },
+    -- Completion engine
+    {
+      'hrsh7th/nvim-cmp',
+      event = "InsertEnter",
+      config = function()
+        require("plugins_config/cmp_conf")
+      end,
+      dependencies = {
+        'hrsh7th/vim-vsnip-integ',
+        'ray-x/lsp_signature.nvim',
+        'onsails/lspkind.nvim',
+      }
+    },
+    -- Source for vsnip
+    {
+      'hrsh7th/cmp-vsnip',
+      lazy = false,
+      -- https://github.com/hrsh7th/cmp-vsnip/issues/5
+      commit = "1ae05c6",
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+      },
+    },
+    -- Luasnip
+    {
+      "L3MON4D3/LuaSnip",
+      config = function()
+        require('luasnip.loaders.from_vscode').lazy_load()
+      end,
+      dependencies = {
+        'rafamadriz/friendly-snippets',
+        'hrsh7th/nvim-cmp',
+      }
+    },
+    -- Source for luasnip
+    {
+      "saadparwaiz1/cmp_luasnip",
+      lazy = false,
+      dependencies = {
+        "L3MON4D3/LuaSnip",
+      }
     },
     {
       'hrsh7th/cmp-nvim-lsp',
-      lazy = true,
+      lazy = false,
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+      },
     },
     -- Source for buffer words
     {
       'hrsh7th/cmp-buffer',
       lazy = false,
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+      },
     },
     -- Source for filesystem paths
     {
       'hrsh7th/cmp-path',
       lazy = false,
+      dependencies = {
+        'hrsh7th/nvim-cmp',
+      },
     },
     -- Source for vim cmdline
     {
       'hrsh7th/cmp-cmdline',
       lazy = false,
-    },
-    -- VSCode(LSP)'s snippet feature
-    {
-      'hrsh7th/vim-vsnip',
-      lazy = true,
-      config = function()
-        require("plugins_config/vsnip_conf")
-      end,
-    },
-    -- Snippet completion and expansion integration
-    {
-      'hrsh7th/vim-vsnip-integ',
-      lazy = true,
-    },
-    -- Snippets collection for a set of different programming languages
-    {
-      'rafamadriz/friendly-snippets',
-      lazy = true,
-    },
-    -- Source for vsnip
-    {
-      'hrsh7th/cmp-vsnip',
-      lazy = true,
       dependencies = {
-        'hrsh7th/vim-vsnip',
-        'hrsh7th/vim-vsnip-integ',
-        'rafamadriz/friendly-snippets',
+        'hrsh7th/nvim-cmp',
       },
-    },
-    -- Completion engine
-    {
-      'hrsh7th/nvim-cmp',
-      lazy = true,
-      event = 'InsertEnter',
-      config = function()
-        require("plugins_config/cmp_conf")
-      end,
-      dependencies = {
-        'hrsh7th/cmp-nvim-lsp',
-        'hrsh7th/cmp-buffer',
-        'hrsh7th/cmp-path',
-        'hrsh7th/cmp-cmdline',
-        'hrsh7th/cmp-vsnip',
-        'ray-x/lsp_signature.nvim',
-        'onsails/lspkind.nvim',
-      }
     },
 
     -- LSP
@@ -365,14 +398,28 @@ require("lazy").setup(
       'MunifTanjim/nui.nvim',
       lazy = true,
     },
+    -- Many go utils
     {
       'fatih/vim-go',
+      lazy = false,
+      priority = 1000,
       ft = "go",
       build = ':GoUpdateBinaries',
       config = function()
         require("plugins_config/vim_go_conf")
       end,
     },
+    -- Go code snippets come from here
+    -- FIXME: doesn't work due to different file format.
+    -- Compare:
+    --  - `~/.local/share/nvim/lazy/friendly-snippets/snippets/go.json`
+    --  - `~/.local/share/nvim/lazy/vscode-go/snippets/go.json`
+    -- {
+    --   'golang/vscode-go',
+    --   priority = 1000,
+    --   lazy = false,
+    --   ft = "go",
+    -- },
     -- sudo snap install rustup --classic,
     -- sudo snap install rust-analyzer --beta,
     {
