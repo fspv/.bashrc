@@ -49,8 +49,6 @@ if has("autocmd")
 endif
 " Autoreplace tab by default
 set et
-" Show tabs at the begining of line by dots
-set list listchars=tab:¦\ ,trail:·,extends:»,precedes:«,nbsp:×
 
 " Disable automatic visual mode on mouse select
 " (breaks identation and other stuff)
@@ -111,6 +109,8 @@ set showmatch
 set hlsearch
 set incsearch
 set ignorecase
+" Don't jump to the next search item on *
+nnoremap * *``
 
 " Order of encondings application
 set ffs=unix,dos,mac

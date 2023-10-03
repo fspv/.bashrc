@@ -560,9 +560,9 @@ require("lazy").setup(
     },
     -- Identation indication for spaces
     {
-      'Yggdroot/indentLine',
+      "nathanaelkane/vim-indent-guides",
       init = function()
-        vim.g.indentLine_concealcursor = "nc"
+        vim.g.indent_guides_enable_on_vim_startup = 1
       end
     },
     -- Matching parentheses improvement
