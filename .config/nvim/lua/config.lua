@@ -536,6 +536,14 @@ require("lazy").setup(
         require("plugins_config/lualine_conf")
       end,
     },
+    -- Winbar dropdown
+    {
+      'Bekaboo/dropbar.nvim',
+      dependencies = {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        'nvim-tree/nvim-web-devicons',
+      }
+    },
     -- Alternative to fzf
     {
       'nvim-telescope/telescope.nvim',
