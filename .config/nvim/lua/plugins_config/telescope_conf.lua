@@ -42,6 +42,10 @@ require("telescope").setup(
   }
 )
 
+-- To get fzf loaded and working with telescope, you need to call
+-- load_extension, somewhere after setup function:
+require('telescope').load_extension("fzf")
+
 vim.keymap.set("n", "ts/", require("telescope.builtin").lsp_document_symbols, { desc = "Search Document Symbols" })
 vim.keymap.set("n", "tf/", require("telescope.builtin").git_files, { desc = "Search Git Files" })
 vim.keymap.set("n", "tc/", require("telescope").extensions.live_grep_args.live_grep_args,

@@ -535,6 +535,9 @@ require("lazy").setup(
       config = function()
         require("plugins_config/lualine_conf")
       end,
+      dependencies = {
+        'Bekaboo/dropbar.nvim',
+      },
     },
     -- Winbar dropdown
     {
@@ -561,6 +564,12 @@ require("lazy").setup(
       dependencies = {
         'nvim-telescope/telescope-live-grep-args.nvim'
       },
+    },
+    -- Fzf interface for telescope
+    {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      build =
+      'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
     },
     -- Live grep with args
     {
