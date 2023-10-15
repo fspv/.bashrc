@@ -151,6 +151,8 @@ require("lspconfig").rust_analyzer.setup(
   }
 )
 
+require("lspconfig").tsserver.setup({})
+
 -- lsp.ensure_installed({
 --   'gopls',
 --   'clangd',
