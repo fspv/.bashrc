@@ -25,6 +25,27 @@ local has_plug = function(plug_name)
   return result
 end
 
+local aug = vim.api.nvim_create_augroup("buf_large", { clear = true })
+
+vim.api.nvim_create_autocmd({ "BufReadPre" }, {
+  callback = function()
+    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()))
+    if ok and stats and (stats.size > 204800) then
+      vim.b.large_buf = true
+      vim.cmd("syntax off")
+      -- vim.cmd("IlluminatePauseBuf")     -- disable vim-illuminate
+      -- vim.cmd("IndentBlanklineDisable") -- disable indent-blankline.nvim
+      vim.opt_local.foldmethod = "manual"
+      vim.opt_local.spell = false
+    else
+      vim.b.large_buf = false
+    end
+  end,
+  group = aug,
+  pattern = "*",
+})
+
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -114,6 +135,10 @@ require("lazy").setup(
       'ray-x/lsp_signature.nvim',
       event = "VeryLazy",
       setup = true,
+      opts = {
+        noice = true,
+      },
+      config = function(_, opts) require 'lsp_signature'.setup(opts) end
     },
     -- Snippets collection for a set of different programming languages
     {
@@ -363,6 +388,7 @@ require("lazy").setup(
     -- Git plugin
     {
       'tpope/vim-fugitive',
+      cmd = { "G", "Gdiffsplit" },
     },
     -- Show modifications in sign column
     {
@@ -376,7 +402,7 @@ require("lazy").setup(
     -- File tree (also support symbols)
     {
       'nvim-neo-tree/neo-tree.nvim',
-      cmd = 'NeoTree',
+      cmd = 'Neotree',
       keys = {
         { "<leader>nn" },
       },
@@ -536,6 +562,7 @@ require("lazy").setup(
       end,
       dependencies = {
         'Bekaboo/dropbar.nvim',
+        'arkav/lualine-lsp-progress',
       },
     },
     -- Winbar dropdown
@@ -596,7 +623,7 @@ require("lazy").setup(
     -- Show diagnostics window
     {
       'folke/trouble.nvim',
-      cmd = { "Trouble" },
+      cmd = { "Trouble", "TroubleToggle" },
       config = function()
         require("plugins_config/trouble_conf")
       end,
@@ -630,6 +657,45 @@ require("lazy").setup(
         require("plugins_config/floaterm_conf")
       end,
     },
+    -- Some fancy stuff
+    {
+      "folke/noice.nvim",
+      enabled = false,
+      event = "VeryLazy",
+      opts = {
+        cmdline = {
+          enabled = true,
+          view = "cmdline",
+        },
+        lsp = {
+          -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
+          override = {
+            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ["vim.lsp.util.stylize_markdown"] = true,
+            ["cmp.entry.get_documentation"] = true,
+          },
+        },
+        -- you can enable a preset for easier configuration
+        presets = {
+          bottom_search = true,         -- use a classic bottom cmdline for search
+          command_palette = true,       -- position the cmdline and popupmenu together
+          long_message_to_split = true, -- long messages will be sent to a split
+          inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false,       -- add a border to hover docs and signature help
+        },
+        signature = {
+          enabled = true,
+        }
+      },
+      dependencies = {
+        -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+        "MunifTanjim/nui.nvim",
+        -- OPTIONAL:
+        --   `nvim-notify` is only needed, if you want to use the notification view.
+        --   If not available, we use `mini` as the fallback
+        "rcarriga/nvim-notify",
+      }
+    }
   }
 )
 
