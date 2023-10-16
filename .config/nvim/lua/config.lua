@@ -276,7 +276,7 @@ require("lazy").setup(
     -- Highlight other uses of symbol under cursor
     {
       'RRethy/vim-illuminate',
-      lazy = false,
+      event = "BufReadPost",
       dependencies = {
         'neovim/nvim-lspconfig',
       },
@@ -306,12 +306,12 @@ require("lazy").setup(
     -- Highlight trailing whitespace
     {
       'ntpeters/vim-better-whitespace',
-      lazy = false,
+      event = "BufReadPost",
     },
     -- Auto-complete matching quotes, brackets, etc
     {
       'raimondi/delimitMate',
-      lazy = false,
+      event = "BufEnter",
     },
     {
       'nvim-tree/nvim-tree.lua',
@@ -367,7 +367,6 @@ require("lazy").setup(
     -- Show modifications in sign column
     {
       'mhinz/vim-signify',
-      lazy = false,
     },
     -- Solidity smart contracts plugin
     {
@@ -578,6 +577,7 @@ require("lazy").setup(
     -- Identation indication for spaces
     {
       "nathanaelkane/vim-indent-guides",
+      event = "BufReadPost",
       init = function()
         vim.g.indent_guides_enable_on_vim_startup = 1
       end
@@ -585,7 +585,8 @@ require("lazy").setup(
     -- Matching parentheses improvement
     {
       'andymass/vim-matchup',
-      config = function()
+      event = "BufReadPost",
+      init = function()
         require("plugins_config/matchup_conf")
       end,
     },
@@ -595,6 +596,7 @@ require("lazy").setup(
     -- Show diagnostics window
     {
       'folke/trouble.nvim',
+      cmd = { "Trouble" },
       config = function()
         require("plugins_config/trouble_conf")
       end,
