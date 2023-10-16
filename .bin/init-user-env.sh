@@ -57,7 +57,7 @@ sudo snap install rustup --classic
 sudo snap install rust-analyzer --beta
 
 sudo apt-get install -y flake8 mypy pycodestyle python3-pyflakes black isort
-sudo apt-get install -y clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang
+sudo apt-get install -y clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang cmake
 sudo apt install python3.10-venv
 
 sudo apt-get install -y exuberant-ctags universal-ctags
