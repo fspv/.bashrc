@@ -27,6 +27,13 @@ local on_attach_func = function(_, bufnr)
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
   end
 
+  require "lsp_signature".on_attach({
+    bind = true, -- This is mandatory, otherwise border config won't get registered.
+    handler_opts = {
+      border = "rounded"
+    }
+  }, bufnr)
+
   lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
   -- Format the buffer using gq using ls (use gw to wrap to line length)
@@ -83,22 +90,50 @@ end
 
 lsp.on_attach(on_attach_func)
 
-require("lspconfig").pyright.setup(
-  {
+-- require("lspconfig").pyright.setup(
+--   {
+--     settings = {
+--       python = {
+--         analysis = {
+--           extraPaths = {
+--             "plz-out/gen", -- For please build system
+--           },
+--           typeCheckingMode = "off",
+--           autoSearchPaths = false,
+--           useLibraryCodeForTypes = false,
+--           diagnosticMode = "openFilesOnly",
+--         },
+--       },
+--     },
+--   }
+-- )
+--require 'lspconfig'.jedi_language_server.setup {
+--}
+--require 'lspconfig'.pylsp.setup {
+--  settings = {
+--    pylsp = {
+--      plugins = {
+--      }
+--    }
+--  }
+--}
+require 'lspconfig'.pyre.setup {
+  cmd = { "pyre", "persistent" },
+}
+
+if not vim.b.large_buf then
+  require 'lspconfig'.pylyzer.setup {
+    cmd = { "pylyzer", "--server", "--verbose", "2" },
+    root_dir = require("lspconfig/util").root_pattern(".git"),
     settings = {
       python = {
-        analysis = {
-          extraPaths = {
-            "plz-out/gen", -- For please build system
-          },
-          typeCheckingMode = "strict",
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = false,
-        },
-      },
-    },
+        diagnostics = false,
+        inlayHints = true,
+        smartCompletion = true
+      }
+    }
   }
-)
+end
 
 require 'lspconfig'.lua_ls.setup {
   settings = {
@@ -130,12 +165,16 @@ require 'lspconfig'.gopls.setup {
   settings = {
     gopls = {
       staticcheck = true,
+      gofumpt = true,
       diagnosticsDelay = "2s",
       directoryFilters = { "-plz-out" },
       analyses = {
         unusedparams = true,
         unusedwrite = true,
-        shadow = true
+        unusedvariable = true,
+        shadow = true,
+        nilness = true,
+        useany = true,
       }
     },
   },
