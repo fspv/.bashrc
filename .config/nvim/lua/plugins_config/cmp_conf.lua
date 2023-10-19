@@ -64,9 +64,6 @@ cmp.setup.cmdline(':', {
   })
 })
 
--- lsp_signature plugin
-require "lsp_signature".setup({})
-
 -- Add icons to completion results
 local lspkind = require('lspkind')
 cmp.setup {

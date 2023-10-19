@@ -133,11 +133,10 @@ require("lazy").setup(
     -- Show function signature when you type
     {
       'ray-x/lsp_signature.nvim',
-      event = "VeryLazy",
-      setup = true,
       opts = {
         noice = true,
       },
+      ft = { "go", "rust", "cpp", "typescript", "javascript" },
       config = function(_, opts) require 'lsp_signature'.setup(opts) end
     },
     -- Snippets collection for a set of different programming languages
@@ -180,7 +179,6 @@ require("lazy").setup(
         'hrsh7th/cmp-buffer',
         'hrsh7th/cmp-vsnip',
         "saadparwaiz1/cmp_luasnip",
-        'ray-x/lsp_signature.nvim',
         'onsails/lspkind.nvim',
       }
     },
