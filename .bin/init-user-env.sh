@@ -55,6 +55,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 sudo snap install rustup --classic
 sudo snap install rust-analyzer --beta
+rustup update
 
 sudo apt-get install -y flake8 mypy pycodestyle python3-pyflakes black isort
 sudo apt-get install -y clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang cmake

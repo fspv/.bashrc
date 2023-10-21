@@ -370,6 +370,7 @@ fi
 path_push_left "${GOBIN}"
 path_push_left "${HOME}/.local/bin"
 path_push_left "${HOME}/.cargo/bin"
+path_push_left "${HOME}/snap/rustup/common/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
