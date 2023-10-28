@@ -243,8 +243,8 @@ mode "resize" {
 bindsym --to-code $mod+ctrl+r mode "resize"
 
 # Generated windows.
-for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] floating enable;
-for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)"] resize set 800 400
+for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)" app_id="^(?i)(?:(?!chrom).)*$"] floating enable;
+for_window [title="(?:Select|Choose|Open|Save).*(?:file|File|Files|Folder|As)" app_id="^(?i)(?:(?!chrom).)*$"] resize set 800 400
 for_window [app_id="xdg-desktop-portal.*"] floating enable;
 for_window [app_id="xdg-desktop-portal.*"] resize set 800 400;
 # for_window [window_role="pop-up"] floating enable
