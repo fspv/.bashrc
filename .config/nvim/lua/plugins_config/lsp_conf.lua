@@ -190,7 +190,17 @@ require("lspconfig").rust_analyzer.setup(
   }
 )
 
+-- JavaScript/TypeScript
 require("lspconfig").tsserver.setup({})
+
+-- `npm init @eslint/config` to make this work
+require("lspconfig").eslint.setup({})
+require("lspconfig").biome.setup({})
+-- `npm install --save-dev flow-bin && npm run flow init`
+-- require("lspconfig").flow.setup({})
+require("lspconfig").quick_lint_js.setup({})
+
+-- Proto files
 require("lspconfig").bufls.setup({})
 
 -- lsp.ensure_installed({
