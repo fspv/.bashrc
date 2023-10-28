@@ -166,6 +166,7 @@ au BufNewFile,BufRead *.sls setf yaml
 
 " Set yaml tab indentation to 2
 au BufNewFile,BufRead *.js setl sw=2 sts=2 et
+au BufNewFile,BufRead *.ts setl sw=2 sts=2 et
 au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
 au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
