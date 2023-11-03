@@ -693,6 +693,11 @@ require("lazy").setup(
         --   If not available, we use `mini` as the fallback
         "rcarriga/nvim-notify",
       }
+    },
+    -- Github Copilot
+    {
+      "github/copilot.vim",
+      cmd = "Copilot",
     }
   }
 )
