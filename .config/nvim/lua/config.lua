@@ -655,6 +655,14 @@ require("lazy").setup(
         require("plugins_config/floaterm_conf")
       end,
     },
+    {
+      "godlygeek/tabular",
+      ft = "markdown",
+    },
+    {
+      "preservim/vim-markdown",
+      ft = "markdown",
+    },
     -- Some fancy stuff
     {
       "folke/noice.nvim",
