@@ -338,7 +338,7 @@ require("lazy").setup(
     },
     {
       'nvim-tree/nvim-tree.lua',
-      cmd = 'NvimTreeOpen',
+      cmd = { 'NvimTreeOpen', 'NvimTreeToggle' },
       config = function()
         require("plugins_config/nvimtree_conf")
       end,
