@@ -144,7 +144,8 @@ require("lazy").setup(
       'rafamadriz/friendly-snippets',
       dependencies = {
         'hrsh7th/cmp-vsnip',
-        'fatih/vim-go',
+        --'fatih/vim-go',
+        "ray-x/go.nvim",
       }
     },
     -- VSCode(LSP)'s snippet feature
@@ -422,11 +423,26 @@ require("lazy").setup(
     {
       'fatih/vim-go',
       lazy = false,
+      enabled = false,
       ft = "go",
       build = ':GoUpdateBinaries',
       config = function()
         require("plugins_config/vim_go_conf")
       end,
+    },
+    {
+      "ray-x/go.nvim",
+      dependencies = { -- optional packages
+        "ray-x/guihua.lua",
+        "neovim/nvim-lspconfig",
+        "nvim-treesitter/nvim-treesitter",
+      },
+      config = function()
+        require("go").setup()
+      end,
+      event = { "CmdlineEnter" },
+      ft = { "go", 'gomod' },
+      build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
     },
     {
       'golang/vscode-go',

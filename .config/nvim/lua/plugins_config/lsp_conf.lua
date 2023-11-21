@@ -99,6 +99,16 @@ require('lspconfig').yamlls.setup(
   }
 )
 
+require('lspconfig').jsonls.setup(
+  {
+  }
+)
+
+require('lspconfig').bashls.setup(
+  {
+  }
+)
+
 require("lspconfig").pyright.setup(
   {
     settings = {
