@@ -1,5 +1,49 @@
+local cur_dir = function(state)
+  -- TODO: return type string
+  local p = state.tree:get_node().path
+  print(p) -- show in command line
+  return p
+end
+
+local function is_dir(path)
+  local f = io.open(path, "r")
+  local ok, err, code = f:read(1)
+  f:close()
+  return code == 21
+end
+
+local function getPath(str)
+  local p = str:match("(.*[/\\])")
+  if string.sub(p, -1, -1) == "/" then
+    p = string.sub(p, 1, -2)
+  end
+  return p
+end
+
 require("neo-tree").setup(
   {
+    use_popups_for_input = false, -- not floats for input
+    commands = {
+      grep = function(state)
+        local path = cur_dir(state)
+        -- if not is_dir(path) then
+        --   path = getPath(path)
+        -- end
+        require("telescope").extensions.live_grep_args.live_grep_args(
+          {
+            cwd = cur_dir(state),
+            prompt_title = string.format('LiveGrep in [%s]', path),
+
+          }
+        )
+      end,
+    },
+    window = {
+      --c(d), z(p)
+      mappings = {
+        ["g"] = "grep",
+      },
+    },
     source_selector = {
       winbar = true,
       statusline = false,
