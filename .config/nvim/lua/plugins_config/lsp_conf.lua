@@ -90,50 +90,59 @@ end
 
 lsp.on_attach(on_attach_func)
 
--- require("lspconfig").pyright.setup(
---   {
---     settings = {
---       python = {
---         analysis = {
---           extraPaths = {
---             "plz-out/gen", -- For please build system
---           },
---           typeCheckingMode = "off",
---           autoSearchPaths = false,
---           useLibraryCodeForTypes = false,
---           diagnosticMode = "openFilesOnly",
---         },
---       },
---     },
---   }
--- )
---require 'lspconfig'.jedi_language_server.setup {
---}
---require 'lspconfig'.pylsp.setup {
---  settings = {
---    pylsp = {
---      plugins = {
---      }
---    }
---  }
---}
+require('lspconfig').yamlls.setup(
+  {
+    settings = {
+      yaml = {
+      }
+    },
+  }
+)
+
+require("lspconfig").pyright.setup(
+  {
+    settings = {
+      python = {
+        analysis = {
+          extraPaths = {
+            "plz-out/gen", -- For please build system
+          },
+          typeCheckingMode = "off",
+          autoSearchPaths = false,
+          useLibraryCodeForTypes = false,
+          diagnosticMode = "openFilesOnly",
+        },
+      },
+    },
+  }
+)
+-- require 'lspconfig'.jedi_language_server.setup {
+-- }
+require 'lspconfig'.pylsp.setup {
+  settings = {
+    pylsp = {
+      plugins = {
+      }
+    }
+  }
+}
 require 'lspconfig'.pyre.setup {
   cmd = { "pyre", "persistent" },
 }
 
-if not vim.b.large_buf then
-  require 'lspconfig'.pylyzer.setup {
-    cmd = { "pylyzer", "--server", "--verbose", "2" },
-    root_dir = require("lspconfig/util").root_pattern(".git"),
-    settings = {
-      python = {
-        diagnostics = false,
-        inlayHints = true,
-        smartCompletion = true
-      }
-    }
-  }
-end
+-- if not vim.b.large_buf then
+--   require 'lspconfig'.pylyzer.setup {
+--     cmd = { "pylyzer", "--server", "--verbose", "2" },
+--     root_dir = require("lspconfig/util").root_pattern(".git"),
+--     settings = {
+--       python = {
+--         diagnostics = false,
+--         inlayHints = true,
+--         smartCompletion = true
+--       }
+--     }
+--   }
+-- end
 
 require 'lspconfig'.lua_ls.setup {
   settings = {
