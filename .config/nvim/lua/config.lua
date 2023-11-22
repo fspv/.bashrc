@@ -722,6 +722,18 @@ require("lazy").setup(
     {
       "github/copilot.vim",
       cmd = "Copilot",
+    },
+    -- Automatically format oneliners into multi-line code
+    {
+      "AndrewRadev/splitjoin.vim",
+      keys = {
+        { "gS", "gJ" },
+      },
+    },
+    -- Similar, but supports more
+    {
+      "FooSoft/vim-argwrap",
+      cmd = "ArgWrap"
     }
   }
 )
