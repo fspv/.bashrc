@@ -22,6 +22,9 @@ end
 
 require("telescope").setup(
   {
+    defaults = {
+      layout_strategy = "vertical",
+    },
     extensions = {
       live_grep_args = {
         auto_quoting = true, -- enable/disable auto-quoting
@@ -46,11 +49,12 @@ require("telescope").setup(
 -- load_extension, somewhere after setup function:
 require('telescope').load_extension("fzf")
 
-vim.keymap.set("n", "ts/", require("telescope.builtin").lsp_document_symbols, { desc = "Search Document Symbols" })
-vim.keymap.set("n", "tf/", require("telescope.builtin").git_files, { desc = "Search Git Files" })
-vim.keymap.set("n", "tc/", require("telescope").extensions.live_grep_args.live_grep_args,
+vim.keymap.set("n", "f", require("telescope.builtin").grep_string, { desc = "Search Word Under cursor" })
+vim.keymap.set("n", "fs/", require("telescope.builtin").lsp_document_symbols, { desc = "Search Document Symbols" })
+vim.keymap.set("n", "ff/", require("telescope.builtin").git_files, { desc = "Search Git Files" })
+vim.keymap.set("n", "fc/", require("telescope").extensions.live_grep_args.live_grep_args,
   { desc = "Live Grep (with args)" })
-vim.keymap.set("n", "tr/", require("telescope.builtin").resume, { desc = "Resume the previous search" })
-vim.keymap.set("n", "tt/", require("telescope.builtin").pickers, { desc = "Search Open Telescope Pickers" })
-vim.keymap.set("n", "to/", function() require("telescope.builtin").live_grep({ grep_open_files = true }) end,
+vim.keymap.set("n", "fr/", require("telescope.builtin").resume, { desc = "Resume the previous search" })
+vim.keymap.set("n", "ft/", require("telescope.builtin").pickers, { desc = "Search Open Telescope Pickers" })
+vim.keymap.set("n", "fo/", function() require("telescope.builtin").live_grep({ grep_open_files = true }) end,
   { desc = "Search Open Files" })

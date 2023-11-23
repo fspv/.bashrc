@@ -41,7 +41,7 @@ require("neo-tree").setup(
     window = {
       --c(d), z(p)
       mappings = {
-        ["g"] = "grep",
+        ["f"] = "grep",
       },
     },
     source_selector = {
@@ -72,6 +72,11 @@ require("neo-tree").setup(
       follow_current_file = {
         enabled = true,
         leave_dirs_open = false,
+      },
+      filtered_items = {
+        visible = false,
+        hide_dotfiles = false,
+        hide_gitignored = true,
       },
     },
     buffers = {
