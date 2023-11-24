@@ -2,6 +2,8 @@
 
 set -uex
 
+mkdir -p ${HOME}/.local/bin
+
 test -d "${HOME}/.local/share/oh-my-zsh" || KEEP_ZSHRC=yes CHSH=no RUNZSH=no ZSH="${HOME}/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 ZSH_CUSTOM="${HOME}/.local/share/oh-my-zsh/custom"
@@ -55,14 +57,17 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 
 sudo snap install rustup --classic
 sudo snap install rust-analyzer --beta
+rustup default stable
 rustup update
 
 sudo apt-get install -y flake8 mypy pycodestyle python3-pyflakes black isort
+sudo apt-get install -y nodejs npm
 sudo apt-get install -y clangd cppcheck flawfinder astyle clang-format clang-tidy uncrustify clangd clang cmake
 sudo apt install python3.10-venv
 
 sudo apt-get install -y exuberant-ctags universal-ctags
 
+sudo apt-get install -y golang-go
 go install github.com/jstemmer/gotags@latest
 
 mkdir -p ~/.local/share/fonts/fonts/nerdfonts
@@ -74,6 +79,7 @@ fc-cache -fv
 curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
 chmod +x ~/.bin/src
 
+go install golang.org/dl/go1.19@latest
 ~/go/bin/go1.19 download
 ln -sf ~/go/bin/go1.19 ~/go/bin/go
 
