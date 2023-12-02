@@ -331,21 +331,6 @@ require("lazy").setup(
       'easymotion/vim-easymotion',
       lazy = false,
     },
-    -- Highlight incremental search
-    {
-      'haya14busa/incsearch.vim',
-      lazy = false,
-    },
-    -- Highlight incremental search
-    {
-      'haya14busa/incsearch-fuzzy.vim',
-      lazy = false,
-    },
-    -- Easymotion integration for for incremental fuzzy search
-    {
-      'haya14busa/incsearch-easymotion.vim',
-      lazy = false,
-    },
     -- Async builds
     {
       'tpope/vim-dispatch',
