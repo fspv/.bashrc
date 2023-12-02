@@ -1,30 +1,3 @@
----Check if such s plug loaded via vim plug
----@param plug_name string
----@return boolean
-local has_plug = function(plug_name)
-  local result = false
-  local plugs = {}
-
-  if vim.g.plugs ~= nil
-  then
-    plugs = vim.g.plugs
-  end
-
-  for key, value in pairs(plugs) do
-    result = result or (key == plug_name)
-  end
-
-  if result
-  then
-    -- Debug
-    -- vim.print("Plugin " .. plug_name .. " exists")
-  else
-    vim.print("Plugin " .. plug_name .. " doesn't exist, run :PlugInstall")
-  end
-
-  return result
-end
-
 local aug = vim.api.nvim_create_augroup("buf_large", { clear = true })
 
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {
