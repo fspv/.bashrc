@@ -313,6 +313,11 @@ require("lazy").setup(
     {
       'raimondi/delimitMate',
       event = "BufEnter",
+      init = function()
+        vim.g.delimitMate_expand_cr = 2
+        vim.g.delimitMate_expand_space = 2
+        vim.g.delimitMate_jump_expansion = 1
+      end
     },
     {
       'nvim-tree/nvim-tree.lua',
