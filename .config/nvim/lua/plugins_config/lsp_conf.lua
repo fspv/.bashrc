@@ -37,54 +37,138 @@ local on_attach_func = function(_, bufnr)
   lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
   -- Format the buffer using gq using ls (use gw to wrap to line length)
-  vim.keymap.set({ 'n', 'x' }, 'gq', function()
-    vim.lsp.buf.format({ async = true })
-  end, { buffer = bufnr, noremap = true, desc = "Format Selection" })
+  vim.keymap.set(
+    { 'n', 'x' },
+    'gq',
+    function()
+      vim.lsp.buf.format({ async = true })
+    end,
+    { buffer = bufnr, noremap = true, desc = "Format Selection" }
+  )
 
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { buffer = bufnr, noremap = true, desc = "Go to Declaration" })
-  vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder,
-    { buffer = bufnr, noremap = true, desc = "Add Workspace Folder" })
-  vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder,
-    { buffer = bufnr, noremap = true, desc = "Remove Workspace Folder" })
-  vim.keymap.set('n', '<space>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, { buffer = bufnr, noremap = true, desc = "List Workspace Folders" })
-  vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename,
-    { buffer = bufnr, noremap = true, desc = "Rename Symbol Under Cursor" })
-  vim.keymap.set({ 'n', 'x' }, '<space>f', function()
-    vim.lsp.buf.format { async = true }
-  end, { buffer = bufnr, noremap = true, desc = "Format Document" })
+  vim.keymap.set(
+    'n',
+    'gD',
+    vim.lsp.buf.declaration,
+    { buffer = bufnr, noremap = true, desc = "Go to Declaration" }
+  )
+  vim.keymap.set(
+    'n',
+    '<space>wa',
+    vim.lsp.buf.add_workspace_folder,
+    { buffer = bufnr, noremap = true, desc = "Add Workspace Folder" }
+  )
+  vim.keymap.set(
+    'n',
+    '<space>wr',
+    vim.lsp.buf.remove_workspace_folder,
+    { buffer = bufnr, noremap = true, desc = "Remove Workspace Folder" }
+  )
+  vim.keymap.set(
+    'n',
+    '<space>wl',
+    function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end,
+    { buffer = bufnr, noremap = true, desc = "List Workspace Folders" }
+  )
+  vim.keymap.set(
+    'n',
+    '<space>rn',
+    vim.lsp.buf.rename,
+    { buffer = bufnr, noremap = true, desc = "Rename Symbol Under Cursor" }
+  )
+  vim.keymap.set(
+    { 'n', 'x' },
+    '<space>f',
+    function()
+      vim.lsp.buf.format { async = true }
+    end,
+    { buffer = bufnr, noremap = true, desc = "Format Document" }
+  )
 
-  local function find_symbols()
-    return require("telescope.builtin").lsp_workspace_symbols({ query = vim.call('expand', '<cword>') })
+  local function _lsp_workplace_symbols_under_cursor()
+    return require("telescope.builtin").lsp_workspace_symbols(
+      {
+        query = vim.call('expand', '<cword>')
+      }
+    )
   end
 
-  vim.keymap.set("n", "gf", find_symbols, { buffer = bufnr, noremap = true, desc = "Find Symbol Under Cursor" })
-  vim.keymap.set('n', 'gr', require("telescope.builtin").lsp_references,
-    { buffer = bufnr, noremap = true, desc = "Find References" })
-  vim.keymap.set('n', 'gi', require("telescope.builtin").lsp_implementations,
-    { buffer = bufnr, noremap = true, desc = "Find Implementations" })
-  vim.keymap.set('n', 'gd', require("telescope.builtin").lsp_definitions,
-    { buffer = bufnr, noremap = true, desc = "Find Definitions" })
-  vim.keymap.set('n', '<space>D', require("telescope.builtin").lsp_type_definitions,
-    { buffer = bufnr, noremap = true, desc = "Go to Type Definition" })
-
-  vim.keymap.set({ "n", "v" }, "<space>ca", "<cmd>Lspsaga code_action<CR>",
-    { buffer = bufnr, noremap = true, desc = "Code Action" })
-  vim.keymap.set("n", "gp", "<cmd>Lspsaga peek_definition<CR>",
-    { buffer = bufnr, noremap = true, desc = "Peek Definition" })
+  vim.keymap.set(
+    "n",
+    "gf",
+    _lsp_workplace_symbols_under_cursor,
+    { buffer = bufnr, noremap = true, desc = "Find Symbol Under Cursor" }
+  )
+  vim.keymap.set(
+    'n',
+    'gr',
+    require("telescope.builtin").lsp_references,
+    { buffer = bufnr, noremap = true, desc = "Find References" }
+  )
+  vim.keymap.set(
+    'n',
+    'gi',
+    require("telescope.builtin").lsp_implementations,
+    { buffer = bufnr, noremap = true, desc = "Find Implementations" }
+  )
+  vim.keymap.set(
+    'n',
+    'gd',
+    require("telescope.builtin").lsp_definitions,
+    { buffer = bufnr, noremap = true, desc = "Find Definitions" }
+  )
+  vim.keymap.set(
+    'n',
+    '<space>D',
+    require("telescope.builtin").lsp_type_definitions,
+    { buffer = bufnr, noremap = true, desc = "Go to Type Definition" }
+  )
+  vim.keymap.set(
+    {
+      "n",
+      "v"
+    },
+    "<space>ca", "<cmd>Lspsaga code_action<CR>",
+    { buffer = bufnr, noremap = true, desc = "Code Action" }
+  )
+  vim.keymap.set(
+    "n",
+    "gp",
+    "<cmd>Lspsaga peek_definition<CR>",
+    { buffer = bufnr, noremap = true, desc = "Peek Definition" }
+  )
   -- FIXME: overwrites gt (next tab)
-  vim.keymap.set("n", "gtp", "<cmd>Lspsaga peek_type_definition<CR>",
-    { buffer = bufnr, noremap = true, desc = "Peek Type Definition" })
-  vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>",
-    { buffer = bufnr, noremap = true, desc = "Hover Doc (press twice to scroll)" })
+  vim.keymap.set(
+    "n",
+    "gtp",
+    "<cmd>Lspsaga peek_type_definition<CR>",
+    { buffer = bufnr, noremap = true, desc = "Peek Type Definition" }
+  )
+  vim.keymap.set(
+    "n",
+    "K",
+    "<cmd>Lspsaga hover_doc<CR>",
+    { buffer = bufnr, noremap = true, desc = "Hover Doc (press twice to scroll)" }
+  )
 
-  vim.keymap.set("n", "<leader>o", "<cmd>Lspsaga outline<CR>",
-    { buffer = bufnr, noremap = true, desc = "Symbols Outline (Lspsaga)" })
-  vim.keymap.set("n", "<Leader>ci", "<cmd>Lspsaga incoming_calls<CR>",
-    { buffer = bufnr, noremap = true, desc = "Incoming Calls" })
-  vim.keymap.set("n", "<Leader>co", "<cmd>Lspsaga outgoing_calls<CR>",
-    { buffer = bufnr, noremap = true, desc = "Outgouing Calls" })
+  vim.keymap.set(
+    "n",
+    "<leader>o",
+    "<cmd>Lspsaga outline<CR>",
+    { buffer = bufnr, noremap = true, desc = "Symbols Outline (Lspsaga)" }
+  )
+  vim.keymap.set(
+    "n",
+    "<Leader>ci",
+    "<cmd>Lspsaga incoming_calls<CR>",
+    { buffer = bufnr, noremap = true, desc = "Incoming Calls" }
+  )
+  vim.keymap.set(
+    "n",
+    "<Leader>co",
+    "<cmd>Lspsaga outgoing_calls<CR>",
+    { buffer = bufnr, noremap = true, desc = "Outgouing Calls" }
+  )
   -- require('symbols-outline').open_outline()
 end
 

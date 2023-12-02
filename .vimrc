@@ -196,6 +196,23 @@ set tabpagemax=999
 " Close preview window when done with completions
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
 
+" Default menu
+" TODO: merge this into the lsp config
+aunmenu PopUp
+nmenu PopUp.LSP\ Definition gd
+nmenu PopUp.LSP\ Type\ Definition <space>D
+nmenu PopUp.LSP\ Peek\ Definition gp
+nmenu PopUp.LSP\ Peek\ Type\ Definition gtp
+nmenu PopUp.LSP\ Declaration gD
+nmenu PopUp.LSP\ Rename <space>rn
+nmenu PopUp.LSP\ References gr
+nmenu PopUp.LSP\ Implementation gi
+nmenu PopUp.LSP\ Find\ Symbol gf
+nmenu PopUp.LSP\ Code\ Action <space>ca
+nmenu PopUp.LSP\ Incoming\ Calls <leader>ci
+nmenu PopUp.LSP\ Outgoing\ Calls <leader>co
+" anoremenu PopUp.-1- <Nop>
+
 " Read custom after configuration
 if filereadable($HOME . '/.vim/manual/after.vim')
     source <sfile>:h/.vim/manual/after.vim
