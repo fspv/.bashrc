@@ -5,6 +5,8 @@ local lsp = require('lsp-zero').preset({
   set_lsp_keymaps = false,
   manage_nvim_cmp = true,
   suggest_lsp_servers = false,
+  float_border = 'none',
+  configure_diagnostics = false,
 })
 
 lsp.extend_lspconfig()
@@ -320,10 +322,5 @@ lsp.format_on_save({
   }
 })
 
-
-local lsp = require('lsp-zero').preset({
-  float_border = 'none',
-  configure_diagnostics = false,
-})
 -- lsp.skip_server_setup({ 'pyre', 'pylsp' })
 lsp.setup()
