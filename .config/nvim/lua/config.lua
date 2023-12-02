@@ -1,8 +1,11 @@
-local aug = vim.api.nvim_create_augroup("buf_large", { clear = true })
-
+-- Disable CPU heavy features for large buffers and set `vim.b.large_buf`
+-- variable to `true`
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {
   callback = function()
-    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()))
+    local ok, stats = pcall(
+      vim.uv.fs_stat,
+      vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
+    )
     if ok and stats and (stats.size > 204800) then
       vim.b.large_buf = true
       vim.cmd("syntax off")
@@ -14,13 +17,14 @@ vim.api.nvim_create_autocmd({ "BufReadPre" }, {
       vim.b.large_buf = false
     end
   end,
-  group = aug,
+  group = vim.api.nvim_create_augroup("buf_large", { clear = true }),
   pattern = "*",
 })
 
 
+-- Install Lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system({
     "git",
     "clone",
