@@ -30,7 +30,7 @@ if not vim.uv.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",     -- latest stable release
     lazypath,
   })
 end
@@ -110,6 +110,7 @@ require("lazy").setup(
     -- Show function signature when you type
     {
       'ray-x/lsp_signature.nvim',
+      event = "VeryLazy",
       opts = {
         noice = true,
       },
@@ -317,6 +318,7 @@ require("lazy").setup(
         vim.g.delimitMate_expand_cr = 2
         vim.g.delimitMate_expand_space = 2
         vim.g.delimitMate_jump_expansion = 1
+        vim.g.delimitMate_excluded_ft = "TelescopePrompt"
       end
     },
     {
@@ -399,7 +401,7 @@ require("lazy").setup(
     },
     {
       "ray-x/go.nvim",
-      dependencies = { -- optional packages
+      dependencies = {       -- optional packages
         "ray-x/guihua.lua",
         "neovim/nvim-lspconfig",
         "nvim-treesitter/nvim-treesitter",
@@ -409,7 +411,7 @@ require("lazy").setup(
       end,
       event = { "CmdlineEnter" },
       ft = { "go", 'gomod' },
-      build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+      build = ':lua require("go.install").update_all_sync()'       -- if you need to install/update all binaries
     },
     {
       'golang/vscode-go',
@@ -666,11 +668,11 @@ require("lazy").setup(
         },
         -- you can enable a preset for easier configuration
         presets = {
-          bottom_search = true,         -- use a classic bottom cmdline for search
-          command_palette = true,       -- position the cmdline and popupmenu together
-          long_message_to_split = true, -- long messages will be sent to a split
-          inc_rename = false,           -- enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false,       -- add a border to hover docs and signature help
+          bottom_search = true,                   -- use a classic bottom cmdline for search
+          command_palette = true,                 -- position the cmdline and popupmenu together
+          long_message_to_split = true,           -- long messages will be sent to a split
+          inc_rename = false,                     -- enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false,                 -- add a border to hover docs and signature help
         },
         signature = {
           enabled = true,

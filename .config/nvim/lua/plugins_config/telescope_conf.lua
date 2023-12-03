@@ -54,6 +54,12 @@ require("telescope").load_extension("live_grep_args")
 
 vim.keymap.set(
   "n",
+  "z/",
+  require("telescope.builtin").current_buffer_fuzzy_find,
+  { desc = "Fuzzy Buffer Content Search" }
+)
+vim.keymap.set(
+  "n",
   "f",
   require("telescope-live-grep-args.shortcuts").grep_word_under_cursor,
   {
