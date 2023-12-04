@@ -5,8 +5,15 @@ local cur_dir = function(state)
   return p
 end
 
+---Returns true if path is a directory
+---@param path string
+---@return boolean
 local function is_dir(path)
   local f = io.open(path, "r")
+  if f == nil then
+    return false
+  end
+
   local ok, err, code = f:read(1)
   f:close()
   return code == 21
@@ -23,6 +30,7 @@ end
 require("neo-tree").setup(
   {
     use_popups_for_input = false, -- not floats for input
+    hide_dotfiles = false,
     commands = {
       grep = function(state)
         local path = cur_dir(state)
@@ -68,6 +76,14 @@ require("neo-tree").setup(
       }
     },
     sources = { "filesystem", "buffers", "git_status", "document_symbols" },
+    default_component_configs = {
+      indent = {
+        with_expanders = true,
+        expander_collapsed = "",
+        expander_expanded = "",
+        expander_highlight = "NeoTreeExpander",
+      },
+    },
     filesystem = {
       follow_current_file = {
         enabled = true,
