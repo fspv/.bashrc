@@ -704,6 +704,12 @@ require("lazy").setup(
       "FooSoft/vim-argwrap",
       cmd = "ArgWrap"
     },
+    -- Automatically close old buffers
+    {
+      "chrisgrieser/nvim-early-retirement",
+      config = true,
+      event = "VeryLazy",
+    }
   }
 )
 
