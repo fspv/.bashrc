@@ -110,7 +110,7 @@ require("lazy").setup(
       'solarnz/arcanist.vim',
       ft = 'arcanistdiff',
       init = function()
-        require("plugins_config/arcanist_conf")
+        require("plugins_config/arcanist_init")
       end,
     },
 

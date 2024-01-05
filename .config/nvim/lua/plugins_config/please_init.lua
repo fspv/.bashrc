@@ -115,6 +115,9 @@ vim.api.nvim_create_autocmd(
       if #vim.fs.find('.plzconfig', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1 then
         return
       end
+      if vim.fn.executable('plz') == 0 then
+        return
+      end
       local function on_event(_, data)
         local msg = table.concat(data, '\n')
         msg = vim.trim(msg)
