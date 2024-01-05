@@ -30,7 +30,7 @@ if not vim.uv.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",     -- latest stable release
+    "--branch=stable", -- latest stable release
     lazypath,
   })
 end
@@ -58,6 +58,9 @@ require("lazy").setup(
       'ryanoasis/vim-devicons',
       lazy = false,
       priority = 999,
+      dependencies = {
+        'ctrlpvim/ctrlp.vim',
+      },
     },
 
     -- Syntax highlighting and code navidation
@@ -341,10 +344,6 @@ require("lazy").setup(
     -- fuzzy file, buffer, mru, tag, ... finder
     {
       'ctrlpvim/ctrlp.vim',
-      cmd = 'CtrlP',
-      keys = {
-        { "<C-P>" },
-      },
       init = function()
         require("plugins_config/ctrlp_conf")
       end,
@@ -401,7 +400,7 @@ require("lazy").setup(
     },
     {
       "ray-x/go.nvim",
-      dependencies = {       -- optional packages
+      dependencies = { -- optional packages
         "ray-x/guihua.lua",
         "neovim/nvim-lspconfig",
         "nvim-treesitter/nvim-treesitter",
@@ -411,7 +410,7 @@ require("lazy").setup(
       end,
       event = { "CmdlineEnter" },
       ft = { "go", 'gomod' },
-      build = ':lua require("go.install").update_all_sync()'       -- if you need to install/update all binaries
+      build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
     },
     {
       'golang/vscode-go',
@@ -472,23 +471,10 @@ require("lazy").setup(
     {
       'marcuscaisey/please.nvim',
       lazy = true,
-      config = function()
-        require("plugins_config/please_conf")
+      init = function(self)
+        require("plugins_config/please_init")
       end,
       cmd = 'Please',
-      keys = {
-        "<leader>pj",
-        "<leader>pb",
-        "<leader>pt",
-        "<leader>pct",
-        "<leader>plt",
-        "<leader>pft",
-        "<leader>pr",
-        "<leader>py",
-        "<leader>pd",
-        "<leader>pa",
-        "<leader>pp",
-      },
     },
     {
       'kosayoda/nvim-lightbulb',
@@ -584,6 +570,10 @@ require("lazy").setup(
     {
       'nvim-telescope/telescope-live-grep-args.nvim',
     },
+    {
+      "nvim-telescope/telescope-file-browser.nvim",
+      dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
+    },
     -- Identation indication for spaces
     {
       "nathanaelkane/vim-indent-guides",
@@ -668,11 +658,11 @@ require("lazy").setup(
         },
         -- you can enable a preset for easier configuration
         presets = {
-          bottom_search = true,                   -- use a classic bottom cmdline for search
-          command_palette = true,                 -- position the cmdline and popupmenu together
-          long_message_to_split = true,           -- long messages will be sent to a split
-          inc_rename = false,                     -- enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false,                 -- add a border to hover docs and signature help
+          bottom_search = true,         -- use a classic bottom cmdline for search
+          command_palette = true,       -- position the cmdline and popupmenu together
+          long_message_to_split = true, -- long messages will be sent to a split
+          inc_rename = false,           -- enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false,       -- add a border to hover docs and signature help
         },
         signature = {
           enabled = true,
@@ -703,7 +693,7 @@ require("lazy").setup(
     {
       "FooSoft/vim-argwrap",
       cmd = "ArgWrap"
-    }
+    },
   }
 )
 
