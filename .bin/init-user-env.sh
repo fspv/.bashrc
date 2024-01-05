@@ -79,8 +79,8 @@ fc-cache -fv
 curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
 chmod +x ~/.bin/src
 
-go install golang.org/dl/go1.19@latest
-~/go/bin/go1.19 download
-ln -sf ~/go/bin/go1.19 ~/go/bin/go
+go install golang.org/dl/go1.21.4@latest
+~/go/bin/go1.21.4 download
+ln -sf ~/go/bin/go1.21.4 ~/go/bin/go
 
 cargo install kubie --locked
