@@ -288,14 +288,6 @@ require("lazy").setup(
         'VonHeikemen/lsp-zero.nvim',
       },
     },
-    -- Highlight other uses of symbol under cursor
-    {
-      'RRethy/vim-illuminate',
-      event = "BufReadPost",
-      dependencies = {
-        'neovim/nvim-lspconfig',
-      },
-    },
     -- Automatically detect project root
     {
       'airblade/vim-rooter',
