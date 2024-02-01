@@ -288,6 +288,15 @@ require("lazy").setup(
         'VonHeikemen/lsp-zero.nvim',
       },
     },
+    -- Highlight other uses of symbol under cursor
+    {
+      'RRethy/vim-illuminate',
+      event = "BufReadPost",
+      dependencies = {
+        'neovim/nvim-lspconfig',
+
+      },
+    },
     -- Automatically detect project root
     {
       'airblade/vim-rooter',
@@ -358,6 +367,24 @@ require("lazy").setup(
     {
       'tpope/vim-fugitive',
       cmd = { "G", "Gdiffsplit" },
+    },
+    -- Git blame virtualtext plugin
+    {
+      'f-person/git-blame.nvim',
+    },
+    -- View PRs
+    {
+      'sindrets/diffview.nvim',
+    },
+    -- More fancy git stuff
+    {
+      "NeogitOrg/neogit",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "sindrets/diffview.nvim",
+        "nvim-telescope/telescope.nvim",
+      },
+      config = true
     },
     -- Show modifications in sign column
     {
@@ -641,6 +668,31 @@ require("lazy").setup(
       ft = "markdown",
     },
     -- Some fancy stuff
+    { 'ojroques/nvim-bufdel' },
+    {
+      'kevinhwang91/nvim-ufo',
+      config = function()
+        vim.o.foldcolumn = '0' -- '0' is not bad
+        vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
+        vim.o.foldlevelstart = 99
+        vim.o.foldenable = true
+
+        -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+        vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+        vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+
+        require('ufo').setup({
+          provider_selector = function(bufnr, filetype, buftype)
+            return { 'treesitter', 'indent' }
+          end
+        })
+      end,
+      dependencies = {
+        'kevinhwang91/promise-async',
+        'neovim/nvim-lspconfig',
+      }
+
+    },
     {
       "folke/noice.nvim",
       enabled = false,

@@ -13,39 +13,43 @@ lsp.extend_lspconfig()
 
 -- lsp.nvim_workspace()
 
-local on_attach_func = function(_, bufnr)
-  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics, {
-      underline = true,
-      update_in_insert = false,
-      signs = true,
-      virtual_text = true,
-    }
-  )
+local on_attach_func = function(client, bufnr)
+  if client.supports_method("textDocument/publishDiagnostics") then
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        underline = true,
+        update_in_insert = false,
+        signs = true,
+        virtual_text = true,
+      }
+    )
+  end
 
-  -- Highlight all occurences of the symbol under cursor
-  vim.cmd(
-    [[
-      :hi LspReferenceRead cterm=bold ctermbg=red guibg=Yellow guifg=Black
-      :hi LspReferenceText cterm=bold ctermbg=red guibg=Yellow guifg=Black
-      :hi LspReferenceWrite cterm=bold ctermbg=red guibg=Yellow guifg=Black
-    ]]
-  )
+  if client.supports_method("textDocument/documentHighlight") then
+    -- Highlight all occurences of the symbol under cursor
+    vim.cmd(
+      [[
+        :hi LspReferenceRead cterm=bold ctermbg=red guibg=Yellow guifg=Black
+        :hi LspReferenceText cterm=bold ctermbg=red guibg=Yellow guifg=Black
+        :hi LspReferenceWrite cterm=bold ctermbg=red guibg=Yellow guifg=Black
+      ]]
+    )
 
-  vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
-  vim.api.nvim_clear_autocmds { buffer = bufnr, group = "lsp_document_highlight" }
-  vim.api.nvim_create_autocmd("CursorHold", {
-    callback = vim.lsp.buf.document_highlight,
-    buffer = bufnr,
-    group = "lsp_document_highlight",
-    desc = "Document Highlight",
-  })
-  vim.api.nvim_create_autocmd("CursorMoved", {
-    callback = vim.lsp.buf.clear_references,
-    buffer = bufnr,
-    group = "lsp_document_highlight",
-    desc = "Clear All the References",
-  })
+    vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
+    vim.api.nvim_clear_autocmds { buffer = bufnr, group = "lsp_document_highlight" }
+    vim.api.nvim_create_autocmd("CursorHold", {
+      callback = vim.lsp.buf.document_highlight,
+      buffer = bufnr,
+      group = "lsp_document_highlight",
+      desc = "Document Highlight",
+    })
+    vim.api.nvim_create_autocmd("CursorMoved", {
+      callback = vim.lsp.buf.clear_references,
+      buffer = bufnr,
+      group = "lsp_document_highlight",
+      desc = "Clear All the References",
+    })
+  end
 
   local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
   for type, icon in pairs(signs) do
@@ -198,10 +202,9 @@ local on_attach_func = function(_, bufnr)
   -- require('symbols-outline').open_outline()
 end
 
-lsp.on_attach(on_attach_func)
-
 require('lspconfig').yamlls.setup(
   {
+    on_attach = on_attach_func,
     settings = {
       yaml = {
       }
@@ -211,16 +214,19 @@ require('lspconfig').yamlls.setup(
 
 require('lspconfig').jsonls.setup(
   {
+    on_attach = on_attach_func,
   }
 )
 
 require('lspconfig').bashls.setup(
   {
+    on_attach = on_attach_func,
   }
 )
 
 require("lspconfig").pyright.setup(
   {
+    on_attach = on_attach_func,
     settings = {
       python = {
         analysis = {
@@ -238,17 +244,17 @@ require("lspconfig").pyright.setup(
 )
 -- require 'lspconfig'.jedi_language_server.setup {
 -- }
-require 'lspconfig'.pylsp.setup {
-  settings = {
-    pylsp = {
-      plugins = {
-      }
-    }
-  }
-}
-require 'lspconfig'.pyre.setup {
-  cmd = { "pyre", "persistent" },
-}
+-- require 'lspconfig'.pylsp.setup {
+--   settings = {
+--     pylsp = {
+--       plugins = {
+--       }
+--     }
+--   }
+-- }
+-- require 'lspconfig'.pyre.setup {
+--   cmd = { "pyre", "persistent" },
+-- }
 
 -- if not vim.b.large_buf then
 --   require 'lspconfig'.pylyzer.setup {
@@ -265,6 +271,7 @@ require 'lspconfig'.pyre.setup {
 -- end
 
 require 'lspconfig'.lua_ls.setup {
+  on_attach = on_attach_func,
   settings = {
     Lua = {
       runtime = {
@@ -289,6 +296,7 @@ require 'lspconfig'.lua_ls.setup {
 
 -- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
 require 'lspconfig'.gopls.setup {
+  on_attach = on_attach_func,
   cmd = { "gopls" },
   root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git", "BUILD"),
   settings = {
@@ -297,6 +305,15 @@ require 'lspconfig'.gopls.setup {
       gofumpt = true,
       diagnosticsDelay = "2s",
       directoryFilters = { "-plz-out" },
+      hints = {
+        assignVariableTypes = true,
+        compositeLiteralFields = true,
+        compositeLiteralTypes = true,
+        constantValues = true,
+        functionTypeParameters = true,
+        parameterNames = true,
+        rangeVariableTypes = true,
+      },
       analyses = {
         unusedparams = true,
         unusedwrite = true,
@@ -312,6 +329,7 @@ require 'lspconfig'.gopls.setup {
 
 require("lspconfig").rust_analyzer.setup(
   {
+    on_attach = on_attach_func,
     settings = {
       ["rust-analyzer"] = {
       }
@@ -319,18 +337,38 @@ require("lspconfig").rust_analyzer.setup(
   }
 )
 
+require("lspconfig").clangd.setup({
+
+  on_attach = on_attach_func,
+})
+
 -- JavaScript/TypeScript
-require("lspconfig").tsserver.setup({})
+require("lspconfig").tsserver.setup({
+
+  on_attach = on_attach_func,
+})
 
 -- `npm init @eslint/config` to make this work
-require("lspconfig").eslint.setup({})
-require("lspconfig").biome.setup({})
+require("lspconfig").eslint.setup({
+
+  on_attach = on_attach_func,
+})
+require("lspconfig").biome.setup({
+
+  on_attach = on_attach_func,
+})
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
-require("lspconfig").quick_lint_js.setup({})
+require("lspconfig").quick_lint_js.setup({
+
+  on_attach = on_attach_func,
+})
 
 -- Proto files
-require("lspconfig").bufls.setup({})
+require("lspconfig").bufls.setup({
+  on_attach = on_attach_func,
+
+})
 
 -- lsp.ensure_installed({
 --   'gopls',
