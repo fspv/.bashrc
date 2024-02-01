@@ -3,3 +3,9 @@
 	name = Pavel Safronov
 [push]
 	default = matching
+[alias]
+	lgb = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
+[mergetool "fugitive"]
+	cmd = ~/squashfs-root/usr/bin/nvim -f -c \"DiffviewOpen\" \"$MERGED\"
+[merge]
+	tool = fugitive
