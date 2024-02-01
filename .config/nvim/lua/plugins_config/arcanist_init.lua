@@ -22,7 +22,7 @@ vim.api.nvim_create_autocmd(
         vim.cmd("edit")
       end
       vim.fn.jobstart(
-        { 'arc', 'lint', '--apply-patches', args.file },
+        { 'arc', 'lint', '--severity', 'autofix', '--apply-patches', args.file },
         {
           on_stdout = on_event,
           on_stderr = on_event,
