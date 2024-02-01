@@ -27,6 +27,12 @@ require("telescope").setup(
         },
       },
     },
+    pickers = {
+      lsp_references = { fname_width = 120 },
+      lsp_implementations = { fname_width = 120 },
+      lsp_definitions = { fname_width = 120 },
+      lsp_type_definitions = { fname_width = 120 },
+    },
     extensions = {
       live_grep_args = {
         auto_quoting = true,
@@ -40,17 +46,30 @@ require("telescope").setup(
             ["<C-Up>"] = require('telescope.actions').cycle_history_prev,
           },
         },
-      }
+      },
+      file_browser = {
+        theme = "ivy",
+        -- disables netrw and use telescope-file-browser in its place
+        hijack_netrw = true,
+        mappings = {
+          ["i"] = {
+            -- your custom insert mode mappings
+          },
+          ["n"] = {
+            -- your custom normal mode mappings
+          },
+        },
+      },
     }
   }
 )
 
 -- To get extension loaded and working with telescope, you need to call
 -- load_extension, somewhere after setup function:
-require('telescope').load_extension("fzf")
+require("telescope").load_extension("fzf")
 require("telescope").load_extension("sourcegraph")
 require("telescope").load_extension("live_grep_args")
-
+require("telescope").load_extension("file_browser")
 
 vim.keymap.set(
   "n",
