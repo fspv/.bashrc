@@ -500,8 +500,8 @@ then
     PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
     if which kubectl >/dev/null 2>&1
     then
-        PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context);'
-        PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}");'
+        PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context 2>/dev/null);'
+        PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}" 2>/dev/null);'
         PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x";'
         PS1=$PS1'then'
         PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
