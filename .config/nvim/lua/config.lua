@@ -297,6 +297,13 @@ require("lazy").setup(
 
       },
     },
+    -- Format on save
+    -- {
+    --   'mhartington/formatter.nvim',
+    --   config = function()
+    --     require("plugins_config/formatter_conf")
+    --   end,
+    -- },
     -- Automatically detect project root
     {
       'airblade/vim-rooter',
@@ -505,12 +512,12 @@ require("lazy").setup(
       end,
       cmd = 'Please',
     },
-    {
-      'kosayoda/nvim-lightbulb',
-      config = function()
-        require("plugins_config/lightbulb_conf")
-      end,
-    },
+    -- {
+    --   'kosayoda/nvim-lightbulb',
+    --   config = function()
+    --     require("plugins_config/lightbulb_conf")
+    --   end,
+    -- },
     {
       'weilbith/nvim-code-action-menu',
     },

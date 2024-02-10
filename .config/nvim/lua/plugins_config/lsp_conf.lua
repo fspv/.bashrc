@@ -25,31 +25,31 @@ local on_attach_func = function(client, bufnr)
     )
   end
 
-  if client.supports_method("textDocument/documentHighlight") then
-    -- Highlight all occurences of the symbol under cursor
-    vim.cmd(
-      [[
-        :hi LspReferenceRead cterm=bold ctermbg=red guibg=Yellow guifg=Black
-        :hi LspReferenceText cterm=bold ctermbg=red guibg=Yellow guifg=Black
-        :hi LspReferenceWrite cterm=bold ctermbg=red guibg=Yellow guifg=Black
-      ]]
-    )
+  -- if client.supports_method("textDocument/documentHighlight") then
+  --   -- Highlight all occurences of the symbol under cursor
+  --   vim.cmd(
+  --     [[
+  --       :hi LspReferenceRead cterm=bold ctermbg=red guibg=Yellow guifg=Black
+  --       :hi LspReferenceText cterm=bold ctermbg=red guibg=Yellow guifg=Black
+  --       :hi LspReferenceWrite cterm=bold ctermbg=red guibg=Yellow guifg=Black
+  --     ]]
+  --   )
 
-    vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
-    vim.api.nvim_clear_autocmds { buffer = bufnr, group = "lsp_document_highlight" }
-    vim.api.nvim_create_autocmd("CursorHold", {
-      callback = vim.lsp.buf.document_highlight,
-      buffer = bufnr,
-      group = "lsp_document_highlight",
-      desc = "Document Highlight",
-    })
-    vim.api.nvim_create_autocmd("CursorMoved", {
-      callback = vim.lsp.buf.clear_references,
-      buffer = bufnr,
-      group = "lsp_document_highlight",
-      desc = "Clear All the References",
-    })
-  end
+  --   vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
+  --   vim.api.nvim_clear_autocmds { buffer = bufnr, group = "lsp_document_highlight" }
+  --   vim.api.nvim_create_autocmd("CursorHold", {
+  --     callback = vim.lsp.buf.document_highlight,
+  --     buffer = bufnr,
+  --     group = "lsp_document_highlight",
+  --     desc = "Document Highlight",
+  --   })
+  --   vim.api.nvim_create_autocmd("CursorMoved", {
+  --     callback = vim.lsp.buf.clear_references,
+  --     buffer = bufnr,
+  --     group = "lsp_document_highlight",
+  --     desc = "Clear All the References",
+  --   })
+  -- end
 
   local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
   for type, icon in pairs(signs) do
@@ -57,12 +57,12 @@ local on_attach_func = function(client, bufnr)
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
   end
 
-  require "lsp_signature".on_attach({
-    bind = true, -- This is mandatory, otherwise border config won't get registered.
-    handler_opts = {
-      border = "rounded"
-    }
-  }, bufnr)
+  -- require "lsp_signature".on_attach({
+  --   bind = true, -- This is mandatory, otherwise border config won't get registered.
+  --   handler_opts = {
+  --     border = "rounded"
+  --   }
+  -- }, bufnr)
 
   lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
 
@@ -338,7 +338,7 @@ require("lspconfig").rust_analyzer.setup(
 )
 
 require("lspconfig").clangd.setup({
-
+  filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
   on_attach = on_attach_func,
 })
 
@@ -350,7 +350,6 @@ require("lspconfig").tsserver.setup({
 
 -- `npm init @eslint/config` to make this work
 require("lspconfig").eslint.setup({
-
   on_attach = on_attach_func,
 })
 require("lspconfig").biome.setup({
@@ -360,19 +359,30 @@ require("lspconfig").biome.setup({
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
 require("lspconfig").quick_lint_js.setup({
-
   on_attach = on_attach_func,
 })
 
 -- Proto files
 require("lspconfig").bufls.setup({
   on_attach = on_attach_func,
+})
 
+-- Spellcheck in tex, md and comments
+require("lspconfig").ltex.setup({
+  filetypes = {
+    'md',
+    'go',
+    'python',
+    'rust',
+    'sh',
+    'lua',
+    'javascript',
+    'typescript'
+  },
+  on_attach = on_attach_func,
 })
 
 -- lsp.ensure_installed({
---   'gopls',
---   'clangd',
 --   'rust_analyzer'
 -- })
 
