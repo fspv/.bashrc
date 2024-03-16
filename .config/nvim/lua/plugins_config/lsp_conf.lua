@@ -14,16 +14,16 @@ lsp.extend_lspconfig()
 -- lsp.nvim_workspace()
 
 local on_attach_func = function(client, bufnr)
-  if client.supports_method("textDocument/publishDiagnostics") then
-    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-      vim.lsp.diagnostic.on_publish_diagnostics, {
-        underline = true,
-        update_in_insert = false,
-        signs = true,
-        virtual_text = true,
-      }
-    )
-  end
+  -- if client.supports_method("textDocument/publishDiagnostics") then
+  --   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  --     vim.lsp.diagnostic.on_publish_diagnostics, {
+  --       underline = true,
+  --       update_in_insert = false,
+  --       signs = true,
+  --       virtual_text = true,
+  --     }
+  --   )
+  -- end
 
   -- if client.supports_method("textDocument/documentHighlight") then
   --   -- Highlight all occurences of the symbol under cursor
@@ -368,19 +368,19 @@ require("lspconfig").bufls.setup({
 })
 
 -- Spellcheck in tex, md and comments
-require("lspconfig").ltex.setup({
-  filetypes = {
-    'md',
-    'go',
-    'python',
-    'rust',
-    'sh',
-    'lua',
-    'javascript',
-    'typescript'
-  },
-  on_attach = on_attach_func,
-})
+-- require("lspconfig").ltex.setup({
+--   filetypes = {
+--     'md',
+--     'go',
+--     'python',
+--     'rust',
+--     'sh',
+--     'lua',
+--     'javascript',
+--     'typescript'
+--   },
+--   on_attach = on_attach_func,
+-- })
 
 -- lsp.ensure_installed({
 --   'rust_analyzer'
