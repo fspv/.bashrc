@@ -138,6 +138,9 @@ set foldmethod=indent
 set foldlevel=99
 set conceallevel=2
 
+" Disable annoying recording which I don't use anyway
+map q <Nop>
+
 " Remap leader
 let mapleader = ","
 
