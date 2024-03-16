@@ -27,6 +27,7 @@ backup
 .chef
 .chrome-remote-desktop-session
 .chromium-bsu
+.clickhouse*
 .codeblocks
 .config
 .cups
@@ -94,6 +95,7 @@ Images
 .local
 .m2/
 .macromedia
+.manpath
 .minecraft
 .minikube
 .mission-control
@@ -110,11 +112,14 @@ Music
 .nbprofiler
 .NERDTreeBookmarks
 .netrc
+.node*
 nohup.out
 .notion-py/
 .novaclient
 .npm
+.nvm
 .octave_hist
+.oh-my-zsh
 .openshot_qt
 .openvas
 .openvasrc
@@ -132,6 +137,7 @@ Public
 .pulse-cookie
 .purple
 *.pyc
+.pyenv
 .pylint.d
 .pyre/
 .python_history
@@ -189,6 +195,7 @@ Videos
 .virt-manager
 VirtualBox VMs
 .visualvm
+.vnc
 .vscode
 .vscode-server
 .wdm/
