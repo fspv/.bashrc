@@ -1,6 +1,30 @@
+-- This is a workaround to prevent an error when we open file with an existing
+-- .swp file.
+-- https://github.com/neovim/neovim/issues/26192
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('treesitter', {}),
+  callback = function(ev)
+    local max_filesize = 500 * 1024 -- 500 KB
+    local parsers = require("nvim-treesitter.parsers")
+    local lang = parsers.ft_to_lang(ev.match)
+
+    if not parsers.has_parser(lang) then
+      return
+    end
+
+    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(ev.buf))
+
+    if ok and stats and stats.size > max_filesize then
+      return
+    end
+
+    vim.treesitter.start(ev.buf)
+  end,
+})
+
 require 'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
-  ensure_installed = { "c", "python", "go", "markdown", "markdown_inline", "lua" },
+  ensure_installed = { "c", "python", "go", "markdown", "markdown_inline", "lua", "proto" },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -16,22 +40,22 @@ require 'nvim-treesitter.configs'.setup {
 
   highlight = {
     -- `false` will disable the whole extension
-    enable = true,
+    enable = false,
     -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
     -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
     -- the name of the parser)
     -- list of language that will be disabled
-    disable = function(lang, buf)
-      if lang == "vim" then
-        return true
-      end
+    -- disable = function(lang, buf)
+    --   if lang == "vim" then
+    --     return true
+    --   end
 
-      local max_filesize = 500 * 1024 -- 500 KB
-      local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-      if ok and stats and stats.size > max_filesize then
-        return true
-      end
-    end,
+    --   local max_filesize = 500 * 1024 -- 500 KB
+    --   local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+    --   if ok and stats and stats.size > max_filesize then
+    --     return true
+    --   end
+    -- end,
     -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
     -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
     -- Using this option may slow down your editor, and you may see some duplicate highlights.
