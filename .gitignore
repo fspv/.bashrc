@@ -42,6 +42,8 @@ Documents
 Downloads
 .dupload.conf
 .eclipse/
+.env*
+.erg
 .ethereum/
 .fontconfig
 .fonts
@@ -61,6 +63,7 @@ git
 .gnupg
 .gnuplot_history
 .gnuplot-wxt
+go
 .goldendict
 .gphoto
 .gradle
@@ -78,6 +81,7 @@ Images
 .ipython
 .java
 .kde
+.kgv
 .kingsoft
 .kube
 .launchpadlib
@@ -86,6 +90,7 @@ Images
 .links2/
 .linphone-history.db
 .linphonerc
+.*.local
 .local
 .m2/
 .macromedia
@@ -137,6 +142,8 @@ Public
 RPM
 .rpmdb
 .rpmmacros
+.rustup
+.semgrep
 .shutter
 .Skype
 snap
@@ -183,6 +190,7 @@ Videos
 VirtualBox VMs
 .visualvm
 .vscode
+.vscode-server
 .wdm/
 .webex
 .wget-hsts
@@ -196,6 +204,7 @@ VirtualBox VMs
 .xscreensaver
 .xsession-errors
 .xsession-errors.old
+.yarn
 .yarnrc
 .zcompdump*
 .zoom/
