@@ -31,6 +31,7 @@ require("neo-tree").setup(
   {
     use_popups_for_input = false, -- not floats for input
     hide_dotfiles = false,
+    enable_cursor_hijack = false,
     commands = {
       grep = function(state)
         local path = cur_dir(state)
@@ -47,6 +48,7 @@ require("neo-tree").setup(
       end,
     },
     window = {
+      auto_expand_width = true,
       --c(d), z(p)
       mappings = {
         ["f"] = "grep",
@@ -62,20 +64,12 @@ require("neo-tree").setup(
           display_name = " 󰉓 Files "
         },
         {
-          source = "buffers",
-          display_name = " 󰈚 Buffers "
-        },
-        {
           source = "git_status",
           display_name = " 󰊢 Git "
         },
-        {
-          source = "document_symbols",
-          display_name = " 󰡱 Symbols "
-        },
       }
     },
-    sources = { "filesystem", "buffers", "git_status", "document_symbols" },
+    sources = { "filesystem", "git_status" },
     default_component_configs = {
       indent = {
         with_expanders = true,
@@ -87,7 +81,7 @@ require("neo-tree").setup(
     filesystem = {
       follow_current_file = {
         enabled = true,
-        leave_dirs_open = false,
+        leave_dirs_open = true,
       },
       filtered_items = {
         visible = false,
@@ -97,8 +91,8 @@ require("neo-tree").setup(
     },
     buffers = {
       follow_current_file = {
-        enabled = true,
-        leave_dirs_open = false,
+        enabled = false,
+        leave_dirs_open = true,
       },
     },
   }
