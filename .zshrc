@@ -7,6 +7,9 @@ fi
 
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
+setopt no_share_history
+unsetopt share_history
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.local/share/oh-my-zsh"
 export ZSH_CUSTOM="$HOME/.local/share/oh-my-zsh/custom"
