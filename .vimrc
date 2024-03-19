@@ -68,6 +68,9 @@ set updatetime=100
 " Show line numbers
 set number
 
+" Preserve undo history https://neovim.io/doc/user/options.html#'undofile'
+set undofile
+
 " Show warning/error signs over numbers on the left
 if has("nvim-0.5.0") || has("patch-8.1.1564")
   " Recently vim can merge signcolumn and number column into one
