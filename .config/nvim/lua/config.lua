@@ -77,7 +77,7 @@ require("lazy").setup(
     {
       'nvim-treesitter/nvim-treesitter',
       lazy = true,
-      build = ':TSInstall all',
+      build = ':TSInstall all | TSUpdateSync',
       cmd = { "TSUpdateSync" },
       config = function()
         require("plugins_config/treesitter_conf")
@@ -457,7 +457,11 @@ require("lazy").setup(
         "nvim-treesitter/nvim-treesitter",
       },
       config = function()
-        require("go").setup()
+        require("go").setup(
+          {
+            diagnostic = false
+          }
+        )
       end,
       event = { "CmdlineEnter" },
       ft = { "go", 'gomod' },
@@ -548,9 +552,29 @@ require("lazy").setup(
     {
       'romgrk/barbar.nvim',
       lazy = false,
-      config = function()
-        require("plugins_config/barbar_conf")
+      init = function()
+        vim.g.barbar_auto_setup = false
+        vim.keymap.set('n', 'gT', '<Cmd>BufferPrevious<CR>', { noremap = true, silent = true, desc = "Prev Tab" })
+        vim.keymap.set('n', 'gt', '<Cmd>BufferNext<CR>', { noremap = true, silent = true, desc = "Next Tab" })
+
+        -- Better highlight active tab
+        vim.cmd(
+          [[
+            hi BufferCurrent guibg=Green
+            hi BufferCurrentSign guibg=Green
+          ]]
+        )
       end,
+      opts = {
+        exclude_ft = { "pb.go" },
+        maximum_length = 60,
+        icons = {
+          diagnostics = {
+            enabled = true
+          }
+        }
+
+      },
       dependencies = {
         'nvim-tree/nvim-web-devicons',
         'ryanoasis/vim-devicons',
@@ -596,6 +620,8 @@ require("lazy").setup(
     -- Alternative to fzf
     {
       'nvim-telescope/telescope.nvim',
+      -- Go to definition is broken: https://github.com/nvim-telescope/telescope.nvim/issues/2690
+      -- commit = "443e5a6802849f9e4611a2d91db01b8a37350524",
       config = function()
         require("plugins_config/telescope_conf")
       end,
@@ -690,7 +716,10 @@ require("lazy").setup(
       ft = "markdown",
     },
     -- Some fancy stuff
-    { 'ojroques/nvim-bufdel' },
+    {
+      'ojroques/nvim-bufdel',
+
+    },
     {
       'kevinhwang91/nvim-ufo',
       config = function()
@@ -765,16 +794,45 @@ require("lazy").setup(
         { "gS", "gJ" },
       },
     },
-    -- Similar, but supports more
+    -- Treesitter based argwrap
     {
-      "FooSoft/vim-argwrap",
-      cmd = "ArgWrap"
+      "AckslD/nvim-trevJ.lua",
+      init = function()
+        vim.keymap.set(
+          'n', '<leader>w', function()
+            require('trevj').format_at_cursor()
+          end,
+          { desc = "Wrap arguments into multiple lines" }
+        )
+      end,
     },
     -- Automatically close old buffers
     {
       "chrisgrieser/nvim-early-retirement",
       config = true,
       event = "VeryLazy",
+    },
+    -- Automatically saves session by cwd
+    {
+      'rmagatti/auto-session',
+      config = function(self, opts)
+        vim.g.auto_session_pre_save_cmds = {
+          "tabdo Neotree close",
+          "tabdo UndotreeHide",
+          "tabdo DiffviewClose",
+        }
+        require("auto-session").setup(
+          {
+            log_level = "error",
+            auto_session_suppress_dirs = {},
+            auto_session_use_git_branch = true,
+          }
+        )
+      end
+    },
+    -- Visualise undo tree
+    {
+      "mbbill/undotree",
     }
   }
 )
