@@ -48,7 +48,7 @@ require("neo-tree").setup(
       end,
     },
     window = {
-      auto_expand_width = true,
+      auto_expand_width = false,
       --c(d), z(p)
       mappings = {
         ["f"] = "grep",
@@ -87,6 +87,18 @@ require("neo-tree").setup(
         visible = false,
         hide_dotfiles = false,
         hide_gitignored = true,
+      },
+      last_modified = {
+        enabled = false,
+      },
+      created = {
+        enabled = false,
+      },
+      file_size = {
+        enabled = false,
+      },
+      type = {
+        enabled = false,
       },
     },
     buffers = {
