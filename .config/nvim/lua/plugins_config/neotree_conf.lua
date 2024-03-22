@@ -110,7 +110,7 @@ require("neo-tree").setup(
   }
 )
 
-vim.keymap.set("n", "<Leader>nn", "<cmd>Neotree<CR>", { noremap = true, desc = "Neo Tree" })
+vim.keymap.set("n", "<Leader>nn", "<cmd>Neotree toggle<CR>", { noremap = true, desc = "Neo Tree" })
 
 -- TODO: decide what to do with netrw (which is also configured in nvimtree)
 -- https://github.com/nvim-neo-tree/neo-tree.nvim/blob/main/doc/neo-tree.txt#L934
