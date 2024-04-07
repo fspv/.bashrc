@@ -36,6 +36,10 @@ inoremap <C-c> <Esc>
 " Go to the previous open file with backspace
 nnoremap <BS> <C-^>
 
+" Disable go to tag on Ctrl+Click. Used to open links
+nnoremap <C-LeftMouse> <Esc>
+nnoremap <C-LeftMouse> <Esc>
+
 " Set autoindent and key to disable it during paste
 set autoindent
 set pastetoggle=<F3>
