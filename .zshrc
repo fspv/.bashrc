@@ -382,6 +382,11 @@ if [ "${GOBIN}" = "" ]
 then
     [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
 fi
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 path_push_left "${GOBIN}"
 path_push_left "${HOME}/.local/bin"
 path_push_left "${HOME}/.cargo/bin"
