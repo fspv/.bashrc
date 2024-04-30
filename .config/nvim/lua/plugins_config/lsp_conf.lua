@@ -14,16 +14,18 @@ lsp.extend_lspconfig()
 -- lsp.nvim_workspace()
 
 local on_attach_func = function(client, bufnr)
-  -- if client.supports_method("textDocument/publishDiagnostics") then
-  --   vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  --     vim.lsp.diagnostic.on_publish_diagnostics, {
-  --       underline = true,
-  --       update_in_insert = false,
-  --       signs = true,
-  --       virtual_text = true,
-  --     }
-  --   )
-  -- end
+  if client.supports_method("textDocument/publishDiagnostics") then
+    -- Disable line by line diagnostics, as it takes a lot of time during
+    -- statup to process them
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        underline = true,
+        update_in_insert = false,
+        signs = false,
+        virtual_text = false,
+      }
+    )
+  end
 
   -- if client.supports_method("textDocument/documentHighlight") then
   --   -- Highlight all occurences of the symbol under cursor
@@ -297,13 +299,23 @@ require 'lspconfig'.lua_ls.setup {
 -- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
 require 'lspconfig'.gopls.setup {
   on_attach = on_attach_func,
+  -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto -rpc.trace` and uncomment below
+  -- cmd = { "gopls", "-debug=:0", "-remote=unix;/tmp/gopls-daemon-socket", "-logfile=auto", "-rpc.trace", },
   cmd = { "gopls" },
-  root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git", "BUILD"),
+  -- To check if the dir is selected correctly, find a pid and run `ls -lah /proc/<pid>/fd`
+  root_dir = require("lspconfig/util").root_pattern(
+  -- Order here matters
+    "BUILD",
+    "go.work",
+    "go.mod",
+    ".git"
+  ),
   settings = {
     gopls = {
       staticcheck = true,
       gofumpt = true,
       diagnosticsDelay = "2s",
+      diagnosticsTrigger = "Save",
       directoryFilters = { "-plz-out" },
       hints = {
         assignVariableTypes = true,
