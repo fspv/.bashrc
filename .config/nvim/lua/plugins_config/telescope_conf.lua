@@ -127,3 +127,9 @@ vim.keymap.set(
   function() require("telescope.builtin").live_grep({ grep_open_files = true }) end,
   { desc = "Search Open Files" }
 )
+vim.keymap.set(
+  "n",
+  "<C-e>",
+  require("telescope").extensions.smart_open.smart_open,
+  { desc = "Smart Open" }
+)
