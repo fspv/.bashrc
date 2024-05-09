@@ -26,27 +26,9 @@ vim.keymap.set(
   'n',
   '<leader>pct',
   function()
-    require('please').test({ under_cursor = true }, { desc = "Please Test Under Cursor" })
+    require('please').test({ under_cursor = true })
   end,
-  { desc = "" }
-)
-vim.keymap.set(
-  'n',
-  '<leader>plt',
-  function()
-    require('please').test({ list = true }, { desc = "Please List Tests" })
-  end,
-  { desc = "" }
-
-)
-vim.keymap.set(
-  'n',
-  '<leader>pft',
-  function()
-    require('please').test({ failed = true }, { desc = "Please List Failed Tests" })
-  end,
-  { desc = "" }
-
+  { desc = "Please Test Under Cursor" }
 )
 vim.keymap.set(
   'n',
