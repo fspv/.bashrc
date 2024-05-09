@@ -22,7 +22,7 @@ local on_attach_func = function(client, bufnr)
         underline = true,
         update_in_insert = false,
         signs = false,
-        virtual_text = false,
+        virtual_text = true,
       }
     )
   end
@@ -315,7 +315,7 @@ require 'lspconfig'.gopls.setup {
       staticcheck = true,
       gofumpt = true,
       diagnosticsDelay = "2s",
-      diagnosticsTrigger = "Save",
+      diagnosticsTrigger = "Edit", -- Save or Edit
       directoryFilters = { "-plz-out" },
       hints = {
         assignVariableTypes = true,
