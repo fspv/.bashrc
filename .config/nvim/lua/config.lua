@@ -393,6 +393,10 @@ require("lazy").setup(
     -- Git blame virtualtext plugin
     {
       'f-person/git-blame.nvim',
+      init = function()
+        vim.g.gitblame_date_format = "%Y-%m-%d"
+        vim.g.gitblame_highlight_group = "NonText"
+      end,
     },
     -- View PRs
     {
