@@ -825,7 +825,6 @@ require("lazy").setup(
           "tabdo Neotree close",
           "tabdo UndotreeHide",
           "tabdo DiffviewClose",
-          "zx",
         }
       end,
       config = function(self, opts)
