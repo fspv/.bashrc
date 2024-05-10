@@ -819,12 +819,16 @@ require("lazy").setup(
     -- Automatically saves session by cwd
     {
       'rmagatti/auto-session',
-      config = function(self, opts)
+      init = function(self)
+        vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
         vim.g.auto_session_pre_save_cmds = {
           "tabdo Neotree close",
           "tabdo UndotreeHide",
           "tabdo DiffviewClose",
+          "zx",
         }
+      end,
+      config = function(self, opts)
         require("auto-session").setup(
           {
             log_level = "error",
