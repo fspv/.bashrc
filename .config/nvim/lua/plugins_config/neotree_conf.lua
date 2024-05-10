@@ -1,8 +1,8 @@
+---@return string
 local cur_dir = function(state)
-  -- TODO: return type string
-  local p = state.tree:get_node().path
-  print(p) -- show in command line
-  return p
+  local cwd = vim.fn.getcwd()
+  local path = state.tree:get_node().path
+  return path:sub(cwd:len() + 2)
 end
 
 ---Returns true if path is a directory
@@ -19,7 +19,7 @@ local function is_dir(path)
   return code == 21
 end
 
-local function getPath(str)
+local function get_parent_directory(str)
   local p = str:match("(.*[/\\])")
   if string.sub(p, -1, -1) == "/" then
     p = string.sub(p, 1, -2)
@@ -35,14 +35,34 @@ require("neo-tree").setup(
     commands = {
       grep = function(state)
         local path = cur_dir(state)
-        -- if not is_dir(path) then
-        --   path = getPath(path)
-        -- end
+        if not is_dir(path) then
+          path = get_parent_directory(path)
+        end
         require("telescope").extensions.live_grep_args.live_grep_args(
           {
-            cwd = cur_dir(state),
+            cwd = path,
             prompt_title = string.format('LiveGrep in [%s]', path),
-
+          }
+        )
+      end,
+      find_files = function(state)
+        local path = cur_dir(state)
+        if not is_dir(path) then
+          path = get_parent_directory(path)
+        end
+        require("telescope.builtin").git_files(
+          {
+            prompt_title = string.format('Git files in [%s]', path),
+            git_command = {
+              "git",
+              "-C",
+              path,
+              "-c",
+              "core.quotepath=false",
+              "ls-files",
+              "--exclude-standard",
+              "--cached",
+            },
           }
         )
       end,
@@ -52,6 +72,7 @@ require("neo-tree").setup(
       --c(d), z(p)
       mappings = {
         ["f"] = "grep",
+        ["/"] = "find_files",
       },
     },
     source_selector = {
@@ -77,17 +98,6 @@ require("neo-tree").setup(
         expander_expanded = "",
         expander_highlight = "NeoTreeExpander",
       },
-    },
-    filesystem = {
-      follow_current_file = {
-        enabled = true,
-        leave_dirs_open = true,
-      },
-      filtered_items = {
-        visible = false,
-        hide_dotfiles = false,
-        hide_gitignored = true,
-      },
       last_modified = {
         enabled = false,
       },
@@ -99,6 +109,17 @@ require("neo-tree").setup(
       },
       type = {
         enabled = false,
+      },
+    },
+    filesystem = {
+      follow_current_file = {
+        enabled = true,
+        leave_dirs_open = true,
+      },
+      filtered_items = {
+        visible = false,
+        hide_dotfiles = false,
+        hide_gitignored = true,
       },
     },
     buffers = {
