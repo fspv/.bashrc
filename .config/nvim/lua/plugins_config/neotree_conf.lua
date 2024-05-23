@@ -14,7 +14,7 @@ local function is_dir(path)
     return false
   end
 
-  local ok, err, code = f:read(1)
+  local _, _, code = f:read(1)
   f:close()
   return code == 21
 end
@@ -53,16 +53,8 @@ require("neo-tree").setup(
         require("telescope.builtin").git_files(
           {
             prompt_title = string.format('Git files in [%s]', path),
-            git_command = {
-              "git",
-              "-C",
-              path,
-              "-c",
-              "core.quotepath=false",
-              "ls-files",
-              "--exclude-standard",
-              "--cached",
-            },
+            cwd = path,
+            use_git_root = false,
           }
         )
       end,
