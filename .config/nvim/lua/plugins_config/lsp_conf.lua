@@ -302,14 +302,25 @@ require 'lspconfig'.gopls.setup {
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto -rpc.trace` and uncomment below
   -- cmd = { "gopls", "-debug=:0", "-remote=unix;/tmp/gopls-daemon-socket", "-logfile=auto", "-rpc.trace", },
   cmd = { "gopls" },
-  -- To check if the dir is selected correctly, find a pid and run `ls -lah /proc/<pid>/fd`
-  root_dir = require("lspconfig/util").root_pattern(
-  -- Order here matters
-    "BUILD",
-    "go.work",
-    "go.mod",
-    ".git"
-  ),
+  --- To check if the dir is selected correctly, find a pid and run `ls -lah /proc/<pid>/fd`
+  ---@param startpath string
+  root_dir = function(startpath)
+    if string.find(startpath, 'plz%-out') then
+      -- Separate branch, because otherwise it defaults to the repo root and becomes too slow
+      return require("lspconfig/util").root_pattern(
+        "go.mod",
+        "go.work"
+      )(startpath)
+    else
+      return require("lspconfig/util").root_pattern(
+      -- Order here matters
+        "BUILD",
+        "go.work",
+        "go.mod",
+        ".git"
+      )(startpath)
+    end
+  end,
   settings = {
     gopls = {
       staticcheck = true,
