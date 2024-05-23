@@ -25,7 +25,7 @@ then
     mv "${HOME}/.local/bin/nvim" "${HOME}/.local/bin/nvim.$(date +%s)"
 fi
 
-wget https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -O "${HOME}/.local/bin/nvim"
+wget https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage -O "${HOME}/.local/bin/nvim"
 chmod u+x "${HOME}/.local/bin/nvim"
 
 # Install sway flatpak
@@ -46,8 +46,9 @@ go install github.com/jstemmer/gotags@latest
 curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
 chmod +x ~/.bin/src
 
-go install golang.org/dl/go1.21.4@latest
-~/go/bin/go1.21.4 download
-ln -sf ~/go/bin/go1.21.4 ~/go/bin/go
+GO_VERSION=1.22.3
+go install golang.org/dl/go${GO_VERSION}@latest
+~/go/bin/go${GO_VERSION} download
+ln -sf ~/go/bin/go${GO_VERSION} ~/go/bin/go
 
 cargo install kubie --locked
