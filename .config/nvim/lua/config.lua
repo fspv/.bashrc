@@ -638,7 +638,8 @@ require("lazy").setup(
         "tt/",
       },
       dependencies = {
-        'nvim-telescope/telescope-live-grep-args.nvim'
+        'nvim-telescope/telescope-live-grep-args.nvim',
+        'nvim-telescope/telescope-smart-history.nvim'
       },
     },
     -- Fzf interface for telescope

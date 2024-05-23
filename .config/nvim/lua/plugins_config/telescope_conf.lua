@@ -26,6 +26,10 @@ require("telescope").setup(
           height = 0.9
         },
       },
+      history = {
+        path = '~/.local/share/nvim/telescope_history.sqlite3',
+        limit = 100,
+      }
     },
     pickers = {
       lsp_references = { fname_width = 120 },
@@ -70,6 +74,7 @@ require("telescope").load_extension("fzf")
 require("telescope").load_extension("sourcegraph")
 require("telescope").load_extension("live_grep_args")
 require("telescope").load_extension("file_browser")
+require('telescope').load_extension("smart_history")
 
 vim.keymap.set(
   "n",
