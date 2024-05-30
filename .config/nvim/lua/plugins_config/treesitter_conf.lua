@@ -23,6 +23,8 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 require 'nvim-treesitter.configs'.setup {
+  modules = {},
+
   -- A list of parser names, or "all"
   ensure_installed = { "c", "python", "go", "markdown", "markdown_inline", "lua", "proto" },
 

@@ -292,6 +292,13 @@ require 'lspconfig'.lua_ls.setup {
       telemetry = {
         enable = false,
       },
+      format = {
+        enable = true,
+        defaultConfig = {
+          indent_style = "space",
+          indent_size = "2",
+        }
+      },
     },
   },
 }

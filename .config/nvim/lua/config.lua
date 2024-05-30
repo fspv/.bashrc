@@ -76,12 +76,27 @@ require("lazy").setup(
     -- Syntax highlighting and code navidation
     {
       'nvim-treesitter/nvim-treesitter',
-      lazy = true,
-      build = ':TSInstall all | TSUpdateSync',
-      cmd = { "TSUpdateSync" },
-      config = function()
+      version = false, -- last release is way too old and doesn't work on Windows
+      lazy = false,
+      build = ':TSUpdate',
+      init = function(plugin)
+        -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
+        -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
+        -- no longer trigger the **nvim-treesitter** module to be loaded in time.
+        -- Luckily, the only things that those plugins need are the custom queries, which we make available
+        -- during startup.
+        require("lazy.core.loader").add_to_rtp(plugin)
+        require("nvim-treesitter.query_predicates")
+      end,
+      keys = {
+        { "<c-space>", desc = "Increment Selection" },
+        { "<bs>",      desc = "Decrement Selection", mode = "x" },
+      },
+      ---@param opts TSConfig
+      config = function(_, opts)
         require("plugins_config/treesitter_conf")
       end,
+      cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     },
     -- Universally good defaults
     {
