@@ -476,9 +476,15 @@ require("lazy").setup(
         "nvim-treesitter/nvim-treesitter",
       },
       config = function()
+        -- TODO: not sure if this actually does anything
         require("go").setup(
           {
-            diagnostic = false
+            diagnostic = false,
+            lsp_codelens = false,
+            lsp_inlay_hints = {
+              enable = false,
+            },
+            luasnip = true,
           }
         )
       end,

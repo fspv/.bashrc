@@ -344,6 +344,15 @@ require 'lspconfig'.gopls.setup {
         parameterNames = true,
         rangeVariableTypes = true,
       },
+      codelenses = {
+        generate = true,     -- show the `go generate` lens.
+        gc_details = true,   -- Show a code lens toggling the display of gc's choices.
+        test = true,
+        tidy = true,
+        vendor = true,
+        regenerate_cgo = true,
+        upgrade_dependency = true,
+      },
       analyses = {
         unusedparams = true,
         unusedwrite = true,
