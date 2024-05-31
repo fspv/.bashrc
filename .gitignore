@@ -117,6 +117,7 @@ nohup.out
 .notion-py/
 .novaclient
 .npm
+.nvidia-settings-rc
 .nvm
 .octave_hist
 .oh-my-zsh
@@ -149,6 +150,7 @@ RPM
 .rpmdb
 .rpmmacros
 .rustup
+.secureConnect
 .semgrep
 .shutter
 .Skype
