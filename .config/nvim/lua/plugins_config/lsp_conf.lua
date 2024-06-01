@@ -13,18 +13,35 @@ lsp.extend_lspconfig()
 
 -- lsp.nvim_workspace()
 
+---@param client vim.lsp.Client
+---@param bufnr number
+---@return nil
 local on_attach_func = function(client, bufnr)
   if client.supports_method("textDocument/publishDiagnostics") then
+    ---@type vim.diagnostic.Opts
+    local opts = {
+      underline = true,
+      update_in_insert = false,
+      virtual_text = false,
+      signs = true,
+    }
     -- Disable line by line diagnostics, as it takes a lot of time during
     -- statup to process them
     vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-      vim.lsp.diagnostic.on_publish_diagnostics, {
-        underline = true,
-        update_in_insert = false,
-        signs = false,
-        virtual_text = true,
-      }
+      vim.lsp.diagnostic.on_publish_diagnostics, opts
     )
+  end
+
+  -- Disable formatting for tsserver and enable eslint. Tsserver formatting
+  -- doesn't work well
+  if client.name == "tsserver" then
+    client.server_capabilities.documentFormattingProvider = nil
+  end
+  if client.name == "eslint" then
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      buffer = bufnr,
+      command = "EslintFixAll",
+    })
   end
 
   -- if client.supports_method("textDocument/documentHighlight") then
@@ -299,6 +316,9 @@ require 'lspconfig'.lua_ls.setup {
           indent_size = "2",
         }
       },
+      hint = {
+        enable = true,
+      },
     },
   },
 }
@@ -345,8 +365,8 @@ require 'lspconfig'.gopls.setup {
         rangeVariableTypes = true,
       },
       codelenses = {
-        generate = true,     -- show the `go generate` lens.
-        gc_details = true,   -- Show a code lens toggling the display of gc's choices.
+        generate = true,   -- show the `go generate` lens.
+        gc_details = true, -- Show a code lens toggling the display of gc's choices.
         test = true,
         tidy = true,
         vendor = true,
@@ -383,7 +403,6 @@ require("lspconfig").clangd.setup({
 
 -- JavaScript/TypeScript
 require("lspconfig").tsserver.setup({
-
   on_attach = on_attach_func,
 })
 
@@ -392,7 +411,6 @@ require("lspconfig").eslint.setup({
   on_attach = on_attach_func,
 })
 require("lspconfig").biome.setup({
-
   on_attach = on_attach_func,
 })
 -- `npm install --save-dev flow-bin && npm run flow init`
