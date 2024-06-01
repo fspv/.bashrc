@@ -30,6 +30,8 @@ if filereadable($HOME . "/.vim/autoload/pathogen.vim")
   execute pathogen#infect()
 endif
 
+set termguicolors
+
 " Ctrl-C doesn't trigger InsertLeave event, so doesn't work well with LSP
 inoremap <C-c> <Esc>
 

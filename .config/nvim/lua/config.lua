@@ -363,22 +363,17 @@ require("lazy").setup(
     },
     -- Auto-complete matching quotes, brackets, etc
     {
-      'raimondi/delimitMate',
-      event = "BufEnter",
-      init = function()
-        vim.g.delimitMate_expand_cr = 2
-        vim.g.delimitMate_expand_space = 2
-        vim.g.delimitMate_jump_expansion = 1
-        vim.g.delimitMate_excluded_ft = "TelescopePrompt"
-      end
+      'windwp/nvim-autopairs',
+      event = "InsertEnter",
+      config = true
     },
-    {
-      'nvim-tree/nvim-tree.lua',
-      cmd = { 'NvimTreeOpen', 'NvimTreeToggle' },
-      config = function()
-        require("plugins_config/nvimtree_conf")
-      end,
-    },
+    -- {
+    --   'nvim-tree/nvim-tree.lua',
+    --   cmd = { 'NvimTreeOpen', 'NvimTreeToggle' },
+    --   config = function()
+    --     require("plugins_config/nvimtree_conf")
+    --   end,
+    -- },
     -- Faster navigation
     {
       'easymotion/vim-easymotion',
@@ -677,13 +672,19 @@ require("lazy").setup(
       "nvim-telescope/telescope-file-browser.nvim",
       dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" }
     },
-    -- Identation indication for spaces
+    -- Identation indication
     {
-      "nathanaelkane/vim-indent-guides",
-      event = "BufReadPost",
-      init = function()
-        vim.g.indent_guides_enable_on_vim_startup = 1
-      end
+      "HiPhish/rainbow-delimiters.nvim",
+    },
+    {
+      "lukas-reineke/indent-blankline.nvim",
+      main = "ibl",
+      dependencies = {
+        "HiPhish/rainbow-delimiters.nvim",
+      },
+      config = function()
+        require("plugins_config/indent_blankline_conf")
+      end,
     },
     -- Matching parentheses improvement
     {
@@ -705,12 +706,12 @@ require("lazy").setup(
       end,
     },
     -- Tag bar
-    {
-      'simrat39/symbols-outline.nvim',
-      config = function()
-        require("plugins_config/symbols_outline_conf")
-      end,
-    },
+    -- {
+    --   'simrat39/symbols-outline.nvim',
+    --   config = function()
+    --     require("plugins_config/symbols_outline_conf")
+    --   end,
+    -- },
     -- Show command help as you enter it
     {
       'folke/which-key.nvim',
@@ -733,10 +734,10 @@ require("lazy").setup(
         require("plugins_config/floaterm_conf")
       end,
     },
-    {
-      "godlygeek/tabular",
-      ft = "markdown",
-    },
+    -- {
+    --   "godlygeek/tabular",
+    --   ft = "markdown",
+    -- },
     {
       "preservim/vim-markdown",
       ft = "markdown",
