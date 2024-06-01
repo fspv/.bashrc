@@ -44,6 +44,28 @@ local on_attach_func = function(client, bufnr)
     })
   end
 
+  -- For some reason gopls lsp doesn't do autoformat automatically
+  if client.name == "gopls" then
+    vim.api.nvim_create_autocmd(
+      'BufWritePre',
+      {
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ async = false })
+          -- TODO: prints "No code actions available" when nothing to do
+          vim.lsp.buf.code_action({
+            context = {
+              -- idk, what's this, but this is required
+              diagnostics = {},
+              only = { 'source.organizeImports' },
+            },
+            apply = true,
+          })
+        end,
+      }
+    )
+  end
+
   -- if client.supports_method("textDocument/documentHighlight") then
   --   -- Highlight all occurences of the symbol under cursor
   --   vim.cmd(
@@ -299,11 +321,12 @@ require 'lspconfig'.lua_ls.setup {
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
-        globals = { 'vim' },
+        globals = { "describe", "it", "vim", "setup", "teardown" },
       },
       workspace = {
         -- Make the server aware of Neovim runtime files
         library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
       },
       -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = {
@@ -355,6 +378,7 @@ require 'lspconfig'.gopls.setup {
       diagnosticsDelay = "2s",
       diagnosticsTrigger = "Edit", -- Save or Edit
       directoryFilters = { "-plz-out" },
+      semanticTokens = true,
       hints = {
         assignVariableTypes = true,
         compositeLiteralFields = true,
