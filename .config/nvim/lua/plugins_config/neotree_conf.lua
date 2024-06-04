@@ -1,6 +1,8 @@
 ---@return string
-local cur_dir = function(state)
+local current_path = function(state)
   local cwd = vim.fn.getcwd()
+  -- Strip the last / from the cwd
+  cwd = cwd:match("^(.-)/?$")
   local path = state.tree:get_node().path
   return path:sub(cwd:len() + 2)
 end
@@ -34,7 +36,7 @@ require("neo-tree").setup(
     enable_cursor_hijack = false,
     commands = {
       grep = function(state)
-        local path = cur_dir(state)
+        local path = current_path(state)
         if not is_dir(path) then
           path = get_parent_directory(path)
         end
@@ -46,7 +48,7 @@ require("neo-tree").setup(
         )
       end,
       find_files = function(state)
-        local path = cur_dir(state)
+        local path = current_path(state)
         if not is_dir(path) then
           path = get_parent_directory(path)
         end
