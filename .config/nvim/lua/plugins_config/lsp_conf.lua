@@ -37,9 +37,14 @@ local on_attach_func = function(client, bufnr)
   if client.name == "tsserver" then
     client.server_capabilities.documentFormattingProvider = nil
   end
+
+  -- This is needed to avoid creating an extra command every time LSP reconnects to the buffer
+  local augroup = vim.api.nvim_create_augroup("XXXLspCustomCommands", { clear = true })
   if client.name == "eslint" then
     vim.api.nvim_create_autocmd("BufWritePre", {
       buffer = bufnr,
+      group = augroup,
+      desc = "Format javascript/typescript",
       command = "EslintFixAll",
     })
   end
@@ -50,9 +55,12 @@ local on_attach_func = function(client, bufnr)
       'BufWritePre',
       {
         buffer = bufnr,
-        callback = function()
-          vim.lsp.buf.format({ async = false })
-          -- TODO: prints "No code actions available" when nothing to do
+        group = augroup,
+        -- When file is re-read on_attach is called again
+        once = true,
+        desc = "Go sort import and format (if no non-default formatter available)",
+        callback = function(args)
+          print("running organize imports lsp code action")
           vim.lsp.buf.code_action({
             context = {
               -- idk, what's this, but this is required
@@ -61,6 +69,12 @@ local on_attach_func = function(client, bufnr)
             },
             apply = true,
           })
+          -- TODO: prints "No code actions available" when nothing to do
+          if #vim.fs.find('.arcconfig', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1
+              and #vim.fs.find('.golangci.yml', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1 then
+            print("running lsp format")
+            vim.lsp.buf.format({ async = false, bufnr = args.buf })
+          end
         end,
       }
     )
@@ -378,7 +392,8 @@ require 'lspconfig'.gopls.setup {
       diagnosticsDelay = "2s",
       diagnosticsTrigger = "Edit", -- Save or Edit
       directoryFilters = { "-plz-out" },
-      semanticTokens = true,
+      -- Breaks treesitter defined highlight overwrites (such as SQL within a string)
+      semanticTokens = false,
       hints = {
         assignVariableTypes = true,
         compositeLiteralFields = true,
