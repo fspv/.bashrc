@@ -15,7 +15,7 @@ require("telescope").setup(
   {
     defaults = {
       layout_strategy = "vertical",
-      path_display = { "smart" },
+      path_display = { "truncate" },
       dynamic_preview_title = true,
       fname_width = 90,
       layout_config = {
