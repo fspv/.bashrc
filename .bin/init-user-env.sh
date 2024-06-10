@@ -2,6 +2,14 @@
 
 set -uex
 
+wget -qO /tmp/arduino-cli.tar.gz https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Linux_64bit.tar.gz
+tar xf /tmp/arduino-cli.tar.gz -C ${HOME}/.local/bin arduino-cli
+rm -rf /tmp/arduino-cli.tar.gz
+sudo snap install arduino
+arduino-cli core install arduino:avr
+# Give permission to upload programs
+sudo usermod -a -G dialout ${USER}
+
 test -d "${HOME}/.local/share/oh-my-zsh" || KEEP_ZSHRC=yes CHSH=no RUNZSH=no ZSH="${HOME}/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 ZSH_CUSTOM="${HOME}/.local/share/oh-my-zsh/custom"

@@ -943,7 +943,15 @@ require("lazy").setup(
         -- Optional. If installed, native fzy will be used when match_algorithm is fzy
         { "nvim-telescope/telescope-fzy-native.nvim" },
       },
-    }
+    },
+    -- Arduino utils
+    {
+      "stevearc/vim-arduino",
+      init = function(self)
+        vim.g.arduino_dir = "/snap/arduino/current"
+      end,
+      ft = { "arduino" },
+    },
   }
 )
 
