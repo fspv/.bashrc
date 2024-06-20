@@ -37,7 +37,7 @@ require("lualine").setup(
         {
           "diagnostics",
           on_click = function()
-            vim.cmd("TroubleToggle")
+            vim.cmd("Trouble document_diagnostics")
           end,
         }
       }

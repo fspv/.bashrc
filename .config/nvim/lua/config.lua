@@ -755,30 +755,31 @@ require("lazy").setup(
       'ojroques/nvim-bufdel',
 
     },
-    {
-      'kevinhwang91/nvim-ufo',
-      config = function()
-        vim.o.foldcolumn = '0' -- '0' is not bad
-        vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
-        vim.o.foldlevelstart = 99
-        vim.o.foldenable = true
+    -- Modern folds
+    -- TODO: Fix error https://github.com/kevinhwang91/nvim-ufo/blob/main/lua/ufo/decorator.lua#L145
+    -- {
+    --   'kevinhwang91/nvim-ufo',
+    --   config = function()
+    --     vim.o.foldcolumn = '0' -- '0' is not bad
+    --     vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
+    --     vim.o.foldlevelstart = 99
+    --     vim.o.foldenable = true
 
-        -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-        vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-        vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+    --     -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
+    --     vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+    --     vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
 
-        require('ufo').setup({
-          provider_selector = function(bufnr, filetype, buftype)
-            return { 'treesitter', 'indent' }
-          end
-        })
-      end,
-      dependencies = {
-        'kevinhwang91/promise-async',
-        'neovim/nvim-lspconfig',
-      }
-
-    },
+    --     require('ufo').setup({
+    --       provider_selector = function(bufnr, filetype, buftype)
+    --         return { 'treesitter', 'indent' }
+    --       end
+    --     })
+    --   end,
+    --   dependencies = {
+    --     'kevinhwang91/promise-async',
+    --     'neovim/nvim-lspconfig',
+    --   }
+    -- },
     {
       "folke/noice.nvim",
       enabled = false,
@@ -856,6 +857,7 @@ require("lazy").setup(
           "tabdo Neotree close",
           "tabdo UndotreeHide",
           "tabdo DiffviewClose",
+          "tabdo TroubleClose",
         }
       end,
       config = function(self, opts)
