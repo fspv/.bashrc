@@ -1,10 +1,22 @@
+---@param path string
 ---@return string
-local current_path = function(state)
+local strip_cwd = function(path)
   local cwd = vim.fn.getcwd()
   -- Strip the last / from the cwd
   cwd = cwd:match("^(.-)/?$")
+
+  -- If path starts with cwd, remove it fromt the string
+  if string.sub(path, 1, string.len(cwd)) == cwd then
+    return path:sub(cwd:len() + 2)
+  end
+
+  return path
+end
+
+---@return string
+local current_path = function(state)
   local path = state.tree:get_node().path
-  return path:sub(cwd:len() + 2)
+  return path
 end
 
 ---Returns true if path is a directory
@@ -43,7 +55,7 @@ require("neo-tree").setup(
         require("telescope").extensions.live_grep_args.live_grep_args(
           {
             cwd = path,
-            prompt_title = string.format('LiveGrep in [%s]', path),
+            prompt_title = string.format('LiveGrep in [%s]', strip_cwd(path)),
           }
         )
       end,
@@ -54,7 +66,7 @@ require("neo-tree").setup(
         end
         require("telescope.builtin").git_files(
           {
-            prompt_title = string.format('Git files in [%s]', path),
+            prompt_title = string.format('Git files in [%s]', strip_cwd(path)),
             cwd = path,
             use_git_root = false,
           }
