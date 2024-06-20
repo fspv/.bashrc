@@ -13,3 +13,5 @@ vim.g.rooter_patterns = {
   '>tmp',
   'go[1-9].*'
 }
+-- To stop jumping cwd when opening telescope, etc
+vim.g.rooter_buftypes = { '' }
