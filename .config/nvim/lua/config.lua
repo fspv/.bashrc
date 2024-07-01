@@ -414,6 +414,12 @@ require("lazy").setup(
         vim.g.gitblame_highlight_group = "NonText"
       end,
     },
+    {
+      'lewis6991/gitsigns.nvim',
+      config = function()
+        require("plugins_config/gitsigns_conf")
+      end,
+    },
     -- View PRs
     {
       'sindrets/diffview.nvim',
@@ -429,9 +435,9 @@ require("lazy").setup(
       config = true
     },
     -- Show modifications in sign column
-    {
-      'mhinz/vim-signify',
-    },
+    -- {
+    --   'mhinz/vim-signify',
+    -- },
     -- Solidity smart contracts plugin
     {
       'tomlion/vim-solidity',
