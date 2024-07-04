@@ -213,7 +213,7 @@ local on_attach_func = function(client, bufnr)
       "n",
       "v"
     },
-    "<space>ca", "<cmd>Lspsaga code_action<CR>",
+    "<leader>ca", "<cmd>Lspsaga code_action<CR>",
     { buffer = bufnr, noremap = true, desc = "Code Action" }
   )
   vim.keymap.set(
@@ -288,7 +288,7 @@ require("lspconfig").pyright.setup(
           extraPaths = {
             "plz-out/gen", -- For please build system
           },
-          typeCheckingMode = "off",
+          typeCheckingMode = "standard",
           autoSearchPaths = false,
           useLibraryCodeForTypes = false,
           diagnosticMode = "openFilesOnly",
@@ -297,6 +297,21 @@ require("lspconfig").pyright.setup(
     },
   }
 )
+
+-- TODO: I'm just lucky it runs before other commands. But may actually conflict with them
+local group = vim.api.nvim_create_augroup("PythonFormat", { clear = true })
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "*.py",
+  command = "silent !black %",
+  group = group,
+})
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "*.py",
+  command = "silent !isort %",
+  group = group,
+})
+
+
 -- require 'lspconfig'.jedi_language_server.setup {
 -- }
 -- require 'lspconfig'.pylsp.setup {
