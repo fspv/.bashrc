@@ -25,7 +25,7 @@ then
     mv "${HOME}/.local/bin/nvim" "${HOME}/.local/bin/nvim.$(date +%s)"
 fi
 
-wget https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage -O "${HOME}/.local/bin/nvim"
+wget https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -O "${HOME}/.local/bin/nvim"
 chmod u+x "${HOME}/.local/bin/nvim"
 
 # Install sway flatpak
