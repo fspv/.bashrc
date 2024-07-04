@@ -641,6 +641,43 @@ require("lazy").setup(
         'arkav/lualine-lsp-progress',
       },
     },
+    -- Sign column with folds etc
+    -- `set stc` should be not empty
+    {
+      "luukvbaal/statuscol.nvim",
+      config = function()
+        local builtin = require("statuscol.builtin")
+        require("statuscol").setup({
+          ft_ignore = { "neo-tree" },
+          segments = {
+            {
+              text = { builtin.foldfunc },
+              click = "v:lua.ScFa",
+            },
+            {
+              sign = { namespace = { "diagnostic" }, maxwidth = 2, auto = true },
+              click = "v:lua.ScSa"
+            },
+            {
+              text = { builtin.lnumfunc },
+              click = "v:lua.ScLa",
+            },
+            {
+              sign = { name = { ".*" }, maxwidth = 2, colwidth = 1, auto = true, wrap = true },
+              click = "v:lua.ScSa"
+            },
+            {
+              sign = { namespace = { "gitsigns" }, name = { ".*" }, maxwidth = 1, colwidth = 2, auto = false },
+              click = "v:lua.ScSa",
+            },
+          }
+        })
+      end,
+      dependencies = {
+        "mfussenegger/nvim-dap",
+        "lewis6991/gitsigns.nvim",
+      }
+    },
     -- Winbar dropdown
     {
       'Bekaboo/dropbar.nvim',
@@ -870,11 +907,18 @@ require("lazy").setup(
         require("auto-session").setup(
           {
             log_level = "error",
+            -- TODO: not sure if this works
+            silent_restore = false,
             auto_session_suppress_dirs = {},
             auto_session_use_git_branch = true,
+            auto_restore_lazy_delay_enabled = true,
           }
         )
-      end
+      end,
+      dependencies = {
+        -- Otherwise will not disable a correct statuscolumn
+        "luukvbaal/statuscol.nvim",
+      }
     },
     -- Visualise undo tree
     {

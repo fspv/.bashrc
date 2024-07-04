@@ -77,14 +77,6 @@ set number
 " Preserve undo history https://neovim.io/doc/user/options.html#'undofile'
 set undofile
 
-" Show warning/error signs over numbers on the left
-if has("nvim-0.5.0") || has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
-endif
-
 " Try to show at least three lines and two columns of context when
 " scrolling
 set scrolloff=3
@@ -95,8 +87,11 @@ set wildmenu
 set wildignore=*.o,*~,tmp/*,*.so,*.swp,*.zip,*.json,*.html,*.pb.go,*.pb.[a-z]*.go,*_pb2.py,*_pb2_grpc.py,plz-out/*
 
 " Enable folds
-"set foldenable
-"set foldmethod=syntax
+" set foldenable
+set foldcolumn=1
+set foldlevel=99
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
 
 " Autocompletion requires nopaste
 set nopaste
@@ -143,8 +138,8 @@ set encoding=utf-8
 set fileencoding=utf8
 
 " Enable folding
-set foldmethod=indent
-set foldlevel=99
+" set foldmethod=indent
+" set foldlevel=99
 set conceallevel=2
 
 " Disable annoying recording which I don't use anyway
@@ -196,7 +191,7 @@ augroup json_autocmd
   autocmd FileType json set textwidth=78 shiftwidth=2
   autocmd FileType json set softtabstop=2 tabstop=8
   autocmd FileType json set expandtab
-  autocmd FileType json set foldmethod=syntax
+  " autocmd FileType json set foldmethod=syntax
 augroup END
 
 " Extend copy buffer
