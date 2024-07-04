@@ -648,6 +648,7 @@ require("lazy").setup(
       config = function()
         local builtin = require("statuscol.builtin")
         require("statuscol").setup({
+          setopt = true,
           ft_ignore = { "neo-tree" },
           segments = {
             {
@@ -904,6 +905,10 @@ require("lazy").setup(
         }
       end,
       config = function(self, opts)
+        -- TODO: just a hack to make statuscol load before auto-session, to
+        -- make sure the `statuscol` (`stc`) option is set for auto-loaded
+        -- windows
+        require("statuscol")
         require("auto-session").setup(
           {
             log_level = "error",
@@ -916,7 +921,7 @@ require("lazy").setup(
         )
       end,
       dependencies = {
-        -- Otherwise will not disable a correct statuscolumn
+        -- Otherwise will not enable a correct statuscolumn
         "luukvbaal/statuscol.nvim",
       }
     },
