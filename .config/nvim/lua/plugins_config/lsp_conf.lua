@@ -493,10 +493,6 @@ require("lspconfig").bufls.setup({
 --   on_attach = on_attach_func,
 -- })
 
--- lsp.ensure_installed({
---   'rust_analyzer'
--- })
-
 -- TODO: pylsp installation doesn't work from within existing virtualenv
 lsp.format_on_save({
   servers = {
