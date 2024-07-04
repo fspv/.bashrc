@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd(
       if vim.fn.executable('arc') < 1 then
         return
       end
-      local command = { 'arc', 'lint', '--severity', 'autofix', '--apply-patches', args.file }
+      local command = { 'arc', 'lint', '--apply-patches' }
       vim.system(
         command,
         {},
