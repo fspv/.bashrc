@@ -506,7 +506,7 @@ require("lazy").setup(
         -- Pop top level `.source.go` key from the vscode json. It is not
         -- compatible with both vsnip and luasnip
         vim.print("Got plugin path " .. plugin.dir)
-        local snippets_path = plugin.dir .. "/snippets/go.json"
+        local snippets_path = plugin.dir .. "/extension/snippets/go.json"
 
         vim.print("Got file path " .. snippets_path)
         local snippet_file = io.open(snippets_path, "r")
