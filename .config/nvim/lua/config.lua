@@ -901,7 +901,7 @@ require("lazy").setup(
           "tabdo Neotree close",
           "tabdo UndotreeHide",
           "tabdo DiffviewClose",
-          "tabdo TroubleClose",
+          "tabdo Trouble diagnostics close",
         }
       end,
       config = function(self, opts)
