@@ -7,7 +7,7 @@ local strip_cwd = function(path)
 
   -- If path starts with cwd, remove it fromt the string
   if string.sub(path, 1, string.len(cwd)) == cwd then
-    return path:sub(cwd:len() + 2)
+    return "./" .. path:sub(cwd:len() + 2)
   end
 
   return path
