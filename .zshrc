@@ -376,23 +376,7 @@ path_push_left() {
     fi
 }
 
-if [ "${GOPATH}" = "" ]
-then
-    [ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
-fi
-if [ "${GOBIN}" = "" ]
-then
-    [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
-fi
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-path_push_left "${GOBIN}"
-# path_push_left "${HOME}/.local/bin"
-path_push_left "${HOME}/.cargo/bin"
-path_push_left "${HOME}/snap/rustup/common/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
+[ -d "${HOME}/.cargo/bin" ] && path_push_left "${HOME}/.cargo/bin"
 
 if test -f ${HOME}/zshrc.local
 then

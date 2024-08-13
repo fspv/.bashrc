@@ -7,8 +7,6 @@ tar xf /tmp/arduino-cli.tar.gz -C ${HOME}/.local/bin arduino-cli
 rm -rf /tmp/arduino-cli.tar.gz
 sudo snap install arduino
 arduino-cli core install arduino:avr
-# Give permission to upload programs
-sudo usermod -a -G dialout ${USER}
 
 test -d "${HOME}/.local/share/oh-my-zsh" || KEEP_ZSHRC=yes CHSH=no RUNZSH=no ZSH="${HOME}/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -28,14 +26,6 @@ test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use || git clo
 
 test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab || git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab
 
-if test -f "${HOME}/.local/bin/nvim"
-then
-    mv "${HOME}/.local/bin/nvim" "${HOME}/.local/bin/nvim.$(date +%s)"
-fi
-
-wget https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -O "${HOME}/.local/bin/nvim"
-chmod u+x "${HOME}/.local/bin/nvim"
-
 # Install sway flatpak
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/fspv/flatpaks/releases/latest)
 LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
@@ -54,9 +44,4 @@ go install github.com/jstemmer/gotags@latest
 curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
 chmod +x ~/.bin/src
 
-GO_VERSION=1.22.3
-go install golang.org/dl/go${GO_VERSION}@latest
-~/go/bin/go${GO_VERSION} download
-ln -sf ~/go/bin/go${GO_VERSION} ~/go/bin/go
-
-cargo install kubie --locked
+go install github.com/arduino/arduino-language-server@latest
