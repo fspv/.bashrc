@@ -170,6 +170,7 @@ autocmd FileType make set noexpandtab
 
 " Set some filetypes
 au BufNewFile,BufRead *.sls setf yaml
+au BufNewFile,BufRead *.build_defs setf python
 
 " Set yaml tab indentation to 2
 au BufNewFile,BufRead *.js setl sw=2 sts=2 et
