@@ -66,7 +66,7 @@ vim.keymap.set(
   'n',
   '<leader>pp',
   function()
-    require('please.runners.popup').restore()
+    require('please').maximise_popup()
   end,
   { desc = "Please Restore Window" }
 )
