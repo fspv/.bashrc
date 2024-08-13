@@ -70,4 +70,10 @@ require("nvim-tree").setup({
   diagnostics = {
     enable = true,
   },
+  filesystem_watchers = {
+    ignore_dirs = {
+      "node_modules",
+      "plz-out",
+    },
+  },
 })
