@@ -152,7 +152,9 @@ fi
 # Prevent double .zshrc sourcing in different files
 if (test "x${TMUX}" != "x" && test "x${TMUX_ZSHRC_ALREADY_EXECUTED}" = "x") || test "x$ZSHRC_ALREADY_EXECUTED" = "x"
 then
-    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    if [ -z "$IN_NIX_SHELL" ]; then
+        export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    fi
     export LANGUAGE=en_US.UTF-8
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -388,7 +390,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 path_push_left "${GOBIN}"
-path_push_left "${HOME}/.local/bin"
+# path_push_left "${HOME}/.local/bin"
 path_push_left "${HOME}/.cargo/bin"
 path_push_left "${HOME}/snap/rustup/common/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
 

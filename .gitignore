@@ -45,6 +45,7 @@ backup
 !.config/swaylock
 !.config/terminator
 !.config/tmux
+!.config/nix
 !.config/waybar
 .cups
 .dbshell
