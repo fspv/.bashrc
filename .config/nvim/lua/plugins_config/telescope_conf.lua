@@ -59,8 +59,10 @@ require("telescope").setup(
             ["<C-i>"] = _append_to_telescope_prompt("--iglob !**{test,e2e,sat,experimental,fake,mock}* --iglob "),
           },
           n = {
-            ["<C-Down>"] = require('telescope.actions').cycle_history_next,
-            ["<C-Up>"] = require('telescope.actions').cycle_history_prev,
+            ["<Down>"] = require('telescope.actions').cycle_history_next,
+            ["<Up>"] = require('telescope.actions').cycle_history_prev,
+            j = require('telescope.actions').cycle_history_next,
+            k = require('telescope.actions').cycle_history_prev,
           },
         },
       },
