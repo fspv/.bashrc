@@ -646,6 +646,7 @@ require("lazy").setup(
     {
       "luukvbaal/statuscol.nvim",
       config = function()
+        vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
         local builtin = require("statuscol.builtin")
         require("statuscol").setup({
           setopt = true,
