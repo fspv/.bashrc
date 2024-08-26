@@ -152,9 +152,7 @@ fi
 # Prevent double .zshrc sourcing in different files
 if (test "x${TMUX}" != "x" && test "x${TMUX_ZSHRC_ALREADY_EXECUTED}" = "x") || test "x$ZSHRC_ALREADY_EXECUTED" = "x"
 then
-    if [ -z "$IN_NIX_SHELL" ]; then
-        export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
-    fi
+    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
     export LANGUAGE=en_US.UTF-8
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -286,7 +284,7 @@ then
     alias vim='nvim'
 
 fi
-export EDITOR=vi
+export EDITOR=nvim
 alias debuild='debuild -i; debuild clean'
 alias acp='apt-cache policy'
 alias acs='apt-cache show'
