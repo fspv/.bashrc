@@ -288,6 +288,7 @@ require('lspconfig').jsonls.setup(
 require('lspconfig').bashls.setup(
   {
     on_attach = on_attach_func,
+    filetypes = { 'sh', 'zsh', },
   }
 )
 
@@ -462,9 +463,38 @@ require("lspconfig").rust_analyzer.setup(
   }
 )
 
+-- To make it work with arduino:
+-- ```
+-- arduino-cli config init
+-- arduino-cli sketch new test
+-- arduino-cli board attach -p /dev/ttyACM0 -b arduino:avr:uno test.ino
+-- ```
+--
+-- Then createa a `.clangd` file in the project dir
+-- TODO: add example
 require("lspconfig").clangd.setup({
   filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
   on_attach = on_attach_func,
+  cmd = {
+    "clangd",
+    "--completion-style=detailed",
+    "--clang-tidy",
+    "--pch-storage=memory",
+    -- https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428
+    "--offset-encoding=utf-16",
+    "--background-index",
+    "--header-insertion-decorators",
+  },
+  root_dir = require("lspconfig/util").root_pattern(
+    ".clangd",
+    ".clang-tidy",
+    ".clang-format",
+    "compile_commands.json",
+    "compile_flags.txt",
+    "configure.ac",
+    ".git",
+    "library.properties"
+  ),
 })
 
 -- JavaScript/TypeScript
@@ -487,6 +517,11 @@ require("lspconfig").quick_lint_js.setup({
 
 -- Proto files
 require("lspconfig").bufls.setup({
+  on_attach = on_attach_func,
+})
+
+-- nixos configs
+require("lspconfig").nixd.setup({
   on_attach = on_attach_func,
 })
 

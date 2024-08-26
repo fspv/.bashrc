@@ -1,4 +1,4 @@
-# shell.nix
+# https://search.nixos.org/packages
 
 let
   pkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") { };
@@ -13,7 +13,12 @@ pkgs.mkShell {
     # Sandboxing
     pkgs.bubblewrap
     # Basic stuff
+    pkgs.shadow
+    pkgs.sudo
     pkgs.cacert
+    pkgs.iputils
+    pkgs.strace
+    pkgs.ltrace
     pkgs.glibc
     pkgs.getent
     pkgs.sssd
@@ -42,6 +47,7 @@ pkgs.mkShell {
     pkgs.kubectl
     pkgs.minikube
     pkgs.docker-machine-kvm2
+    pkgs.podman
     pkgs.nodejs_22
     pkgs.ponysay
     pkgs.rustup
@@ -59,8 +65,26 @@ pkgs.mkShell {
     [ -f /usr/lib/x86_64-linux-gnu/libnss_sss.so.2 ] && export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libnss_sss.so.2
     bwrap --dev-bind / / \
         --ro-bind /nix /nix \
-        --tmpfs /home/$(whoami)/.cache \
+        --tmpfs "$HOME/.cache" \
         --tmpfs /tmp \
+        --tmpfs /run \
+        --tmpfs /run/user/$(id -u)/ \
+        --tmpfs /etc \
+        --tmpfs /usr \
+        --tmpfs /usr/lib \
+        --tmpfs /usr/lib32 \
+        --tmpfs /usr/libx32 \
+        --tmpfs /usr/lib64 \
+        --tmpfs /usr/bin \
+        --tmpfs /usr/sbin \
+        --tmpfs /var \
+        --tmpfs /opt \
+        --tmpfs /root \
+        --ro-bind /etc/subuid /etc/subuid \
+        --ro-bind /etc/subgid /etc/subgid \
+        --ro-bind /etc/passwd /etc/passwd \
+        --ro-bind /etc/group /etc/group \
+        --ro-bind /etc/resolv.conf /etc/resolv.conf \
         --share-net \
         --unshare-user \
         --unshare-ipc \
