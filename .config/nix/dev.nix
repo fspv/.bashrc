@@ -37,6 +37,7 @@ pkgs.mkShell {
     pkgs.curl
     pkgs.wget
     # Other
+    pkgs.bashInteractive
     pkgs.zsh
     pkgs.go
     pkgs.git
