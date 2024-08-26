@@ -10,9 +10,9 @@ then
 fi
 
 # Prevent double .bashrc sourcing in different files
-if (test "x${TMUX}" != "x" && test "x${TMUX_BASHRC_ALREADY_EXECUTED}" = "x") || test "x$BASHRC_ALREADY_EXECUTED" = "x"
+if { test "${TMUX}" != "" && test "${TMUX_BASHRC_ALREADY_EXECUTED}" = ""; } || test "$BASHRC_ALREADY_EXECUTED" = ""
 then
-    export PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+    export PATH="${PATH}:/bin:/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
     export LANGUAGE=en_US.UTF-8
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -42,8 +42,8 @@ fi
 test -f ~/.sudo_as_admin_successful || touch ~/.sudo_as_admin_successful
 
 # setup SSH agent
-if [ "x$SSH_AUTH_SOCK" = "x" ] ; then
-    eval $(ssh-agent -s) >/dev/null
+if [ "$SSH_AUTH_SOCK" = "" ] ; then
+    eval "$(ssh-agent -s)" >/dev/null
     ssh-add >/dev/null 2>&1
 fi
 
@@ -59,19 +59,20 @@ then
 else
     FQDN=$(hostname -f)
 fi
-SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
+SHORT_HOSTNAME=${FQDN%.[^.]*.[^.]*}
 
 # systemd variables
 export SYSTEMD_PAGER=less
 export PAGER=less
 
 # Load local rc file for this machine
-[ -f ~/.bashrc.local ] && source ~/.bashrc.local
+[ -f ~/.bashrc.local ] && source "${HOME}/.bashrc.local"
 
 # Load git-completion file
-[ -f ~/.git-completion.bash ] && source ~/.git-completion.bash
+[ -f ~/.git-completion.bash ] && source "${HOME}/.git-completion.bash"
 
 # Load completion for kubectl
+# shellcheck source=/dev/null
 which kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
 alias kubie="BASHRC_ALREADY_EXECUTED= kubie"
 
@@ -91,11 +92,15 @@ set vi-ins-mode-string +
 set vi-cmd-mode-string :
 
 # Load fzf completion files
+# shellcheck disable=SC1091
 [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+# shellcheck disable=SC1091
 [ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
 
 FD_CMD="/usr/lib/cargo/bin/fd"
-alias fd="${FD_CMD}"
+fd () {
+    "$FD_CMD" "$@"
+}
 
 if test -f "${FD_CMD}"
 then
@@ -103,55 +108,23 @@ then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 fi
 
-# Fix upstart completion (autocomplete all jobs to all states)
-_upstart_all() {
-    find /etc/init/ -name '*.conf' -printf '%f\n' | sed 's/\.conf$//'
-}
-
-_upstart_complete_new() {
-    _get_comp_words_by_ref cur prev
-
-    case "$prev" in
-        --help|--version)
-            COMPREPLY=()
-            return 0
-            ;;
-        status)
-            opts="--help --version -q --quiet -v --verbose --session --system \
-                  --dest= -n --no-wait"
-            ;;
-        start|stop|restart|reload)
-            opts="--help --version -q -d --detail -e --enumerate --quiet \
-                  -v --verbose --session --system --dest="
-            ;;
-    esac
-
-    COMPREPLY=( $(compgen -W "$opts $(_upstart_all)" -- ${cur}) )
-    return 0
-}
-
-complete -F _upstart_complete_new reload
-complete -F _upstart_complete_new stop
-complete -F _upstart_complete_new start
-complete -F _upstart_complete_new restart
-complete -F _upstart_complete_new status
-
 # Completion for hosts for ssh
 resolv_search_domains=$(grep '^search .*$' /etc/resolv.conf | sed 's/^search //')
 
 _complete_ssh_get_hosts_from_bash_history() {
     grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' ~/.bash_history | \
         cut -f2 -d' ' | cut -f2 -d'@' | \
-        sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'$d'$|'; done))//g" | \
+        sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'"$d"'$|'; done))//g" | \
         sort | uniq
 }
 
 _complete_ssh() {
     _get_comp_words_by_ref cur prev
 
+    # shellcheck disable=SC2207
     COMPREPLY=( $(compgen -W \
         "$opts $(_complete_ssh_get_hosts_from_bash_history)" \
-        -- ${cur})
+        -- "${cur}")
     )
     return 0
 }
@@ -188,30 +161,32 @@ shopt -s checkwinsize
 # SSHRC config
 
 # Set vim to /usr/bin/vim, because on some systems /bin/vim is alias for /bin/vi
-[ "x${SSHHOME}" != "x" ] && alias vim="/usr/bin/vim -u ${SSHHOME}/.sshrc.d/.vimrc"
+# shellcheck disable=SC2139
+[ "${SSHHOME}" != "" ] && alias vim="/usr/bin/vim -u ${SSHHOME}/.sshrc.d/.vimrc"
+
 
 case $(uname) in
     FreeBSD)
-        MD5SUM='md5'
-        STAT_TIME='stat -f%m'
+        export MD5SUM='md5'
+        export STAT_TIME='stat -f%m'
         export LS_OPTIONS='-G'
         if command -v dircolors >/dev/null 2>&1
         then
-            eval $(dircolors)
+            eval "$(dircolors)"
         fi
         ;;
     Linux)
-        MD5SUM='md5sum'
-        STAT_TIME='stat -c%Z'
-        LS_OPTIONS='--color=auto'
+        export MD5SUM='md5sum'
+        export STAT_TIME='stat -c%Z'
+        export LS_OPTIONS='--color=auto'
         alias grep='grep --color=auto'
         alias chown='chown --preserve-root'
         alias chmod='chmod --preserve-root'
         alias chgrp='chgrp --preserve-root'
         ;;
     *)
-        MD5SUM='md5sum'
-        STAT_TIME='stat -c%Z'
+        export MD5SUM='md5sum'
+        export STAT_TIME='stat -c%Z'
         ;;
 esac
 
@@ -248,14 +223,14 @@ mmysql() {
                                  | tail -n1 | sed 's/ //g' | cut -f2 -d'='
     )
 
-    if [[ "x${MYSQL_READ_ONLY}" = "x0" ]]
+    if [[ "${MYSQL_READ_ONLY}" = "0" ]]
     then
-        MYSQL_RW_PROMPT="{>MASTER<} "
+        MYSQL_RW_PROMPT="{>PRIMARY<} "
     else
         MYSQL_RW_PROMPT="{>SECONDARY(?)<} "
     fi
 
-    if [[ "x$1" = "xroot" ]]
+    if [[ "$1" = "root" ]]
     then
         MYSQL_HOME=/root
         MYSQL_SUDO='sudo -E -H'
@@ -263,19 +238,19 @@ mmysql() {
         MYSQL_HOME=${HOME}
     fi
 
-    if ! ${MYSQL_SUDO} test -f ${MYSQL_HOME}/.editrc
+    if ! ${MYSQL_SUDO} test -f "${MYSQL_HOME}/.editrc"
     then
         echo 'bind "^U" vi-kill-line-prev' | \
-            ${MYSQL_SUDO} tee ${MYSQL_HOME}/.editrc
+            ${MYSQL_SUDO} tee "${MYSQL_HOME}/.editrc"
         echo 'bind "^W" ed-delete-prev-word' | \
-            ${MYSQL_SUDO} tee -a ${MYSQL_HOME}/.editrc
+            ${MYSQL_SUDO} tee -a "${MYSQL_HOME}/.editrc"
     fi
 
     ${MYSQL_SUDO} mysql \
         --protocol=TCP \
         --secure-auth \
         --show-warnings \
-        --tee=.${USER}.mysql_history \
+        --tee=".${USER}.mysql_history" \
         --prompt='[\u@'"${SHORT_HOSTNAME}"'] \d (\R:\m:\s) '"${MYSQL_RW_PROMPT}"'> ' \
         --pager='less --quit-if-one-screen --no-init'
 }
@@ -335,8 +310,8 @@ export LESS
 
 # some functions
 function mkdircd {
-    mkdir $1
-    cd $1
+    mkdir "$1"
+    cd "$1" || true
 }
 
 path_push_left() {
@@ -348,11 +323,12 @@ path_push_left() {
 
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
 rmtemp=$(mktemp)
-if rm -I $rmtemp &>/dev/null; then
+if rm -I "$rmtemp" &>/dev/null; then
+    # shellcheck disable=SC2262
     alias rm="rm -I"
 else
     alias rm="rm -i"
-    rm $rmtemp;
+    rm "$rmtemp";
 fi
 
 EDITOR=nvim
@@ -368,86 +344,27 @@ then
 fi
 
 export NVM_DIR="$HOME/.nvm"
+# shellcheck source=/dev/null
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# shellcheck source=/dev/null
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 path_push_left "${GOBIN}"
-path_push_left "${HOME}/.local/bin"
+# path_push_left "${HOME}/.local/bin"
 path_push_left "${HOME}/.cargo/bin"
 path_push_left "${HOME}/snap/rustup/common/rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin"
 
 # Reset
 Color_Off='\[\e[0m\]'       # Text Reset
 
-# Regular Colors
-Black='\[\e[0;30m\]'        # Black
-Red='\[\e[0;31m\]'          # Red
-Green='\[\e[0;32m\]'        # Green
-Yellow='\[\e[0;33m\]'       # Yellow
-Blue='\[\e[0;34m\]'         # Blue
-Purple='\[\e[0;35m\]'       # Purple
-Cyan='\[\e[0;36m\]'         # Cyan
-White='\[\e[0;37m\]'        # White
-
-# Bold
-BBlack='\[\e[1;30m\]'       # Black
-BRed='\[\e[1;31m\]'         # Red
-BGreen='\[\e[1;32m\]'       # Green
-BYellow='\[\e[1;33m\]'      # Yellow
-BBlue='\[\e[1;34m\]'        # Blue
-BPurple='\[\e[1;35m\]'      # Purple
-BCyan='\[\e[1;36m\]'        # Cyan
-BWhite='\[\e[1;37m\]'       # White
-
-# Underline
-UBlack='\[\e[4;30m\]'       # Black
-URed='\[\e[4;31m\]'         # Red
-UGreen='\[\e[4;32m\]'       # Green
-UYellow='\[\e[4;33m\]'      # Yellow
-UBlue='\[\e[4;34m\]'        # Blue
-UPurple='\[\e[4;35m\]'      # Purple
-UCyan='\[\e[4;36m\]'        # Cyan
-UWhite='\[\e[4;37m\]'       # White
-
-# Background
-On_Black='\[\e[40m\]'       # Black
-On_Red='\[\e[41m\]'         # Red
-On_Green='\[\e[42m\]'       # Green
-On_Yellow='\[\e[43m\]'      # Yellow
-On_Blue='\[\e[44m\]'        # Blue
-On_Purple='\[\e[45m\]'      # Purple
-On_Cyan='\[\e[46m\]'        # Cyan
-On_White='\[\e[47m\]'       # White
-
-# High Intensity
-IBlack='\[\e[0;90m\]'       # Black
-IRed='\[\e[0;91m\]'         # Red
-IGreen='\[\e[0;92m\]'       # Green
-IYellow='\[\e[0;93m\]'      # Yellow
-IBlue='\[\e[0;94m\]'        # Blue
-IPurple='\[\e[0;95m\]'      # Purple
-ICyan='\[\e[0;96m\]'        # Cyan
-IWhite='\[\e[0;97m\]'       # White
-
 # Bold High Intensity
-BIBlack='\[\e[1;90m\]'      # Black
 BIRed='\[\e[1;91m\]'        # Red
 BIGreen='\[\e[1;92m\]'      # Green
 BIYellow='\[\e[1;93m\]'     # Yellow
 BIBlue='\[\e[1;94m\]'       # Blue
-BIPurple='\[\e[1;95m\]'     # Purple
 BICyan='\[\e[1;96m\]'       # Cyan
-BIWhite='\[\e[1;97m\]'      # White
 
 # High Intensity backgrounds
-On_IBlack='\[\e[0;100m\]'   # Black
-On_IRed='\[\e[0;101m\]'     # Red
-On_IGreen='\[\e[0;102m\]'   # Green
-On_IYellow='\[\e[0;103m\]'  # Yellow
-On_IBlue='\[\e[0;104m\]'    # Blue
-On_IPurple='\[\e[10;95m\]'  # Purple
-On_ICyan='\[\e[0;106m\]'    # Cyan
-On_IWhite='\[\e[0;107m\]'   # White
 
 if command -v ponysay >/dev/null 2>&1 && \
    command -v fortune >/dev/null 2>&1 && \
@@ -460,12 +377,13 @@ elif command -v cowsay >/dev/null 2>&1 && \
      command -v fmt >/dev/null 2>&1 && \
      command -v shuf >/dev/null 2>&1
 then
-    FORTUNE=$(fortune -a | fmt -80 -s | cowsay -$(shuf -n 1 -e b d g p s t w y) -f $(shuf -n 1 -e $(cowsay -l | tail -n +2)) -n)
+    # shellcheck disable=SC2046
+    FORTUNE=$(fortune -a | fmt -80 -s | cowsay -"$(shuf -n 1 -e b d g p s t w y)" -f "$(shuf -n 1 -e $(cowsay -l | tail -n +2))" -n)
     echo -e "\e[1;36m$FORTUNE"
 fi
 
-echo -e "\e[1;36m     FQDN: "$FQDN
-echo -e "\e[1;36m       LA: "$(cat /proc/loadavg 2>/dev/null | cut -f 1-4 -d' ')
+echo -e "\e[1;36m     FQDN: $FQDN"
+echo -e "\e[1;36m       LA: $(cut -f 1-4 -d' ' /proc/loadavg 2>/dev/null)"
 
 shell="$(cat /proc/$$/comm 2>&1 || true)"
 
@@ -491,14 +409,15 @@ then
     PS1=""
     # Set terminal header
     # http://tldp.org/HOWTO/Xterm-Title-3.html
-    PS1=$PS1'\[\033]0;'
+    PS1=$PS1'\[\[\033]0;\]'
     PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
     PS1=$PS1': ${PWD}'
     PS1=$PS1'\007\]'
     # Print return code if non-zero at the beginning of line
     PS1=$PS1'$(RET=$?;'
     PS1=$PS1'if ! [[ ${RET} -eq 0 ]];'
-    PS1=$PS1"  then echo -ne '[ "${BIRed}"'\${RET}'"" ${BIYellow};( "${Color_Off}"]""';"
+    # shellcheck disable=SC2089
+    PS1=$PS1"  then echo -ne '[ ${BIRed}'\${RET}' ${BIYellow};( ${Color_Off}]';"
     PS1=$PS1'fi)'
     # Set prompt
     PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
@@ -526,5 +445,6 @@ then
     # Wrong line wrapping? Follow the link:
     # https://unix.stackexchange.com/questions/105958/terminal-prompt-not-wrapping-correctly
 
+    # shellcheck disable=SC2090
     export PS1
 fi
