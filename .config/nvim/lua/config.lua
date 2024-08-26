@@ -868,6 +868,9 @@ require("lazy").setup(
       "github/copilot.vim",
       cmd = "Copilot",
     },
+    {
+      'TabbyML/vim-tabby',
+    },
     -- Automatically format oneliners into multi-line code
     {
       "AndrewRadev/splitjoin.vim",
