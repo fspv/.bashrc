@@ -1,9 +1,12 @@
 # https://search.nixos.org/packages
 
 let
-  pkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") { };
+  pkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") {
+    # You can include overlays here https://nixos.wiki/wiki/Overlays
+  };
   unstablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-unstable.tar.gz") { };
 in
+
 
 pkgs.mkShell {
   buildInputs = [
@@ -13,8 +16,7 @@ pkgs.mkShell {
     # Sandboxing
     pkgs.bubblewrap
     # Basic stuff
-    pkgs.shadow
-    pkgs.sudo
+    pkgs.which
     pkgs.cacert
     pkgs.iputils
     pkgs.strace
@@ -35,17 +37,18 @@ pkgs.mkShell {
     pkgs.curl
     pkgs.wget
     # Other
-    pkgs.python3
-    pkgs.virtualenv
     pkgs.zsh
     pkgs.go
     pkgs.git
     pkgs.jq
+    pkgs.yq
     pkgs.ripgrep
     pkgs.oh-my-zsh
     pkgs.fzf
     pkgs.kubectl
     pkgs.minikube
+    pkgs.docker
+    pkgs.skopeo
     pkgs.docker-machine-kvm2
     pkgs.podman
     pkgs.nodejs_22
@@ -57,39 +60,27 @@ pkgs.mkShell {
     # Formatting for .nix files
     pkgs.nixfmt-rfc-style
     pkgs.nixpkgs-fmt
+    pkgs.vim
+    pkgs.unzip
+    pkgs.strace
+    pkgs.ltrace
+    pkgs.libvirt
     unstablePkgs.neovim
   ];
 
   shellHook = ''
-    # to make remote users work
-    [ -f /usr/lib/x86_64-linux-gnu/libnss_sss.so.2 ] && export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libnss_sss.so.2
+    # FIXME: have no idea, why it doesn't work without it.
+    # ModuleNotFoundError: No module named '_sysconfigdata__linux_x86_64-linux-gnu'
+    export _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_
+    # glibc has no nss library included and tries to look at the default path instead
+    export LD_LIBRARY_PATH="$(dirname $(which sssd))/../lib"
     bwrap --dev-bind / / \
         --ro-bind /nix /nix \
-        --tmpfs "$HOME/.cache" \
         --tmpfs /tmp \
-        --tmpfs /run \
-        --tmpfs /run/user/$(id -u)/ \
-        --tmpfs /etc \
-        --tmpfs /usr \
-        --tmpfs /usr/lib \
-        --tmpfs /usr/lib32 \
-        --tmpfs /usr/libx32 \
-        --tmpfs /usr/lib64 \
-        --tmpfs /usr/bin \
-        --tmpfs /usr/sbin \
-        --tmpfs /var \
-        --tmpfs /opt \
-        --tmpfs /root \
-        --ro-bind /etc/subuid /etc/subuid \
-        --ro-bind /etc/subgid /etc/subgid \
-        --ro-bind /etc/passwd /etc/passwd \
-        --ro-bind /etc/group /etc/group \
-        --ro-bind /etc/resolv.conf /etc/resolv.conf \
+        --tmpfs /home/$(whoami)/.cache \
+        --tmpfs /etc/ssh/ssh_config.d \
         --share-net \
-        --unshare-user \
-        --unshare-ipc \
-        --unshare-uts \
-        --unshare-cgroup \
         -- zsh
+    zsh
   '';
 }
