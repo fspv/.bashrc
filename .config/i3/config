@@ -14,6 +14,12 @@ exec_always --no-startup-id sh -c "setxkbmap -model pc105 -layout us,ru -option 
 exec_always --no-startup-id sh -c "dunst -layer overlay -config ${HOME}/.dunstrc"
 exec --no-startup-id sh -c "volumeicon"
 
+# Creates a fake graphical-session.target, required by some systemd units
+# https://github.com/i3/i3/issues/5186#issuecomment-1405779520
+# TODO: it is not destroyed on i3 reload
+exec --no-startup-id systemctl start --user i3-session.service
+exec --no-startup-id systemctl start --user xdg-desktop-portal-gnome
+
 # Run local stuff
 exec --no-startup-id sh -c "${HOME}/.config/i3/scripts/local.sh"
 
