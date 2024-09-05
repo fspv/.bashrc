@@ -7,6 +7,7 @@ then
     for file in "$HOME/.kube/configs"/*.yaml; do
       export KUBECONFIG=$KUBECONFIG:$file
     done
+    export KUBE_FUZZY_PREVIEW_ENABLED=true
 fi
 
 # Prevent double .bashrc sourcing in different files

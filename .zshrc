@@ -1,7 +1,6 @@
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
 
-setopt no_share_history
-unsetopt share_history
+setopt inc_append_history
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.local/share/oh-my-zsh"
@@ -17,7 +16,6 @@ plugins=(
     zsh-syntax-highlighting
     forgit
     you-should-use
-    ripgrep
     fzf-tab
 )
 
@@ -140,6 +138,7 @@ then
     for file in "$HOME/.kube/configs"/*.yaml; do
       export KUBECONFIG=$KUBECONFIG:$file
     done
+    export KUBE_FUZZY_PREVIEW_ENABLED=true
 fi
 
 # Prevent double .zshrc sourcing in different files
