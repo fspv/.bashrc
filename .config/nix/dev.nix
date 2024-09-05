@@ -38,16 +38,27 @@ pkgs.mkShell {
     pkgs.wget
     # Other
     pkgs.bashInteractive
+    pkgs.bat
     pkgs.zsh
     pkgs.go
+    pkgs.gotags
     pkgs.git
     pkgs.jq
     pkgs.yq
     pkgs.ripgrep
+    pkgs.arduino
+    pkgs.arduino-core
+    pkgs.arduino-ide
+    pkgs.arduino-cli
+    pkgs.arduino-language-server
     pkgs.oh-my-zsh
     pkgs.fzf
+    pkgs.fzf-zsh
+    pkgs.fzf-git-sh
     pkgs.kubectl
     pkgs.minikube
+    pkgs.krew
+    pkgs.kubie
     pkgs.docker
     pkgs.skopeo
     pkgs.docker-machine-kvm2
@@ -58,6 +69,7 @@ pkgs.mkShell {
     pkgs.kubie
     pkgs.fortune
     pkgs.gh
+    pkgs.src-cli # sourcegraph
     # Formatting for .nix files
     pkgs.nixfmt-rfc-style
     pkgs.nixpkgs-fmt

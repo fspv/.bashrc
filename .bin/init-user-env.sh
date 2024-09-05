@@ -1,47 +1,47 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -uex
 
-wget -qO /tmp/arduino-cli.tar.gz https://downloads.arduino.cc/arduino-cli/arduino-cli_latest_Linux_64bit.tar.gz
-tar xf /tmp/arduino-cli.tar.gz -C ${HOME}/.local/bin arduino-cli
-rm -rf /tmp/arduino-cli.tar.gz
-sudo snap install arduino
-arduino-cli core install arduino:avr
+declare -A repos=(
+  ["plugins/zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
+  ["plugins/zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
+  ["themes/powerlevel10k"]="https://github.com/romkatv/powerlevel10k.git"
+  ["plugins/zsh-vi-mode"]="https://github.com/jeffreytse/zsh-vi-mode"
+  ["plugins/forgit"]="https://github.com/wfxr/forgit.git"
+  ["plugins/you-should-use"]="https://github.com/MichaelAquilina/zsh-you-should-use.git"
+  ["plugins/fzf-tab"]="https://github.com/Aloxaf/fzf-tab"
+)
 
-test -d "${HOME}/.local/share/oh-my-zsh" || KEEP_ZSHRC=yes CHSH=no RUNZSH=no ZSH="${HOME}/.local/share/oh-my-zsh" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Iterate over the array and clone repositories if not already present
+for path in "${!repos[@]}"; do
+  target_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/$path"
+  repo_url="${repos[$path]}"
 
-ZSH_CUSTOM="${HOME}/.local/share/oh-my-zsh/custom"
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions || git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k || git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-vi-mode || git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-vi-mode
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/forgit || git clone https://github.com/wfxr/forgit.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/forgit
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use || git clone https://github.com/MichaelAquilina/zsh-you-should-use.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use
-
-test -d ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab || git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab
+  if [[ ! -d "$target_dir" ]]; then
+    # Use --depth=1 only for powerlevel10k
+    if [[ "$path" == "themes/powerlevel10k" ]]; then
+      git clone --depth=1 "$repo_url" "$target_dir"
+    else
+      git clone "$repo_url" "$target_dir"
+    fi
+  fi
+done
 
 # Install sway flatpak
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/fspv/flatpaks/releases/latest)
-LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+# shellcheck disable=SC2001
+LATEST_VERSION=$(echo "$LATEST_RELEASE" | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 ARTIFACT_URL="https://github.com/fspv/flatpaks/releases/download/$LATEST_VERSION/sway.flatpak"
 TMP_DIR=$(mktemp -d)
-wget $ARTIFACT_URL -O $TMP_DIR/sway.flatpak
-flatpak install -y --noninteractive --user $TMP_DIR/sway.flatpak || true
+wget "$ARTIFACT_URL" -O "$TMP_DIR/sway.flatpak"
+flatpak install -y --noninteractive --user "$TMP_DIR/sway.flatpak" || true
+rm -rf "$TMP_DIR"
 
 # Install telegram
-flatpak install -y --user flathub org.telegram.desktop
-flatpak override --user org.telegram.desktop --filesystem=${HOME}/Pictures
-flatpak override --user org.telegram.desktop --filesystem=${HOME}/Downloads
+flatpak install -y --user flathub org.telegram.desktop || true
+flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
+flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
 
-go install github.com/jstemmer/gotags@latest
+nix-shell -p krew --command "krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix"
 
-curl -L https://sourcegraph.com/.api/src-cli/src_linux_amd64 -o ~/.bin/src
-chmod +x ~/.bin/src
-
-go install github.com/arduino/arduino-language-server@latest
+nix-shell -p arduino-cli --command "arduino-cli core install arduino:avr"
