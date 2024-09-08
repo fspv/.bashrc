@@ -410,7 +410,10 @@ then
     PS1=""
     # Set terminal header
     # http://tldp.org/HOWTO/Xterm-Title-3.html
-    PS1=$PS1'\[\[\033]0;\]'
+    # disable linter because the warning is incorrect. With the linter fix it
+    # actually causes the wrapping issues, not prevents them
+    # shellcheck disable=SC2025
+    PS1=$PS1'\[\033]0;'
     PS1=$PS1'${USER}@${SHORT_HOSTNAME} '
     PS1=$PS1': ${PWD}'
     PS1=$PS1'\007\]'
