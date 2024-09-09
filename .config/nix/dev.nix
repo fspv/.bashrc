@@ -70,6 +70,7 @@ pkgs.mkShell {
     pkgs.fortune
     pkgs.gh
     pkgs.src-cli # sourcegraph
+    # pkgs.vagrant # unfree and not installable
     # Formatting for .nix files
     pkgs.nixfmt-rfc-style
     pkgs.nixpkgs-fmt
@@ -86,8 +87,13 @@ pkgs.mkShell {
     # ModuleNotFoundError: No module named '_sysconfigdata__linux_x86_64-linux-gnu'
     export _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_
     # glibc has no nss library included and tries to look at the default path instead
-    export LD_LIBRARY_PATH="$(dirname $(which sssd))/../lib"
+    export LD_LIBRARY_PATH="${pkgs.sssd}/lib"
     export ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh"
+    export ZSH_PLUGIN_DIRS="${pkgs.fzf-zsh}/share/zsh/plugins"
+
+    # TODO: automatically source zsh plugins
+    # TODO: automatically source MANPATH
+    # TODO: automatically source bash and zsh completions
 
     bwrap --dev-bind / / \
         --ro-bind /nix /nix \

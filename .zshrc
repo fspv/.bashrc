@@ -8,6 +8,19 @@ if [[ (-n "$ZSH" && -f "$ZSH/oh-my-zsh.sh") || -f "$HOME/.local/share/oh-my-zsh/
     export ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.local/share/oh-my-zsh/custom}"
 fi
 
+if [[ -n "$ZSH_PLUGIN_DIRS" && -n "${ZSH_CUSTOM}" ]]; then
+    IFS=":" read -r DIRS <<< "$ZSH_PLUGIN_DIRS"
+    for dir in "${DIRS[@]}"; do
+        if [[ -d "$dir" ]]; then
+            for item in "$dir"/*; do
+                ln -sf "$item" "${ZSH_CUSTOM}/plugins/"
+            done
+        else
+            echo "zsh plugin linker: directory '$dir' does not exist."
+        fi
+    done
+fi
+
 plugins=(
     git
     kubectl
