@@ -45,6 +45,6 @@ flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
 nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
 nix-channel --update
 
-nix-shell -p krew --command "krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix" --pure
+nix-shell -p krew git cacert --command "krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix" --pure
 
 nix-shell -p arduino-cli --command "arduino-cli core install arduino:avr" --pure
