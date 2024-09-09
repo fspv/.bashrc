@@ -1,3 +1,6 @@
+-- Added 'A' option to prvent swp file messages, I never acted on them anyway
+vim.opt.shortmess = "ltToOCFA"
+
 -- Disable CPU heavy features for large buffers and set `vim.b.large_buf`
 -- variable to `true`
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {

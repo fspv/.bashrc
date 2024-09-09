@@ -287,6 +287,7 @@ require('lspconfig').jsonls.setup(
 
 require('lspconfig').bashls.setup(
   {
+    useLibraryCodeForTypes = false,
     on_attach = on_attach_func,
     filetypes = { 'sh', 'zsh', },
   }
@@ -295,19 +296,36 @@ require('lspconfig').bashls.setup(
 require("lspconfig").pyright.setup(
   {
     on_attach = on_attach_func,
+    -- cmd = { "pyright-langserver", "--stdio", "--log-level", "debug", "--log-file", "/tmp/pyright.log" },
+    -- cmd = { "./log.sh" },
     settings = {
       python = {
         analysis = {
-          extraPaths = {
-            "plz-out/gen", -- For please build system
-          },
+          autoSearchPaths = true,
           typeCheckingMode = "standard",
-          autoSearchPaths = false,
-          useLibraryCodeForTypes = false,
-          diagnosticMode = "openFilesOnly",
+          verboseOutput = true,
+          logLevel = "Trace",
+          extraPaths = {
+            'plz-out/gen',
+            'plz-out/python/venv',
+          },
         },
-      },
+      }
     },
+    on_new_config = function(config, root_dir)
+      if require("lspconfig/util").root_pattern('.plzconfig') then
+        config.settings = vim.tbl_deep_extend('force', config.settings, {
+          python = {
+            analysis = {
+              extraPaths = {
+                vim.fs.joinpath(root_dir, 'plz-out/python/venv'),
+              },
+              exclude = { 'plz-out' },
+            },
+          },
+        })
+      end
+    end,
   }
 )
 
