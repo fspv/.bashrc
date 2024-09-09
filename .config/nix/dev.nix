@@ -80,6 +80,7 @@ pkgs.mkShell {
     pkgs.ltrace
     pkgs.libvirt
     unstablePkgs.neovim
+    unstablePkgs.gopls
   ];
 
   shellHook = ''
