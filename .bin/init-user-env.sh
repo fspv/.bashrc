@@ -14,7 +14,7 @@ declare -A repos=(
 
 # Iterate over the array and clone repositories if not already present
 for path in "${!repos[@]}"; do
-  target_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/$path"
+  target_dir="${ZSH_CUSTOM:-$HOME/.local/share/.oh-my-zsh/custom}/$path"
   repo_url="${repos[$path]}"
 
   if [[ ! -d "$target_dir" ]]; then

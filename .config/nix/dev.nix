@@ -87,6 +87,8 @@ pkgs.mkShell {
     export _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_
     # glibc has no nss library included and tries to look at the default path instead
     export LD_LIBRARY_PATH="$(dirname $(which sssd))/../lib"
+    export ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh"
+
     bwrap --dev-bind / / \
         --ro-bind /nix /nix \
         --tmpfs /tmp \

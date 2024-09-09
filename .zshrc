@@ -1,10 +1,10 @@
-[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+[ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
 
 setopt inc_append_history
 
 # Path to your oh-my-zsh installation.
-export ZSH="$HOME/.local/share/oh-my-zsh"
-export ZSH_CUSTOM="$HOME/.local/share/oh-my-zsh/custom"
+export ZSH="${ZSH:-$HOME/.local/share/oh-my-zsh}"
+export ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.local/share/oh-my-zsh/custom}"
 
 plugins=(
     git
@@ -19,20 +19,24 @@ plugins=(
     fzf-tab
 )
 
-zstyle ':completion:*:*:git:*' script ${HOME}/.git-completion.zsh
+zstyle ':completion:*:*:git:*' script "${HOME}/.git-completion.zsh"
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
 # set descriptions format to enable group support
 zstyle ':completion:*:descriptions' format '[%d]'
 # set list-colors to enable filename colorizing
+# shellcheck disable=SC2086
+# shellcheck disable=SC2296
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # preview directory's content with exa when completing cd
+# shellcheck disable=SC2016
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 # switch group using `,` and `.`
 zstyle ':fzf-tab:*' switch-group ',' '.'
 
-export FZF_BASE=$(which fzf)
+FZF_BASE="$(which fzf)"
+export FZF_BASE
 
 
 function zvm_config() {
