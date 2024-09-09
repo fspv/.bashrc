@@ -36,6 +36,8 @@ pkgs.mkShell {
     pkgs.glibcLocales
     pkgs.curl
     pkgs.wget
+    pkgs.htop
+    pkgs.procps
     # Other
     pkgs.bashInteractive
     pkgs.bat
