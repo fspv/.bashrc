@@ -6,6 +6,7 @@ AndroidStudioProjects
 .ansible
 *.appimage
 .arcrc
+.arduino15
 .asoundrc
 .asterisk_history
 .audacity-data
@@ -32,20 +33,20 @@ backup
 .codeblocks
 !.config/
 .config/*
-.config/nvim/lua/plugins_config_manual/*
 !.config/environment.d
 !.config/flake8
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
+!.config/nix
 !.config/nvim
+.config/nvim/lua/plugins_config_manual/*
 !.config/pulse/daemon.conf
 !.config/pycodestyle
 !.config/sway
 !.config/swaylock
 !.config/terminator
 !.config/tmux
-!.config/nix
 !.config/waybar
 .cups
 .dbshell
@@ -101,6 +102,7 @@ Images
 .kde
 .kgv
 .kingsoft
+.krew
 .kube
 .launchpadlib
 .leechcraft
@@ -129,6 +131,9 @@ Music
 .nbprofiler
 .NERDTreeBookmarks
 .netrc
+.nix-channels
+.nix-defexpr
+.nix-profile
 .node*
 nohup.out
 .notion-py/
@@ -190,6 +195,7 @@ svn
 sway*
 *.swo
 *.swp
+.tabby-client
 .tcc
 .telegram-cli
 .TelegramDesktop
