@@ -38,6 +38,8 @@ pkgs.mkShell {
     pkgs.wget
     pkgs.htop
     pkgs.procps
+    pkgs.cmake
+    pkgs.gnumake
     # Other
     pkgs.bashInteractive
     pkgs.bat
