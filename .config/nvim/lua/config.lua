@@ -354,7 +354,7 @@ require("lazy").setup(
     -- fuzzy search
     {
       'junegunn/fzf',
-      build = 'fzf#install()',
+      -- fzf is already installed, no build needed
     },
     {
       'junegunn/fzf.vim',
@@ -715,8 +715,7 @@ require("lazy").setup(
     -- Fzf interface for telescope
     {
       'nvim-telescope/telescope-fzf-native.nvim',
-      build =
-      'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
+      build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release',
     },
     -- Live grep with args
     {

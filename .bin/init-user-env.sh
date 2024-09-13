@@ -14,10 +14,13 @@ declare -A repos=(
 
 # Iterate over the array and clone repositories if not already present
 for path in "${!repos[@]}"; do
-  target_dir="${ZSH_CUSTOM:-$HOME/.local/share/.oh-my-zsh/custom}/$path"
+  target_dir="${ZSH_CUSTOM:-$HOME/.local/share/oh-my-zsh/custom}/$path"
   repo_url="${repos[$path]}"
 
   if [[ ! -d "$target_dir" ]]; then
+    parent_dir=$(dirname "$target_dir")
+    mkdir -p "$parent_dir"
+
     # Use --depth=1 only for powerlevel10k
     if [[ "$path" == "themes/powerlevel10k" ]]; then
       git clone --depth=1 "$repo_url" "$target_dir"
@@ -48,3 +51,4 @@ nix-channel --update
 nix-shell -p krew git cacert --command "krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix" --pure
 
 nix-shell -p arduino-cli --command "arduino-cli core install arduino:avr" --pure
+
