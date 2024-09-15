@@ -335,6 +335,9 @@ fi
 EDITOR=nvim
 export EDITOR
 
+NIX_PATH="$HOME/.nix-defexpr/channels"
+export NIX_PATH
+
 if [ "${GOPATH}" = "" ]
 then
     [ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
@@ -343,12 +346,6 @@ if [ "${GOBIN}" = "" ]
 then
     [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
 fi
-
-export NVM_DIR="$HOME/.nvm"
-# shellcheck source=/dev/null
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# shellcheck source=/dev/null
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 path_push_left "${GOBIN}"
 # path_push_left "${HOME}/.local/bin"

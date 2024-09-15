@@ -45,6 +45,11 @@ flatpak install -y --user flathub org.telegram.desktop || true
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
 
+flatpak install -y --user org.chromium.Chromium
+flatpak install -y --user org.gnome.Evince
+flatpak install -y --user org.keepassxc.KeePassXC
+flatpak install -y --user com.parsecgaming.parsec
+
 nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
 nix-channel --update
 
