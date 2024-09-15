@@ -33,6 +33,7 @@ backup
 .codeblocks
 !.config/
 .config/*
+!.config/autostart
 !.config/environment.d
 !.config/flake8
 !.config/gtk-3.0/settings.ini
@@ -45,6 +46,7 @@ backup
 !.config/pycodestyle
 !.config/sway
 !.config/swaylock
+!.config/systemd
 !.config/terminator
 !.config/tmux
 !.config/waybar
