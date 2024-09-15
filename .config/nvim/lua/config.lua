@@ -17,6 +17,10 @@ if vim.fn.executable("cmake") == 0 then
   return
 end
 
+if os.getenv("BWRAPPED") ~= "1" then
+  return
+end
+
 -- Disable CPU heavy features for large buffers and set `vim.b.large_buf`
 -- variable to `true`
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {

@@ -92,15 +92,15 @@ pkgs.mkShell {
     # ModuleNotFoundError: No module named '_sysconfigdata__linux_x86_64-linux-gnu'
     export _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_
     # glibc has no nss library included and tries to look at the default path instead
-    export LD_LIBRARY_PATH="${pkgs.sssd}/lib"
-    export ZSH="${pkgs.oh-my-zsh}/share/oh-my-zsh"
-    export ZSH_PLUGIN_DIRS="${pkgs.fzf-zsh}/share/zsh/plugins"
+    export LD_LIBRARY_PATH=${pkgs.sssd}/lib
+    export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+    export ZSH_PLUGIN_DIRS=${pkgs.fzf-zsh}/share/zsh/plugins
 
     # TODO: automatically source zsh plugins
     # TODO: automatically source MANPATH
     # TODO: automatically source bash and zsh completions
 
-    bwrap \
+    BWRAPPED=1 bwrap \
         --die-with-parent \
         --unshare-ipc \
         --unshare-cgroup \
