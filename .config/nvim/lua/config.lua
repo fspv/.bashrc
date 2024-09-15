@@ -1,6 +1,22 @@
 -- Added 'A' option to prvent swp file messages, I never acted on them anyway
 vim.opt.shortmess = "ltToOCFA"
 
+if vim.fn.has("nvim-0.10") == 0 then
+  return
+end
+
+if vim.fn.executable("node") == 0 then
+  return
+end
+
+if vim.fn.executable("make") == 0 then
+  return
+end
+
+if vim.fn.executable("cmake") == 0 then
+  return
+end
+
 -- Disable CPU heavy features for large buffers and set `vim.b.large_buf`
 -- variable to `true`
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {
