@@ -47,9 +47,10 @@ exec_always {
 # Make pipewire (camera and sound sharing) work
 exec_always {
     $log systemctl --user start wireplumber.service
-    $log systemctl --user restart xdg-desktop-portal-gnome
     $log systemctl --user restart xdg-desktop-portal.service
-    $log systemctl --user start xdg-desktop-portal-wlr.service
+    $log systemctl --user restart xdg-desktop-portal-gnome.service
+    $log systemctl --user restart xdg-desktop-portal-gtk.service
+    $log systemctl --user restart xdg-desktop-portal-wlr.service
 }
 set $mod Mod4
 
