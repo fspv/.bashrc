@@ -72,7 +72,6 @@ require("lazy").setup(
       'ellisonleao/gruvbox.nvim',
       lazy = false,
       priority = 1000,
-      setup = true,
       config = function()
         require("plugins_config/gruvbox_conf")
       end,
