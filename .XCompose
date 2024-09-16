@@ -8,7 +8,6 @@ include "/usr/share/X11/locale/en_US.UTF-8/Compose"
 # знаки препинания, необходимые в русском, которых нет в en_US.UTF-8/Compose
 <Multi_key> <period> <minus> : "…" U2026 # HORIZONTAL ELLIPSIS, многоточие
 <Multi_key> <period> <space> : "…" U2026 # HORIZONTAL ELLIPSIS, многоточие
-<Multi_key> <?> <!> : "⁈" U2048 # QUESTION EXCLAMATION, ?!
 <Multi_key> <period> <colon> : "…" # ELLIPSIS
 
 # №: набирается в русской раскладке без ухищрений,
