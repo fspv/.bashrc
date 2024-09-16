@@ -53,7 +53,8 @@ flatpak install -y --user com.parsecgaming.parsec
 nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
 nix-channel --update
 
-nix-shell -p krew git cacert --command "krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix" --pure
+# shellcheck disable=SC2016
+nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix' --pure
 
 nix-shell -p arduino-cli --command "arduino-cli core install arduino:avr" --pure
 
