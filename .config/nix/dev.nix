@@ -115,6 +115,7 @@ pkgs.mkShell {
         --ro-bind /snap /snap \
         --ro-bind /var /var \
         --ro-bind /nix /nix \
+        --ro-bind /etc /etc \
         --dev /dev \
         --proc /proc \
         --tmpfs /tmp \
@@ -124,10 +125,6 @@ pkgs.mkShell {
         --tmpfs /home/$(whoami)/.cache \
         --tmpfs /home/$(whoami)/.ssh \
         --tmpfs /etc/ssh/ssh_config.d \
-        --bind /etc/passwd /etc/passwd \
-        --bind /etc/group /etc/group \
-        --bind /etc/resolv.conf /etc/resolv.conf \
-        --bind /etc/hosts /etc/hosts \
         --bind-try /home/$(whoami)/.config/environment.d /home/$(whoami)/.config/environment.d \
         --bind-try /home/$(whoami)/.config/autostart /home/$(whoami)/.config/autostart \
         --bind-try /home/$(whoami)/.config/flake8 /home/$(whoami)/.config/flake8 \
