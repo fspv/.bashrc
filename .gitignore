@@ -39,6 +39,7 @@ backup
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
+!.config/lazygit
 !.config/nix
 !.config/nvim
 .config/nvim/lua/plugins_config_manual/*

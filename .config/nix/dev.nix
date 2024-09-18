@@ -83,6 +83,7 @@ pkgs.mkShell {
     pkgs.strace
     pkgs.ltrace
     pkgs.libvirt
+    pkgs.lazygit
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
@@ -143,6 +144,7 @@ pkgs.mkShell {
         --bind-try /home/$(whoami)/.config/terminator /home/$(whoami)/.config/terminator \
         --bind-try /home/$(whoami)/.config/tmux /home/$(whoami)/.config/tmux \
         --bind-try /home/$(whoami)/.config/waybar /home/$(whoami)/.config/waybar \
+        --bind-try /home/$(whoami)/.config/lazygit /home/$(whoami)/.config/lazygit \
         --bind-try /home/$(whoami)/.local/bin /home/$(whoami)/.local/bin \
         --bind-try /home/$(whoami)/.local/include /home/$(whoami)/.local/include \
         --bind-try /home/$(whoami)/.local/lib /home/$(whoami)/.local/lib \
