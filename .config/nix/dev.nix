@@ -86,6 +86,7 @@ pkgs.mkShell {
     pkgs.ltrace
     pkgs.libvirt
     pkgs.lazygit
+    pkgs.eza
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
@@ -117,6 +118,7 @@ pkgs.mkShell {
         ${pkgs.nix} \
         ${pkgs.podman} \
         ${pkgs.zsh-completions} \
+        ${pkgs.eza} \
     ; do
         FPATH_CUSTOM="$FPATH_CUSTOM:$pkg_path/share/zsh/site-functions"
     done

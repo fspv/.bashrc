@@ -3,6 +3,22 @@
 autoload -Uz compinit
 compinit
 
+if [[ -n "$FPATH_CUSTOM" ]]
+then
+    export FPATH="$FPATH:$FPATH_CUSTOM"
+fi
+
+# shellcheck source=/dev/null
+which fzf >/dev/null 2>&1 && source <(fzf --zsh)
+
+# shellcheck source=/dev/null
+which kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
+
+zstyle ':completion:*:*:git:*' script "${GIT_COMPLETION_DIR}/git-completion.zsh"
+
+# TODO: have no idea how this works, hence added it twice
+compinit
+
 setopt inc_append_history
 
 # Path to your oh-my-zsh installation.
@@ -36,8 +52,6 @@ plugins=(
     fzf-tab
 )
 
-zstyle ':completion:*:*:git:*' script "${GIT_COMPLETION_DIR}/git-completion.zsh"
-
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
 # set descriptions format to enable group support
@@ -54,9 +68,6 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 
 FZF_BASE="$(which fzf)"
 export FZF_BASE
-
-# shellcheck source=/dev/null
-which fzf >/dev/null 2>&1 && source <(fzf --zsh)
 
 function zvm_config() {
     ZVM_CURSOR_STYLE_ENABLE=false
@@ -146,11 +157,6 @@ ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(forward-char end-of-line vi-forward-char)
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-if [[ -n "$FPATH_CUSTOM" ]]
-then
-    export FPATH="$FPATH:$FPATH_CUSTOM"
-fi
-
 [[ -n "$ZSH" && -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -222,8 +228,6 @@ SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
 export SYSTEMD_PAGER=less
 export PAGER=less
 
-# shellcheck source=/dev/null
-which kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
 alias kubie="ZSHRC_ALREADY_EXECUTED= kubie"
 
 # Make python poetry work
@@ -297,8 +301,14 @@ esac
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
 alias sudo='sudo '
 alias mkdir='mkdir -p -v'
-alias ls='ls $LS_OPTIONS'
-alias ll='ls -lA $LS_OPTIONS'
+if which eza >/dev/null 2>&1
+then
+    alias ls='eza $LS_OPTIONS'
+    alias ll='eza -lA $LS_OPTIONS'
+else
+    alias ls='ls $LS_OPTIONS'
+    alias ll='ls -lA $LS_OPTIONS'
+fi
 if which nvim >/dev/null 2>&1
 then
     alias vi='nvim'
