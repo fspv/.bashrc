@@ -42,8 +42,10 @@ pkgs.mkShell {
     pkgs.gnumake
     # Other
     pkgs.bashInteractive
+    pkgs.bash-completion
     pkgs.bat
     pkgs.zsh
+    pkgs.zsh-completions
     pkgs.go
     pkgs.gotags
     pkgs.git
@@ -89,6 +91,8 @@ pkgs.mkShell {
     unstablePkgs.gopls
   ];
 
+  # To find all the packages for FPATH
+  # for i in $(ls -d /nix/store/*/share/zsh/site-functions | cut -d '-' -f 2 | sort | uniq); do echo "\${pkgs.$i} \\"; done
   shellHook = ''
     # FIXME: have no idea, why it doesn't work without it.
     # ModuleNotFoundError: No module named '_sysconfigdata__linux_x86_64-linux-gnu'
@@ -98,6 +102,28 @@ pkgs.mkShell {
     export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${pkgs.fzf-zsh}/share/zsh/plugins
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
+
+    FPATH_CUSTOM=""
+    for pkg_path in \
+        ${pkgs.arduino} \
+        ${pkgs.bat} \
+        ${pkgs.bluez} \
+        ${pkgs.bubblewrap} \
+        ${pkgs.docker} \
+        ${pkgs.gh} \
+        ${pkgs.librsvg} \
+        ${pkgs.minikube} \
+        ${pkgs.kubectl} \
+        ${pkgs.nix} \
+        ${pkgs.podman} \
+        ${pkgs.zsh-completions} \
+    ; do
+        FPATH_CUSTOM="$FPATH_CUSTOM:$pkg_path/share/zsh/site-functions"
+    done
+    export FPATH_CUSTOM
+
+    GIT_COMPLETION_DIR=${pkgs.git}/share/git/contrib/completion
+    export GIT_COMPLETION_DIR
 
     # TODO: automatically source zsh plugins
     # TODO: automatically source MANPATH

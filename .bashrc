@@ -70,7 +70,8 @@ export PAGER=less
 [ -f ~/.bashrc.local ] && source "${HOME}/.bashrc.local"
 
 # Load git-completion file
-[ -f ~/.git-completion.bash ] && source "${HOME}/.git-completion.bash"
+# shellcheck source=/dev/null
+[ -f "${GIT_COMPLETION_DIR}/git-completion.bash" ] && source "${GIT_COMPLETION_DIR}/git-completion.bash"
 
 # Load completion for kubectl
 # shellcheck source=/dev/null
@@ -93,10 +94,8 @@ set vi-ins-mode-string +
 set vi-cmd-mode-string :
 
 # Load fzf completion files
-# shellcheck disable=SC1091
-[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
-# shellcheck disable=SC1091
-[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
+# shellcheck source=/dev/null
+which fzf >/dev/null 2>&1 && source <(fzf --bash)
 
 FD_CMD="/usr/lib/cargo/bin/fd"
 fd () {

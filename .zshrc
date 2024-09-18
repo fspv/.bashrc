@@ -1,5 +1,8 @@
 [ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
 
+autoload -Uz compinit
+compinit
+
 setopt inc_append_history
 
 # Path to your oh-my-zsh installation.
@@ -26,7 +29,6 @@ plugins=(
     kubectl
     kubectx
     virtualenv
-    fzf
     zsh-autosuggestions
     zsh-syntax-highlighting
     forgit
@@ -34,7 +36,7 @@ plugins=(
     fzf-tab
 )
 
-zstyle ':completion:*:*:git:*' script "${HOME}/.git-completion.zsh"
+zstyle ':completion:*:*:git:*' script "${GIT_COMPLETION_DIR}/git-completion.zsh"
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
@@ -53,6 +55,8 @@ zstyle ':fzf-tab:*' switch-group ',' '.'
 FZF_BASE="$(which fzf)"
 export FZF_BASE
 
+# shellcheck source=/dev/null
+which fzf >/dev/null 2>&1 && source <(fzf --zsh)
 
 function zvm_config() {
     ZVM_CURSOR_STYLE_ENABLE=false
@@ -142,8 +146,12 @@ ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(forward-char end-of-line vi-forward-char)
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-[[ -n "$ZSH" && -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
+if [[ -n "$FPATH_CUSTOM" ]]
+then
+    export FPATH="$FPATH:$FPATH_CUSTOM"
+fi
 
+[[ -n "$ZSH" && -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f "${HOME}/.p10k.zsh" ]] && source "${HOME}/.p10k.zsh"
@@ -214,7 +222,8 @@ SHORT_HOSTNAME=$(echo $FQDN | sed "s/\.[^\.]*\.[^\.]*$//g")
 export SYSTEMD_PAGER=less
 export PAGER=less
 
-which kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
+# shellcheck source=/dev/null
+which kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
 alias kubie="ZSHRC_ALREADY_EXECUTED= kubie"
 
 # Make python poetry work
@@ -387,6 +396,7 @@ path_push_left() {
 }
 
 [ -d "${HOME}/.cargo/bin" ] && path_push_left "${HOME}/.cargo/bin"
+[ -d "${KREW_ROOT:-$HOME/.krew}/bin" ] && path_push_left "${KREW_ROOT:-$HOME/.krew}/bin"
 
 if test -f ${HOME}/zshrc.local
 then
