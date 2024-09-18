@@ -84,6 +84,7 @@ pkgs.mkShell {
     pkgs.ltrace
     pkgs.libvirt
     unstablePkgs.neovim
+    unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
   ];
 
@@ -95,6 +96,7 @@ pkgs.mkShell {
     export LD_LIBRARY_PATH=${pkgs.sssd}/lib
     export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${pkgs.fzf-zsh}/share/zsh/plugins
+    export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
 
     # TODO: automatically source zsh plugins
     # TODO: automatically source MANPATH

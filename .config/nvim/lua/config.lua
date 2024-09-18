@@ -2,22 +2,35 @@
 vim.opt.shortmess = "ltToOCFA"
 
 if vim.fn.has("nvim-0.10") == 0 then
+  print("nvim-0.10 is required to use plugins")
   return
 end
 
 if vim.fn.executable("node") == 0 then
+  print("node is required to use plugins")
   return
 end
 
 if vim.fn.executable("make") == 0 then
+  print("make is required to use plugins")
   return
 end
 
 if vim.fn.executable("cmake") == 0 then
+  print("cmake is required to use plugins")
   return
 end
 
 if os.getenv("BWRAPPED") ~= "1" then
+  print("BWRAPPED is required to use plugins")
+  return
+end
+
+local lazypath = os.getenv("NEOVIM_LAZY_PATH")
+if lazypath then
+  vim.opt.rtp:prepend(lazypath)
+else
+  print("NEOVIM_LAZY_PATH is required to use plugins")
   return
 end
 
@@ -53,21 +66,6 @@ vim.api.nvim_create_autocmd("WinLeave", {
     end
   end,
 })
-
-
--- Install Lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
-end
-vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup(
   {
