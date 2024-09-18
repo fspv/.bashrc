@@ -75,7 +75,7 @@ export PAGER=less
 
 # Load completion for kubectl
 # shellcheck source=/dev/null
-which kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
+which kubectl >/dev/null 2>&1 && source <(kubectl completion bash 2>/dev/null)
 alias kubie="BASHRC_ALREADY_EXECUTED= kubie"
 
 # Make python poetry work
@@ -95,7 +95,7 @@ set vi-cmd-mode-string :
 
 # Load fzf completion files
 # shellcheck source=/dev/null
-which fzf >/dev/null 2>&1 && source <(fzf --bash)
+which fzf >/dev/null 2>&1 && source <(fzf --bash 2>/dev/null)
 
 FD_CMD="/usr/lib/cargo/bin/fd"
 fd () {

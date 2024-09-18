@@ -9,12 +9,15 @@ then
 fi
 
 # shellcheck source=/dev/null
-which fzf >/dev/null 2>&1 && source <(fzf --zsh)
+which fzf >/dev/null 2>&1 && source <(fzf --zsh 2>/dev/null)
 
 # shellcheck source=/dev/null
-which kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
+which kubectl >/dev/null 2>&1 && source <(kubectl completion zsh 2>/dev/null)
 
-zstyle ':completion:*:*:git:*' script "${GIT_COMPLETION_DIR}/git-completion.zsh"
+if [[ -f "${GIT_COMPLETION_DIR}/git-completion.zsh" ]]
+then
+    zstyle ':completion:*:*:git:*' script "${GIT_COMPLETION_DIR}/git-completion.zsh"
+fi
 
 # TODO: have no idea how this works, hence added it twice
 compinit
