@@ -1,12 +1,20 @@
-[ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
+# To allow some scripts to determine which shell they're running in
+ZSH_VERSION=$(zsh --version)
+export ZSH_VERSION
 
 autoload -Uz compinit
 compinit
+
+[ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
+
 
 if [[ -n "$FPATH_CUSTOM" ]]
 then
     export FPATH="$FPATH:$FPATH_CUSTOM"
 fi
+
+# shellcheck source=/dev/null
+which plz >/dev/null 2>&1 && source <(plz --completion_script)
 
 # shellcheck source=/dev/null
 which fzf >/dev/null 2>&1 && source <(fzf --zsh 2>/dev/null)

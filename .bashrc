@@ -1,5 +1,9 @@
 # Idempotent configs
 
+# To allow some scripts to determine which shell they're running in
+BASH_VERSION=$(bash --version)
+export BASH_VERSION
+
 # kube config
 if [ "${KUBECONFIG/:*}" = "$HOME/.kube/config" ]
 then
@@ -296,6 +300,9 @@ plz_test() {
     path=$(plz_path "$1")
     plz test "${path}" "$2"
 }
+
+# shellcheck source=/dev/null
+which plz >/dev/null 2>&1 && source <(plz --completion_script)
 
 # safety features
 alias cp='cp -i'
