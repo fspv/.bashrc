@@ -1,9 +1,5 @@
 # Idempotent configs
 
-# To allow some scripts to determine which shell they're running in
-BASH_VERSION=$(bash --version)
-export BASH_VERSION
-
 # kube config
 if [ "${KUBECONFIG/:*}" = "$HOME/.kube/config" ]
 then
@@ -13,6 +9,9 @@ then
     done
     export KUBE_FUZZY_PREVIEW_ENABLED=true
 fi
+
+NIXPKGS_ALLOW_UNFREE=1
+export NIXPKGS_ALLOW_UNFREE
 
 # Prevent double .bashrc sourcing in different files
 if { test "${TMUX}" != "" && test "${TMUX_BASHRC_ALREADY_EXECUTED}" = ""; } || test "$BASHRC_ALREADY_EXECUTED" = ""
@@ -433,7 +432,7 @@ then
     then
         PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context 2>/dev/null);'
         PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}" 2>/dev/null);'
-        PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x";'
+        PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x/";'
         PS1=$PS1'then'
         PS1=$PS1'    echo -e "'${BIRed}'[k8s:'${BIBlue}
         PS1=$PS1'${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}'${BIRed}'] ";'

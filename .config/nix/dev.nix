@@ -76,7 +76,6 @@ pkgs.mkShell {
     pkgs.fortune
     pkgs.gh
     pkgs.src-cli # sourcegraph
-    # pkgs.vagrant # unfree and not installable
     # Formatting for .nix files
     pkgs.nixfmt-rfc-style
     pkgs.nixpkgs-fmt
@@ -90,14 +89,13 @@ pkgs.mkShell {
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
+    # unfree NIXPKGS_ALLOW_UNFREE=1
+    pkgs.vagrant # unfree
   ];
 
   # To find all the packages for FPATH
   # for i in $(ls -d /nix/store/*/share/zsh/site-functions | cut -d '-' -f 2 | sort | uniq); do echo "\${pkgs.$i} \\"; done
   shellHook = ''
-    # FIXME: have no idea, why it doesn't work without it.
-    # ModuleNotFoundError: No module named '_sysconfigdata__linux_x86_64-linux-gnu'
-    export _PYTHON_SYSCONFIGDATA_NAME=_sysconfigdata__linux_
     # glibc has no nss library included and tries to look at the default path instead
     export LD_LIBRARY_PATH=${pkgs.sssd}/lib
     export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
@@ -127,9 +125,7 @@ pkgs.mkShell {
     GIT_COMPLETION_DIR=${pkgs.git}/share/git/contrib/completion
     export GIT_COMPLETION_DIR
 
-    # TODO: automatically source zsh plugins
     # TODO: automatically source MANPATH
-    # TODO: automatically source bash and zsh completions
 
     BWRAPPED=1 bwrap \
         --die-with-parent \
@@ -164,6 +160,7 @@ pkgs.mkShell {
         --bind-try /home/$(whoami)/.config/i3status /home/$(whoami)/.config/i3status \
         --bind-try /home/$(whoami)/.config/nix /home/$(whoami)/.config/nix \
         --bind-try /home/$(whoami)/.config/nvim /home/$(whoami)/.config/nvim \
+        --bind-try /home/$(whoami)/.config/github-copilot /home/$(whoami)/.config/github-copilot \
         --bind-try /home/$(whoami)/.config/systemd /home/$(whoami)/.config/systemd \
         --bind-try /home/$(whoami)/.config/pulse /home/$(whoami)/.config/pulse \
         --bind-try /home/$(whoami)/.config/pycodestyle /home/$(whoami)/.config/pycodestyle \

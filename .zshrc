@@ -1,6 +1,10 @@
-# To allow some scripts to determine which shell they're running in
-ZSH_VERSION=$(zsh --version)
-export ZSH_VERSION
+# vim: ft=sh
+# Idempotent configs
+
+NIXPKGS_ALLOW_UNFREE=1
+export NIXPKGS_ALLOW_UNFREE
+
+# Everything else
 
 autoload -Uz compinit
 compinit
