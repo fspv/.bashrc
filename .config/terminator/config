@@ -5,12 +5,11 @@
   [[default]]
     background_darkness = 0.9
     background_type = transparent
-    cursor_color = "#00ff00"
-    font = JetBrainsMono NF 11
+    background_image = None
+    font = JetBrainsMonoNL Nerd Font 11
     foreground_color = "#00ff00"
     scrollback_infinite = True
     use_system_font = False
-    background_image = None
 [layouts]
   [[default]]
     [[[child1]]]
