@@ -89,6 +89,14 @@ alias sudo='sudo '
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
+if which eza >/dev/null 2>&1
+then
+    alias ls='eza $LS_OPTIONS'
+    alias ll='eza -lA $LS_OPTIONS'
+else
+    alias ls='ls $LS_OPTIONS'
+    alias ll='ls -lA $LS_OPTIONS'
+fi
 if which nvim >/dev/null 2>&1
 then
     alias vi='nvim'
