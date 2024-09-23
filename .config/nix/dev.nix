@@ -86,6 +86,8 @@ pkgs.mkShell {
     pkgs.libvirt
     pkgs.lazygit
     pkgs.eza
+    pkgs.tmux
+    pkgs.fd
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
