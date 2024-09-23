@@ -30,17 +30,6 @@ for path in "${!repos[@]}"; do
   fi
 done
 
-# Install sway flatpak
-LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/fspv/flatpaks/releases/latest)
-# shellcheck disable=SC2001
-LATEST_VERSION=$(echo "$LATEST_RELEASE" | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-ARTIFACT_URL="https://github.com/fspv/flatpaks/releases/download/$LATEST_VERSION/sway.flatpak"
-TMP_DIR=$(mktemp -d)
-wget "$ARTIFACT_URL" -O "$TMP_DIR/sway.flatpak"
-flatpak install -y --noninteractive --user "$TMP_DIR/sway.flatpak" || true
-rm -rf "$TMP_DIR"
-
-# Install telegram
 flatpak install -y --user flathub org.telegram.desktop || true
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
