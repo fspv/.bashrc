@@ -3,53 +3,75 @@
 let
   pkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") {
     # You can include overlays here https://nixos.wiki/wiki/Overlays
+    overlays = [
+      (self: super: {
+      })
+    ];
   };
   unstablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-unstable.tar.gz") { };
-in
-
-
-pkgs.mkShell {
-  buildInputs = [
+  toInstall = [
     # Allow to go deeper
     pkgs.nix
+    pkgs.nix.man
     pkgs.nixd
     # Sandboxing
     pkgs.bubblewrap
     # Basic stuff
+    pkgs.coreutils-full
+    pkgs.gnutar
+    pkgs.gnutar.info
+    pkgs.gzip
+    pkgs.gzip.man
+    pkgs.gnugrep
     pkgs.which
     pkgs.cacert
     pkgs.iputils
     pkgs.strace
     pkgs.ltrace
     pkgs.glibc
+    pkgs.glibcLocales
     pkgs.getent
     pkgs.sssd
     pkgs.ncurses
+    pkgs.ncurses.man
     pkgs.util-linux
+    pkgs.util-linux.man
     pkgs.nssTools
     pkgs.openssh
     pkgs.glib
     pkgs.less
+    pkgs.less.man
     pkgs.nettools
     pkgs.hostname-debian
     pkgs.ps
-    pkgs.glibcLocales
     pkgs.curl
+    pkgs.curl.man
     pkgs.wget
     pkgs.htop
     pkgs.procps
     pkgs.cmake
     pkgs.gnumake
+    pkgs.gnumake.man
+    pkgs.less
+    pkgs.less.man
+    pkgs.more
+    pkgs.man
+    pkgs.linux-manual
+    pkgs.man-pages
+    pkgs.man-pages-posix
     # Other
     pkgs.bashInteractive
+    pkgs.bashInteractive.man
     pkgs.bash-completion
     pkgs.bat
     pkgs.zsh
+    pkgs.zsh.man
     pkgs.zsh-completions
     pkgs.go
     pkgs.gotags
     pkgs.git
     pkgs.jq
+    pkgs.jq.man
     pkgs.yq
     pkgs.ripgrep
     pkgs.arduino
@@ -59,16 +81,20 @@ pkgs.mkShell {
     pkgs.arduino-language-server
     pkgs.oh-my-zsh
     pkgs.fzf
+    pkgs.fzf.man
     pkgs.fzf-zsh
     pkgs.fzf-git-sh
     pkgs.kubectl
+    pkgs.kubectl.man
     pkgs.minikube
     pkgs.krew
     pkgs.kubie
-    pkgs.docker
+    pkgs.docker-client
     pkgs.skopeo
+    pkgs.skopeo.man
     pkgs.docker-machine-kvm2
     pkgs.podman
+    pkgs.podman.man
     pkgs.nodejs_22
     pkgs.ponysay
     pkgs.rustup
@@ -81,60 +107,49 @@ pkgs.mkShell {
     pkgs.nixpkgs-fmt
     pkgs.vim
     pkgs.unzip
-    pkgs.strace
-    pkgs.ltrace
     pkgs.libvirt
     pkgs.lazygit
     pkgs.eza
+    pkgs.eza.man
     pkgs.tmux
+    pkgs.tmux.man
     pkgs.fd
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
     # unfree NIXPKGS_ALLOW_UNFREE=1
-    pkgs.vagrant # unfree
+    pkgs.vagrant
   ];
+  findPathInToInstallPackages = path:
+    let
+      packagesWithPath = builtins.filter (pkg: builtins.pathExists "${pkg}/${path}") toInstall;
+    in
+        builtins.concatStringsSep ":" (builtins.map (pkg: "${pkg}/${path}") packagesWithPath);
+in
 
-  # To find all the packages for FPATH
-  # for i in $(ls -d /nix/store/*/share/zsh/site-functions | cut -d '-' -f 2 | sort | uniq); do echo "\${pkgs.$i} \\"; done
+# https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell
+pkgs.mkShell {
+  packages = toInstall;
+
   shellHook = ''
     # glibc has no nss library included and tries to look at the default path instead
     export LD_LIBRARY_PATH=${pkgs.sssd}/lib
     export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
-    export ZSH_PLUGIN_DIRS=${pkgs.fzf-zsh}/share/zsh/plugins
+    export ZSH_PLUGIN_DIRS=${findPathInToInstallPackages "share/zsh/plugins"}
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
-
-    FPATH_CUSTOM=""
-    for pkg_path in \
-        ${pkgs.arduino} \
-        ${pkgs.bat} \
-        ${pkgs.bluez} \
-        ${pkgs.bubblewrap} \
-        ${pkgs.docker} \
-        ${pkgs.gh} \
-        ${pkgs.librsvg} \
-        ${pkgs.minikube} \
-        ${pkgs.kubectl} \
-        ${pkgs.nix} \
-        ${pkgs.podman} \
-        ${pkgs.zsh-completions} \
-        ${pkgs.eza} \
-    ; do
-        FPATH_CUSTOM="$FPATH_CUSTOM:$pkg_path/share/zsh/site-functions"
-    done
-    export FPATH_CUSTOM
+    export FPATH_CUSTOM=${findPathInToInstallPackages "share/zsh/site-functions"}
+    # This is to handle `pkgs.*.man` package outputs, which are not included by default
+    export MANPATH=${findPathInToInstallPackages "share/man"}
 
     GIT_COMPLETION_DIR=${pkgs.git}/share/git/contrib/completion
     export GIT_COMPLETION_DIR
-
-    # TODO: automatically source MANPATH
 
     BWRAPPED=1 bwrap \
         --die-with-parent \
         --unshare-ipc \
         --unshare-cgroup \
         --share-net \
-        --bind /home/$(whoami) /home/$(whoami) \
+        --bind $HOME $HOME \
         --ro-bind /bin /bin \
         --ro-bind /sbin /sbin \
         --ro-bind /lib /lib \
@@ -149,36 +164,36 @@ pkgs.mkShell {
         --proc /proc \
         --tmpfs /tmp \
         --tmpfs /run/user/$(id -u) \
-        --tmpfs /home/$(whoami)/.local \
-        --tmpfs /home/$(whoami)/.config \
-        --tmpfs /home/$(whoami)/.cache \
-        --tmpfs /home/$(whoami)/.ssh \
+        --tmpfs $HOME/.local \
+        --tmpfs $HOME/.config \
+        --tmpfs $HOME/.cache \
+        --tmpfs $HOME/.ssh \
         --tmpfs /etc/ssh/ssh_config.d \
-        --bind-try /home/$(whoami)/.config/environment.d /home/$(whoami)/.config/environment.d \
-        --bind-try /home/$(whoami)/.config/autostart /home/$(whoami)/.config/autostart \
-        --bind-try /home/$(whoami)/.config/flake8 /home/$(whoami)/.config/flake8 \
-        --bind-try /home/$(whoami)/.config/gtk-3.0 /home/$(whoami)/.config/gtk-3.0 \
-        --bind-try /home/$(whoami)/.config/i3 /home/$(whoami)/.config/i3 \
-        --bind-try /home/$(whoami)/.config/i3status /home/$(whoami)/.config/i3status \
-        --bind-try /home/$(whoami)/.config/nix /home/$(whoami)/.config/nix \
-        --bind-try /home/$(whoami)/.config/nvim /home/$(whoami)/.config/nvim \
-        --bind-try /home/$(whoami)/.config/github-copilot /home/$(whoami)/.config/github-copilot \
-        --bind-try /home/$(whoami)/.config/systemd /home/$(whoami)/.config/systemd \
-        --bind-try /home/$(whoami)/.config/pulse /home/$(whoami)/.config/pulse \
-        --bind-try /home/$(whoami)/.config/pycodestyle /home/$(whoami)/.config/pycodestyle \
-        --bind-try /home/$(whoami)/.config/sway /home/$(whoami)/.config/sway \
-        --bind-try /home/$(whoami)/.config/swaylock /home/$(whoami)/.config/swaylock \
-        --bind-try /home/$(whoami)/.config/terminator /home/$(whoami)/.config/terminator \
-        --bind-try /home/$(whoami)/.config/tmux /home/$(whoami)/.config/tmux \
-        --bind-try /home/$(whoami)/.config/waybar /home/$(whoami)/.config/waybar \
-        --bind-try /home/$(whoami)/.config/lazygit /home/$(whoami)/.config/lazygit \
-        --bind-try /home/$(whoami)/.local/bin /home/$(whoami)/.local/bin \
-        --bind-try /home/$(whoami)/.local/include /home/$(whoami)/.local/include \
-        --bind-try /home/$(whoami)/.local/lib /home/$(whoami)/.local/lib \
-        --bind-try /home/$(whoami)/.local/share/oh-my-zsh /home/$(whoami)/.local/share/oh-my-zsh \
-        --bind-try /home/$(whoami)/.local/share/bin/wayland-user /home/$(whoami)/.local/share/bin/wayland-user \
-        --bind-try /home/$(whoami)/.local/share/nvim /home/$(whoami)/.local/share/nvim \
-        --bind-try /home/$(whoami)/.local/state/nvim /home/$(whoami)/.local/state/nvim \
+        --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
+        --bind-try $HOME/.config/autostart $HOME/.config/autostart \
+        --bind-try $HOME/.config/flake8 $HOME/.config/flake8 \
+        --bind-try $HOME/.config/gtk-3.0 $HOME/.config/gtk-3.0 \
+        --bind-try $HOME/.config/i3 $HOME/.config/i3 \
+        --bind-try $HOME/.config/i3status $HOME/.config/i3status \
+        --bind-try $HOME/.config/nix $HOME/.config/nix \
+        --bind-try $HOME/.config/nvim $HOME/.config/nvim \
+        --bind-try $HOME/.config/github-copilot $HOME/.config/github-copilot \
+        --bind-try $HOME/.config/systemd $HOME/.config/systemd \
+        --bind-try $HOME/.config/pulse $HOME/.config/pulse \
+        --bind-try $HOME/.config/pycodestyle $HOME/.config/pycodestyle \
+        --bind-try $HOME/.config/sway $HOME/.config/sway \
+        --bind-try $HOME/.config/swaylock $HOME/.config/swaylock \
+        --bind-try $HOME/.config/terminator $HOME/.config/terminator \
+        --bind-try $HOME/.config/tmux $HOME/.config/tmux \
+        --bind-try $HOME/.config/waybar $HOME/.config/waybar \
+        --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
+        --bind-try $HOME/.local/bin $HOME/.local/bin \
+        --bind-try $HOME/.local/include $HOME/.local/include \
+        --bind-try $HOME/.local/lib $HOME/.local/lib \
+        --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
+        --bind-try $HOME/.local/share/bin/wayland-user $HOME/.local/share/bin/wayland-user \
+        --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
+        --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         -- zsh
     zsh
   '';
