@@ -1,20 +1,17 @@
 # vim: ft=sh
-# Idempotent configs
-
-NIXPKGS_ALLOW_UNFREE=1
-export NIXPKGS_ALLOW_UNFREE
-
-# Everything else
 
 autoload -Uz compinit
 compinit
 
+# shellcheck source=/dev/null
 [ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
-
 
 if [[ -n "$FPATH_CUSTOM" ]]
 then
-    export FPATH="$FPATH:$FPATH_CUSTOM"
+    FPATH_CUSTOM_ARRAY=("${(@s/:/)FPATH_CUSTOM}")
+    for f in "${FPATH_CUSTOM_ARRAY[@]}"/*; do
+        fpath+=($f)
+    done
 fi
 
 # shellcheck source=/dev/null
@@ -80,9 +77,6 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'exa -1 --color=always $realpath'
 # switch group using `,` and `.`
 zstyle ':fzf-tab:*' switch-group ',' '.'
-
-FZF_BASE="$(which fzf)"
-export FZF_BASE
 
 function zvm_config() {
     ZVM_CURSOR_STYLE_ENABLE=false
