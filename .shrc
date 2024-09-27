@@ -247,12 +247,6 @@ fi
 path_push_left "${GOBIN}"
 [ -d "${KREW_ROOT:-$HOME/.krew}/bin" ] && path_push_left "${KREW_ROOT:-$HOME/.krew}/bin"
 
-# setup SSH agent
-if [ "$SSH_AUTH_SOCK" = "" ] ; then
-    eval "$(ssh-agent -s)" >/dev/null
-    ssh-add >/dev/null 2>&1
-fi
-
 if which fd >/dev/null 2>&1
 then
     export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"
