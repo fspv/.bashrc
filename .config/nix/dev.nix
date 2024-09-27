@@ -64,6 +64,7 @@ let
     pkgs.bashInteractive.man
     pkgs.bash-completion
     pkgs.bat
+    pkgs.pwgen
     pkgs.zsh
     pkgs.zsh.man
     pkgs.zsh-completions
