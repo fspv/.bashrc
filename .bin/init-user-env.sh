@@ -38,6 +38,7 @@ flatpak install -y --user org.chromium.Chromium
 flatpak install -y --user org.gnome.Evince
 flatpak install -y --user org.keepassxc.KeePassXC
 flatpak install -y --user com.parsecgaming.parsec
+flatpak install -y --user flathub org.libreoffice.LibreOffice
 
 nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
 nix-channel --update
