@@ -18,6 +18,7 @@ let
     pkgs.bubblewrap
     # Basic stuff
     pkgs.coreutils-full
+    pkgs.gnupg
     pkgs.gnutar
     pkgs.gnutar.info
     pkgs.gzip
