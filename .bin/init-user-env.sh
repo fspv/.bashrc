@@ -30,6 +30,7 @@ for path in "${!repos[@]}"; do
   fi
 done
 
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install -y --user flathub org.telegram.desktop || true
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
 flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
