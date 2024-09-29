@@ -193,7 +193,7 @@ pkgs.mkShell {
         --bind-try $HOME/.local/include $HOME/.local/include \
         --bind-try $HOME/.local/lib $HOME/.local/lib \
         --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
-        --bind-try $HOME/.local/share/bin/wayland-user $HOME/.local/share/bin/wayland-user \
+        --bind-try $HOME/.local/share/bin $HOME/.local/share/bin \
         --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
         --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         -- zsh
