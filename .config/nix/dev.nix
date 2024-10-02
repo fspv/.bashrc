@@ -113,14 +113,14 @@ let
     pkgs.lazygit
     pkgs.eza
     pkgs.eza.man
-    pkgs.tmux
-    pkgs.tmux.man
+    unstablePkgs.tmux
+    unstablePkgs.tmux.man
     pkgs.fd
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
     # unfree NIXPKGS_ALLOW_UNFREE=1
-    pkgs.vagrant
+    # pkgs.vagrant
   ];
   findPathInToInstallPackages = path:
     let
