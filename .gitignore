@@ -51,6 +51,7 @@ backup
 !.config/terminator
 !.config/tmux
 !.config/waybar
+!.config/wezterm
 .cups
 .dbshell
 .dbus
