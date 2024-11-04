@@ -47,6 +47,7 @@ bindsym XF86AudioMute exec amixer -D pulse set Master 1+ toggle
 # Gnome settings
 exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'"
 exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'"
+exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita-dark'"
 
 exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'"
 exec_always --no-startup-id sh -c "gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'"
