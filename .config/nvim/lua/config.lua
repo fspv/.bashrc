@@ -980,6 +980,18 @@ require("lazy").setup(
 -- TODO: assign this to some config module
 vim.cmd("set completeopt=menu,menuone,noselect")
 
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+
 -- Load local manual configuration if exists
 pcall(require, "plugins_config_manual/config") -- Best effort
 
