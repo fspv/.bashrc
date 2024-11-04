@@ -157,7 +157,7 @@ pkgs.mkShell {
         --ro-bind /lib /lib \
         --ro-bind /lib64 /lib64 \
         --ro-bind /usr /usr \
-        --ro-bind /opt /opt \
+        --bind /opt /opt \
         --ro-bind /snap /snap \
         --ro-bind /var /var \
         --ro-bind /nix /nix \
