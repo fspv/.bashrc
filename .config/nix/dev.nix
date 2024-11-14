@@ -188,6 +188,7 @@ pkgs.mkShell {
         --bind-try $HOME/.config/terminator $HOME/.config/terminator \
         --bind-try $HOME/.config/tmux $HOME/.config/tmux \
         --bind-try $HOME/.config/waybar $HOME/.config/waybar \
+        --bind-try $HOME/.config/wezterm $HOME/.config/wezterm \
         --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
         --bind-try $HOME/.local/bin $HOME/.local/bin \
         --bind-try $HOME/.local/include $HOME/.local/include \
