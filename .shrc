@@ -270,6 +270,6 @@ funsay() {
     then
         # shellcheck disable=SC2046
         FORTUNE=$(fortune -a | fmt -80 -s | cowsay -"$(shuf -n 1 -e b d g p s t w y)" -f "$(shuf -n 1 -e $(cowsay -l | tail -n +2))" -n)
-        echo -e "\e[1;36m$FORTUNE"
+        echo -e "\e[1;36m$FORTUNE\n"
     fi
 }
