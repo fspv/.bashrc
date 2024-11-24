@@ -30,9 +30,13 @@ for path in "${!repos[@]}"; do
   fi
 done
 
-flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+if test -f /.dockerenv; then
+  exit 0
+fi
 
-if dpkg -l | grep ubuntu-desktop
+which flatpak && flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+if which flatpak && which dpkg && dpkg -l | grep ubuntu-desktop
 then
     flatpak install -y --user flathub org.telegram.desktop || true
     flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
