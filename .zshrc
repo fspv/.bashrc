@@ -31,8 +31,6 @@ fi
 # TODO: have no idea how this works, hence added it twice
 compinit
 
-setopt inc_append_history
-
 # Path to your oh-my-zsh installation.
 if [[ (-n "$ZSH" && -f "$ZSH/oh-my-zsh.sh") || -f "$HOME/.local/share/oh-my-zsh/oh-my-zsh.sh" ]]; then
     export ZSH="${ZSH:-$HOME/.local/share/oh-my-zsh}"
@@ -172,6 +170,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 [[ -f "${HOME}/.p10k.zsh" ]] && source "${HOME}/.p10k.zsh"
 
 source "${HOME}/.shrc"
+
+setopt inc_append_history
+unsetopt share_history
 
 case "$-" in
 *i*)
