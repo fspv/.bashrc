@@ -9,3 +9,5 @@
 	cmd = ~/squashfs-root/usr/bin/nvim -f -c \"DiffviewOpen\" \"$MERGED\"
 [merge]
 	tool = fugitive
+[core]
+	excludesfile = /home/pavel/.gitignore_global
