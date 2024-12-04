@@ -11,6 +11,31 @@ local lsp = require('lsp-zero').preset({
 
 lsp.extend_lspconfig()
 
+local prev_win_id = nil
+
+vim.api.nvim_create_autocmd("WinEnter", {
+  callback = function()
+    local curr_win_id = vim.api.nvim_get_current_win()
+
+    if prev_win_id then
+      -- Call ResizeWindows with previous and current window
+      require("plugins_local.rabbithole").ResizeWindows(prev_win_id, curr_win_id)
+    end
+
+    -- Update the previous window to be the current one for the next switch
+    prev_win_id = curr_win_id
+  end,
+  pattern = { "*.go", "*.py", "*.js", "*.ts", "*.rs", "*.lua" }
+})
+
+-- Function to go to definition in a vsplit, close right-hand splits, and resize windows
+--- @param f fun(): fun(): nil
+function GoToDefinitionVsplitAndManageWindows(f)
+  return function()
+    require("plugins_local.rabbithole").OpenWindow(f)
+  end
+end
+
 -- lsp.nvim_workspace()
 
 ---@param client vim.lsp.Client
@@ -19,20 +44,10 @@ lsp.extend_lspconfig()
 local on_attach_func = function(client, bufnr)
   if client.supports_method("textDocument/publishDiagnostics") then
     ---@type vim.diagnostic.Opts
-    local opts = {
+    local diagnostics_opts = {
       underline = true,
       update_in_insert = false,
       virtual_text = false,
-      signs = true,
-    }
-    -- Disable line by line diagnostics, as it takes a lot of time during
-    -- statup to process them
-    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-      vim.lsp.diagnostic.on_publish_diagnostics, opts
-    )
-
-    -- Make emojies appear in the status column near the lines with errors
-    vim.diagnostic.config({
       signs = {
         text = {
           [vim.diagnostic.severity.ERROR] = '',
@@ -40,14 +55,35 @@ local on_attach_func = function(client, bufnr)
           [vim.diagnostic.severity.HINT] = '',
           [vim.diagnostic.severity.INFO] = '',
         },
-        -- linehl = {
-        --   [vim.diagnostic.severity.ERROR] = 'ErrorMsg',
-        -- },
-        -- numhl = {
-        --   [vim.diagnostic.severity.WARN] = 'WarningMsg',
-        -- },
       },
-    })
+    }
+
+    -- By default neovim seems to be publishing all the diagnostics for all the
+    -- files in the project into every buffer. If you have big enough project -
+    -- good luck. This instead makes it publish only the diagnostics related to
+    -- the current buffer
+    ---@param _ lsp.ResponseError?
+    ---@param result lsp.PublishDiagnosticsParams
+    ---@param ctx lsp.HandlerContext
+    ---@param config? vim.diagnostic.Opts Configuration table (see |vim.diagnostic.config()|).
+    local function publish_diagnostics_current_buffer_filter(_, result, ctx, config)
+      -- if not vim.api.nvim_buf_is_valid(bufnr) then
+      --   return
+      -- end
+
+      -- if result.uri ~= vim.uri_from_bufnr(bufnr) then
+      --   return
+      -- end
+
+      -- Call the original handler with the filtered diagnostics
+      return vim.lsp.diagnostic.on_publish_diagnostics(nil, result, ctx, config)
+    end
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      publish_diagnostics_current_buffer_filter, diagnostics_opts
+    )
+
+    -- In insert mode avoid updating diagnostics too often as you type
+    client.flags.debounce_text_changes = 2000 -- ms
   end
 
   -- Disable formatting for tsserver and enable eslint. Tsserver formatting
@@ -68,35 +104,35 @@ local on_attach_func = function(client, bufnr)
   end
 
   -- For some reason gopls lsp doesn't do autoformat automatically
-  if client.name == "gopls" then
-    vim.api.nvim_create_autocmd(
-      'BufWritePre',
-      {
-        buffer = bufnr,
-        group = augroup,
-        -- When file is re-read on_attach is called again
-        once = true,
-        desc = "Go sort import and format (if no non-default formatter available)",
-        callback = function(args)
-          print("running organize imports lsp code action")
-          vim.lsp.buf.code_action({
-            context = {
-              -- idk, what's this, but this is required
-              diagnostics = {},
-              only = { 'source.organizeImports' },
-            },
-            apply = true,
-          })
-          -- TODO: prints "No code actions available" when nothing to do
-          if #vim.fs.find('.arcconfig', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1
-              and #vim.fs.find('.golangci.yml', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1 then
-            print("running lsp format")
-            vim.lsp.buf.format({ async = false, bufnr = args.buf })
-          end
-        end,
-      }
-    )
-  end
+  -- if client.name == "gopls" then
+  --   vim.api.nvim_create_autocmd(
+  --     'BufWritePre',
+  --     {
+  --       buffer = bufnr,
+  --       group = augroup,
+  --       -- When file is re-read on_attach is called again
+  --       once = true,
+  --       desc = "Go sort import and format (if no non-default formatter available)",
+  --       callback = function(args)
+  --         print("running organize imports lsp code action")
+  --         vim.lsp.buf.code_action({
+  --           context = {
+  --             -- idk, what's this, but this is required
+  --             diagnostics = {},
+  --             only = { 'source.organizeImports' },
+  --           },
+  --           apply = true,
+  --         })
+  --         -- TODO: prints "No code actions available" when nothing to do
+  --         if #vim.fs.find('.arcconfig', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1
+  --             and #vim.fs.find('.golangci.yml', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1 then
+  --           print("running lsp format")
+  --           vim.lsp.buf.format({ async = false, bufnr = args.buf })
+  --         end
+  --       end,
+  --     }
+  --   )
+  -- end
 
   -- if client.supports_method("textDocument/documentHighlight") then
   --   -- Highlight all occurences of the symbol under cursor
@@ -146,7 +182,7 @@ local on_attach_func = function(client, bufnr)
   vim.keymap.set(
     'n',
     'gD',
-    vim.lsp.buf.declaration,
+    GoToDefinitionVsplitAndManageWindows(vim.lsp.buf.declaration),
     { buffer = bufnr, noremap = true, desc = "Go to Declaration" }
   )
   vim.keymap.set(
@@ -199,25 +235,25 @@ local on_attach_func = function(client, bufnr)
   vim.keymap.set(
     'n',
     'gr',
-    require("telescope.builtin").lsp_references,
+    GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_references),
     { buffer = bufnr, noremap = true, desc = "Find References" }
   )
   vim.keymap.set(
     'n',
     'gi',
-    require("telescope.builtin").lsp_implementations,
+    GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_implementations),
     { buffer = bufnr, noremap = true, desc = "Find Implementations" }
   )
   vim.keymap.set(
     'n',
     'gd',
-    require("telescope.builtin").lsp_definitions,
+    GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_definitions),
     { buffer = bufnr, noremap = true, desc = "Find Definitions" }
   )
   vim.keymap.set(
     'n',
     '<space>D',
-    require("telescope.builtin").lsp_type_definitions,
+    GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_type_definitions),
     { buffer = bufnr, noremap = true, desc = "Go to Type Definition" }
   )
   vim.keymap.set(
@@ -312,35 +348,21 @@ require("lspconfig").pyright.setup(
         },
       }
     },
-    on_new_config = function(config, root_dir)
-      if require("lspconfig/util").root_pattern('.plzconfig') then
-        config.settings = vim.tbl_deep_extend('force', config.settings, {
-          python = {
-            analysis = {
-              extraPaths = {
-                vim.fs.joinpath(root_dir, 'plz-out/python/venv'),
-              },
-              exclude = { 'plz-out' },
-            },
-          },
-        })
-      end
-    end,
   }
 )
 
 -- TODO: I'm just lucky it runs before other commands. But may actually conflict with them
-local group = vim.api.nvim_create_augroup("PythonFormat", { clear = true })
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = "*.py",
-  command = "silent !black %",
-  group = group,
-})
-vim.api.nvim_create_autocmd("BufWritePost", {
-  pattern = "*.py",
-  command = "silent !isort %",
-  group = group,
-})
+-- local group = vim.api.nvim_create_augroup("PythonFormat", { clear = true })
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   pattern = "*.py",
+--   command = "silent !black %",
+--   group = group,
+-- })
+-- vim.api.nvim_create_autocmd("BufWritePost", {
+--   pattern = "*.py",
+--   command = "silent !isort %",
+--   group = group,
+-- })
 
 
 -- require 'lspconfig'.jedi_language_server.setup {
@@ -412,7 +434,8 @@ require 'lspconfig'.gopls.setup {
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto -rpc.trace` and uncomment below
   -- cmd = { "gopls", "-debug=:0", "-remote=unix;/tmp/gopls-daemon-socket", "-logfile=auto", "-rpc.trace", },
   cmd = { "gopls" },
-  --- To check if the dir is selected correctly, find a pid and run `ls -lah /proc/<pid>/fd`
+  -- Must be set explicitly. Otherwise breaks on :LspRestart
+  single_file = false,
   ---@param startpath string
   root_dir = function(startpath)
     if string.find(startpath, 'plz%-out') then
@@ -540,6 +563,10 @@ require("lspconfig").bufls.setup({
 
 -- nixos configs
 require("lspconfig").nixd.setup({
+  on_attach = on_attach_func,
+})
+
+require("lspconfig").java_language_server.setup({
   on_attach = on_attach_func,
 })
 
