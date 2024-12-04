@@ -491,6 +491,19 @@ require("lazy").setup(
       enabled = false,
       ft = "go",
       build = ':GoUpdateBinaries',
+      init = function()
+        vim.cmd [[
+          let g:go_def_mapping_enabled = 0
+          let g:go_term_enabled = 1
+          let g:go_diagnostics_enabled = 0
+          let g:go_code_completion_enabled = 0
+          let g:go_fmt_autosave = 0
+          let g:go_mod_fmt_autosave = 0
+          let g:go_doc_keywordprg_enabled = 0
+          let g:go_gopls_enabled = 0
+          let g:go_diagnostics_enabled = 0
+        ]]
+      end,
       config = function()
         require("plugins_config/vim_go_conf")
       end,
@@ -887,6 +900,7 @@ require("lazy").setup(
       "github/copilot.vim",
       cmd = "Copilot",
     },
+    -- LLM autocompletion
     {
       'TabbyML/vim-tabby',
     },
@@ -979,6 +993,8 @@ require("lazy").setup(
 
 -- TODO: assign this to some config module
 vim.cmd("set completeopt=menu,menuone,noselect")
+-- have a global statusline at the bottom instead of one for each window
+vim.cmd("set laststatus=3")
 
 vim.g.clipboard = {
   name = 'OSC 52',
@@ -991,6 +1007,9 @@ vim.g.clipboard = {
     ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
   },
 }
+
+-- vim.api.nvim_set_hl(0, "Normal", { bg = "#282828", fg = "#ebdbb2", })
+-- vim.api.nvim_set_hl(0, "NormalNC", { bg = "#383838", fg = "#ebdbb2", })
 
 -- Load local manual configuration if exists
 pcall(require, "plugins_config_manual/config") -- Best effort
