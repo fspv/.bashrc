@@ -22,12 +22,6 @@ jobs:
       - name: Install dependencies
         run: |
           nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
-      - name: Build Docker image
-        run: |
-          nix-build ~/.config/nix/docker.nix
-      - name: Load Docker image
-        run: |
-          ./result | docker load
       - name: Test bash
         run: |
           nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"

@@ -6,7 +6,7 @@ let
   shellDrv = import ./dev.nix { inherit pkgs; };
 in
 pkgs.dockerTools.streamNixShellImage {
-  name = "nix-shell-dev";
+  name = "nuhotetotniksvoboden/bashrc";
   tag = "latest";
   drv = shellDrv;
 }
