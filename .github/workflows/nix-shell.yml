@@ -22,12 +22,20 @@ jobs:
       - name: Install dependencies
         run: |
           nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+      - name: Build Docker image
+        run: |
+          nix-build ~/.config/nix/docker.nix
+      - name: Load Docker image
+        run: |
+          ./result | docker load
       - name: Test bash
         run: |
           nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
       - name: Test zsh
         run: |
           nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+  # TODO: macos has a lot of packages missing. I have to figure out how to
+  # filter non-existent packages before enabling it.
   # build-macos-arm64:
   #   runs-on: macos-latest
   #   steps:
@@ -43,3 +51,4 @@ jobs:
   #     - name: Install dependencies
   #       run: |
   #         nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+  # TODO: add arm64 linux build when it is available for free on github
