@@ -1,0 +1,21 @@
+name: Build Nix Shell
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Nix
+        uses: cachix/install-nix-action@v27
+      - name: Install dependencies
+        run: |
+          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
