@@ -16,16 +16,30 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Nix
         uses: cachix/install-nix-action@v27
+      - name: Init user env
+        run: |
+          ./.local/share/bin/init-user-env.sh
       - name: Install dependencies
         run: |
           nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
-  build-macos-arm64:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up Nix
-        uses: cachix/install-nix-action@v27
-      - name: Install dependencies
+      - name: Test bash
         run: |
-          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+      - name: Test zsh
+        run: |
+          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+  # build-macos-arm64:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Set up Nix
+  #       uses: cachix/install-nix-action@v27
+  #     - name: Init user env
+  #       run: |
+  #         nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+  #         nix-channel --update
+  #         nix-shell .config/nix/dev.nix --run ./.local/share/bin/init-user-env.sh
+  #     - name: Install dependencies
+  #       run: |
+  #         nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"

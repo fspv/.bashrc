@@ -56,7 +56,10 @@ nix-channel --update
 # shellcheck disable=SC2016
 nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix' --pure
 
-nix-shell -p arduino-cli --command "arduino-cli core install arduino:avr" --pure
+if [ "$GITHUB_ACTIONS" != "true" ]; then
+    # Requires bubblewrap which doesn't work in GitHub Actions
+    nix-shell -p arduino-cli bubblewrap --command "arduino-cli core install arduino:avr" --pure
+fi
 
 NERDFONTS_PATH=${HOME}/.local/share/fonts/fonts/nerdfonts/
 mkdir -p "${NERDFONTS_PATH}"

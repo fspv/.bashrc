@@ -1,7 +1,9 @@
 # https://search.nixos.org/packages
 
+{ pkgs ? import <nixpkgs> {} }:
+
 let
-  pkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") {
+  stablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") {
     # You can include overlays here https://nixos.wiki/wiki/Overlays
     overlays = [
       (self: super: {
@@ -11,117 +13,124 @@ let
   unstablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-unstable.tar.gz") { };
   toInstall = [
     # Allow to go deeper
-    pkgs.nix
-    pkgs.nix.man
-    pkgs.nixd
-    # Sandboxing
-    pkgs.bubblewrap
+    stablePkgs.nix
+    stablePkgs.nix.man
+    stablePkgs.nixd
     # Basic stuff
-    pkgs.coreutils-full
-    pkgs.gnupg
-    pkgs.gnutar
-    pkgs.gnutar.info
-    pkgs.gzip
-    pkgs.gzip.man
-    pkgs.gnugrep
-    pkgs.which
-    pkgs.cacert
-    pkgs.iputils
-    pkgs.strace
-    pkgs.ltrace
-    pkgs.glibc
-    pkgs.glibcLocales
-    pkgs.getent
-    pkgs.sssd
-    pkgs.ncurses
-    pkgs.ncurses.man
-    pkgs.util-linux
-    pkgs.util-linux.man
-    pkgs.nssTools
-    pkgs.openssh
-    pkgs.glib
-    pkgs.less
-    pkgs.less.man
-    pkgs.nettools
-    pkgs.hostname-debian
-    pkgs.ps
-    pkgs.curl
-    pkgs.curl.man
-    pkgs.wget
-    pkgs.htop
-    pkgs.procps
-    pkgs.cmake
-    pkgs.gnumake
-    pkgs.gnumake.man
-    pkgs.less
-    pkgs.less.man
-    pkgs.more
-    pkgs.man
-    pkgs.linux-manual
-    pkgs.man-pages
-    pkgs.man-pages-posix
+    stablePkgs.coreutils-full
+    stablePkgs.gnupg
+    stablePkgs.gnutar
+    stablePkgs.gnutar.info
+    stablePkgs.gzip
+    stablePkgs.gzip.man
+    stablePkgs.gnugrep
+    stablePkgs.which
+    stablePkgs.cacert
+    stablePkgs.iputils
+    stablePkgs.strace
+    stablePkgs.ltrace
+    stablePkgs.glibc
+    stablePkgs.glibcLocales
+    stablePkgs.getent
+    stablePkgs.sssd
+    stablePkgs.ncurses
+    stablePkgs.ncurses.man
+    stablePkgs.util-linux
+    stablePkgs.util-linux.man
+    stablePkgs.nssTools
+    stablePkgs.openssh
+    stablePkgs.glib
+    stablePkgs.less
+    stablePkgs.less.man
+    stablePkgs.nettools
+    stablePkgs.hostname-debian
+    stablePkgs.ps
+    stablePkgs.curl
+    stablePkgs.curl.man
+    stablePkgs.wget
+    stablePkgs.htop
+    stablePkgs.procps
+    stablePkgs.cmake
+    stablePkgs.gnumake
+    stablePkgs.gnumake.man
+    stablePkgs.less
+    stablePkgs.less.man
+    stablePkgs.more
+    stablePkgs.man
+    stablePkgs.linux-manual
+    stablePkgs.man-pages
+    stablePkgs.man-pages-posix
     # Other
-    pkgs.bashInteractive
-    pkgs.bashInteractive.man
-    pkgs.bash-completion
-    pkgs.bat
-    pkgs.pwgen
-    pkgs.zsh
-    pkgs.zsh.man
-    pkgs.zsh-completions
-    pkgs.go
-    pkgs.gotags
-    pkgs.git
-    pkgs.jq
-    pkgs.jq.man
-    pkgs.yq
-    pkgs.ripgrep
-    pkgs.arduino
-    pkgs.arduino-core
-    pkgs.arduino-ide
-    pkgs.arduino-cli
-    pkgs.arduino-language-server
-    pkgs.oh-my-zsh
-    pkgs.fzf
-    pkgs.fzf.man
-    pkgs.fzf-zsh
-    pkgs.fzf-git-sh
-    pkgs.kubectl
-    pkgs.kubectl.man
-    pkgs.minikube
-    pkgs.krew
-    pkgs.kubie
-    pkgs.docker-client
-    pkgs.skopeo
-    pkgs.skopeo.man
-    pkgs.docker-machine-kvm2
-    pkgs.podman
-    pkgs.podman.man
-    pkgs.nodejs_22
-    pkgs.ponysay
-    pkgs.rustup
-    pkgs.kubie
-    pkgs.fortune
-    pkgs.gh
-    pkgs.src-cli # sourcegraph
+    stablePkgs.bashInteractive
+    stablePkgs.bashInteractive.man
+    stablePkgs.bash-completion
+    stablePkgs.bat
+    stablePkgs.pwgen
+    stablePkgs.zsh
+    stablePkgs.zsh.man
+    stablePkgs.zsh-completions
+    stablePkgs.go
+    stablePkgs.gotags
+    stablePkgs.git
+    stablePkgs.jq
+    stablePkgs.jq.man
+    stablePkgs.yq
+    stablePkgs.ripgrep
+    stablePkgs.oh-my-zsh
+    stablePkgs.fzf
+    stablePkgs.fzf.man
+    stablePkgs.fzf-zsh
+    stablePkgs.fzf-git-sh
+    stablePkgs.kubectl
+    stablePkgs.kubectl.man
+    stablePkgs.minikube
+    stablePkgs.krew
+    stablePkgs.kubie
+    stablePkgs.docker-client
+    stablePkgs.skopeo
+    stablePkgs.skopeo.man
+    stablePkgs.docker-machine-kvm2
+    stablePkgs.podman
+    stablePkgs.podman.man
+    stablePkgs.nodejs_22
+    stablePkgs.ponysay
+    stablePkgs.rustup
+    stablePkgs.kubie
+    stablePkgs.fortune
+    stablePkgs.gh
+    stablePkgs.src-cli # sourcegraph
     # Formatting for .nix files
-    pkgs.nixfmt-rfc-style
-    pkgs.nixpkgs-fmt
-    pkgs.vim
-    pkgs.unzip
-    pkgs.libvirt
-    pkgs.lazygit
-    pkgs.eza
-    pkgs.eza.man
+    stablePkgs.nixfmt-rfc-style
+    stablePkgs.nixpkgs-fmt
+    stablePkgs.vim
+    stablePkgs.unzip
+    stablePkgs.libvirt
+    stablePkgs.lazygit
+    stablePkgs.eza
+    stablePkgs.eza.man
     unstablePkgs.tmux
     unstablePkgs.tmux.man
-    pkgs.fd
+    stablePkgs.fd
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
+    unstablePkgs.pyright
+    unstablePkgs.black
+    unstablePkgs.isort
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
-  ];
+  ] ++ (
+    if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [
+        # Sandboxing
+        stablePkgs.bubblewrap
+        # Other
+        stablePkgs.arduino
+        stablePkgs.arduino-core
+        stablePkgs.arduino-ide
+        stablePkgs.arduino-cli
+        stablePkgs.arduino-language-server
+    ] else []
+  );
   findPathInToInstallPackages = path:
     let
       packagesWithPath = builtins.filter (pkg: builtins.pathExists "${pkg}/${path}") toInstall;
@@ -134,17 +143,22 @@ pkgs.mkShell {
   packages = toInstall;
 
   shellHook = ''
+    # For running in docker when rc files are not checked out by default
+    [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
+
     # glibc has no nss library included and tries to look at the default path instead
-    export LD_LIBRARY_PATH=${pkgs.sssd}/lib
-    export ZSH=${pkgs.oh-my-zsh}/share/oh-my-zsh
+    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib
+    export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${findPathInToInstallPackages "share/zsh/plugins"}
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
     export FPATH_CUSTOM=${findPathInToInstallPackages "share/zsh/site-functions"}
     # This is to handle `pkgs.*.man` package outputs, which are not included by default
     export MANPATH=${findPathInToInstallPackages "share/man"}
 
-    GIT_COMPLETION_DIR=${pkgs.git}/share/git/contrib/completion
+    GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
     export GIT_COMPLETION_DIR
+
+    mkdir -p $HOME/.config/github-copilot
 
     BWRAPPED=1 bwrap \
         --die-with-parent \
