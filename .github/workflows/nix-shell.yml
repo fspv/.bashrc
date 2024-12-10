@@ -12,12 +12,18 @@ jobs:
   build-ubuntu-24-04:
     runs-on: ubuntu-24.04
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Set up Nix
         uses: cachix/install-nix-action@v27
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
       - name: Init user env
         run: |
+          nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+          nix-channel --update
           ./.local/share/bin/init-user-env.sh
       - name: Install dependencies
         run: |
@@ -28,6 +34,62 @@ jobs:
       - name: Test zsh
         run: |
           nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
+  build-ubuntu-22-04:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Nix
+        uses: cachix/install-nix-action@v27
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
+      - name: Init user env
+        run: |
+          nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+          nix-channel --update
+          ./.local/share/bin/init-user-env.sh
+      - name: Install dependencies
+        run: |
+          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+      - name: Test bash
+        run: |
+          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+      - name: Test zsh
+        run: |
+          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
+  build-ubuntu-24-04-arm64:
+    runs-on: [self-hosted, linux, ARM64]
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Nix
+        uses: cachix/install-nix-action@v27
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
+      - name: Init user env
+        run: |
+          nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+          nix-channel --update
+          ./.local/share/bin/init-user-env.sh
+      - name: Install dependencies
+        run: |
+          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+      - name: Test bash
+        run: |
+          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+      - name: Test zsh
+        run: |
+          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+      - name: Remove Nix Garbage
+        run: nix-collect-garbage -d
   # TODO: macos has a lot of packages missing. I have to figure out how to
   # filter non-existent packages before enabling it.
   # build-macos-arm64:

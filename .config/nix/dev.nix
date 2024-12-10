@@ -16,6 +16,8 @@ let
     stablePkgs.nix
     stablePkgs.nix.man
     stablePkgs.nixd
+    # Sandboxing
+    stablePkgs.bubblewrap
     # Basic stuff
     stablePkgs.coreutils-full
     stablePkgs.gnupg
@@ -23,6 +25,8 @@ let
     stablePkgs.gnutar.info
     stablePkgs.gzip
     stablePkgs.gzip.man
+    stablePkgs.gawk
+    stablePkgs.gawk.man
     stablePkgs.gnugrep
     stablePkgs.which
     stablePkgs.cacert
@@ -119,17 +123,13 @@ let
     unstablePkgs.isort
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
+    # Other
+    stablePkgs.arduino
+    stablePkgs.arduino-core
+    stablePkgs.arduino-cli
+    stablePkgs.arduino-language-server
   ] ++ (
-    if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [
-        # Sandboxing
-        stablePkgs.bubblewrap
-        # Other
-        stablePkgs.arduino
-        stablePkgs.arduino-core
-        stablePkgs.arduino-ide
-        stablePkgs.arduino-cli
-        stablePkgs.arduino-language-server
-    ] else []
+    if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [] else []
   );
   findPathInToInstallPackages = path:
     let

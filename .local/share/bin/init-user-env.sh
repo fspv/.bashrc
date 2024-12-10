@@ -30,7 +30,7 @@ for path in "${!repos[@]}"; do
   fi
 done
 
-if test -f /.dockerenv; then
+if [[ ! -v GITHUB_ACTIONS ]] && test -f /.dockerenv; then
   exit 0
 fi
 
@@ -53,10 +53,13 @@ fi
 nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
 nix-channel --update
 
-# shellcheck disable=SC2016
-nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix' --pure
+if [ "$(uname -m)" = "x86_64" ]; then
+    # Not all plugins are available on aarch64 and kubectl is not really needed there now
+    # shellcheck disable=SC2016
+    nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix' --pure
+fi
 
-if [ "$GITHUB_ACTIONS" != "true" ]; then
+if [[ ! -v GITHUB_ACTIONS ]]; then
     # Requires bubblewrap which doesn't work in GitHub Actions
     nix-shell -p arduino-cli bubblewrap --command "arduino-cli core install arduino:avr" --pure
 fi
