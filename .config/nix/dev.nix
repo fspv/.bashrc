@@ -3,7 +3,7 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  stablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.05.tar.gz") {
+  stablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.11.tar.gz") {
     # You can include overlays here https://nixos.wiki/wiki/Overlays
     overlays = [
       (self: super: {
