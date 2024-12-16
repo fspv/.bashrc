@@ -57,8 +57,6 @@ let
     stablePkgs.cmake
     stablePkgs.gnumake
     stablePkgs.gnumake.man
-    stablePkgs.less
-    stablePkgs.less.man
     stablePkgs.more
     stablePkgs.man
     stablePkgs.linux-manual
@@ -112,9 +110,43 @@ let
     stablePkgs.lazygit
     stablePkgs.eza
     stablePkgs.eza.man
+    stablePkgs.fd
+    stablePkgs.mc
+    stablePkgs.tcpdump
+    stablePkgs.iotop
+    stablePkgs.ngrep
+    stablePkgs.lsscsi
+    stablePkgs.lsof
+    stablePkgs.vnstat
+    stablePkgs.parted
+    stablePkgs.parted.man
+    stablePkgs.gptfdisk
+    stablePkgs.tree
+    stablePkgs.inetutils
+    stablePkgs.inotify-tools
+    stablePkgs.rlwrap
+    stablePkgs.dmidecode
+    stablePkgs.iftop
+    stablePkgs.dnsutils
+    stablePkgs.dnsutils.man
+    stablePkgs.atop
+    stablePkgs.nettools
+    stablePkgs.nasm
+    stablePkgs.mercurial
+    stablePkgs.fping
+    stablePkgs.multipath-tools
+    stablePkgs.powertop
+    stablePkgs.powertop.man
+    stablePkgs.testdisk
+    stablePkgs.ebtables
+    stablePkgs.nmap
+    stablePkgs.mtr
+    stablePkgs.whois
+    stablePkgs.pciutils
+    stablePkgs.sysstat
+    stablePkgs.lm_sensors
     unstablePkgs.tmux
     unstablePkgs.tmux.man
-    stablePkgs.fd
     unstablePkgs.neovim
     unstablePkgs.vimPlugins.lazy-nvim
     unstablePkgs.gopls
