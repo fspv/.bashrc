@@ -2,6 +2,8 @@
 
 set -uex
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 declare -A repos=(
   ["plugins/zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
   ["plugins/zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
@@ -50,7 +52,7 @@ then
     flatpak install -y --user flathub org.wezfurlong.wezterm
 fi
 
-${HOME}/.local/share/bin/init-nix.sh
+"${SCRIPT_DIR}/init-nix.sh"
 
 if [ "$(uname -m)" = "x86_64" ]; then
     # Not all plugins are available on aarch64 and kubectl is not really needed there now
