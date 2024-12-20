@@ -50,9 +50,7 @@ then
     flatpak install -y --user flathub org.wezfurlong.wezterm
 fi
 
-# Also change .github/workflows/*.yml and .config/nix/*.nix when changing the version
-nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs
-nix-channel --update
+${HOME}/.local/share/bin/init-nix.sh
 
 if [ "$(uname -m)" = "x86_64" ]; then
     # Not all plugins are available on aarch64 and kubectl is not really needed there now
