@@ -50,7 +50,7 @@ then
     flatpak install -y --user flathub org.wezfurlong.wezterm
 fi
 
-nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs
 nix-channel --update
 
 if [ "$(uname -m)" = "x86_64" ]; then
