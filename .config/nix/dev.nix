@@ -3,6 +3,8 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
+  # Also change .github/workflows/*.yml and ~/.local/share/bin/init-user-env.sh
+  # when changing this
   stablePkgs = import (fetchTarball "https://github.com/nixos/nixpkgs/archive/nixos-24.11.tar.gz") {
     # You can include overlays here https://nixos.wiki/wiki/Overlays
     overlays = [

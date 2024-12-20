@@ -22,7 +22,9 @@ jobs:
         uses: cachix/install-nix-action@v27
       - name: Build Docker image
         run: |
-          nix-channel --add https://nixos.org/channels/nixos-24.05 nixpkgs
+          # Also change .config/nix/*.nix and
+          # ~/.local/share/bin/init-user-env.sh when changing the channel
+          nix-channel --add https://nixos.org/channels/nixos-24.11 nixpkgs
           nix-channel --update
           nix-build .config/nix/docker.nix
       - name: Load Docker image
