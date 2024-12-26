@@ -202,7 +202,7 @@ pkgs.mkShell {
         --ro-bind /bin /bin \
         --ro-bind /sbin /sbin \
         --ro-bind /lib /lib \
-        --ro-bind /lib64 /lib64 \
+        --ro-bind-try /lib64 /lib64 \
         --ro-bind /usr /usr \
         --bind /opt /opt \
         --ro-bind /snap /snap \
@@ -213,6 +213,7 @@ pkgs.mkShell {
         --proc /proc \
         --tmpfs /tmp \
         --tmpfs /run/user/$(id -u) \
+        --ro-bind-try /run/systemd/resolve/stub-resolv.conf /run/systemd/resolve/stub-resolv.conf \
         --tmpfs $HOME/.local \
         --tmpfs $HOME/.config \
         --tmpfs $HOME/.cache \
