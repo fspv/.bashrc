@@ -213,6 +213,7 @@ pkgs.mkShell {
         --proc /proc \
         --tmpfs /tmp \
         --tmpfs /run/user/$(id -u) \
+        --bind-try $TMP $TMP \
         --ro-bind-try /run/systemd/resolve/stub-resolv.conf /run/systemd/resolve/stub-resolv.conf \
         --tmpfs $HOME/.local \
         --tmpfs $HOME/.config \
