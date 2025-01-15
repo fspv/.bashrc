@@ -11,29 +11,30 @@ local lsp = require('lsp-zero').preset({
 
 lsp.extend_lspconfig()
 
-local prev_win_id = nil
+-- local prev_win_id = nil
 
-vim.api.nvim_create_autocmd("WinEnter", {
-  callback = function()
-    local curr_win_id = vim.api.nvim_get_current_win()
+-- vim.api.nvim_create_autocmd("WinEnter", {
+--   callback = function()
+--     local curr_win_id = vim.api.nvim_get_current_win()
 
-    if prev_win_id then
-      -- Call ResizeWindows with previous and current window
-      require("plugins_local.rabbithole").ResizeWindows(prev_win_id, curr_win_id)
-    end
+--     if prev_win_id then
+--       -- Call ResizeWindows with previous and current window
+--       require("plugins_local.rabbithole").ResizeWindows(prev_win_id, curr_win_id)
+--     end
 
-    -- Update the previous window to be the current one for the next switch
-    prev_win_id = curr_win_id
-  end,
-  pattern = { "*.go", "*.py", "*.js", "*.ts", "*.rs", "*.lua" }
-})
+--     -- Update the previous window to be the current one for the next switch
+--     prev_win_id = curr_win_id
+--   end,
+--   pattern = { "*.go", "*.py", "*.js", "*.ts", "*.rs", "*.lua" }
+-- })
 
 -- Function to go to definition in a vsplit, close right-hand splits, and resize windows
 --- @param f fun(): fun(): nil
 function GoToDefinitionVsplitAndManageWindows(f)
-  return function()
-    require("plugins_local.rabbithole").OpenWindow(f)
-  end
+  -- return function()
+  --   require("plugins_local.rabbithole").OpenWindow(f)
+  -- end
+  return f
 end
 
 -- lsp.nvim_workspace()
@@ -539,7 +540,7 @@ require("lspconfig").clangd.setup({
 })
 
 -- JavaScript/TypeScript
-require("lspconfig").tsserver.setup({
+require("lspconfig").ts_ls.setup({
   on_attach = on_attach_func,
 })
 
@@ -557,7 +558,7 @@ require("lspconfig").quick_lint_js.setup({
 })
 
 -- Proto files
-require("lspconfig").bufls.setup({
+require("lspconfig").buf_ls.setup({
   on_attach = on_attach_func,
 })
 
