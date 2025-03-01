@@ -53,6 +53,8 @@ backup
 !.config/waybar
 !.config/wezterm
 .cups
+.cursor
+.cursor-tutor
 .dbshell
 .dbus
 Desktop
@@ -116,6 +118,7 @@ Images
 .linphonerc
 .*.local
 .local
+.logseq
 .m2/
 .macromedia
 .manpath
@@ -195,12 +198,16 @@ squashfs-root
 Steam
 .steampath
 .steampid
+.stfolder
+.stignore
 .subversion
 .sudo_as_admin_successful
 svn
 sway*
 *.swo
 *.swp
+Sync
+syncthing
 .tabby-client
 .tcc
 .telegram-cli
