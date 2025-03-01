@@ -1,0 +1,13 @@
+[Unit]
+Description=Power-aware service manager
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/bin/power-manager.sh
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=graphical-session.target
