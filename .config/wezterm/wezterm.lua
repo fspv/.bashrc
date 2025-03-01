@@ -10,6 +10,9 @@ config.keys = {
   { key = "c", mods = "CMD", action = wezterm.action { CopyTo = "Clipboard" } },
   { key = "x", mods = "CMD", action = wezterm.action { CopyTo = "Clipboard" } },
   { key = "v", mods = "CMD", action = wezterm.action { PasteFrom = "Clipboard" } },
+  { key = "c", mods = "SHIFT|CTRL", action = wezterm.action { CopyTo = "Clipboard" } },
+  { key = "x", mods = "SHIFT|CTRL", action = wezterm.action { CopyTo = "Clipboard" } },
+  { key = "v", mods = "SHIFT|CTRL", action = wezterm.action { PasteFrom = "Clipboard" } },
 }
 
 config.mouse_bindings = {
@@ -21,6 +24,26 @@ config.mouse_bindings = {
   {
     event = { Up = { streak = 1, button = "Left" } },
     mods = "SHIFT",
+    action = wezterm.action.OpenLinkAtMouseCursor,
+  },
+  {
+    event = { Down = { streak = 1, button = "Left" } },
+    mods = "CTRL",
+    action = wezterm.action.Nop,
+  },
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "CTRL",
+    action = wezterm.action.OpenLinkAtMouseCursor,
+  },
+  {
+    event = { Down = { streak = 1, button = "Left" } },
+    mods = "CMD",
+    action = wezterm.action.Nop,
+  },
+  {
+    event = { Up = { streak = 1, button = "Left" } },
+    mods = "CMD",
     action = wezterm.action.OpenLinkAtMouseCursor,
   },
   {
