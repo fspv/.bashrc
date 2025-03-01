@@ -209,6 +209,7 @@ pkgs.mkShell {
         --ro-bind /var /var \
         --ro-bind /nix /nix \
         --ro-bind /etc /etc \
+        --ro-bind-try /run/systemd/resolve/ /run/systemd/resolve/ \
         --dev /dev \
         --proc /proc \
         --tmpfs /tmp \
