@@ -1,0 +1,37 @@
+name: Validate Sway Config
+
+on:
+  push:
+    paths:
+      - '**/.config/sway/config'
+  pull_request:
+    paths:
+      - '**/.config/sway/config'
+
+jobs:
+  validate-sway-config:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Install Sway and dependencies
+        run: |
+          set -x
+          sudo apt-get update
+          sudo apt-get install -y sway
+      
+      - name: Validate Sway config
+        run: |
+          set -x
+
+          CONFIG=.config/sway/config
+
+          echo "Validating $CONFIG..."
+          # Use Sway's validation mode to check syntax
+          sway -c "$CONFIG" --validate || {
+            echo "::error ::Sway config validation failed for $CONFIG"
+            exit 1
+          }
+          echo "$CONFIG is valid"

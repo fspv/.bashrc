@@ -37,6 +37,17 @@ exec_always {
     $log systemctl --user start plasma-polkit-agent.service
 }
 
+# Stop unwanted services
+exec_always {
+    $log systemctl --user disable tracker-miner-fs-3.service
+    $log systemctl --user stop tracker-miner-fs-3.service
+}
+
+# Some cleanup
+exec_always {
+    $log rm -rf "${HOME}/.tor project/" "${HOME}/.wine" "${HOME}/.wget-hsts" "${HOME}/.zcompdump*" "${HOME}/.local/share/tracker/"
+}
+
 # Make pipewire (camera and sound sharing) work
 exec_always {
     $log systemctl --user start wireplumber.service
