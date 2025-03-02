@@ -1,5 +1,7 @@
 # vim: ft=sh
 
+export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
+
 autoload -Uz compinit
 compinit
 
