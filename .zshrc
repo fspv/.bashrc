@@ -3,7 +3,7 @@
 export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
 
 autoload -Uz compinit
-compinit
+compinit -d "${ZSH_COMPDUMP}"
 
 # shellcheck source=/dev/null
 [ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
@@ -31,7 +31,7 @@ then
 fi
 
 # TODO: have no idea how this works, hence added it twice
-compinit
+compinit -d "${ZSH_COMPDUMP}"
 
 # Path to your oh-my-zsh installation.
 if [[ (-n "$ZSH" && -f "$ZSH/oh-my-zsh.sh") || -f "$HOME/.local/share/oh-my-zsh/oh-my-zsh.sh" ]]; then
