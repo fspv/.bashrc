@@ -47,8 +47,8 @@ let
     stablePkgs.glib
     stablePkgs.less
     stablePkgs.less.man
-    stablePkgs.nettools
     stablePkgs.hostname-debian
+    stablePkgs.nettools
     stablePkgs.ps
     stablePkgs.curl
     stablePkgs.curl.man
