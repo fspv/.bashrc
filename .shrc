@@ -85,7 +85,7 @@ esac
 
 # Aliases
 # http://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
-alias sudo='sudo '
+alias sudo='sudo --preserve-env=PATH env '
 # shellcheck disable=SC2262
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
