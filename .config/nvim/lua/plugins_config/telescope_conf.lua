@@ -56,7 +56,7 @@ require("telescope").setup(
         mappings = {
           i = {
             ["<C-a>"] = require("telescope-live-grep-args.actions").quote_prompt(),
-            ["<C-i>"] = _append_to_telescope_prompt("--iglob !**{test,e2e,sat,experimental,fake,mock}* "),
+            ["<C-x>"] = _append_to_telescope_prompt("--iglob !**{test,e2e,sat,experimental,fake,mock}* "),
           },
           n = {
             ["<Down>"] = require('telescope.actions').cycle_history_next,
