@@ -34,6 +34,28 @@ else
   return
 end
 
+-- Remove old log file
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    local log_path = vim.lsp.get_log_path()
+
+    -- Check if log file exists and remove it
+    local file = io.open(log_path, "r")
+    if file then
+      file:close()
+      os.remove(log_path)
+
+      -- Create new empty log file
+      file = io.open(log_path, "w")
+      if file then
+        file:close()
+      end
+    end
+  end,
+  group = vim.api.nvim_create_augroup("LspLogCleanup", { clear = true })
+})
+
+
 -- Disable CPU heavy features for large buffers and set `vim.b.large_buf`
 -- variable to `true`
 vim.api.nvim_create_autocmd({ "BufReadPre" }, {
@@ -42,7 +64,7 @@ vim.api.nvim_create_autocmd({ "BufReadPre" }, {
       vim.uv.fs_stat,
       vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf())
     )
-    if ok and stats and (stats.size > 204800) then
+    if ok and stats and (stats.size > 20480000) then
       vim.b.large_buf = true
       vim.cmd("syntax off")
       -- vim.cmd("IlluminatePauseBuf")     -- disable vim-illuminate
@@ -302,16 +324,6 @@ require("lazy").setup(
       dependencies = {
       }
     },
-    -- Boilerplate configuration for lspconfig
-    {
-      'VonHeikemen/lsp-zero.nvim',
-      lazy = true,
-      config = function()
-        -- Empty, loaded together with nvim-lspconfig
-      end,
-      dependencies = {
-      },
-    },
     -- Main LSP plugin
     {
       'neovim/nvim-lspconfig',
@@ -326,7 +338,6 @@ require("lazy").setup(
         'williamboman/mason-lspconfig.nvim',
         'glepnir/lspsaga.nvim',
         'hrsh7th/cmp-nvim-lsp',
-        'VonHeikemen/lsp-zero.nvim',
       },
     },
     -- Highlight other uses of symbol under cursor
@@ -602,9 +613,9 @@ require("lazy").setup(
     --     require("plugins_config/lightbulb_conf")
     --   end,
     -- },
-    {
-      'weilbith/nvim-code-action-menu',
-    },
+    -- {
+    --   'weilbith/nvim-code-action-menu',
+    -- },
     -- Menubar
     {
       'skywind3000/vim-quickui',
@@ -832,77 +843,99 @@ require("lazy").setup(
       'ojroques/nvim-bufdel',
 
     },
-    -- Modern folds
-    -- TODO: Fix error https://github.com/kevinhwang91/nvim-ufo/blob/main/lua/ufo/decorator.lua#L145
+    -- Github Copilot
     -- {
-    --   'kevinhwang91/nvim-ufo',
-    --   config = function()
-    --     vim.o.foldcolumn = '0' -- '0' is not bad
-    --     vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
-    --     vim.o.foldlevelstart = 99
-    --     vim.o.foldenable = true
-
-    --     -- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself
-    --     vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-    --     vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
-
-    --     require('ufo').setup({
-    --       provider_selector = function(bufnr, filetype, buftype)
-    --         return { 'treesitter', 'indent' }
-    --       end
-    --     })
-    --   end,
-    --   dependencies = {
-    --     'kevinhwang91/promise-async',
-    --     'neovim/nvim-lspconfig',
-    --   }
+    --   "github/copilot.vim",
+    --   cmd = "Copilot",
     -- },
     {
-      "folke/noice.nvim",
-      enabled = false,
-      event = "VeryLazy",
-      opts = {
-        cmdline = {
-          enabled = true,
-          view = "cmdline",
-        },
-        lsp = {
-          -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
-          override = {
-            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-            ["vim.lsp.util.stylize_markdown"] = true,
-            ["cmp.entry.get_documentation"] = true,
-          },
-        },
-        -- you can enable a preset for easier configuration
-        presets = {
-          bottom_search = true,         -- use a classic bottom cmdline for search
-          command_palette = true,       -- position the cmdline and popupmenu together
-          long_message_to_split = true, -- long messages will be sent to a split
-          inc_rename = false,           -- enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false,       -- add a border to hover docs and signature help
-        },
-        signature = {
-          enabled = true,
-        }
-      },
+      'fspv/tabby.nvim',
+      config = function()
+        require("tabby").setup({})
+      end
+    },
+    {
+      "olimorris/codecompanion.nvim",
       dependencies = {
-        -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
-        "MunifTanjim/nui.nvim",
-        -- OPTIONAL:
-        --   `nvim-notify` is only needed, if you want to use the notification view.
-        --   If not available, we use `mini` as the fallback
-        "rcarriga/nvim-notify",
-      }
-    },
-    -- Github Copilot
-    {
-      "github/copilot.vim",
-      cmd = "Copilot",
-    },
-    -- LLM autocompletion
-    {
-      'TabbyML/vim-tabby',
+        "nvim-lua/plenary.nvim",
+        "nvim-treesitter/nvim-treesitter",
+      },
+      config = function()
+        require("codecompanion").setup({
+          display = {
+            chat = {
+              show_settings = true,
+              window = {
+                position = "right",
+              },
+            },
+          },
+          strategies = {
+            chat = {
+              adapter = "ollama",
+              model = "gemma3:4b",
+              slash_commands = {
+                ["file"] = {
+                  callback = "strategies.chat.slash_commands.file",
+                  description = "Select a file",
+                  opts = {
+                    provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
+                    contains_code = true,
+                  },
+                },
+                ["buffer"] = {
+                  callback = "strategies.chat.slash_commands.buffer",
+                  description = "Select a buffer",
+                  opts = {
+                    provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
+                    contains_code = true,
+                  },
+                },
+                ["symbols"] = {
+                  callback = "strategies.chat.slash_commands.symbols",
+                  description = "Select symbols from a file",
+                  opts = {
+                    provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
+                    contains_code = true,
+                  },
+                },
+              },
+            },
+            inline = {
+              adapter = "ollama",
+              model = "gemma3:4b",
+              keymaps = {
+                accept_change = {
+                  modes = { n = "ga" },
+                  description = "Accept the suggested change",
+                },
+                reject_change = {
+                  modes = { n = "gr" },
+                  description = "Reject the suggested change",
+                },
+              },
+            },
+          },
+          adapters = {
+            llama3 = function()
+              return require("codecompanion.adapters").extend("ollama", {
+                name = "ollama", -- Give this adapter a different name to differentiate it from the default ollama adapter
+                schema = {
+                  model = {
+                    default = "gemma3:4b",
+                  },
+                  num_ctx = {
+                    default = 10000,
+                  },
+                  num_predict = {
+                    default = -1,
+                  },
+                },
+              })
+            end,
+          },
+        })
+      end
     },
     -- Automatically format oneliners into multi-line code
     {
