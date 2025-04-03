@@ -546,10 +546,10 @@ require("lspconfig").java_language_server.setup({
   on_attach = on_attach_func,
 })
 
-require("tabby_lspconfig").setup() -- make tabby lsp server init before running setup
-require("lspconfig").tabby.setup({
-  on_attach = on_attach_func,
-})
+-- require("tabby_lspconfig").setup() -- make tabby lsp server init before running setup
+-- require("lspconfig").tabby.setup({
+--   on_attach = on_attach_func,
+-- })
 
 -- Spellcheck in tex, md and comments
 -- require("lspconfig").ltex.setup({
