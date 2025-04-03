@@ -188,6 +188,8 @@ pkgs.mkShell {
     # This is to handle `pkgs.*.man` package outputs, which are not included by default
     export MANPATH=${findPathInToInstallPackages "share/man"}
 
+    source ${stablePkgs.glibcLocales}/nix-support/setup-hook
+
     GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
     export GIT_COMPLETION_DIR
 
@@ -210,6 +212,7 @@ pkgs.mkShell {
         --ro-bind /nix /nix \
         --ro-bind /etc /etc \
         --ro-bind-try /run/systemd/resolve/ /run/systemd/resolve/ \
+        --ro-bind-try ${stablePkgs.glibcLocales}/lib/locale /usr/lib/locale \
         --dev /dev \
         --proc /proc \
         --tmpfs /tmp \
