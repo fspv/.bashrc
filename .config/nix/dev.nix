@@ -93,8 +93,6 @@ let
     stablePkgs.skopeo
     stablePkgs.skopeo.man
     stablePkgs.docker-machine-kvm2
-    stablePkgs.podman
-    stablePkgs.podman.man
     stablePkgs.nodejs_22
     stablePkgs.ponysay
     stablePkgs.rustup
