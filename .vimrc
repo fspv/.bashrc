@@ -44,7 +44,6 @@ nnoremap <C-LeftMouse> <Esc>
 
 " Set autoindent and key to disable it during paste
 set autoindent
-set pastetoggle=<F3>
 
 " Set number of spaces to replace \t
 set tabstop=4
