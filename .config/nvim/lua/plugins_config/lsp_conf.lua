@@ -1,15 +1,12 @@
--- lsp-zero automates lspconfig configuration
--- lsp-zero doc: https://github.com/VonHeikemen/lsp-zero.nvim/blob/ea4c9511c94df9596c450036502b7ff43d40f816/doc/md/lsp.md
-local lsp = require('lsp-zero').preset({
-  name = 'minimal',
-  set_lsp_keymaps = false,
-  manage_nvim_cmp = true,
-  suggest_lsp_servers = false,
-  float_border = 'none',
-  configure_diagnostics = false,
-})
+local lspconfig_defaults = require("lspconfig").util.default_config
+lspconfig_defaults.capabilities = vim.tbl_deep_extend(
+  "force",
+  lspconfig_defaults.capabilities,
+  require("cmp_nvim_lsp").default_capabilities()
+)
 
-lsp.extend_lspconfig()
+-- Uncomment for debug and use LspLog
+vim.lsp.set_log_level("debug")
 
 -- local prev_win_id = nil
 
@@ -37,55 +34,25 @@ function GoToDefinitionVsplitAndManageWindows(f)
   return f
 end
 
--- lsp.nvim_workspace()
-
 ---@param client vim.lsp.Client
 ---@param bufnr number
 ---@return nil
 local on_attach_func = function(client, bufnr)
-  if client.supports_method("textDocument/publishDiagnostics") then
-    ---@type vim.diagnostic.Opts
-    local diagnostics_opts = {
+  client.flags.debounce_text_changes = 2000 -- ms
+
+  vim.diagnostic.config({
       underline = true,
       update_in_insert = false,
       virtual_text = false,
       signs = {
         text = {
-          [vim.diagnostic.severity.ERROR] = '',
-          [vim.diagnostic.severity.WARN] = '',
-          [vim.diagnostic.severity.HINT] = '',
-          [vim.diagnostic.severity.INFO] = '',
+          [vim.diagnostic.severity.ERROR] = "",
+          [vim.diagnostic.severity.WARN] = "",
+          [vim.diagnostic.severity.HINT] = "",
+          [vim.diagnostic.severity.INFO] = "",
         },
       },
-    }
-
-    -- By default neovim seems to be publishing all the diagnostics for all the
-    -- files in the project into every buffer. If you have big enough project -
-    -- good luck. This instead makes it publish only the diagnostics related to
-    -- the current buffer
-    ---@param _ lsp.ResponseError?
-    ---@param result lsp.PublishDiagnosticsParams
-    ---@param ctx lsp.HandlerContext
-    ---@param config? vim.diagnostic.Opts Configuration table (see |vim.diagnostic.config()|).
-    local function publish_diagnostics_current_buffer_filter(_, result, ctx, config)
-      -- if not vim.api.nvim_buf_is_valid(bufnr) then
-      --   return
-      -- end
-
-      -- if result.uri ~= vim.uri_from_bufnr(bufnr) then
-      --   return
-      -- end
-
-      -- Call the original handler with the filtered diagnostics
-      return vim.lsp.diagnostic.on_publish_diagnostics(nil, result, ctx, config)
-    end
-    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-      publish_diagnostics_current_buffer_filter, diagnostics_opts
-    )
-
-    -- In insert mode avoid updating diagnostics too often as you type
-    client.flags.debounce_text_changes = 2000 -- ms
-  end
+  })
 
   -- Disable formatting for tsserver and enable eslint. Tsserver formatting
   -- doesn't work well
@@ -104,76 +71,28 @@ local on_attach_func = function(client, bufnr)
     })
   end
 
-  -- For some reason gopls lsp doesn't do autoformat automatically
-  -- if client.name == "gopls" then
-  --   vim.api.nvim_create_autocmd(
-  --     'BufWritePre',
-  --     {
-  --       buffer = bufnr,
-  --       group = augroup,
-  --       -- When file is re-read on_attach is called again
-  --       once = true,
-  --       desc = "Go sort import and format (if no non-default formatter available)",
-  --       callback = function(args)
-  --         print("running organize imports lsp code action")
-  --         vim.lsp.buf.code_action({
-  --           context = {
-  --             -- idk, what's this, but this is required
-  --             diagnostics = {},
-  --             only = { 'source.organizeImports' },
-  --           },
-  --           apply = true,
-  --         })
-  --         -- TODO: prints "No code actions available" when nothing to do
-  --         if #vim.fs.find('.arcconfig', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1
-  --             and #vim.fs.find('.golangci.yml', { upward = true, path = vim.api.nvim_buf_get_name(args.buf) }) < 1 then
-  --           print("running lsp format")
-  --           vim.lsp.buf.format({ async = false, bufnr = args.buf })
-  --         end
-  --       end,
-  --     }
-  --   )
-  -- end
 
-  -- if client.supports_method("textDocument/documentHighlight") then
-  --   -- Highlight all occurences of the symbol under cursor
-  --   vim.cmd(
-  --     [[
-  --       :hi LspReferenceRead cterm=bold ctermbg=red guibg=Yellow guifg=Black
-  --       :hi LspReferenceText cterm=bold ctermbg=red guibg=Yellow guifg=Black
-  --       :hi LspReferenceWrite cterm=bold ctermbg=red guibg=Yellow guifg=Black
-  --     ]]
-  --   )
-
-  --   vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
-  --   vim.api.nvim_clear_autocmds { buffer = bufnr, group = "lsp_document_highlight" }
-  --   vim.api.nvim_create_autocmd("CursorHold", {
-  --     callback = vim.lsp.buf.document_highlight,
-  --     buffer = bufnr,
-  --     group = "lsp_document_highlight",
-  --     desc = "Document Highlight",
-  --   })
-  --   vim.api.nvim_create_autocmd("CursorMoved", {
-  --     callback = vim.lsp.buf.clear_references,
-  --     buffer = bufnr,
-  --     group = "lsp_document_highlight",
-  --     desc = "Clear All the References",
-  --   })
-  -- end
-
-  -- require "lsp_signature".on_attach({
-  --   bind = true, -- This is mandatory, otherwise border config won't get registered.
-  --   handler_opts = {
-  --     border = "rounded"
-  --   }
-  -- }, bufnr)
-
-  lsp.default_keymaps({ buffer = bufnr, preserve_mappings = false })
+  vim.keymap.set(
+    'n',
+    'K',
+    function ()
+      vim.lsp.buf.hover({border = "single"})
+    end,
+    { buffer = bufnr, noremap = true, desc = "Show Definition" }
+  )
+  vim.keymap.set(
+    'i',
+    '<C-s>',
+    function ()
+      vim.lsp.buf.signature_help({border = "single"})
+    end,
+    { buffer = bufnr, noremap = true, desc = "Show Signature" }
+  )
 
   -- Format the buffer using gq using ls (use gw to wrap to line length)
   vim.keymap.set(
-    { 'n', 'x' },
-    'gq',
+    { "n", "x" },
+    "gq",
     function()
       vim.lsp.buf.format({ async = true })
     end,
@@ -181,38 +100,38 @@ local on_attach_func = function(client, bufnr)
   )
 
   vim.keymap.set(
-    'n',
-    'gD',
+    "n",
+    "gD",
     GoToDefinitionVsplitAndManageWindows(vim.lsp.buf.declaration),
     { buffer = bufnr, noremap = true, desc = "Go to Declaration" }
   )
   vim.keymap.set(
-    'n',
-    '<space>wa',
+    "n",
+    "<space>wa",
     vim.lsp.buf.add_workspace_folder,
     { buffer = bufnr, noremap = true, desc = "Add Workspace Folder" }
   )
   vim.keymap.set(
-    'n',
-    '<space>wr',
+    "n",
+    "<space>wr",
     vim.lsp.buf.remove_workspace_folder,
     { buffer = bufnr, noremap = true, desc = "Remove Workspace Folder" }
   )
   vim.keymap.set(
-    'n',
-    '<space>wl',
+    "n",
+    "<space>wl",
     function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end,
     { buffer = bufnr, noremap = true, desc = "List Workspace Folders" }
   )
   vim.keymap.set(
-    'n',
-    '<space>rn',
+    "n",
+    "<space>rn",
     vim.lsp.buf.rename,
     { buffer = bufnr, noremap = true, desc = "Rename Symbol Under Cursor" }
   )
   vim.keymap.set(
-    { 'n', 'x' },
-    '<space>f',
+    { "n", "x" },
+    "<space>f",
     function()
       vim.lsp.buf.format { async = true }
     end,
@@ -222,7 +141,7 @@ local on_attach_func = function(client, bufnr)
   local function _lsp_workplace_symbols_under_cursor()
     return require("telescope.builtin").lsp_workspace_symbols(
       {
-        query = vim.call('expand', '<cword>')
+        query = vim.call("expand", "<cword>")
       }
     )
   end
@@ -234,26 +153,26 @@ local on_attach_func = function(client, bufnr)
     { buffer = bufnr, noremap = true, desc = "Find Symbol Under Cursor" }
   )
   vim.keymap.set(
-    'n',
-    'gr',
+    "n",
+    "gr",
     GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_references),
     { buffer = bufnr, noremap = true, desc = "Find References" }
   )
   vim.keymap.set(
-    'n',
-    'gi',
+    "n",
+    "gi",
     GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_implementations),
     { buffer = bufnr, noremap = true, desc = "Find Implementations" }
   )
   vim.keymap.set(
-    'n',
-    'gd',
+    "n",
+    "gd",
     GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_definitions),
     { buffer = bufnr, noremap = true, desc = "Find Definitions" }
   )
   vim.keymap.set(
-    'n',
-    '<space>D',
+    "n",
+    "<space>D",
     GoToDefinitionVsplitAndManageWindows(require("telescope.builtin").lsp_type_definitions),
     { buffer = bufnr, noremap = true, desc = "Go to Type Definition" }
   )
@@ -303,10 +222,28 @@ local on_attach_func = function(client, bufnr)
     "<cmd>Lspsaga outgoing_calls<CR>",
     { buffer = bufnr, noremap = true, desc = "Outgouing Calls" }
   )
+
+  vim.keymap.set(
+    "n",
+    "]d",
+    function ()
+    	vim.diagnostic.jump({count = 1, float = { border = "single", source = true }})
+    end,
+    { buffer = bufnr, noremap = true, desc = "Jump to the Next Diagnostics" }
+  )
+
+  vim.keymap.set(
+    "n",
+    "[d",
+    function ()
+    	vim.diagnostic.jump({count = -1, float = { border = "single", source = true }})
+    end,
+    { buffer = bufnr, noremap = true, desc = "Jump to the Previous Diagnostics" }
+  )
   -- require('symbols-outline').open_outline()
 end
 
-require('lspconfig').yamlls.setup(
+require("lspconfig").yamlls.setup(
   {
     on_attach = on_attach_func,
     settings = {
@@ -316,17 +253,17 @@ require('lspconfig').yamlls.setup(
   }
 )
 
-require('lspconfig').jsonls.setup(
+require("lspconfig").jsonls.setup(
   {
     on_attach = on_attach_func,
   }
 )
 
-require('lspconfig').bashls.setup(
+require("lspconfig").bashls.setup(
   {
     useLibraryCodeForTypes = false,
     on_attach = on_attach_func,
-    filetypes = { 'sh', 'zsh', },
+    filetypes = { "sh", "zsh", },
   }
 )
 
@@ -343,8 +280,8 @@ require("lspconfig").pyright.setup(
           verboseOutput = true,
           logLevel = "Trace",
           extraPaths = {
-            'plz-out/gen',
-            'plz-out/python/venv',
+            "plz-out/gen",
+            "plz-out/python/venv",
           },
         },
       }
@@ -394,22 +331,60 @@ require("lspconfig").pyright.setup(
 --   }
 -- end
 
-require 'lspconfig'.lua_ls.setup {
+require "lspconfig".lua_ls.setup {
   on_attach = on_attach_func,
+  on_init = function(client)
+    if client.workspace_folders then
+      local path = client.workspace_folders[1].name
+      if path ~= vim.fn.stdpath('config') and (vim.uv.fs_stat(path..'/.luarc.json') or vim.uv.fs_stat(path..'/.luarc.jsonc')) then
+        return
+      end
+    end
+
+    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+      runtime = {
+        -- Tell the language server which version of Lua you're using
+        -- (most likely LuaJIT in the case of Neovim)
+        version = 'LuaJIT'
+      },
+      -- Make the server aware of Neovim runtime files
+      workspace = {
+        checkThirdParty = false,
+        -- library = {
+        --   vim.env.VIMRUNTIME
+        --   -- Depending on the usage, you might want to add additional paths here.
+        --   -- "${3rd}/luv/library"
+        --   -- "${3rd}/busted/library",
+        -- }
+        -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will cause issues when working on your own configuration (see https://github.com/neovim/nvim-lspconfig/issues/3189)
+        library = vim.api.nvim_get_runtime_file("", true)
+      },
+      diagnostics = {
+        -- Get the language server to recognize the `vim` global
+        globals = { "describe", "it", "vim", "setup", "teardown" },
+      },
+    })
+  end,
   settings = {
     Lua = {
       runtime = {
         -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-        version = 'LuaJIT',
+        version = "LuaJIT",
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
         globals = { "describe", "it", "vim", "setup", "teardown" },
       },
       workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file("", true),
         checkThirdParty = false,
+        library = {
+          vim.env.VIMRUNTIME
+          -- Depending on the usage, you might want to add additional paths here.
+          -- "${3rd}/luv/library"
+          -- "${3rd}/busted/library",
+        }
+        -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will cause issues when working on your own configuration (see https://github.com/neovim/nvim-lspconfig/issues/3189)
+        -- library = vim.api.nvim_get_runtime_file("", true)
       },
       -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = {
@@ -430,7 +405,7 @@ require 'lspconfig'.lua_ls.setup {
 }
 
 -- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
-require 'lspconfig'.gopls.setup {
+require "lspconfig".gopls.setup {
   on_attach = on_attach_func,
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto -rpc.trace` and uncomment below
   -- cmd = { "gopls", "-debug=:0", "-remote=unix;/tmp/gopls-daemon-socket", "-logfile=auto", "-rpc.trace", },
@@ -439,7 +414,7 @@ require 'lspconfig'.gopls.setup {
   single_file = false,
   ---@param startpath string
   root_dir = function(startpath)
-    if string.find(startpath, 'plz%-out') then
+    if string.find(startpath, "plz%-out") then
       -- Separate branch, because otherwise it defaults to the repo root and becomes too slow
       return require("lspconfig/util").root_pattern(
         "go.mod",
@@ -463,7 +438,7 @@ require 'lspconfig'.gopls.setup {
       diagnosticsTrigger = "Edit", -- Save or Edit
       directoryFilters = { "-plz-out" },
       -- Breaks treesitter defined highlight overwrites (such as SQL within a string)
-      semanticTokens = false,
+      semanticTokens = true,
       hints = {
         assignVariableTypes = true,
         compositeLiteralFields = true,
@@ -492,7 +467,7 @@ require 'lspconfig'.gopls.setup {
       }
     },
   },
-  capabilities = require('cmp_nvim_lsp').default_capabilities(),
+  capabilities = require("cmp_nvim_lsp").default_capabilities(),
 }
 
 require("lspconfig").rust_analyzer.setup(
@@ -515,7 +490,7 @@ require("lspconfig").rust_analyzer.setup(
 -- Then createa a `.clangd` file in the project dir
 -- TODO: add example
 require("lspconfig").clangd.setup({
-  filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda' },
+  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   on_attach = on_attach_func,
   cmd = {
     "clangd",
@@ -571,6 +546,11 @@ require("lspconfig").java_language_server.setup({
   on_attach = on_attach_func,
 })
 
+require("tabby_lspconfig").setup() -- make tabby lsp server init before running setup
+require("lspconfig").tabby.setup({
+  on_attach = on_attach_func,
+})
+
 -- Spellcheck in tex, md and comments
 -- require("lspconfig").ltex.setup({
 --   filetypes = {
@@ -585,14 +565,3 @@ require("lspconfig").java_language_server.setup({
 --   },
 --   on_attach = on_attach_func,
 -- })
-
--- TODO: pylsp installation doesn't work from within existing virtualenv
-lsp.format_on_save({
-  servers = {
-    ['lua_ls'] = { 'lua' },
-    ['rust_analyzer'] = { 'rust' },
-  }
-})
-
--- lsp.skip_server_setup({ 'pyre', 'pylsp' })
-lsp.setup()
