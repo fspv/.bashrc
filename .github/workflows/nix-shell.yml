@@ -12,6 +12,8 @@ jobs:
   build-ubuntu-24-04:
     runs-on: ubuntu-24.04
     steps:
+      - name: Remove old repo
+        run: rm -rf /tmp/runner/work/.bashrc/
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
@@ -38,6 +40,8 @@ jobs:
   build-ubuntu-22-04:
     runs-on: ubuntu-22.04
     steps:
+      - name: Remove old repo
+        run: rm -rf /tmp/runner/work/.bashrc/
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
       - name: Checkout repository
@@ -64,6 +68,8 @@ jobs:
   build-ubuntu-24-04-arm64:
     runs-on: [self-hosted, linux, ARM64]
     steps:
+      - name: Remove old repo
+        run: rm -rf /tmp/runner/work/.bashrc/
       - name: Checkout repository
         uses: taiki-e/checkout-action@v1
       - name: Set up Nix
