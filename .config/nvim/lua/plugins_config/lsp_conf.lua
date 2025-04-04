@@ -43,7 +43,8 @@ local on_attach_func = function(client, bufnr)
   vim.diagnostic.config({
       underline = true,
       update_in_insert = false,
-      virtual_text = false,
+      virtual_text = true,
+      float = true,
       signs = {
         text = {
           [vim.diagnostic.severity.ERROR] = "",
@@ -177,11 +178,24 @@ local on_attach_func = function(client, bufnr)
     { buffer = bufnr, noremap = true, desc = "Go to Type Definition" }
   )
   vim.keymap.set(
+    'n',
+    '[d',
+    function() vim.diagnostic.goto_prev({float = true}) end,
+    { buffer = bufnr, noremap = true, desc = "Go to Prev Diagnostic" }
+  )
+  vim.keymap.set(
+    'n',
+    ']d',
+    function() vim.diagnostic.goto_next({float = true}) end,
+    { buffer = bufnr, noremap = true, desc = "Go to Next Diagnostic" }
+  )
+  vim.keymap.set(
     {
       "n",
       "v"
     },
-    "<leader>ca", "<cmd>Lspsaga code_action<CR>",
+    "<leader>ca",
+    "<cmd>Lspsaga code_action<CR>",
     { buffer = bufnr, noremap = true, desc = "Code Action" }
   )
   vim.keymap.set(
@@ -240,6 +254,15 @@ local on_attach_func = function(client, bufnr)
     end,
     { buffer = bufnr, noremap = true, desc = "Jump to the Previous Diagnostics" }
   )
+
+  vim.keymap.set(
+    "n",
+    "<Leader>ih",
+    function ()
+      vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+    end,
+    { buffer = bufnr, noremap = true, desc = "Toggle inlay hints" }
+  )
   -- require('symbols-outline').open_outline()
 end
 
@@ -267,6 +290,17 @@ require("lspconfig").bashls.setup(
   }
 )
 
+---@param workspace string
+---@return string
+local function get_python_path(workspace)
+  -- Use the `.venv/bin/python` in the current workspace if it exists, otherwise fallback to system Python
+  local venv_path = workspace .. "/.venv/bin/python"
+  if vim.fn.executable(venv_path) == 1 then
+    return venv_path
+  end
+  return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
+end
+
 require("lspconfig").pyright.setup(
   {
     on_attach = on_attach_func,
@@ -274,6 +308,7 @@ require("lspconfig").pyright.setup(
     -- cmd = { "./log.sh" },
     settings = {
       python = {
+        pythonPath = get_python_path(vim.fn.getcwd()),
         analysis = {
           autoSearchPaths = true,
           typeCheckingMode = "standard",
@@ -470,16 +505,6 @@ require "lspconfig".gopls.setup {
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
 }
 
-require("lspconfig").rust_analyzer.setup(
-  {
-    on_attach = on_attach_func,
-    settings = {
-      ["rust-analyzer"] = {
-      }
-    }
-  }
-)
-
 -- To make it work with arduino:
 -- ```
 -- arduino-cli config init
@@ -542,26 +567,17 @@ require("lspconfig").nixd.setup({
   on_attach = on_attach_func,
 })
 
-require("lspconfig").java_language_server.setup({
-  on_attach = on_attach_func,
+vim.api.nvim_create_user_command('Tabby', function(opts)
+  require("tabby_lspconfig").setup()
+  require("lspconfig").tabby.setup({})
+end, {
+    nargs = '*',  -- Accept any number of arguments
+    desc = 'Start Tabby',
+    -- bang = true,  -- Allow ! after command (MyCommand!)
+    -- complete = 'file',  -- Tab completion for files
 })
 
--- require("tabby_lspconfig").setup() -- make tabby lsp server init before running setup
--- require("lspconfig").tabby.setup({
---   on_attach = on_attach_func,
--- })
 
--- Spellcheck in tex, md and comments
--- require("lspconfig").ltex.setup({
---   filetypes = {
---     'md',
---     'go',
---     'python',
---     'rust',
---     'sh',
---     'lua',
---     'javascript',
---     'typescript'
---   },
---   on_attach = on_attach_func,
--- })
+return {
+  on_attach_func = on_attach_func,
+}
