@@ -100,6 +100,7 @@ let
     stablePkgs.fortune
     stablePkgs.gh
     stablePkgs.src-cli # sourcegraph
+    stablePkgs.attr
     # Formatting for .nix files
     stablePkgs.nixfmt-rfc-style
     stablePkgs.nixpkgs-fmt
@@ -129,7 +130,6 @@ let
     stablePkgs.dnsutils
     stablePkgs.dnsutils.man
     stablePkgs.atop
-    stablePkgs.nettools
     stablePkgs.nasm
     stablePkgs.mercurial
     stablePkgs.fping
@@ -216,7 +216,6 @@ pkgs.mkShell {
         --tmpfs /tmp \
         --tmpfs /run/user/$(id -u) \
         --bind-try $TMP $TMP \
-        --ro-bind-try /run/systemd/resolve/stub-resolv.conf /run/systemd/resolve/stub-resolv.conf \
         --tmpfs $HOME/.local \
         --tmpfs $HOME/.config \
         --tmpfs $HOME/.cache \
