@@ -23,7 +23,7 @@ jobs:
       - name: Build Docker image
         run: |
           ./.local/share/bin/init-nix.sh
-          nix-build .config/nix/docker.nix
+          NIXPKGS_ALLOW_UNFREE=1 nix-build .config/nix/docker.nix
       - name: Load Docker image
         run: |
           ./result | docker load

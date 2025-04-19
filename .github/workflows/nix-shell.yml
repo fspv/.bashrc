@@ -28,13 +28,13 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Install dependencies
         run: |
-          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
       - name: Test bash
         run: |
-          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
       - name: Test zsh
         run: |
-          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
       - name: Remove Nix Garbage
         run: nix-collect-garbage -d
   build-ubuntu-22-04:
@@ -56,13 +56,13 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Install dependencies
         run: |
-          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
       - name: Test bash
         run: |
-          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
       - name: Test zsh
         run: |
-          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
       - name: Remove Nix Garbage
         run: nix-collect-garbage -d
   build-ubuntu-24-04-arm64:
@@ -82,13 +82,13 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Install dependencies
         run: |
-          nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "echo Nix initialised successfully!"
       - name: Test bash
         run: |
-          nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "bash -ic 'echo hello'"
       - name: Test zsh
         run: |
-          nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
+          NIXPKGS_ALLOW_UNFREE=1 nix-shell .config/nix/dev.nix --run "zsh -ic 'echo hello'"
       - name: Remove Nix Garbage
         run: nix-collect-garbage -d
   # TODO: macos has a lot of packages missing. I have to figure out how to
