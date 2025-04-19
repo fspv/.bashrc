@@ -158,16 +158,6 @@ require("lazy").setup(
     {
       'vim-scripts/PreserveNoEOL',
     },
-    -- Updated Python syntax highlighting
-    {
-      'vim-python/python-syntax',
-      ft = 'python',
-    },
-    -- Better C++ syntax highlight
-    {
-      'octol/vim-cpp-enhanced-highlight',
-      ft = 'cpp',
-    },
     -- Arcanist diff highlight
     {
       'solarnz/arcanist.vim',
@@ -668,14 +658,6 @@ require("lazy").setup(
     },
     -- Status Line
     {
-      'itchyny/lightline.vim',
-      enabled = false,
-      config = function()
-        require("plugins_config/lightline_conf")
-      end,
-    },
-    -- Status Line
-    {
       'nvim-lualine/lualine.nvim',
       config = function()
         require("plugins_config/lualine_conf")
@@ -730,7 +712,7 @@ require("lazy").setup(
       dependencies = {
         'nvim-telescope/telescope-fzf-native.nvim',
         'nvim-tree/nvim-web-devicons',
-      }
+      },
     },
     -- Alternative to fzf
     {
