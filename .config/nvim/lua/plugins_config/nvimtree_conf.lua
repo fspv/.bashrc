@@ -64,13 +64,11 @@ require("nvim-tree").setup({
       open = true,
     },
   },
-  filesystem_watchers = {
-    enable = false,
-  },
   diagnostics = {
     enable = true,
   },
   filesystem_watchers = {
+    enable = false,
     ignore_dirs = {
       "node_modules",
       "plz-out",
