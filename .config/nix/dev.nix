@@ -94,6 +94,7 @@ let
     stablePkgs.skopeo.man
     stablePkgs.docker-machine-kvm2
     stablePkgs.nodejs_22
+    stablePkgs.yarn
     stablePkgs.ponysay
     stablePkgs.rustup
     stablePkgs.kubie
@@ -144,6 +145,11 @@ let
     stablePkgs.pciutils
     stablePkgs.sysstat
     stablePkgs.lm_sensors
+    stablePkgs.php83
+    unstablePkgs.phpunit
+    stablePkgs.phpactor
+    stablePkgs.php83Packages.php-cs-fixer
+    stablePkgs.php83Packages.composer
     unstablePkgs.tmux
     unstablePkgs.tmux.man
     unstablePkgs.neovim
