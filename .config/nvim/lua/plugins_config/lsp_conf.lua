@@ -61,18 +61,6 @@ local on_attach_func = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = nil
   end
 
-  -- This is needed to avoid creating an extra command every time LSP reconnects to the buffer
-  local augroup = vim.api.nvim_create_augroup("XXXLspCustomCommands", { clear = true })
-  if client.name == "eslint" then
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      buffer = bufnr,
-      group = augroup,
-      desc = "Format javascript/typescript",
-      command = "EslintFixAll",
-    })
-  end
-
-
   vim.keymap.set(
     'n',
     'K',
@@ -564,6 +552,11 @@ require("lspconfig").buf_ls.setup({
 
 -- nixos configs
 require("lspconfig").nixd.setup({
+  on_attach = on_attach_func,
+})
+
+-- php
+require("lspconfig").phpactor.setup({
   on_attach = on_attach_func,
 })
 

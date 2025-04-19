@@ -574,12 +574,40 @@ require("lazy").setup(
     -- sudo snap install rustup --classic,
     -- sudo snap install rust-analyzer --beta,
     {
-      'rust-lang/rust.vim',
-      ft = "rust",
-    },
-    {
-      'simrat39/rust-tools.nvim',
-      ft = "rust",
+      'mrcjkb/rustaceanvim',
+      version = '^5',
+      init = function()
+        vim.g.rustaceanvim = {
+          server = {
+            ---@param client vim.lsp.Client
+            ---@param bufnr number
+            ---@return nil
+            on_attach = function(client, bufnr)
+              -- this is needed because the plugin initializes lsp on its own
+              require("plugins_config/lsp_conf").on_attach_func(client, bufnr)
+            end,
+            default_settings = {
+              ['rust-analyzer'] = {
+                check = {
+                  command = "clippy",
+                  extraArgs = {
+                    "--",
+                    "--no-deps",
+                    "-Dclippy::correctness",
+                    "-Dclippy::complexity",
+                    "-Wclippy::perf",
+                    "-Wclippy::pedantic",
+                  },
+                },
+                diagnostics = {
+                  -- disabled = {"unlinked-file"},
+                },
+              },
+            },
+          }
+        }
+      end,
+      lazy = false, -- This plugin is already lazy
     },
     {
       'nvim-lua/plenary.nvim',
