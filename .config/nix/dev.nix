@@ -152,6 +152,7 @@ let
     unstablePkgs.pyright
     unstablePkgs.black
     unstablePkgs.isort
+    unstablePkgs.code-cursor
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
