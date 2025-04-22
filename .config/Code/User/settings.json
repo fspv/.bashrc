@@ -1,0 +1,104 @@
+{
+    "go.useLanguageServer": true,
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "editor.inlineSuggest.enabled": false,
+    "git.openRepositoryInParentFolders": "never",
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                {
+                    "command": "editor.action.showDefinitionPreviewHover"
+                }
+            ]
+        },
+        {
+            "before": [
+                "u"
+            ],
+            "commands": [
+                "undo"
+            ]
+        },
+        {
+        "before": ["g", "r"],
+        "commands": ["editor.action.referenceSearch.trigger"]
+        },
+        {
+        "before": ["g", "i"],
+        "commands": ["editor.action.goToImplementation"]
+        },
+        {
+        "before": ["g", "d"],
+        "commands": ["editor.action.revealDefinition"]
+        },
+        {
+        "before": ["<space>", "D"],
+        "commands": ["editor.action.goToTypeDefinition"]
+        },
+        {
+        "before": ["[", "d"],
+        "commands": ["editor.action.marker.prev"]
+        },
+        {
+        "before": ["]", "d"],
+        "commands": ["editor.action.marker.next"]
+        },
+        {
+        "before": ["<leader>", "c", "a"],
+        "commands": ["editor.action.codeAction"]
+        },
+        {
+        "before": ["g", "p"],
+        "commands": ["editor.action.peekDefinition"]
+        },
+        {
+        "before": ["g", "t", "p"],
+        "commands": ["editor.action.peekTypeDefinition"]
+        },
+        //   {
+        //     "before": ["K"],
+        //     "commands": ["editor.action.showHover"]
+        //   },
+        {
+        "before": ["<leader>", "c", "i"],
+        "commands": ["references-view.showCallHierarchy"]
+        },
+        {
+        "before": ["<leader>", "c", "o"],
+        "commands": ["callHierarchy.showOutgoingCalls"]
+        }
+    ],
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": ["<leader>", "c", "a"],
+            "commands": ["editor.action.codeAction"]
+        }
+    ],
+    "vim.easymotion": true,
+    "vim.incsearch": true,
+    "vim.useSystemClipboard": true,
+    "vim.useCtrlKeys": true,
+    "vim.hlsearch": true,
+    "vim.insertModeKeyBindings": [
+      {
+        "before": ["j", "j"],
+        "after": ["<Esc>"]
+      }
+    ],
+    "vim.leader": ",",
+    "vim.handleKeys": {
+      "<C-a>": true,
+      "<C-f>": true 
+    },
+    "remote.defaultExtensionsIfInstalledLocally": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github"
+    ],
+    "continue.telemetryEnabled": false
+}
