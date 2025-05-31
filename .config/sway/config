@@ -5,7 +5,7 @@ exec_always rm -rf "/run/user/$(id -u)/sway_log"
 
 exec $log systemctl --user import-environment
 
-exec $log ibus-daemon -drt auto
+exec_always $log ibus-daemon --verbose --xim --daemonize --replace --cache auto
 
 exec_always pkill -f window-bound-layout
 exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
