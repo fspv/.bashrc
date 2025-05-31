@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - '**/.config/sway/config'
+      - '**/.github/workflows/sway-config.yml'
   pull_request:
     paths:
       - '**/.config/sway/config'
+      - '**/.github/workflows/sway-config.yml'
 
 jobs:
   validate-sway-config:
