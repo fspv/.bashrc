@@ -34,6 +34,7 @@ backup
 !.config/
 .config/*
 !.config/autostart
+!.config/containers
 !.config/environment.d
 !.config/flake8
 !.config/gtk-3.0/settings.ini
