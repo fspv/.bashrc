@@ -67,5 +67,5 @@ fi
 
 NERDFONTS_PATH=${HOME}/.local/share/fonts/fonts/nerdfonts/
 mkdir -p "${NERDFONTS_PATH}"
-nix-shell --pure -p nix nerdfonts --run "cp --no-preserve=mode -R $(nix-instantiate --eval --expr 'with import <nixpkgs> {}; pkgs.nerdfonts.outPath')/share/fonts/truetype/NerdFonts/* ${NERDFONTS_PATH}"
+nix-shell --pure -p nix nerd-fonts.jetbrains-mono --run "cp --no-preserve=mode -R $(nix-instantiate --eval --expr 'with import <nixpkgs> {}; pkgs.nerd-fonts.jetbrains-mono.outPath')/share/fonts/truetype/NerdFonts/* ${NERDFONTS_PATH}"
 nix-shell --pure -p fontconfig --run "fc-cache -fv"
