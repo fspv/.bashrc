@@ -18,7 +18,7 @@ exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 exec_always {
     $log gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
     $log gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
-    $log gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita-dark'
+    $log gsettings set org.gnome.desktop.interface cursor-theme 'Adwaita'
 
     $log gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
     $log gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'
@@ -30,6 +30,8 @@ exec_always {
     $log gsettings set org.freedesktop.ibus.general use-global-engine "false"
     $log gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
 }
+
+seat * xcursor_theme Adwaita 24
 
 # Start required services
 exec_always {
