@@ -12,6 +12,7 @@ exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
 
 exec_always pkill -f dunst
 # xfce4-notifyd is started by dbus by default causing a race condition
+exec_always $log systemctl --user disable xfce4-notifyd
 exec_always $log systemctl --user stop xfce4-notifyd
 exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 
