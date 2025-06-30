@@ -1,0 +1,14 @@
+.aider*
+.claude*
+.env
+.env.sh
+.mypy_cache
+node_modules
+*.pyc
+__pycache__
+.pyenv
+*.pyi
+.pyre
+*.swo
+*.swp
+.venv
