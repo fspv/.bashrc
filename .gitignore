@@ -44,6 +44,7 @@ backup
 !.config/nix
 !.config/nvim
 .config/nvim/lua/plugins_config_manual/*
+.config/nvim/lua/plugins_local
 !.config/pulse/daemon.conf
 !.config/pycodestyle
 !.config/sway
@@ -53,6 +54,7 @@ backup
 !.config/tmux
 !.config/waybar
 !.config/wezterm
+.continue
 .cups
 .cursor
 .cursor-tutor
@@ -120,6 +122,7 @@ Images
 .*.local
 .local
 .logseq
+.luarc.json
 .m2/
 .macromedia
 .manpath
@@ -161,6 +164,7 @@ nohup.out
 Pictures
 .pki
 .please*
+.pnpm-store
 .presage/
 .Private
 Private
@@ -192,6 +196,7 @@ snap
 .sqlmap/
 .sqlplus_history
 squashfs-root
+src.code-workspace
 .ssh
 .sshluks*
 .sshrc
