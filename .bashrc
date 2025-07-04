@@ -145,6 +145,11 @@ PS1=$PS1'then'
 PS1=$PS1'    echo -e "'${BIRed}'[venv:'${BIBlue}
 PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
 PS1=$PS1'fi)'
+PS1=$PS1'$(if ! test "x${IN_NIX_SHELL}" = "x";'
+PS1=$PS1'then'
+PS1=$PS1'    echo -e "'${BIRed}'[nix:'${BIBlue}
+PS1=$PS1'${IN_NIX_SHELL}'${BIRed}'] ";'
+PS1=$PS1'fi)'
 PS1=$PS1"$BIYellow\W "
 PS1=$PS1"$BICyan$PROMPT $Color_Off"
 
