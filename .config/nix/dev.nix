@@ -96,7 +96,11 @@ let
     stablePkgs.nodejs_22
     stablePkgs.yarn
     stablePkgs.ponysay
-    stablePkgs.rustup
+    stablePkgs.rustc
+    stablePkgs.cargo
+    stablePkgs.rust-analyzer
+    stablePkgs.clippy
+    stablePkgs.rustfmt
     stablePkgs.kubie
     stablePkgs.fortune
     stablePkgs.gh
