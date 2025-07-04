@@ -195,6 +195,7 @@ pkgs.mkShell {
     export FPATH_CUSTOM=${findPathInToInstallPackages "share/zsh/site-functions"}
     # This is to handle `pkgs.*.man` package outputs, which are not included by default
     export MANPATH=${findPathInToInstallPackages "share/man"}
+    export USR_LIB_LOCALES_PATH=${stablePkgs.glibcLocales}/lib/locale
 
     source ${stablePkgs.glibcLocales}/nix-support/setup-hook
 
@@ -203,62 +204,6 @@ pkgs.mkShell {
 
     mkdir -p $HOME/.config/github-copilot
 
-    BWRAPPED=1 bwrap \
-        --die-with-parent \
-        --unshare-ipc \
-        --unshare-cgroup \
-        --share-net \
-        --bind $HOME $HOME \
-        --ro-bind /bin /bin \
-        --ro-bind /sbin /sbin \
-        --ro-bind /lib /lib \
-        --ro-bind-try /lib64 /lib64 \
-        --ro-bind /usr /usr \
-        --bind /opt /opt \
-        --ro-bind /snap /snap \
-        --ro-bind /var /var \
-        --ro-bind /nix /nix \
-        --ro-bind /etc /etc \
-        --ro-bind-try /run/systemd/resolve/ /run/systemd/resolve/ \
-        --ro-bind-try ${stablePkgs.glibcLocales}/lib/locale /usr/lib/locale \
-        --dev /dev \
-        --proc /proc \
-        --tmpfs /tmp \
-        --tmpfs /run/user/$(id -u) \
-        --bind-try $TMP $TMP \
-        --tmpfs $HOME/.local \
-        --tmpfs $HOME/.config \
-        --tmpfs $HOME/.cache \
-        --tmpfs $HOME/.ssh \
-        --tmpfs /etc/ssh/ssh_config.d \
-        --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
-        --bind-try $HOME/.config/autostart $HOME/.config/autostart \
-        --bind-try $HOME/.config/flake8 $HOME/.config/flake8 \
-        --bind-try $HOME/.config/gtk-3.0 $HOME/.config/gtk-3.0 \
-        --bind-try $HOME/.config/i3 $HOME/.config/i3 \
-        --bind-try $HOME/.config/i3status $HOME/.config/i3status \
-        --bind-try $HOME/.config/nix $HOME/.config/nix \
-        --bind-try $HOME/.config/nvim $HOME/.config/nvim \
-        --bind-try $HOME/.config/github-copilot $HOME/.config/github-copilot \
-        --bind-try $HOME/.config/systemd $HOME/.config/systemd \
-        --bind-try $HOME/.config/pulse $HOME/.config/pulse \
-        --bind-try $HOME/.config/pycodestyle $HOME/.config/pycodestyle \
-        --bind-try $HOME/.config/sway $HOME/.config/sway \
-        --bind-try $HOME/.config/swaylock $HOME/.config/swaylock \
-        --bind-try $HOME/.config/terminator $HOME/.config/terminator \
-        --bind-try $HOME/.config/tmux $HOME/.config/tmux \
-        --bind-try $HOME/.config/waybar $HOME/.config/waybar \
-        --bind-try $HOME/.config/wezterm $HOME/.config/wezterm \
-        --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
-        --bind-try $HOME/.local/bin $HOME/.local/bin \
-        --bind-try $HOME/.local/include $HOME/.local/include \
-        --bind-try $HOME/.local/lib $HOME/.local/lib \
-        --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
-        --bind-try $HOME/.local/share/bin $HOME/.local/share/bin \
-        --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
-        --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
-        --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
-        -- zsh
-    zsh
+    source $HOME/.bashrc
   '';
 }
