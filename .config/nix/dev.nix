@@ -158,6 +158,10 @@ let
     unstablePkgs.pyright
     unstablePkgs.black
     unstablePkgs.isort
+    unstablePkgs.typescript-language-server
+    unstablePkgs.vscode-langservers-extracted
+    unstablePkgs.yaml-language-server
+    unstablePkgs.claude-code
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
