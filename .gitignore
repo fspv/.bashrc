@@ -57,6 +57,7 @@ backup
 .continue
 .cups
 .cursor
+.cursor-server/
 .cursor-tutor
 .dbshell
 .dbus
