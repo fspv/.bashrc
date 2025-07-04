@@ -1,5 +1,11 @@
 # vim: ft=sh
 
+# Block Cursor from injecting shell integration early
+if [[ "$TERM_PROGRAM" == "vscode" || "$TERM_PROGRAM" == "Cursor" ]]; then
+  export VSCODE_SHELL_INTEGRATION=0
+  return
+fi
+
 export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
 
 autoload -Uz compinit
