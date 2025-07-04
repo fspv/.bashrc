@@ -93,6 +93,7 @@
     xplr                    # xplr shell (https://github.com/sayanarijit/xplr)
     vim_shell               # vim shell indicator (:sh)
     midnight_commander      # midnight commander shell (https://midnight-commander.org/)
+    bubblewrap              # bubblewrap indicator
     nix_shell               # nix shell (https://nixos.org/nixos/nix-pills/developing-with-nix-shell.html)
     chezmoi_shell           # chezmoi shell (https://www.chezmoi.io/)
     # vpn_ip                # virtual private network indicator
@@ -1672,6 +1673,22 @@
   # User-defined prompt segments can be customized the same way as built-in segments.
   # typeset -g POWERLEVEL9K_EXAMPLE_FOREGROUND=208
   # typeset -g POWERLEVEL9K_EXAMPLE_VISUAL_IDENTIFIER_EXPANSION='⭐'
+
+  # Bubblewrap indicator segment
+  function prompt_bubblewrap() {
+    if [[ "$BWRAPPED" == "1" ]]; then
+      p10k segment -f 75 -i '🫧' -t ''
+    fi
+  }
+
+  # Instant prompt support for bubblewrap
+  function instant_prompt_bubblewrap() {
+    prompt_bubblewrap
+  }
+
+  # Customize the bubblewrap segment appearance
+  typeset -g POWERLEVEL9K_BUBBLEWRAP_FOREGROUND=75
+  typeset -g POWERLEVEL9K_BUBBLEWRAP_VISUAL_IDENTIFIER_EXPANSION='🫧'
 
   # Transient prompt works similarly to the builtin transient_rprompt option. It trims down prompt
   # when accepting a command line. Supported values:
