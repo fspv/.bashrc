@@ -147,8 +147,14 @@ PS1=$PS1'$(basename ${VIRTUAL_ENV})'${BIRed}'] ";'
 PS1=$PS1'fi)'
 PS1=$PS1'$(if ! test "x${IN_NIX_SHELL}" = "x";'
 PS1=$PS1'then'
+PS1=$PS1'    NIX_SHELL_LEVEL=${SHLVL:-1};'
+PS1=$PS1'    if [ -n "${NIX_SHELL_BASE_LEVEL}" ]; then'
+PS1=$PS1'        NIX_SHELL_LEVEL=$((NIX_SHELL_LEVEL - NIX_SHELL_BASE_LEVEL));'
+PS1=$PS1'    else'
+PS1=$PS1'        NIX_SHELL_LEVEL=1;'
+PS1=$PS1'    fi;'
 PS1=$PS1'    echo -e "'${BIRed}'[nix:'${BIBlue}
-PS1=$PS1'${IN_NIX_SHELL}'${BIRed}'] ";'
+PS1=$PS1'${IN_NIX_SHELL}'${BIYellow}'(${NIX_SHELL_LEVEL})'${BIRed}'] ";'
 PS1=$PS1'fi)'
 PS1=$PS1"$BIYellow\W "
 PS1=$PS1"$BICyan$PROMPT $Color_Off"

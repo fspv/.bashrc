@@ -767,6 +767,9 @@
 
   # Tip: If you want to see just the icon without "pure" and "impure", uncomment the next line.
   # typeset -g POWERLEVEL9K_NIX_SHELL_CONTENT_EXPANSION=
+  
+  # Show nix shell type and nesting level
+  typeset -g POWERLEVEL9K_NIX_SHELL_CONTENT_EXPANSION='${P9K_CONTENT}${${${SHLVL:#${NIX_SHELL_BASE_LEVEL:-1}}:+($((SHLVL - ${NIX_SHELL_BASE_LEVEL:-1})))}:-(1)}'
 
   # Custom icon.
   # typeset -g POWERLEVEL9K_NIX_SHELL_VISUAL_IDENTIFIER_EXPANSION='⭐'
