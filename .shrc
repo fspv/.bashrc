@@ -326,6 +326,8 @@ bzsh() {
         --bind-try $HOME/.config/waybar $HOME/.config/waybar \
         --bind-try $HOME/.config/wezterm $HOME/.config/wezterm \
         --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
+        --bind-try $HOME/.config/containers $HOME/.config/containers \
+        --bind-try $HOME/.config/Code $HOME/.config/Code \
         --bind-try $HOME/.local/bin $HOME/.local/bin \
         --bind-try $HOME/.local/include $HOME/.local/include \
         --bind-try $HOME/.local/lib $HOME/.local/lib \
@@ -335,5 +337,6 @@ bzsh() {
         --bind-try $HOME/.local/share/fonts $HOME/.local/share/fonts \
         --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
+        --bind-try $HOME/.local/share/flatpak/extension $HOME/.local/share/flatpak/extension \
         -- zsh
 }
