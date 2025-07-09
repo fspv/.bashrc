@@ -947,13 +947,6 @@ require("lazy").setup(
         })
       end
     },
-    -- Automatically format oneliners into multi-line code
-    {
-      "AndrewRadev/splitjoin.vim",
-      keys = {
-        { "gS", "gJ" },
-      },
-    },
     -- Treesitter based argwrap
     {
       "AckslD/nvim-trevJ.lua",
