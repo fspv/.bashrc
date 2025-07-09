@@ -6,7 +6,7 @@ lspconfig_defaults.capabilities = vim.tbl_deep_extend(
 )
 
 -- Uncomment for debug and use LspLog
-vim.lsp.set_log_level("debug")
+-- vim.lsp.set_log_level("debug")
 
 -- local prev_win_id = nil
 
