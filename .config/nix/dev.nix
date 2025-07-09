@@ -165,7 +165,6 @@ let
     unstablePkgs.typescript-language-server
     unstablePkgs.vscode-langservers-extracted
     unstablePkgs.yaml-language-server
-    unstablePkgs.claude-code
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
@@ -174,7 +173,9 @@ let
     stablePkgs.arduino-cli
     stablePkgs.arduino-language-server
   ] ++ (
-    if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [] else []
+    if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [
+        unstablePkgs.claude-code
+    ] else []
   );
   findPathInToInstallPackages = path:
     let
