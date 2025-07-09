@@ -150,6 +150,7 @@ let
     stablePkgs.sysstat
     stablePkgs.lm_sensors
     stablePkgs.php83
+    stablePkgs.sqlite
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
@@ -193,7 +194,8 @@ pkgs.mkShell {
     [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
 
     # glibc has no nss library included and tries to look at the default path instead
-    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib
+    # libsqlite3.so is used by telescope vim plugin
+    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib:${pkgs.sqlite.out}/lib/
     export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${findPathInToInstallPackages "share/zsh/plugins"}
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
