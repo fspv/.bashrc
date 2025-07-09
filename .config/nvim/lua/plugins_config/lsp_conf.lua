@@ -274,7 +274,7 @@ require("lspconfig").bashls.setup(
   {
     useLibraryCodeForTypes = false,
     on_attach = on_attach_func,
-    filetypes = { "sh", "zsh", },
+    filetypes = { "sh", "zsh", "bash" },
   }
 )
 
