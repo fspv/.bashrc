@@ -722,6 +722,7 @@ require("lazy").setup(
     -- Identation indication
     {
       "HiPhish/rainbow-delimiters.nvim",
+      submodules = false,
     },
     {
       "lukas-reineke/indent-blankline.nvim",
