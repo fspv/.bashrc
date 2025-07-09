@@ -146,14 +146,6 @@ require("lazy").setup(
       end,
       cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
     },
-    -- Universally good defaults
-    {
-      'tpope/vim-sensible',
-    },
-    -- Use ctrl-a and ctrl-x to increment/decrement times/dates
-    {
-      'tpope/vim-speeddating',
-    },
     -- Omit the final newline of a file if it wasn't present when we opened it
     {
       'vim-scripts/PreserveNoEOL',
@@ -283,27 +275,6 @@ require("lazy").setup(
 
     -- LSP
 
-    -- Yet another package manager
-    {
-      'williamboman/mason.nvim',
-      lazy = true,
-      build = ':MasonUpdate',
-      cmd = 'Mason',
-      config = function()
-        require("mason").setup()
-      end,
-    },
-    -- Automatically install LSP
-    {
-      'williamboman/mason-lspconfig.nvim',
-      lazy = true,
-      config = function()
-        require("plugins_config/mason_lspconfig_conf")
-      end,
-      dependencies = {
-        'williamboman/mason.nvim',
-      },
-    },
     -- More convenient lsp
     {
       'glepnir/lspsaga.nvim',
@@ -354,13 +325,6 @@ require("lazy").setup(
         'neovim/nvim-lspconfig',
       },
     },
-    -- Format on save
-    -- {
-    --   'mhartington/formatter.nvim',
-    --   config = function()
-    --     require("plugins_config/formatter_conf")
-    --   end,
-    -- },
     -- Automatically detect project root
     {
       'airblade/vim-rooter',
@@ -394,13 +358,6 @@ require("lazy").setup(
       event = "InsertEnter",
       config = true
     },
-    -- {
-    --   'nvim-tree/nvim-tree.lua',
-    --   cmd = { 'NvimTreeOpen', 'NvimTreeToggle' },
-    --   config = function()
-    --     require("plugins_config/nvimtree_conf")
-    --   end,
-    -- },
     -- Faster navigation
     {
       'easymotion/vim-easymotion',
@@ -454,15 +411,6 @@ require("lazy").setup(
         "nvim-telescope/telescope.nvim",
       },
       config = true
-    },
-    -- Show modifications in sign column
-    -- {
-    --   'mhinz/vim-signify',
-    -- },
-    -- Solidity smart contracts plugin
-    {
-      'tomlion/vim-solidity',
-      ft = 'solidity',
     },
     -- File tree (also support symbols)
     {
@@ -522,6 +470,7 @@ require("lazy").setup(
           {
             diagnostic = false,
             lsp_codelens = false,
+            lsp_keymaps = false,
             lsp_inlay_hints = {
               enable = false,
             },
@@ -625,15 +574,6 @@ require("lazy").setup(
       end,
       cmd = 'Please',
     },
-    -- {
-    --   'kosayoda/nvim-lightbulb',
-    --   config = function()
-    --     require("plugins_config/lightbulb_conf")
-    --   end,
-    -- },
-    -- {
-    --   'weilbith/nvim-code-action-menu',
-    -- },
     -- Menubar
     {
       'skywind3000/vim-quickui',
@@ -811,13 +751,6 @@ require("lazy").setup(
         require("plugins_config/trouble_conf")
       end,
     },
-    -- Tag bar
-    -- {
-    --   'simrat39/symbols-outline.nvim',
-    --   config = function()
-    --     require("plugins_config/symbols_outline_conf")
-    --   end,
-    -- },
     -- Show command help as you enter it
     {
       'folke/which-key.nvim',
@@ -840,10 +773,6 @@ require("lazy").setup(
         require("plugins_config/floaterm_conf")
       end,
     },
-    -- {
-    --   "godlygeek/tabular",
-    --   ft = "markdown",
-    -- },
     {
       "preservim/vim-markdown",
       ft = "markdown",
