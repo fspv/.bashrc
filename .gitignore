@@ -262,3 +262,4 @@ VirtualBox VMs
 .zoom/
 .zsh_history
 .zshrc.pre-oh-my-zsh*
+**/.claude/settings.local.json
