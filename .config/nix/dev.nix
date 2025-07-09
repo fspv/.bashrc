@@ -205,6 +205,9 @@ pkgs.mkShell {
     # This is to handle `pkgs.*.man` package outputs, which are not included by default
     export MANPATH=${findPathInToInstallPackages "share/man"}
     export USR_LIB_LOCALES_PATH=${stablePkgs.glibcLocales}/lib/locale
+    # zsh plugins use this path. Not the best location, but better to keep it
+    # in the home dir
+    export TMPPREFIX="$HOME/.cache/zsh"
 
     source ${stablePkgs.glibcLocales}/nix-support/setup-hook
 
