@@ -166,6 +166,8 @@ let
     unstablePkgs.typescript-language-server
     unstablePkgs.vscode-langservers-extracted
     unstablePkgs.yaml-language-server
+    unstablePkgs.bash-language-server
+    unstablePkgs.lua-language-server
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
