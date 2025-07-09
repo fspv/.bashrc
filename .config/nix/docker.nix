@@ -8,6 +8,7 @@ in
 pkgs.dockerTools.streamNixShellImage {
   name = "nuhotetotniksvoboden/bashrc";
   tag = "latest";
+  command = "BWRAPPED=1 zsh";
   drv = shellDrv.overrideAttrs (old: {
     nativeBuildInputs = old.nativeBuildInputs or [] ++ [
       # Just an example of how to add a package
