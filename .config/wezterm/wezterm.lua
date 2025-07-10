@@ -72,4 +72,7 @@ config.warn_about_missing_glyphs = false
 
 config.enable_kitty_keyboard = true
 
+config.scrollback_lines = 10000
+config.enable_scroll_bar = true
+
 return config
