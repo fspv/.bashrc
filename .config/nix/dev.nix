@@ -49,16 +49,27 @@ let
     stablePkgs.less.man
     stablePkgs.hostname-debian
     stablePkgs.nettools
+    stablePkgs.iproute2
+    stablePkgs.iptables
+    stablePkgs.iptables.man
+    stablePkgs.netcat
+    stablePkgs.netcat.man
     stablePkgs.ps
+    stablePkgs.psmisc
+    stablePkgs.e2fsprogs
+    stablePkgs.e2fsprogs.man
+    stablePkgs.kmod
     stablePkgs.curl
     stablePkgs.curl.man
     stablePkgs.wget
     stablePkgs.htop
     stablePkgs.procps
+    stablePkgs.automake
     stablePkgs.cmake
     stablePkgs.gnumake
     stablePkgs.gnumake.man
     stablePkgs.more
+    stablePkgs.nano
     stablePkgs.man
     stablePkgs.linux-manual
     stablePkgs.man-pages
@@ -106,6 +117,12 @@ let
     stablePkgs.gh
     stablePkgs.src-cli # sourcegraph
     stablePkgs.attr
+    stablePkgs.zip
+    stablePkgs.gnutar
+    stablePkgs.unixtools.xxd
+    # there is a flatpak hook in /etc/profile.d, which fails if glibc version
+    # is wrong. We don't really use flatpak inside shell
+    stablePkgs.flatpak
     # Formatting for .nix files
     stablePkgs.nixfmt-rfc-style
     stablePkgs.nixpkgs-fmt
@@ -151,6 +168,7 @@ let
     stablePkgs.lm_sensors
     stablePkgs.php83
     stablePkgs.sqlite
+    stablePkgs.lua
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
