@@ -41,11 +41,13 @@ local function get_parent_directory(str)
   return p
 end
 
+-- https://github.com/nvim-neo-tree/neo-tree.nvim/blob/main/lua/neo-tree/defaults.lua
 require("neo-tree").setup(
   {
     use_popups_for_input = false, -- not floats for input
     hide_dotfiles = false,
     enable_cursor_hijack = false,
+    enable_diagnostics = false,
     commands = {
       grep = function(state)
         local path = current_path(state)
