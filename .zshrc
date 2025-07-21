@@ -182,6 +182,9 @@ source "${HOME}/.shrc"
 setopt inc_append_history
 unsetopt share_history
 
+# fixes https://github.com/zsh-users/zsh-autosuggestions/pull/753
+unset ZSH_AUTOSUGGEST_USE_ASYNC
+
 case "$-" in
 *i*)
     ;;
