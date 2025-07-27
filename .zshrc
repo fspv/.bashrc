@@ -6,6 +6,8 @@ if [[ "$TERM_PROGRAM" == "vscode" || "$TERM_PROGRAM" == "Cursor" ]]; then
   return
 fi
 
+DISABLE_AUTO_TITLE=true
+
 export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
 
 autoload -Uz compinit
@@ -63,12 +65,12 @@ plugins=(
     kubectl
     kubectx
     virtualenv
-    zsh-autosuggestions
-    zsh-syntax-highlighting
     forgit
-    you-should-use
     fzf-tab
+    zsh-autosuggestions
+    zsh-syntax-highlighting # always last!
 )
+
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
