@@ -1,0 +1,7 @@
+[Unit]
+Description=Nix Collect Garbage
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+ExecStart=nix-collect-garbage

@@ -1,0 +1,10 @@
+[Unit]
+Description=Nix Collect Garbage
+Requires=nix-collect-garbage.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
