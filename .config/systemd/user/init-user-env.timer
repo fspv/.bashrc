@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily User Environment Initialization Timer
+Requires=init-user-env.service
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target

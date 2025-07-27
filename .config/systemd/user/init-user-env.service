@@ -1,0 +1,7 @@
+[Unit]
+Description=User Environment Initialization
+ConditionACPower=true
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/bin/init-user-env.sh
