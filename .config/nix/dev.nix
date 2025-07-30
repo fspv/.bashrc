@@ -71,6 +71,7 @@ let
     stablePkgs.more
     stablePkgs.nano
     stablePkgs.man
+    stablePkgs.libgcc
     # Temporarily disable linux-manual as it is broken
     # stablePkgs.linux-manual
     stablePkgs.man-pages
@@ -127,6 +128,8 @@ let
     # Formatting for .nix files
     stablePkgs.nixfmt-rfc-style
     stablePkgs.nixpkgs-fmt
+    # nix-index && nix-locate --top-level libstdc++.so.6
+    stablePkgs.nix-index
     stablePkgs.vim
     stablePkgs.unzip
     stablePkgs.libvirt
@@ -217,7 +220,8 @@ pkgs.mkShell {
 
     # glibc has no nss library included and tries to look at the default path instead
     # libsqlite3.so is used by telescope vim plugin
-    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib:${pkgs.sqlite.out}/lib/
+    # libstdc++.so.6 is required by some tools, for example https://github.com/Lightricks/LTX-Video
+    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib:${pkgs.sqlite.out}/lib/:${stablePkgs.libgcc.lib}/lib/
     export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${findPathInToInstallPackages "share/zsh/plugins"}
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
