@@ -180,20 +180,32 @@ path_push_right() {
     fi
 }
 
+ld_library_path_push_left() {
+    if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
+        ld_path="$1:${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH"}"
+        export LD_LIBRARY_PATH=${ld_path}
+    fi
+}
+
+ld_library_path_push_right() {
+    if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
+        ld_path="${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH"}:$1"
+        export LD_LIBRARY_PATH=${ld_path}
+    fi
+}
+
 path_push_right /bin
 path_push_right /sbin
 path_push_right /usr/local/sbin
 path_push_right /usr/local/bin
 path_push_right /usr/sbin
 path_push_right /usr/bin
-path_push_right /sbin
-path_push_right /bin
 path_push_right /usr/games
 path_push_right /usr/local/games
+path_push_right /usr/lib/wsl/lib
 
-# Create systemd aliases
-which systemctl >/dev/null 2>&1 && alias sctl='sudo systemctl'
-which journalctl >/dev/null 2>&1 && alias jctl='sudo journalctl'
+# Add WSL lib directory to LD_LIBRARY_PATH
+ld_library_path_push_right /usr/lib/wsl/lib
 
 
 plz_path() {
