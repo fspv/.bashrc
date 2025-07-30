@@ -186,6 +186,7 @@ let
     unstablePkgs.yaml-language-server
     unstablePkgs.bash-language-server
     unstablePkgs.lua-language-server
+    unstablePkgs.quick-lint-js
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
