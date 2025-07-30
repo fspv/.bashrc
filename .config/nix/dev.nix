@@ -71,7 +71,8 @@ let
     stablePkgs.more
     stablePkgs.nano
     stablePkgs.man
-    stablePkgs.linux-manual
+    # Temporarily disable linux-manual as it is broken
+    # stablePkgs.linux-manual
     stablePkgs.man-pages
     stablePkgs.man-pages-posix
     # Other
