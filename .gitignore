@@ -133,6 +133,7 @@ Images
 *.mkv
 .mongorc.js
 .mono
+.motd_shown
 .mozilla
 *.mp4
 Music
