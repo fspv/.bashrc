@@ -260,8 +260,12 @@ require('telescope').load_extension("smart_history")
 vim.keymap.set(
   "n",
   "z/",
-  require("telescope.builtin").current_buffer_fuzzy_find,
-  { desc = "Fuzzy Buffer Content Search" }
+  function()
+    require("telescope.builtin").current_buffer_fuzzy_find({
+      default_text = vim.fn.expand("<cword>"),
+    })
+  end,
+  { desc = "Fuzzy search word under cursor in the current buffer" }
 )
 vim.keymap.set(
   "n",
