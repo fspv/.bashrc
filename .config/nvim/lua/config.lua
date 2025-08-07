@@ -332,15 +332,6 @@ require("lazy").setup({
     "junegunn/fzf",
     -- fzf is already installed, no build needed
   },
-  {
-    "junegunn/fzf.vim",
-    config = function()
-      require("plugins_config/fzf_conf")
-    end,
-    dependencies = {
-      "junegunn/fzf",
-    },
-  },
   -- Highlight trailing whitespace
   {
     "ntpeters/vim-better-whitespace",
