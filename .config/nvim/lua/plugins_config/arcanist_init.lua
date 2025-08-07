@@ -1,9 +1,9 @@
 ---@param message string
 ---@return string?
 local function format_message(message)
-  message = message or ''
+  message = message or ""
   message = vim.trim(message)
-  message = message:gsub('\t', string.rep(' ', 4))
+  message = message:gsub("\t", string.rep(" ", 4))
   return message
 end
 

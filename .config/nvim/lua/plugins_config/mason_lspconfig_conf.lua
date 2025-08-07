@@ -1,3 +1,3 @@
-require("mason-lspconfig").setup {
-  automatic_installation = { exclude = { "gopls", "pyright", "basedpyright" } }
-}
+require("mason-lspconfig").setup({
+  automatic_installation = { exclude = { "gopls", "pyright", "basedpyright" } },
+})

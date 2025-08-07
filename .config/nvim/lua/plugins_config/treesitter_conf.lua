@@ -1,8 +1,8 @@
 -- This is a workaround to prevent an error when we open file with an existing
 -- .swp file.
 -- https://github.com/neovim/neovim/issues/26192
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('treesitter', {}),
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("treesitter", {}),
   callback = function(ev)
     local max_filesize = 500 * 1024 -- 500 KB
     local parsers = require("nvim-treesitter.parsers")
@@ -22,11 +22,19 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
-require 'nvim-treesitter.configs'.setup {
+require("nvim-treesitter.configs").setup({
   modules = {},
 
   -- A list of parser names, or "all"
-  ensure_installed = { "c", "python", "go", "markdown", "markdown_inline", "lua", "proto" },
+  ensure_installed = {
+    "c",
+    "python",
+    "go",
+    "markdown",
+    "markdown_inline",
+    "lua",
+    "proto",
+  },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -51,7 +59,7 @@ require 'nvim-treesitter.configs'.setup {
     --   if lang == "vim" then
     --     return true
     --   end
-
+    --
     --   local max_filesize = 500 * 1024 -- 500 KB
     --   local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
     --   if ok and stats and stats.size > max_filesize then
@@ -86,7 +94,8 @@ require 'nvim-treesitter.configs'.setup {
         -- ["]o"] = { query = { "@loop.inner", "@loop.outer" } }
         --
         -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
-        -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
+        -- Below example nvim-treesitter's `locals.scm` and `folds.scm`.
+        -- They also provide highlights.scm and indent.scm.
         ["]s"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
         ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
       },
@@ -115,6 +124,6 @@ require 'nvim-treesitter.configs'.setup {
   },
   matchup = {
     enable = true, -- mandatory, false will disable the whole extension
-    disable = {},  -- optional, list of language that will be disabled
+    disable = {}, -- optional, list of language that will be disabled
   },
-}
+})

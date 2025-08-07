@@ -42,102 +42,96 @@ local function get_parent_directory(str)
 end
 
 -- https://github.com/nvim-neo-tree/neo-tree.nvim/blob/main/lua/neo-tree/defaults.lua
-require("neo-tree").setup(
-  {
-    use_popups_for_input = false, -- not floats for input
-    hide_dotfiles = false,
-    enable_cursor_hijack = false,
-    enable_diagnostics = false,
-    commands = {
-      grep = function(state)
-        local path = current_path(state)
-        if not is_dir(path) then
-          path = get_parent_directory(path)
-        end
-        require("telescope").extensions.live_grep_args.live_grep_args(
-          {
-            cwd = path,
-            prompt_title = string.format('LiveGrep in [%s]', strip_cwd(path)),
-          }
-        )
-      end,
-      find_files = function(state)
-        local path = current_path(state)
-        if not is_dir(path) then
-          path = get_parent_directory(path)
-        end
-        require("telescope.builtin").git_files(
-          {
-            prompt_title = string.format('Git files in [%s]', strip_cwd(path)),
-            cwd = path,
-            use_git_root = false,
-          }
-        )
-      end,
+require("neo-tree").setup({
+  use_popups_for_input = false, -- not floats for input
+  hide_dotfiles = false,
+  enable_cursor_hijack = false,
+  enable_diagnostics = false,
+  commands = {
+    grep = function(state)
+      local path = current_path(state)
+      if not is_dir(path) then
+        path = get_parent_directory(path)
+      end
+      require("telescope").extensions.live_grep_args.live_grep_args({
+        cwd = path,
+        prompt_title = string.format("LiveGrep in [%s]", strip_cwd(path)),
+      })
+    end,
+    find_files = function(state)
+      local path = current_path(state)
+      if not is_dir(path) then
+        path = get_parent_directory(path)
+      end
+      require("telescope.builtin").git_files({
+        prompt_title = string.format("Git files in [%s]", strip_cwd(path)),
+        cwd = path,
+        use_git_root = false,
+      })
+    end,
+  },
+  window = {
+    auto_expand_width = false,
+    --c(d), z(p)
+    mappings = {
+      ["f"] = "grep",
+      ["/"] = "find_files",
     },
-    window = {
-      auto_expand_width = false,
-      --c(d), z(p)
-      mappings = {
-        ["f"] = "grep",
-        ["/"] = "find_files",
+  },
+  source_selector = {
+    winbar = true,
+    statusline = false,
+    tabs_layout = "equal",
+    sources = {
+      {
+        source = "filesystem",
+        display_name = " 󰉓 Files ",
       },
-    },
-    source_selector = {
-      winbar = true,
-      statusline = false,
-      tabs_layout = "equal",
-      sources = {
-        {
-          source = "filesystem",
-          display_name = " 󰉓 Files "
-        },
-        {
-          source = "git_status",
-          display_name = " 󰊢 Git "
-        },
-      }
-    },
-    sources = { "filesystem", "git_status" },
-    default_component_configs = {
-      indent = {
-        with_expanders = true,
-        expander_collapsed = "",
-        expander_expanded = "",
-        expander_highlight = "NeoTreeExpander",
-      },
-      last_modified = {
-        enabled = false,
-      },
-      created = {
-        enabled = false,
-      },
-      file_size = {
-        enabled = false,
-      },
-      type = {
-        enabled = false,
+      {
+        source = "git_status",
+        display_name = " 󰊢 Git ",
       },
     },
-    filesystem = {
-      follow_current_file = {
-        enabled = true,
-        leave_dirs_open = true,
-      },
-      filtered_items = {
-        visible = false,
-        hide_dotfiles = false,
-        hide_gitignored = true,
-      },
+  },
+  sources = { "filesystem", "git_status" },
+  default_component_configs = {
+    indent = {
+      with_expanders = true,
+      expander_collapsed = "",
+      expander_expanded = "",
+      expander_highlight = "NeoTreeExpander",
     },
-    buffers = {
-      follow_current_file = {
-        enabled = false,
-        leave_dirs_open = true,
-      },
+    last_modified = {
+      enabled = false,
     },
-  }
-)
+    created = {
+      enabled = false,
+    },
+    file_size = {
+      enabled = false,
+    },
+    type = {
+      enabled = false,
+    },
+  },
+  filesystem = {
+    follow_current_file = {
+      enabled = true,
+      leave_dirs_open = true,
+    },
+    filtered_items = {
+      visible = false,
+      hide_dotfiles = false,
+      hide_gitignored = true,
+    },
+  },
+  buffers = {
+    follow_current_file = {
+      enabled = false,
+      leave_dirs_open = true,
+    },
+  },
+})
 
 vim.keymap.set("n", "<Leader>nn", "<cmd>Neotree toggle<CR>", { noremap = true, desc = "Neo Tree" })
 

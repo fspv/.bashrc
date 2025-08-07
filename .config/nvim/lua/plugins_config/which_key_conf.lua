@@ -1,8 +1,6 @@
-require("which-key").setup(
-  {
-    disable = {
-      ft = {"ctrlp", "neo-tree"},
-      bt = {},
-    },
-  }
-)
+require("which-key").setup({
+  disable = {
+    ft = { "ctrlp", "neo-tree" },
+    bt = {},
+  },
+})

@@ -1,6 +1,5 @@
 -- TODO: port to lua
-vim.cmd(
-  [[
+vim.cmd([[
     " clear all the menus
     call quickui#menu#reset()
 
@@ -115,5 +114,4 @@ vim.cmd(
     \)<CR>
 
     noremap <leader>m :call quickui#menu#open()<CR>
-]]
-)
+]])

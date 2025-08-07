@@ -1,6 +1,5 @@
 -- TODO: port to lua
-vim.cmd(
-  [[
+vim.cmd([[
     " NvimTree
     " Remap gx, because nvim tree hijacks netrw
     function! OpenURLUnderCursor()
@@ -13,8 +12,7 @@ vim.cmd(
       endif
     endfunction
     nnoremap <silent> gx :call OpenURLUnderCursor()<cr>
-]]
-)
+]])
 
 -- nvim-tree doc: https://github.com/nvim-tree/nvim-tree.lua/blob/master/doc/nvim-tree-lua.txt
 -- disable netrw at the very start of your init.lua (strongly advised)

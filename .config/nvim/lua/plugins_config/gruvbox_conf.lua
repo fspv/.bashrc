@@ -1,7 +1,5 @@
 -- TODO: port to lua
-vim.cmd(
-  [[
+vim.cmd([[
     set background=dark
     colorscheme gruvbox
-]]
-)
+]])

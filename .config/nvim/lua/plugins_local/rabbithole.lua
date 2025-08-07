@@ -3,7 +3,7 @@
 ---@class WindowList
 ---@field window_map table<number, ListNode>  -- Map of window IDs to list nodes
 local WindowList = {
-  window_map = {} -- Hashmap to map window IDs to list nodes
+  window_map = {}, -- Hashmap to map window IDs to list nodes
 }
 
 ---@class ListNode
@@ -19,8 +19,8 @@ function ListNode:new(value)
   ---@type ListNode
   local node = {
     value = value, -- Value
-    next = nil,    -- Next node in the list
-    prev = nil     -- Previous node in the list
+    next = nil, -- Next node in the list
+    prev = nil, -- Previous node in the list
   }
   setmetatable(node, ListNode)
   return node
@@ -201,7 +201,7 @@ vim.api.nvim_create_autocmd({ "WinEnter" }, {
     end
 
     prev_win_id = cur_win_id
-  end
+  end,
 })
 
 return {

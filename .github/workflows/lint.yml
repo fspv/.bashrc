@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install stylua
+        run: |
+          wget https://github.com/JohnnyMorganz/StyLua/releases/download/v0.14.2/stylua-linux.zip
+          unzip stylua-linux.zip
+          sudo mv stylua /usr/local/bin/
+
+      - name: Install luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+          luarocks install luacheck
+
+      - name: Run stylua
+        run: stylua --check .
+
+      - name: Run luacheck
+        run: luacheck .
