@@ -1,3 +1,3 @@
 require("trouble").setup({
-  auto_preview = false,
+	auto_preview = false,
 })

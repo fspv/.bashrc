@@ -34,7 +34,7 @@ ignore = {
 }
 
 -- Set the maximum line length
-max_line_length = 120
+max_line_length = 80
 
 -- Set the minimum name length
 min_name_length = 2
