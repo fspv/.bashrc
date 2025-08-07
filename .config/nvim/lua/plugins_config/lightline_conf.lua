@@ -1,16 +1,16 @@
 vim.g.lightline = {
-	enable = { statusline = 1, tabline = 0 },
-	active = {
-		left = {
-			{ "mode", "paste" },
-			{ "gitbranch", "readonly", "relativepath", "modified" },
-		},
-	},
-	component_function = {
-		gitbranch = "FugitiveHead",
-		filetype = "LightlineFiletype",
-		fileformat = "LightlineFileformat",
-	},
+  enable = { statusline = 1, tabline = 0 },
+  active = {
+    left = {
+      { "mode", "paste" },
+      { "gitbranch", "readonly", "relativepath", "modified" },
+    },
+  },
+  component_function = {
+    gitbranch = "FugitiveHead",
+    filetype = "LightlineFiletype",
+    fileformat = "LightlineFileformat",
+  },
 }
 
 -- TODO: port to lua
