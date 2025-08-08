@@ -30,7 +30,8 @@ end, { desc = "Please Restore Window" })
 vim.cmd([[
     if executable('plz')
         function DetectPlz()
-            if filereadable(FindRootDirectory() . '/.plzconfig')
+            if filereadable(FindRootDirectory() .
+                \ '/.plzconfig')
                 au BufRead,BufNewFile BUILD,*.build_def set filetype=please
                 au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
             endif

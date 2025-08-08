@@ -28,13 +28,12 @@ globals = {
 -- Allow defining globals in files that match the following patterns
 allow_defined_top = true
 
--- Ignore warnings for unused arguments in functions
-ignore = {
-  "unused-args",
-}
-
 -- Set the maximum line length
 max_line_length = 80
+max_comment_line_length = false
+max_string_line_length = false
+max_code_line_length = false
+max_cyclomatic_complexity = false
 
 -- Set the minimum name length
 min_name_length = 2
@@ -48,5 +47,5 @@ max_locals = 200
 -- Set the maximum number of upvalues in a function
 max_upvalues = 60
 
--- Set the maximum number of cyclomatic complexity in a function
-max_cyclomatic_complexity = 20
+unused = false
+unused_args = false

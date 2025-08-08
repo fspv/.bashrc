@@ -151,14 +151,6 @@ require("lazy").setup({
   {
     "vim-scripts/PreserveNoEOL",
   },
-  -- Arcanist diff highlight
-  {
-    "solarnz/arcanist.vim",
-    ft = "arcanistdiff",
-    init = function()
-      require("plugins_config/arcanist_init")
-    end,
-  },
 
   -- # Completion
 
@@ -637,7 +629,7 @@ require("lazy").setup({
   {
     "luukvbaal/statuscol.nvim",
     config = function()
-      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
+      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]] -- luacheck: ignore line-too-long
       local builtin = require("statuscol.builtin")
       require("statuscol").setup({
         setopt = true,
@@ -911,8 +903,8 @@ require("lazy").setup({
   {
     "rmagatti/auto-session",
     init = function(self)
-      vim.o.sessionoptions =
-        "blank,buffers,curdir,help,tabpages,winsize,winpos,terminal,localoptions"
+      vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos," -- luacheck: ignore line-too-long
+        .. "terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
         "tabdo Neotree close",
         "tabdo UndotreeHide",

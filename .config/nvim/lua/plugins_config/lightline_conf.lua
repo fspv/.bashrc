@@ -16,11 +16,19 @@ vim.g.lightline = {
 -- TODO: port to lua
 vim.cmd([[
     function! LightlineFiletype()
-      return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+      if winwidth(0) > 70
+        return strlen(&filetype)
+          \ ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol()
+          \ : 'no ft'
+      endif
+      return ''
     endfunction
 
     function! LightlineFileformat()
-      return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
+      if winwidth(0) > 70
+        return &fileformat . ' ' . WebDevIconsGetFileFormatSymbol()
+      endif
+      return ''
     endfunction
 
   ]])

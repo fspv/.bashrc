@@ -11,19 +11,6 @@ local _append_to_telescope_prompt = function(suffix)
   end
 end
 
-local function get_git_status_for_file(file_path)
-  if not file_path or file_path == "" then
-    return ""
-  end
-  local result = vim.fn.systemlist(
-    "git status --porcelain -- " .. vim.fn.fnameescape(file_path)
-  )
-  if #result > 0 and result[1] ~= "" then
-    -- The status is the first two characters (e.g., ' M', '??')
-    return result[1]:sub(1, 2)
-  end
-  return ""
-end
 
 --- A helper function to run a command and get its output as a table of lines.
 --- It will return an empty table if the command fails.
@@ -241,7 +228,7 @@ require("telescope").setup({
         i = {
           ["<C-a>"] = require("telescope-live-grep-args.actions").quote_prompt(),
           ["<C-x>"] = _append_to_telescope_prompt(
-            "--iglob !**{test,e2e,sat,experimental,fake,mock}* "
+            "--iglob !**{test,e2e,sat,experimental,fake,mock}* " -- luacheck: ignore line-too-long
           ),
         },
         n = {

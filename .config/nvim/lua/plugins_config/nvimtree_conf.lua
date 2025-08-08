@@ -3,7 +3,8 @@ vim.cmd([[
     " NvimTree
     " Remap gx, because nvim tree hijacks netrw
     function! OpenURLUnderCursor()
-      let s:uri = matchstr(shellescape(expand('<cWORD>')), "[a-z]*:\/\/[^ >,;'" .. '"' .. "]*")
+      let s:uri = matchstr(shellescape(expand('<cWORD>')),
+        \ "[a-z]*:\/\/[^ >,;'" .. '"' .. "]*")
       echo s:uri
       if s:uri != ""
         silent exec "!xdg-open '".s:uri."'"
