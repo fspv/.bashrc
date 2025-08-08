@@ -193,6 +193,7 @@ let
     unstablePkgs.stylua
     unstablePkgs.luajitPackages.luacheck
     unstablePkgs.quick-lint-js
+    unstablePkgs.efm-langserver
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
