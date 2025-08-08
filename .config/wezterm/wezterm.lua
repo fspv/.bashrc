@@ -1,18 +1,42 @@
-local wezterm = require "wezterm"
+local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 config.keys = {
   {
     key = "t",
     mods = "CTRL",
-    action = wezterm.action.SpawnTab "CurrentPaneDomain",
+    action = wezterm.action.SpawnTab("CurrentPaneDomain"),
   },
-  { key = "c", mods = "CMD",        action = wezterm.action { CopyTo = "Clipboard" } },
-  { key = "x", mods = "CMD",        action = wezterm.action { CopyTo = "Clipboard" } },
-  { key = "v", mods = "CMD",        action = wezterm.action { PasteFrom = "Clipboard" } },
-  { key = "c", mods = "SHIFT|CTRL", action = wezterm.action { CopyTo = "Clipboard" } },
-  { key = "x", mods = "SHIFT|CTRL", action = wezterm.action { CopyTo = "Clipboard" } },
-  { key = "v", mods = "SHIFT|CTRL", action = wezterm.action { PasteFrom = "Clipboard" } },
+  {
+    key = "c",
+    mods = "CMD",
+    action = wezterm.action({ CopyTo = "Clipboard" }),
+  },
+  {
+    key = "x",
+    mods = "CMD",
+    action = wezterm.action({ CopyTo = "Clipboard" }),
+  },
+  {
+    key = "v",
+    mods = "CMD",
+    action = wezterm.action({ PasteFrom = "Clipboard" }),
+  },
+  {
+    key = "c",
+    mods = "SHIFT|CTRL",
+    action = wezterm.action({ CopyTo = "Clipboard" }),
+  },
+  {
+    key = "x",
+    mods = "SHIFT|CTRL",
+    action = wezterm.action({ CopyTo = "Clipboard" }),
+  },
+  {
+    key = "v",
+    mods = "SHIFT|CTRL",
+    action = wezterm.action({ PasteFrom = "Clipboard" }),
+  },
 }
 
 config.mouse_bindings = {
@@ -54,7 +78,7 @@ config.mouse_bindings = {
   {
     event = { Down = { streak = 1, button = "Middle" } },
     mods = "NONE",
-    action = wezterm.action.PasteFrom "PrimarySelection",
+    action = wezterm.action.PasteFrom("PrimarySelection"),
   },
 }
 
@@ -64,7 +88,6 @@ config.window_padding = {
   top = 0,
   bottom = 0,
 }
-
 
 config.hide_mouse_cursor_when_typing = false
 

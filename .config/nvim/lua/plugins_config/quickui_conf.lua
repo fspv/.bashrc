@@ -1,6 +1,5 @@
 -- TODO: port to lua
-vim.cmd(
-  [[
+vim.cmd([[
     " clear all the menus
     call quickui#menu#reset()
 
@@ -9,7 +8,8 @@ vim.cmd(
     \    [
     \       ["&Reload config", "source $MYVIMRC"],
     \       ["&Health", "checkhealth"],
-    \       ["&LSP capabilities", "lua =vim.lsp.get_active_clients()[1].server_capabilities"],
+    \       ["&LSP capabilities",
+    \        "lua =vim.lsp.get_active_clients()[1].server_capabilities"],
     \       ["&LSP Info", "LspInfo"],
     \       ["&Error log", "messages"],
     \    ]
@@ -19,13 +19,18 @@ vim.cmd(
         call quickui#menu#install(
         \    '&Please',
         \    [
-        \       ["&Show window\t<leader>pp", "lua require('please.runners.popup').restore()"],
+        \       ["&Show window\t<leader>pp",
+        \        "lua require('please.runners.popup').restore()"],
         \       ["&Build\t<leader>pb", "lua require('please').build()"],
         \       ["&Test\t<leader>pt", "lua require('please').test()"],
-        \       ["&Jump to target\t<leader>pj", "lua require('please').jump_to_target()"],
-        \       ["&Test under cursor\t<leader>pct", "lua require('please').test({ under_cursor = true })"],
-        \       ["&List tests\t<leader>plt", "lua require('please').test({ list = true })"],
-        \       ["&List failed tests\t<leader>plt", "lua require('please').test({ failed = true })"],
+        \       ["&Jump to target\t<leader>pj",
+        \        "lua require('please').jump_to_target()"],
+        \       ["&Test under cursor\t<leader>pct",
+        \        "lua require('please').test({ under_cursor = true })"],
+        \       ["&List tests\t<leader>plt",
+        \        "lua require('please').test({ list = true })"],
+        \       ["&List failed tests\t<leader>plt",
+        \        "lua require('please').test({ failed = true })"],
         \       ["&Run\t<leader>pr", "lua require('please').run())"],
         \       ["&Yank\t<leader>py", "lua require('please').yank())"],
         \       ["&Debug\t<leader>pd", "lua require('please').debug()"],
@@ -61,7 +66,8 @@ vim.cmd(
     \       ["&Git files\t:GFiles", "GFiles"],
     \       ["&Git staged files\t:GFiles?", "GFiles?"],
     \       ["&Git commits\t:Commits [LOG_OPTS]", "Commits"],
-    \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]", "BCommits"],
+    \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]",
+    \        "BCommits"],
     \       ["&Buffers\tBuffers:", "Buffers"],
     \       ["&Lines (all buffers)\t:Lines", "Lines"],
     \       ["&Lines (current buffer)\t:BLines", "BLines"],
@@ -76,7 +82,8 @@ vim.cmd(
     \       ["&Help tags\t:Helptags", "Helptags"],
     \       ["&File types\t:Filetypes", "Filetypes"],
     \       ["&Command history\t:History:", "History:"],
-    \       ["&Old files and open buffers history\t:History", "History"],
+    \       ["&Old files and open buffers history\t:History",
+    \        "History"],
     \       ["&Ripgrep\t:Rg [PATTERN]", "Rg"],
     \       ["&Locate\t:Locate [PATTERN]", "Locate"],
     \    ]
@@ -100,7 +107,8 @@ vim.cmd(
     \       ["&Jump to definition\tgd", "lua vim.lsp.buf.definition()"],
     \       ["&Jump to declaration\tgD", "lua vim.lsp.buf.declaration()"],
     \       ["&List implementations\tgi", "lua vim.lsp.buf.implementation()"],
-    \       ["&Jumps to the definition of the type\tgo", "lua vim.lsp.buf.references()"],
+    \       ["&Jumps to the definition of the type\tgo",
+    \        "lua vim.lsp.buf.references()"],
     \       ["&Display signature\tgo", "lua vim.lsp.buf.signature_help()"],
     \       ["&Rename all references\t<F2>", "lua vim.lsp.buf.rename()"],
     \       ["&Format\t<F3>", "lua vim.lsp.buf.format()"],
@@ -115,5 +123,4 @@ vim.cmd(
     \)<CR>
 
     noremap <leader>m :call quickui#menu#open()<CR>
-]]
-)
+]])

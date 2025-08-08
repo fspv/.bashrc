@@ -1,5 +1,3 @@
-require("trouble").setup(
-    {
-        auto_preview = false,
-    }
-)
+require("trouble").setup({
+  auto_preview = false,
+})
