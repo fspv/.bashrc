@@ -129,11 +129,12 @@ require("lazy").setup({
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
     init = function(plugin)
-      -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
-      -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
-      -- no longer trigger the **nvim-treesitter** module to be loaded in time.
-      -- Luckily, the only things that those plugins need are the custom queries, which we make available
-      -- during startup.
+      -- PERF: add nvim-treesitter queries to the rtp and it's custom query
+      -- predicates early This is needed because a bunch of plugins no longer
+      -- `require("nvim-treesitter")`, which no longer trigger the
+      -- **nvim-treesitter** module to be loaded in time.
+      -- Luckily, the only things that those plugins need are the custom
+      -- queries, which we make available during startup.
       require("lazy.core.loader").add_to_rtp(plugin)
       require("nvim-treesitter.query_predicates")
     end,
@@ -142,7 +143,7 @@ require("lazy").setup({
       { "<bs>", desc = "Decrement Selection", mode = "x" },
     },
     ---@param opts TSConfig
-    config = function(_, opts)
+    config = function(_, opts) -- luacheck: no unused args
       require("plugins_config/treesitter_conf")
     end,
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
@@ -163,7 +164,7 @@ require("lazy").setup({
     "ray-x/lsp_signature.nvim",
     event = "VeryLazy",
     opts = {
-      ignore_error = function(err, ctx, config)
+      ignore_error = function(err, ctx, config) -- luacheck: no unused args
         -- Disable this if you experience issues with the plugin
         return true
       end,
@@ -193,9 +194,6 @@ require("lazy").setup({
   -- Snippet completion and expansion integration
   {
     "hrsh7th/vim-vsnip-integ",
-    init = function()
-      require("plugins_config/vsnip_conf")
-    end,
     dependencies = {
       "hrsh7th/vim-vsnip",
     },
@@ -352,7 +350,7 @@ require("lazy").setup({
       --- auto update the highlight style on colorscheme change
       vim.api.nvim_create_autocmd({ "ColorScheme" }, {
         pattern = { "*" },
-        callback = function(ev)
+        callback = function(ev) -- luacheck: no unused args
           vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
           vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
           vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
@@ -507,7 +505,8 @@ require("lazy").setup({
     end,
     event = { "CmdlineEnter" },
     ft = { "go", "gomod" },
-    build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+    -- if you need to install/update all binaries
+    build = ':lua require("go.install").update_all_sync()',
   },
   {
     "golang/vscode-go",
@@ -596,7 +595,7 @@ require("lazy").setup({
   {
     "marcuscaisey/please.nvim",
     lazy = true,
-    init = function(self)
+    init = function(self) -- luacheck: no unused args
       require("plugins_config/please_init")
     end,
     cmd = "Please",
@@ -674,7 +673,7 @@ require("lazy").setup({
   {
     "luukvbaal/statuscol.nvim",
     config = function()
-      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]] -- luacheck: ignore line-too-long
+      vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
       local builtin = require("statuscol.builtin")
       require("statuscol").setup({
         setopt = true,
@@ -735,7 +734,8 @@ require("lazy").setup({
   -- Alternative to fzf
   {
     "nvim-telescope/telescope.nvim",
-    -- Go to definition is broken: https://github.com/nvim-telescope/telescope.nvim/issues/2690
+    -- Go to definition is broken:
+    -- https://github.com/nvim-telescope/telescope.nvim/issues/2690
     -- commit = "443e5a6802849f9e4611a2d91db01b8a37350524",
     config = function()
       require("plugins_config/telescope_conf")
@@ -756,6 +756,7 @@ require("lazy").setup({
   -- Fzf interface for telescope
   {
     "nvim-telescope/telescope-fzf-native.nvim",
+    -- luacheck: ignore
     build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
   },
   -- Live grep with args
@@ -947,7 +948,7 @@ require("lazy").setup({
   -- Automatically saves session by cwd
   {
     "rmagatti/auto-session",
-    init = function(self)
+    init = function(self) -- luacheck: no unused args
       vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos," -- luacheck: ignore line-too-long
         .. "terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
@@ -957,7 +958,7 @@ require("lazy").setup({
         "tabdo Trouble diagnostics close",
       }
     end,
-    config = function(self, opts)
+    config = function(self, opts) -- luacheck: no unused args
       -- TODO: just a hack to make statuscol load before auto-session, to
       -- make sure the `statuscol` (`stc`) option is set for auto-loaded
       -- windows
@@ -997,7 +998,7 @@ require("lazy").setup({
   -- Arduino utils
   {
     "stevearc/vim-arduino",
-    init = function(self)
+    init = function(self) -- luacheck: no unused args
       vim.g.arduino_dir = "/snap/arduino/current"
     end,
     ft = { "arduino" },

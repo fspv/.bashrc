@@ -28,17 +28,17 @@ end, { desc = "Please Restore Window" })
 
 -- TODO: port to lua
 vim.cmd([[
-    if executable('plz')
-        function DetectPlz()
-            if filereadable(FindRootDirectory() .
-                \ '/.plzconfig')
-                au BufRead,BufNewFile BUILD,*.build_def set filetype=please
-                au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
-            endif
-        endfunction
-        autocmd VimEnter *.go call DetectPlz()
-    endif
-  ]])
+  if executable('plz')
+    function DetectPlz()
+      if filereadable(FindRootDirectory() .
+          \ '/.plzconfig')
+          au BufRead,BufNewFile BUILD,*.build_def set filetype=please
+          au BufRead,BufNewFile BUILD,*.build_def,*.build_defs set syntax=python
+      endif
+    endfunction
+    autocmd VimEnter *.go call DetectPlz()
+  endif
+]])
 
 -- Run puku (auto dependencies resolver) on go files automatically
 vim.api.nvim_create_autocmd("BufWritePost", {

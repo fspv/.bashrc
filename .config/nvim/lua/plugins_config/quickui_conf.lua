@@ -34,7 +34,8 @@ vim.cmd([[
         \       ["&Run\t<leader>pr", "lua require('please').run())"],
         \       ["&Yank\t<leader>py", "lua require('please').yank())"],
         \       ["&Debug\t<leader>pd", "lua require('please').debug()"],
-        \       ["&Action history\t<leader>pa", "lua require('please').action_history())"],
+        \       ["&Action history\t<leader>pa",
+        \        "lua require('please').action_history())"],
         \    ]
         \)
     endif

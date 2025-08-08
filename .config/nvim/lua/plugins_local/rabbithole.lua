@@ -15,7 +15,7 @@ ListNode.__index = ListNode
 
 ---@param value number|nil
 ---@return ListNode
-function ListNode:new(value)
+function ListNode:new(value) -- luacheck: ignore
   ---@type ListNode
   local node = {
     value = value, -- Value

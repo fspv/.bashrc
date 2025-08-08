@@ -10,22 +10,8 @@ lspconfig_defaults.capabilities = vim.tbl_deep_extend(
 
 -- local prev_win_id = nil
 
--- vim.api.nvim_create_autocmd("WinEnter", {
---   callback = function()
---     local curr_win_id = vim.api.nvim_get_current_win()
-
---     if prev_win_id then
---       -- Call ResizeWindows with previous and current window
---       require("plugins_local.rabbithole").ResizeWindows(prev_win_id, curr_win_id)
---     end
-
---     -- Update the previous window to be the current one for the next switch
---     prev_win_id = curr_win_id
---   end,
---   pattern = { "*.go", "*.py", "*.js", "*.ts", "*.rs", "*.lua" }
--- })
-
--- Function to go to definition in a vsplit, close right-hand splits, and resize windows
+-- Function to go to definition in a vsplit, close right-hand splits, and resize
+-- windows
 --- @param f fun(): fun(): nil
 function GoToDefinitionVsplitAndManageWindows(f)
   -- return function()
@@ -250,7 +236,8 @@ require("lspconfig").bashls.setup({
 ---@param workspace string
 ---@return string
 local function get_python_path(workspace)
-  -- Use the `.venv/bin/python` in the current workspace if it exists, otherwise fallback to system Python
+  -- Use the `.venv/bin/python` in the current workspace if it exists, otherwise
+  -- fallback to system Python
   local venv_path = workspace .. "/.venv/bin/python"
   if vim.fn.executable(venv_path) == 1 then
     return venv_path
@@ -260,7 +247,14 @@ end
 
 require("lspconfig").pyright.setup({
   on_attach = on_attach_func,
-  -- cmd = { "pyright-langserver", "--stdio", "--log-level", "debug", "--log-file", "/tmp/pyright.log" },
+  -- cmd = {
+  --   "pyright-langserver",
+  --   "--stdio",
+  --   "--log-level",
+  --   "debug",
+  --   "--log-file",
+  --   "/tmp/pyright.log",
+  -- },
   -- cmd = { "./log.sh" },
   settings = {
     python = {
@@ -279,7 +273,8 @@ require("lspconfig").pyright.setup({
   },
 })
 
--- TODO: I'm just lucky it runs before other commands. But may actually conflict with them
+-- TODO: I'm just lucky it runs before other commands. But may actually conflict
+-- with them
 -- local group = vim.api.nvim_create_augroup("PythonFormat", { clear = true })
 -- vim.api.nvim_create_autocmd("BufWritePost", {
 --   pattern = "*.py",
@@ -348,11 +343,13 @@ require("lspconfig").lua_ls.setup({
           checkThirdParty = false,
           -- library = {
           --   vim.env.VIMRUNTIME
-          --   -- Depending on the usage, you might want to add additional paths here.
+          --   -- Depending on the usage, you might want to add additional paths
+          --   -- here.
           --   -- "${3rd}/luv/library"
           --   -- "${3rd}/busted/library",
           -- }
-          -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will cause issues when working on your own configuration
+          -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and
+          -- will cause issues when working on your own configuration
           -- (see https://github.com/neovim/nvim-lspconfig/issues/3189)
           library = vim.api.nvim_get_runtime_file("", true),
         },
@@ -365,7 +362,8 @@ require("lspconfig").lua_ls.setup({
   settings = {
     Lua = {
       runtime = {
-        -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
+        -- Tell the language server which version of Lua you're using (most
+        -- likely LuaJIT in the case of Neovim)
         version = "LuaJIT",
       },
       diagnostics = {
@@ -376,15 +374,18 @@ require("lspconfig").lua_ls.setup({
         checkThirdParty = false,
         library = {
           vim.env.VIMRUNTIME,
-          -- Depending on the usage, you might want to add additional paths here.
+          -- Depending on the usage, you might want to add additional paths
+          -- here.
           -- "${3rd}/luv/library"
           -- "${3rd}/busted/library",
         },
-        -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will cause issues when working on your own configuration
+        -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will
+        -- cause issues when working on your own configuration
         -- (see https://github.com/neovim/nvim-lspconfig/issues/3189)
         -- library = vim.api.nvim_get_runtime_file("", true)
       },
-      -- Do not send telemetry data containing a randomized but unique identifier
+      -- Do not send telemetry data containing a randomized but unique
+      -- identifier
       telemetry = {
         enable = false,
       },
@@ -402,18 +403,27 @@ require("lspconfig").lua_ls.setup({
   },
 })
 
--- Settings values: https://github.com/golang/tools/blob/master/gopls/doc/settings.md
+-- Settings values:
+-- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
 require("lspconfig").gopls.setup({
   on_attach = on_attach_func,
-  -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto -rpc.trace` and uncomment below
-  -- cmd = { "gopls", "-debug=:0", "-remote=unix;/tmp/gopls-daemon-socket", "-logfile=auto", "-rpc.trace", },
+  -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto
+  -- -rpc.trace` and uncomment below
+  -- cmd = {
+  --   "gopls",
+  --   "-debug=:0",
+  --   "-remote=unix;/tmp/gopls-daemon-socket",
+  --   "-logfile=auto",
+  --   "-rpc.trace",
+  -- },
   cmd = { "gopls" },
   -- Must be set explicitly. Otherwise breaks on :LspRestart
   single_file = false,
   ---@param startpath string
   root_dir = function(startpath)
     if string.find(startpath, "plz%-out") then
-      -- Separate branch, because otherwise it defaults to the repo root and becomes too slow
+      -- Separate branch, because otherwise it defaults to the repo root and
+      -- becomes too slow
       return require("lspconfig/util").root_pattern("go.mod", "go.work")(
         startpath
       )
@@ -434,7 +444,8 @@ require("lspconfig").gopls.setup({
       diagnosticsDelay = "2s",
       diagnosticsTrigger = "Edit", -- Save or Edit
       directoryFilters = { "-plz-out" },
-      -- Breaks treesitter defined highlight overwrites (such as SQL within a string)
+      -- Breaks treesitter defined highlight overwrites (such as SQL within a
+      -- string)
       semanticTokens = true,
       hints = {
         assignVariableTypes = true,
@@ -446,8 +457,10 @@ require("lspconfig").gopls.setup({
         rangeVariableTypes = true,
       },
       codelenses = {
-        generate = true, -- show the `go generate` lens.
-        gc_details = true, -- Show a code lens toggling the display of gc's choices.
+        -- show the `go generate` lens.
+        generate = true,
+        -- Show a code lens toggling the display of gc's choices.
+        gc_details = true,
         test = true,
         tidy = true,
         vendor = true,
@@ -534,7 +547,28 @@ require("lspconfig").phpactor.setup({
   on_attach = on_attach_func,
 })
 
-vim.api.nvim_create_user_command("Tabby", function(opts)
+local luacheck = {
+  lintCommand = "luacheck --formatter plain --codes --no-color -",
+  lintStdin = true,
+  lintFormats = {
+    "%f:%l:%c: %m",
+  },
+  lintIgnoreExitCode = true,
+}
+
+require("lspconfig").efm.setup({
+  on_attach = on_attach_func,
+  init_options = { documentFormatting = true }, -- Enable if you want formatting
+  filetypes = { "lua" },
+  settings = {
+    rootMarkers = { ".git/" },
+    languages = {
+      lua = { luacheck }, -- Both linters will run
+    },
+  },
+})
+
+vim.api.nvim_create_user_command("Tabby", function(_)
   require("tabby_lspconfig").setup()
   require("lspconfig").tabby.setup({})
 end, {

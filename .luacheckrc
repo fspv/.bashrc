@@ -30,22 +30,3 @@ allow_defined_top = true
 
 -- Set the maximum line length
 max_line_length = 80
-max_comment_line_length = false
-max_string_line_length = false
-max_code_line_length = false
-max_cyclomatic_complexity = false
-
--- Set the minimum name length
-min_name_length = 2
-
--- Set the maximum number of arguments in a function
-max_args = 10
-
--- Set the maximum number of locals in a function
-max_locals = 200
-
--- Set the maximum number of upvalues in a function
-max_upvalues = 60
-
-unused = false
-unused_args = false

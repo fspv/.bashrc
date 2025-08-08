@@ -42,7 +42,6 @@ cmp.setup.filetype("gitcommit", {
   }),
 })
 
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 -- Use buffer source for `/` and `?`
 -- (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline({ "/", "?" }, {
@@ -52,7 +51,6 @@ cmp.setup.cmdline({ "/", "?" }, {
   },
 })
 
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
 -- Use cmdline & path source for ':'
 -- (if you enabled `native_menu`, this won't work anymore).
 cmp.setup.cmdline(":", {
@@ -72,7 +70,7 @@ cmp.setup({
       mode = "symbol_text",
       maxwidth = 80,
       ellipsis_char = "...",
-      before = function(entry, vim_item)
+      before = function(_, vim_item)
         vim_item.dup = {
           buffer = 1,
           path = 1,

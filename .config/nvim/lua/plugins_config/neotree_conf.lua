@@ -41,7 +41,9 @@ local function get_parent_directory(str)
   return p
 end
 
+-- luacheck: ignore
 -- https://github.com/nvim-neo-tree/neo-tree.nvim/blob/main/lua/neo-tree/defaults.lua
+
 require("neo-tree").setup({
   use_popups_for_input = false, -- not floats for input
   hide_dotfiles = false,

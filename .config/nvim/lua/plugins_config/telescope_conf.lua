@@ -14,7 +14,8 @@ end
 --- A helper function to run a command and get its output as a table of lines.
 --- It will return an empty table if the command fails.
 ---@param command string The shell command to execute.
----@return string[] A table of strings, where each string is a line of the command's output.
+---@return string[] A table of strings, where each string is a line of the
+---command's output.
 local function get_command_output(command)
   -- We use pcall to safely run the command. If it errors, we don't crash.
   local ok, result = pcall(vim.fn.systemlist, command)
@@ -45,7 +46,8 @@ end
 --- 3. Files from currently open and listed buffers.
 --- 4. Files in the same directory as the current buffer.
 ---
----@param opts? telescope.PickerConfig Optional Telescope configuration to pass to the picker.
+---@param opts? telescope.PickerConfig Optional Telescope configuration to pass
+---to the picker.
 local function recent_and_modified_files(opts)
   opts = opts or {}
 
@@ -59,8 +61,8 @@ local function recent_and_modified_files(opts)
     project_root = project_root .. path_sep
   end
 
-  -- Helper function to add a path to the set, ensuring it's relative to the project root.
-  -- This is the key to fixing the sorting issue.
+  -- Helper function to add a path to the set, ensuring it's relative to the
+  -- project root. This is the key to fixing the sorting issue.
   local function add_file_relative(path_to_add)
     if path_to_add and path_to_add ~= "" then
       local abs_path = vim.fn.fnamemodify(path_to_add, ":p")
@@ -116,7 +118,8 @@ local function recent_and_modified_files(opts)
       -- On Windows, list files only, excluding directories.
       list_command = 'dir /b /a-d "' .. current_dir .. '"'
     else
-      -- On Unix-like systems, use `find` to reliably list only files in the current directory.
+      -- On Unix-like systems, use `find` to reliably list only files in the
+      -- current directory.
       list_command = 'find "'
         .. current_dir
         .. '" -maxdepth 1 -type f -printf "%f\\n"'
@@ -225,9 +228,11 @@ require("telescope").setup({
       auto_quoting = true,
       mappings = {
         i = {
-          ["<C-a>"] = require("telescope-live-grep-args.actions").quote_prompt(),
+          ["<C-a>"] = require("telescope-live-grep-args.actions").quote_prompt(
+            -- No args
+          ),
           ["<C-x>"] = _append_to_telescope_prompt(
-            "--iglob !**{test,e2e,sat,experimental,fake,mock}* " -- luacheck: ignore line-too-long
+            "--iglob !**{test,e2e,sat,experimental,fake,mock}* "
           ),
         },
         n = {
