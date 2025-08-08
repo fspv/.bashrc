@@ -11,7 +11,6 @@ local _append_to_telescope_prompt = function(suffix)
   end
 end
 
-
 --- A helper function to run a command and get its output as a table of lines.
 --- It will return an empty table if the command fails.
 ---@param command string The shell command to execute.
