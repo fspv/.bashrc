@@ -294,6 +294,51 @@ require("lazy").setup({
       "hrsh7th/cmp-nvim-lsp",
     },
   },
+  -- Format on save
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        "<leader>f",
+        function()
+          require("conform").format({ async = true, lsp_fallback = true })
+        end,
+        mode = "",
+        desc = "Format buffer",
+      },
+    },
+    config = function()
+      local conform = require("conform")
+
+      conform.setup({
+        formatters_by_ft = {
+          lua = { "stylua" },
+        },
+        -- Optional: customize formatter options
+        formatters = {
+          stylua = {
+            -- You can pass additional options to stylua here
+            prepend_args = {
+              "--indent-type",
+              "Spaces",
+              "--indent-width",
+              "2",
+            },
+          },
+        },
+      })
+
+      -- Format on save autocmd
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = "*",
+        callback = function(args)
+          require("conform").format({ bufnr = args.buf })
+        end,
+      })
+    end,
+  },
   -- Highlight other uses of symbol under cursor
   {
     "RRethy/vim-illuminate",
