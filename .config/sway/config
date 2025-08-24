@@ -3,17 +3,16 @@ xwayland enable
 set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
 exec_always rm -rf "/run/user/$(id -u)/sway_log"
 
-exec $log systemctl --user import-environment
+exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY
 
-exec_always $log ibus-daemon --verbose --xim --daemonize --replace --cache auto
+exec_always $log fcitx5 --replace -D --verbose 5
 
 exec_always pkill -f window-bound-layout
 exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
 
 exec_always pkill -f dunst
 # xfce4-notifyd is started by dbus by default causing a race condition
-exec_always $log systemctl --user disable xfce4-notifyd
-exec_always $log systemctl --user stop xfce4-notifyd
+exec_always $log systemctl --user stop xfce4-notifyd.service
 exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 
 exec_always {
@@ -23,13 +22,6 @@ exec_always {
 
     $log gsettings set org.gnome.desktop.interface font-name 'Ubuntu 11'
     $log gsettings set org.gnome.desktop.interface monospace-font-name 'Ubuntu Mono 11'
-
-    $log gsettings set org.freedesktop.ibus.general.hotkey triggers "[]"
-    $log gsettings set org.freedesktop.ibus.general.hotkey next-engine "[]"
-    $log gsettings set org.freedesktop.ibus.general engines-order "['xkb:us::eng', 'xkb:ru::rus']"
-    $log gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', 'xkb:ru::rus']"
-    $log gsettings set org.freedesktop.ibus.general use-global-engine "false"
-    $log gsettings set org.freedesktop.ibus.general use-system-keyboard-layout "true"
 }
 
 seat * xcursor_theme Adwaita 24
