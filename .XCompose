@@ -32,11 +32,13 @@ include "/usr/share/X11/locale/en_US.UTF-8/Compose"
 <Multi_key> <Cyrillic_e> <Cyrillic_e> : "́" # ударениее (комбинирующееся)
 
 # Ukrainian
-<Multi_key> <Cyrillic_IE>                       : "Є"   U04D8 # CYRILLIC CAPITAL LETTER IE
-<Multi_key> <Cyrillic_ie>                       : "є"   U04D8 # CYRILLIC SMALL LETTER IE
-<Multi_key> <Cyrillic_SHORTI>                   : "Ї"   U0407 # CYRILLIC CAPITAL LETTER YI
-<Multi_key> <Cyrillic_shorti>                   : "ї"   U0457 # CYRILLIC SMALL LETTER YI
-<Multi_key> <Cyrillic_I>                        : "І"   U0406 # CYRILLIC CAPITAL LETTER I
-<Multi_key> <Cyrillic_i>                        : "і"   U0456 # CYRILLIC SMALL LETTER I
-<Multi_key> <Cyrillic_GHE>                        : "Ґ"   U0490 # CYRILLIC CAPITAL LETTER GE
-<Multi_key> <Cyrillic_ghe>                        : "ґ"   U04911 # CYRILLIC SMALL LETTER GE
+<Multi_key> <Cyrillic_IE> : "Є"   U04D8 # CYRILLIC CAPITAL LETTER IE
+<Multi_key> <Cyrillic_ie> : "є"   U04D8 # CYRILLIC SMALL LETTER IE
+<Multi_key> <Cyrillic_SHORTI> : "Ї"   U0407 # CYRILLIC CAPITAL LETTER YI
+<Multi_key> <Cyrillic_shorti> : "ї"   U0457 # CYRILLIC SMALL LETTER YI
+<Multi_key> <Cyrillic_I> : "І"   U0406 # CYRILLIC CAPITAL LETTER I
+<Multi_key> <Cyrillic_i> : "і"   U0456 # CYRILLIC SMALL LETTER I
+<Multi_key> <Cyrillic_GHE> : "Ґ"   U0490 # CYRILLIC CAPITAL LETTER GE
+<Multi_key> <Cyrillic_ghe> : "ґ"   U04911 # CYRILLIC SMALL LETTER GE
+<Multi_key> <Cyrillic_hardsign> : "'" U0027 # APOSTROPHE
+<Multi_key> <Cyrillic_HARDSIGN> : "'" U0027 # APOSTROPHE
