@@ -11,4 +11,11 @@ LOG=${USER_TMP_DIR}/${APP}.log
 
 echo "[log_wrapper] Running ${COMMAND}, output log to ${LOG}"
 
-sh -xc "${COMMAND}" >> "${LOG}" 2>&1 || echo "[log_wrapper] App terminated ${COMMAND}, see log ${LOG}"
+if ! sh -xc "${COMMAND}" >> "${LOG}" 2>&1
+then
+    echo "[log_wrapper] App terminated ${COMMAND}, see log ${LOG}"
+    if "$_NAME" != "waybar"
+    then
+        notify-send "App terminated ${COMMAND}, see log ${LOG}"
+    fi
+fi
