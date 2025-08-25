@@ -1,0 +1,95 @@
+xwayland enable
+
+set $mod Mod4
+
+# start a terminal
+bindsym $mod+Return exec i3-sensible-terminal
+
+# kill focused window
+bindsym --to-code $mod+q kill
+
+# change focus
+bindsym --to-code $mod+h focus left
+bindsym --to-code $mod+j focus down
+bindsym --to-code $mod+k focus up
+bindsym --to-code $mod+l focus right
+
+# move focused window
+bindsym --to-code $mod+Ctrl+h move left
+bindsym --to-code $mod+Ctrl+j move down
+bindsym --to-code $mod+Ctrl+k move up
+bindsym --to-code $mod+Ctrl+l move right
+
+# enter fullscreen mode for the focused container
+bindsym --to-code $mod+Ctrl+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym --to-code $mod+Ctrl+s layout stacking
+bindsym --to-code $mod+Ctrl+e layout toggle split
+
+# switch to workspace
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# reload the configuration file
+bindsym --to-code $mod+Shift+c reload
+# restart sway inplace (preserves your layout/session, can be used to upgrade sway)
+bindsym --to-code $mod+Shift+r restart
+# exit sway (logs you out of your X session)
+bindsym --to-code $mod+Shift+e exec "swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your sway session.' -b 'Yes, exit sway' 'swaymsg exit'"
+
+# Don't capture sway keys
+# for_window [app_id=".*"] shortcuts_inhibitor disable
+
+output * adaptive_sync on
+
+input type:keyboard {
+
+  # Modified programmer Dvorak. File at ~/.xkb/symbols/dvp_alt_gr_remapped_to_super
+  # xkb_layout "dvp_alt_gr_remapped_to_super"
+  xkb_layout us,ru
+
+  # Capslock key should work as escape key
+  # See /usr/share/X11/xkb/rules/xorg.lst for options
+  xkb_options grp:win_space_toggle,grp_led:caps,ctrl:nocaps,compose:ralt
+
+  repeat_delay 250
+  repeat_rate 45
+}
+
+bindsym --locked --release Ctrl+Shift_L input * xkb_switch_layout next
+
+input type:touchpad {
+    left_handed enabled
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+    accel_profile "adaptive" # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
+    pointer_accel 0.2 # set mouse sensitivity (between -1 and 1)
+    scroll_factor 0.3
+}
+
+
+bar {
+    swaybar_command .config/waybar/cmd
+}
