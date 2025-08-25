@@ -47,7 +47,7 @@ EnumerateSkipFirst=False
 # Active By Default
 ActiveByDefault=False
 # Share Input State
-ShareInputState=Program
+ShareInputState=No
 # Show preedit in application
 PreeditEnabledByDefault=True
 # Show Input Method Information when switch input method
