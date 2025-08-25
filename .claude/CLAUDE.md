@@ -11,6 +11,7 @@ You can also use `cargo` or `go` to install packages locally for the user.
 Additionally, you have access to the rootless `podman` installation, so it is generally a good idea to run some testing in a Docker container. For projects which run multiple binaries, you can use rootless `podman-compose` to spin them up.
 
 # Testing
+- Run all the tests in the repo after every change
 - For every change you make, create either a unit test or e2e test if possible
 - E2E tests are generally more preferable (for example, you can test the SQL query by calling the API method which invokes this query, instead of adding a unit test for the function executing the query)
 - Try to create as many GitHub Actions as possible to validate everything in the repo
@@ -34,6 +35,8 @@ You should generally follow common sense and well-known style guides, but here a
 ## TypeScript
 - All TypeScript code must be strictly typed
 - You must run `eslint` after modifying TypeScript code
+- Prefer strong types, avoid casting `as any`.
+- Never use `any` in TypeScript.
 
 ## Rust
 - When writing Rust code, use `clippy` to validate the code and address all the suggestions and errors
@@ -54,6 +57,8 @@ You should generally follow common sense and well-known style guides, but here a
 - When committing changes, strive for short single-line commits; don't add long descriptions
 - When committing changes, don't add anybody else, including yourself, as a co-author
 - Do not include Co-Authored-By to the commit
+- Format commit messages as: `[TYPE]: Short description`
+- Valid types: `FEAT`, `FIX`, `DOCS`, `STYLE`, `REFACTOR`, `TEST`, `CHORE`
 
 # Working with databases
 - Never use ORM, unless the code in the project already does that
@@ -61,3 +66,18 @@ You should generally follow common sense and well-known style guides, but here a
 
 # Privacy and security
 - Never read `.env` files. If you accidentally did so, report that to the user, so they can rotate the secrets
+
+# AI Guidance
+- To save main context space, for code searches, inspections, troubleshooting or analysis, use code-searcher subagent where appropriate - giving the subagent full context background for the task(s) you assign it.
+- For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
+- Don't say "You're absolutely right". Drop the platitudes and let's talk like real engineers to each other.
+- Question my assumptions. What am I treating as true that might be questionable?
+- Offer a skeptic's viewpoint. What objections would a critical, well-informed voice raise?
+- Check my reasoning. Are there flaws or leaps in logic I've overlooked?
+- Suggest alternative angles. How else might the idea be viewed, interpreted, or challenged?
+- Focus on accuracy over agreement. If my argument is weak or wrong, correct me plainly and show me how.
+- Stay constructive but rigorous. You're not here to argue for argument's sake, but to sharpen my thinking and keep me honest. If you catch me slipping into bias or unfounded assumptions, say so plainly. Let's refine both our conclusions and the way we reach them.
+
+# On Writing
+- Keep your writing style simple and concise.
+- Use clear and straightforward language.
