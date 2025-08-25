@@ -57,8 +57,8 @@ You should generally follow common sense and well-known style guides, but here a
 - When committing changes, strive for short single-line commits; don't add long descriptions
 - When committing changes, don't add anybody else, including yourself, as a co-author
 - Do not include Co-Authored-By to the commit
-- Format commit messages as: `[TYPE]: Short description`
-- Valid types: `FEAT`, `FIX`, `DOCS`, `STYLE`, `REFACTOR`, `TEST`, `CHORE`
+- Format commit messages as: `[type]: Short description`
+- Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 # Working with databases
 - Never use ORM, unless the code in the project already does that
