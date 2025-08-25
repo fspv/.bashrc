@@ -306,6 +306,7 @@ input type:touchpad {
     accel_profile "adaptive" # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
     pointer_accel 0.2 # set mouse sensitivity (between -1 and 1)
     scroll_factor 0.3
+    drag_lock disabled
 }
 
 
