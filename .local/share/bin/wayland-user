@@ -9,9 +9,9 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export MOZ_ENABLE_WAYLAND=1
 export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
 
-export GTK_IM_MODULE=ibus
-export QT_IM_MODULE=ibus
-export XMODIFIERS=@im=ibus
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
 
 export XDG_CURRENT_DESKTOP=sway
 
@@ -66,8 +66,5 @@ export LIBINPUT_QUIRKS_DIR=${APP}/share/libinput
 #     --ro-bind ${APP} /app \
 #     /app/bin/sway --debug --verbose >sway.log 2>&1
 
-LOG=/run/user/$(id -u)/sway_log.log
-echo "Env variables dump" > ${LOG}
-env >> ${LOG}
-echo "Starting sway" >> ${LOG}
-sway --verbose >> ${LOG} 2>&1
+# sway --debug --verbose 2>&1 >sway.log
+sway >sway.log 2>&1
