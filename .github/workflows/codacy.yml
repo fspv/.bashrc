@@ -16,9 +16,15 @@ name: Codacy Security Scan
 on:
   push:
     branches: [ "master" ]
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "master" ]
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
   schedule:
     - cron: '19 9 * * 5'
 

@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
 
 jobs:
   build-ubuntu-24-04:

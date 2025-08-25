@@ -11,6 +11,9 @@ name: 'Dependency review'
 on:
   pull_request:
     branches: [ "master" ]
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
 
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
