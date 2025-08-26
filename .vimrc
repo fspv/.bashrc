@@ -3,31 +3,8 @@ if filereadable($HOME . '/.vim/manual/before.vim')
     source <sfile>:h/.vim/manual/before.vim
 endif
 
-" Python3 for neovim
-" virtualenv -p python3 ~/venv/neovim
-" . ~/venv/neovim/bin/activate
-" pip install -U setuptools
-" pip install neovim jedi
-" or apt-get install python3-neovim
-if empty($VIRTUAL_ENV)
-    let g:python3_host_prog = $HOME . '/venv/neovim/bin/python3' " Include default system config
-else
-    let g:python3_host_prog = $VIRTUAL_ENV . '/bin/python3' " Include default system config
-    " FIXME: flake8 version is frozen due to multiple issues like:
-    " https://github.com/aleGpereira/flake8-mock/issues/10
-    call system($VIRTUAL_ENV . '/bin/pip install -U setuptools')
-
-    call system($VIRTUAL_ENV . '/bin/pip install neovim jedi mypy black flake8==4.0.1 python-lsp-server[all] pylint pynvim python-language-server[all] ruff-lsp')
-endif
-
-autocmd FileType go call system('GO111MODULE=on go get golang.org/x/tools/gopls')
-
 if filereadable("/etc/vim/vimrc")
   source /etc/vim/vimrc
-endif
-
-if filereadable($HOME . "/.vim/autoload/pathogen.vim")
-  execute pathogen#infect()
 endif
 
 set termguicolors
