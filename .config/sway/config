@@ -100,25 +100,28 @@ focus_follows_mouse no
 font pango:Ubuntu Mono 11
 
 # lock screen before suspend. Use loginctl lock-session to lock your screen.
-set $lock_screen $log flock -x -n ${HOME}/.config/swaylock/flock sh -c 'swaymsg input "*" xkb_switch_layout 0; swaylock -f -d'
-set $disable_display $log swaymsg "output * dpms off"
-set $enable_display $log swaymsg "output * dpms on"
+set $lock_screen $log sh -c "swaymsg input \* xkb_switch_layout 0; flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d"
+# This is necessary before going to sleep to flush buffers and prevent contents of the screen showing up on wake up
+set $disable_display_and_lock_screen $log sh -c "swaymsg output \* power off; swaymsg input \* xkb_switch_layout 0; flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d"
+set $disable_display $log swaymsg "output * power off"
+set $enable_display $log swaymsg "output * power on"
 
 # Don't sleep when fullscreen app is open
 # for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
 exec_always pkill -f swayidle
+# Check ${XDG_RUNTIME_DIR}/sway_log/swayidle.log to validate this works
 exec_always $log swayidle -w -d \
     timeout 180 '$disable_display' \
     resume '$enable_display' \
-    timeout 300 "$lock_screen" \
+    timeout 300 '$lock_screen' \
     resume '$enable_display' \
     timeout 420 'systemctl suspend' \
     resume '$enable_display' \
-    before-sleep "$lock_screen" \
+    before-sleep '$disable_display_and_lock_screen' \
     after-resume '$enable_display' \
-    lock "$lock_screen" \
+    lock '$lock_screen' \
     unlock 'kill -s 1 $(pgrep swaylock)'
 
 # Lock screen
