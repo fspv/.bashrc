@@ -1,6 +1,6 @@
 xwayland enable
 
-set $mod Mod4
+set $mod Mod3
 
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
@@ -63,33 +63,8 @@ bindsym --to-code $mod+Shift+e exec "swaynag -t warning -m 'You pressed the exit
 
 output * adaptive_sync on
 
-input type:keyboard {
-
-  # Modified programmer Dvorak. File at ~/.xkb/symbols/dvp_alt_gr_remapped_to_super
-  # xkb_layout "dvp_alt_gr_remapped_to_super"
-  xkb_layout us,ru
-
-  # Capslock key should work as escape key
-  # See /usr/share/X11/xkb/rules/xorg.lst for options
-  xkb_options grp:win_space_toggle,grp_led:caps,ctrl:nocaps,compose:ralt
-
-  repeat_delay 250
-  repeat_rate 45
-}
-
-bindsym --locked --release Ctrl+Shift_L input * xkb_switch_layout next
-
-input type:touchpad {
-    left_handed enabled
-    tap enabled
-    natural_scroll enabled
-    dwt enabled
-    accel_profile "adaptive" # disable mouse acceleration (enabled by default; to set it manually, use "adaptive" instead of "flat")
-    pointer_accel 0.2 # set mouse sensitivity (between -1 and 1)
-    scroll_factor 0.3
-}
-
-
 bar {
     swaybar_command .config/waybar/cmd
 }
+
+exec terminator
