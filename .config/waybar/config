@@ -3,11 +3,19 @@
     "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 30, // Waybar height (to be removed for auto height)
     // "width": 1280, // Waybar width
-    "spacing": 4, // Gaps between modules (4px)
+    "spacing": 0, // Gaps between modules (0px)
     // Choose the order of the modules
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["sway/window"],
-    "modules-right": ["idle_inhibitor", "network", "custom/blueberry", "sway/language", "battery", "clock", "tray"],
+    "modules-right": ["idle_inhibitor", "custom/weather", "network", "custom/blueberry", "sway/language", "battery", "backlight", "group/datetime", "tray"],
+    "group/datetime": {
+    "orientation": "horizontal",
+        "modules": [
+            "clock",
+            "custom/moon",
+            "custom/zodiac"
+        ]
+    },
     "sway/mode": {
         "format": "<span style=\"italic\">{}</span>"
     },
@@ -54,5 +62,30 @@
         "format": "󰂯",
         "tooltip": "Bluetooth Settings",
         "on-click": "nix-shell -E 'with import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-25.05.tar.gz\") {}; mkShell { buildInputs = [ blueberry ]; }' --run blueberry"
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "💡 {percent}%",
+        "on-click": "bash -c 'zenity --scale --title=Brightness --text= --min-value=1 --max-value=100 --value=$(light -G | cut -d\".\" -f1) --step=5 | xargs -I {} light -S {}'",
+        "on-scroll-up": "light -A 5",
+        "on-scroll-down": "light -U 5"
+    },
+    "custom/moon": {
+        "exec": "python3 ~/.config/waybar/scripts/moon-phase.py",
+        "return-type": "json",
+        "interval": 3600,
+        "format": "{}"
+    },
+    "custom/zodiac": {
+        "exec": "python3 ~/.config/waybar/scripts/zodiac.py",
+        "return-type": "json",
+        "interval": 43200,  // Update twice a day
+        "format": "{}"
+    },
+    "custom/weather": {
+        "exec": "curl -s 'wttr.in/London?format=%c+%t'",
+        "interval": 1800,
+        "spacing": 10,
+        "tooltip": true
     }
 }
