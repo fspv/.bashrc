@@ -1,3 +1,4 @@
+// vim: set ft=jsonc:
 {
     // "layer": "top", // Waybar at top layer
     "position": "bottom", // Waybar position (top|bottom|left|right)
@@ -5,9 +6,24 @@
     // "width": 1280, // Waybar width
     "spacing": 0, // Gaps between modules (0px)
     // Choose the order of the modules
-    "modules-left": ["sway/workspaces", "sway/mode"],
-    "modules-center": ["sway/window"],
-    "modules-right": ["idle_inhibitor", "custom/weather", "network", "custom/blueberry", "sway/language", "battery", "backlight", "group/datetime", "tray"],
+    "modules-left": [
+        "sway/workspaces",
+        "sway/mode"
+    ],
+    "modules-center": [
+        "sway/window"
+    ],
+    "modules-right": [
+        "idle_inhibitor",
+        "custom/weather",
+        "network",
+        "custom/blueberry",
+        "sway/language",
+        "battery",
+        "backlight",
+        "group/datetime",
+        "tray"
+    ],
     "group/datetime": {
     "orientation": "horizontal",
         "modules": [
