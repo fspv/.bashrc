@@ -9,6 +9,9 @@ exec_always rm -rf "/run/user/$(id -u)/sway_log"
 
 exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY
 
+# Restore saved brightness on startup (run `light -O` to save)
+exec $log light -I
+
 exec_always $log fcitx5 --replace -D --verbose 5
 
 exec_always pkill -f window-bound-layout
