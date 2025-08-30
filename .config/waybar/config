@@ -15,7 +15,7 @@
     ],
     "modules-right": [
         "idle_inhibitor",
-        "custom/weather",
+        "custom/updates",
         "network",
         "custom/blueberry",
         "sway/language",
@@ -95,7 +95,7 @@
     "custom/zodiac": {
         "exec": "python3 ~/.config/waybar/scripts/zodiac.py",
         "return-type": "json",
-        "interval": 43200,  // Update twice a day
+        "interval": 43200,
         "format": "{}"
     },
     "custom/weather": {
@@ -103,5 +103,11 @@
         "interval": 1800,
         "spacing": 10,
         "tooltip": true
+    },
+    "custom/updates": {
+        "exec": "sh -c 'count=$(cat /tmp/updates-available-cache 2>/dev/null || echo 0); if [ \"$count\" -gt 0 ]; then echo \"{\\\"text\\\": \\\"📦 $count\\\", \\\"tooltip\\\": \\\"$count updates available\\\", \\\"class\\\": \\\"updates\\\"}\"; else echo \"{\\\"text\\\": \\\"\\\", \\\"tooltip\\\": \\\"System up to date\\\"}\"; fi'",
+        "return-type": "json",
+        "interval": 300,
+        "format": "{}"
     }
 }
