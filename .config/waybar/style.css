@@ -333,3 +333,7 @@ label:focus {
     padding: 0 10px 0 0;  /* top right bottom left - only right has 10px */
     color: #ffffff;
 }
+
+#language {
+    margin: 0 0px;
+}
