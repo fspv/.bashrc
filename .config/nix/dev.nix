@@ -173,6 +173,7 @@ let
     stablePkgs.php83
     stablePkgs.sqlite
     stablePkgs.lua
+    stablePkgs.quick-lint-js
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
@@ -192,7 +193,7 @@ let
     unstablePkgs.lua-language-server
     unstablePkgs.stylua
     unstablePkgs.luajitPackages.luacheck
-    unstablePkgs.quick-lint-js
+    unstablePkgs.tree-sitter
     unstablePkgs.efm-langserver
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
