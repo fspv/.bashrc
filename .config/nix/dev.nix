@@ -114,6 +114,9 @@ let
     stablePkgs.rust-analyzer
     stablePkgs.clippy
     stablePkgs.rustfmt
+    stablePkgs.openssl
+    stablePkgs.openssl.dev
+    stablePkgs.pkg-config
     stablePkgs.kubie
     stablePkgs.fortune
     stablePkgs.gh
