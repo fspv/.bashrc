@@ -17,6 +17,8 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
 
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+
 # systemd variables
 export SYSTEMD_PAGER=less
 export PAGER=less
