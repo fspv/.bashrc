@@ -1,14 +1,5 @@
-# Missing binary installation
-If some packages are missing, there are several ways to get them ad hoc without polluting the main system.
-
-There are a lot of packages available in the Nix repositories. If Nix is installed, you can do this:
-`nix-shell -p <pkgname> --run <binaryname>`
-
-For Python packages you can use pip, but make sure to create a `.venv` directory in the repo root first with `virtualenv .venv` and then activate it with `source .venv/bin/activate`.
-
-You can also use `cargo` or `go` to install packages locally for the user.
-
-Additionally, you have access to the rootless `podman` installation, so it is generally a good idea to run some testing in a Docker container. For projects which run multiple binaries, you can use rootless `podman-compose` to spin them up.
+# Agents uss
+Use agents when possible.
 
 # Testing
 - Run all the tests in the repo after every change
@@ -69,7 +60,6 @@ You should generally follow common sense and well-known style guides, but here a
 
 # AI Guidance
 - To save main context space, for code searches, inspections, troubleshooting or analysis, use code-searcher subagent where appropriate - giving the subagent full context background for the task(s) you assign it.
-- For maximum efficiency, whenever you need to perform multiple independent operations, invoke all relevant tools simultaneously rather than sequentially.
 - Don't say "You're absolutely right". Drop the platitudes and let's talk like real engineers to each other.
 - Question my assumptions. What am I treating as true that might be questionable?
 - Offer a skeptic's viewpoint. What objections would a critical, well-informed voice raise?
