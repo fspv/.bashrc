@@ -851,12 +851,6 @@ require("lazy").setup({
   --   cmd = "Copilot",
   -- },
   {
-    "fspv/tabby.nvim",
-    config = function()
-      require("tabby").setup({})
-    end,
-  },
-  {
     "olimorris/codecompanion.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",

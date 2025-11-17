@@ -442,7 +442,7 @@ require("lspconfig").gopls.setup({
       staticcheck = true,
       gofumpt = true,
       diagnosticsDelay = "2s",
-      diagnosticsTrigger = "Edit", -- Save or Edit
+      diagnosticsTrigger = "Save", -- Save or Edit
       directoryFilters = { "-plz-out" },
       -- Breaks treesitter defined highlight overwrites (such as SQL within a
       -- string)
@@ -460,12 +460,12 @@ require("lspconfig").gopls.setup({
         -- show the `go generate` lens.
         generate = true,
         -- Show a code lens toggling the display of gc's choices.
-        gc_details = true,
+        gc_details = false,
         test = true,
-        tidy = true,
+        tidy = false,
         vendor = true,
-        regenerate_cgo = true,
-        upgrade_dependency = true,
+        regenerate_cgo = false,
+        upgrade_dependency = false,
       },
       analyses = {
         unusedparams = true,
@@ -566,16 +566,6 @@ require("lspconfig").efm.setup({
       lua = { luacheck }, -- Both linters will run
     },
   },
-})
-
-vim.api.nvim_create_user_command("Tabby", function(_)
-  require("tabby_lspconfig").setup()
-  require("lspconfig").tabby.setup({})
-end, {
-  nargs = "*", -- Accept any number of arguments
-  desc = "Start Tabby",
-  -- bang = true,  -- Allow ! after command (MyCommand!)
-  -- complete = 'file',  -- Tab completion for files
 })
 
 return {
