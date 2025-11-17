@@ -255,16 +255,6 @@ plz_test() {
 # shellcheck source=/dev/null
 which plz >/dev/null 2>&1 && source <(plz --completion_script)
 
-if [ "${GOPATH}" = "" ]
-then
-    [ -d "${HOME}/go" ] && export GOPATH="${HOME}/go"
-fi
-if [ "${GOBIN}" = "" ]
-then
-    [ -d "${HOME}/go/bin" ] && export GOBIN="${HOME}/go/bin"
-fi
-
-path_push_left "${GOBIN}"
 [ -d "${KREW_ROOT:-$HOME/.krew}/bin" ] && path_push_left "${KREW_ROOT:-$HOME/.krew}/bin"
 
 if which fd >/dev/null 2>&1
@@ -323,6 +313,7 @@ bzsh() {
         --tmpfs $HOME/.cache \
         --tmpfs $HOME/.ssh \
         --tmpfs /etc/ssh/ssh_config.d \
+        --bind-try $HOME/.cache/gopls $HOME/.cache/gopls \
         --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
         --bind-try $HOME/.config/autostart $HOME/.config/autostart \
         --bind-try $HOME/.config/flake8 $HOME/.config/flake8 \
