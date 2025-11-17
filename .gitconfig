@@ -8,3 +8,7 @@
 [mergetool "fugitive"]
 [core]
 	excludesfile = ~/.gitignore_global
+[protocol "file"]
+	allow = always
+[init]
+	defaultBranch = master
