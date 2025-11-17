@@ -177,6 +177,7 @@ let
     stablePkgs.sqlite
     stablePkgs.lua
     stablePkgs.quick-lint-js
+    stablePkgs.steam-run
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
@@ -228,7 +229,7 @@ pkgs.mkShell {
     # glibc has no nss library included and tries to look at the default path instead
     # libsqlite3.so is used by telescope vim plugin
     # libstdc++.so.6 is required by some tools, for example https://github.com/Lightricks/LTX-Video
-    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib:${pkgs.sqlite.out}/lib/:${stablePkgs.libgcc.lib}/lib/
+    export LD_LIBRARY_PATH=${stablePkgs.sssd}/lib:${pkgs.sqlite.out}/lib/
     export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
     export ZSH_PLUGIN_DIRS=${findPathInToInstallPackages "share/zsh/plugins"}
     export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
