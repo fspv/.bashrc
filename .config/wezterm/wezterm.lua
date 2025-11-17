@@ -71,11 +71,6 @@ config.mouse_bindings = {
     action = wezterm.action.OpenLinkAtMouseCursor,
   },
   {
-    event = { Up = { streak = 1, button = "Left" } },
-    mods = "NONE",
-    action = wezterm.action.OpenLinkAtMouseCursor,
-  },
-  {
     event = { Down = { streak = 1, button = "Middle" } },
     mods = "NONE",
     action = wezterm.action.PasteFrom("PrimarySelection"),
