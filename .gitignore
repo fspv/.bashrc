@@ -28,6 +28,7 @@ backup
 .chef
 .chrome-remote-desktop-session
 .chromium-bsu
+**/.claude/settings.local.json
 .clickhouse*
 .cloud-locale-test.skip
 .codeblocks
@@ -80,11 +81,14 @@ Downloads
 .freerdp
 .gconf
 .gem/
+.gemini/
 .gimp-2.8
 .git
 git
 .gitconfig
+.gitkraken/
 .gitmodules
+.gk/
 .gksu.lock
 .gnome
 .gnome2
@@ -154,8 +158,10 @@ nohup.out
 .npm
 .nvidia-settings-rc
 .nvm
+.oauth-tokens
 .octave_hist
 .oh-my-zsh
+.opengrep/
 .openshot_qt
 .openvas
 .openvasrc
@@ -263,4 +269,3 @@ VirtualBox VMs
 .zoom/
 .zsh_history
 .zshrc.pre-oh-my-zsh*
-**/.claude/settings.local.json
