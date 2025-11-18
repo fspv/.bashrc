@@ -109,11 +109,6 @@ let
     stablePkgs.nodejs_22
     stablePkgs.yarn
     stablePkgs.ponysay
-    stablePkgs.rustc
-    stablePkgs.cargo
-    stablePkgs.rust-analyzer
-    stablePkgs.clippy
-    stablePkgs.rustfmt
     stablePkgs.openssl
     stablePkgs.openssl.dev
     stablePkgs.pkg-config
@@ -177,7 +172,7 @@ let
     stablePkgs.sqlite
     stablePkgs.lua
     stablePkgs.quick-lint-js
-    stablePkgs.steam-run
+    stablePkgs.clang
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
@@ -199,6 +194,12 @@ let
     unstablePkgs.luajitPackages.luacheck
     unstablePkgs.tree-sitter
     unstablePkgs.efm-langserver
+    # Rust
+    unstablePkgs.rustc
+    unstablePkgs.cargo
+    unstablePkgs.rust-analyzer
+    unstablePkgs.clippy
+    unstablePkgs.rustfmt
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
@@ -209,6 +210,7 @@ let
   ] ++ (
     if stablePkgs.stdenv.hostPlatform.system == "x86_64-linux" then [
         unstablePkgs.claude-code
+        stablePkgs.steam-run
     ] else []
   );
   findPathInToInstallPackages = path:
