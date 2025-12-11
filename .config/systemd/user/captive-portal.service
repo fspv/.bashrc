@@ -1,0 +1,27 @@
+[Unit]
+Description=Captive Portal Browser
+After=network.target
+
+[Service]
+Type=simple
+
+ExecStartPre=-/usr/bin/podman stop -t 5 captive-portal
+ExecStartPre=-/usr/bin/podman rm captive-portal
+
+ExecStart=/usr/bin/podman run \
+    --rm \
+    --name captive-portal \
+    --cap-add=NET_ADMIN \
+    --cap-add=NET_RAW \
+    --network=host \
+    -v %h/.local/share/bin/captive_portal.py:/captive_portal.py:ro \
+    docker.io/jlesage/firefox \
+    python3 /captive_portal.py
+
+ExecStop=/usr/bin/podman stop -t 5 captive-portal
+
+Restart=on-failure
+RestartSec=3600
+
+[Install]
+WantedBy=default.target
