@@ -341,6 +341,7 @@ bzsh() {
         --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
         --bind-try $HOME/.local/share/bin $HOME/.local/share/bin \
         --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
+        --bind-try $HOME/.local/share/tampermonkey $HOME/.local/share/tampermonkey \
         --bind-try $HOME/.local/share/fonts $HOME/.local/share/fonts \
         --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \

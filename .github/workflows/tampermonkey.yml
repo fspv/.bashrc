@@ -1,0 +1,44 @@
+name: Tampermonkey Backup
+
+on:
+  push:
+    paths:
+      - '.local/share/tampermonkey/*.user.js'
+      - '.local/share/bin/tampermonkey-export'
+      - '.github/workflows/tampermonkey.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate backup.json
+        run: |
+          .local/share/bin/tampermonkey-export \
+            -d .local/share/tampermonkey \
+            -o _site/backup.json
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

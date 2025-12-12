@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Generate Tampermonkey-compatible JSON backup from .user.js files."""
+
+import argparse
+import base64
+import json
+import logging
+import re
+import sys
+import uuid
+from pathlib import Path
+from typing import Any, Optional
+
+DEFAULT_SCRIPTS_DIR = Path.home() / ".local/share/tampermonkey"
+DEFAULT_OUTPUT_FILE = DEFAULT_SCRIPTS_DIR / "backup.json"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+    stream=sys.stderr,
+)
+logger = logging.getLogger(__name__)
+
+
+def parse_userscript_header(content: str) -> dict[str, list[str]]:
+    """Parse userscript metadata block and return a dict of directives."""
+    metadata: dict[str, list[str]] = {}
+
+    header_match = re.search(
+        r"//\s*==UserScript==\s*\n(.*?)//\s*==/UserScript==",
+        content,
+        re.DOTALL,
+    )
+    if not header_match:
+        return metadata
+
+    for line in header_match.group(1).split("\n"):
+        match = re.match(r"//\s*@(\S+)\s+(.*)", line.strip())
+        if match:
+            key, value = match.groups()
+            if key not in metadata:
+                metadata[key] = []
+            metadata[key].append(value.strip())
+
+    return metadata
+
+
+def get_first(metadata: dict[str, list[str]], key: str) -> Optional[str]:
+    """Get first value for a metadata key, or None."""
+    values = metadata.get(key, [])
+    return values[0] if values else None
+
+
+def build_script_entry(path: Path, position: int) -> dict[str, Any]:
+    """Build a Tampermonkey script entry from a .user.js file."""
+    content = path.read_text()
+    metadata = parse_userscript_header(content)
+
+    name = get_first(metadata, "name") or path.stem
+    matches = metadata.get("match", [])
+    includes = metadata.get("include", [])
+    excludes = metadata.get("exclude", [])
+    connects = metadata.get("connect", [])
+    run_at = get_first(metadata, "run-at")
+    noframes = "noframes" in metadata
+
+    logger.info("Processing: %s", name)
+
+    return {
+        "name": name,
+        "options": {
+            "check_for_updates": bool(get_first(metadata, "updateURL")),
+            "user_modified": None,
+            "comment": None,
+            "compatopts_for_requires": True,
+            "compat_wrappedjsobject": False,
+            "compat_metadata": False,
+            "compat_foreach": False,
+            "compat_powerful_this": None,
+            "sandbox": None,
+            "noframes": noframes if noframes else None,
+            "unwrap": None,
+            "run_at": None,
+            "tab_types": None,
+            "override": {
+                "use_includes": [],
+                "orig_includes": includes,
+                "merge_includes": True,
+                "use_matches": [],
+                "orig_matches": matches,
+                "merge_matches": True,
+                "use_excludes": [],
+                "orig_excludes": excludes,
+                "merge_excludes": True,
+                "use_connects": [],
+                "orig_connects": connects,
+                "merge_connects": True,
+                "use_blockers": [],
+                "orig_run_at": run_at,
+                "orig_noframes": noframes if noframes else None,
+            },
+        },
+        "storage": {"ts": None, "data": {}},
+        "enabled": True,
+        "position": position,
+        "file_url": get_first(metadata, "updateURL"),
+        "uuid": str(uuid.uuid4()),
+        "source": base64.b64encode(content.encode()).decode(),
+    }
+
+
+class Args(argparse.Namespace):
+    scripts_dir: Path
+    output: Optional[Path]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "-d",
+        "--scripts-dir",
+        type=Path,
+        default=DEFAULT_SCRIPTS_DIR,
+        help="Directory containing .user.js files",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
+        help="Output file path (default: <scripts-dir>/backup.json)",
+    )
+    args = parser.parse_args(namespace=Args())
+
+    scripts_dir = args.scripts_dir
+    output_file = args.output or scripts_dir / "backup.json"
+
+    if not scripts_dir.exists():
+        logger.error("Scripts directory does not exist: %s", scripts_dir)
+        sys.exit(1)
+
+    scripts = sorted(scripts_dir.glob("*.user.js"))
+    if not scripts:
+        logger.error("No .user.js files found in %s", scripts_dir)
+        sys.exit(1)
+
+    logger.info("Found %d script(s) in %s", len(scripts), scripts_dir)
+
+    backup = {
+        "created_by": "Tampermonkey",
+        "version": "1",
+        "scripts": [build_script_entry(path, i + 1) for i, path in enumerate(scripts)],
+    }
+
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(json.dumps(backup))
+    logger.info("Backup written to %s", output_file)
+
+
+if __name__ == "__main__":
+    main()
