@@ -1,4 +1,4 @@
-local lspconfig_defaults = require("lspconfig").util.default_config
+local lspconfig_defaults = require('lspconfig.util').default_config
 lspconfig_defaults.capabilities = vim.tbl_deep_extend(
   "force",
   lspconfig_defaults.capabilities,
@@ -216,18 +216,18 @@ local on_attach_func = function(client, bufnr)
   -- require('symbols-outline').open_outline()
 end
 
-require("lspconfig").yamlls.setup({
+vim.lsp.config('yamlls', {
   on_attach = on_attach_func,
   settings = {
     yaml = {},
   },
 })
 
-require("lspconfig").jsonls.setup({
+vim.lsp.config('jsonls', {
   on_attach = on_attach_func,
 })
 
-require("lspconfig").bashls.setup({
+vim.lsp.config('bashls', {
   useLibraryCodeForTypes = false,
   on_attach = on_attach_func,
   filetypes = { "sh", "zsh", "bash" },
@@ -245,7 +245,7 @@ local function get_python_path(workspace)
   return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
 end
 
-require("lspconfig").pyright.setup({
+vim.lsp.config('pyright', {
   on_attach = on_attach_func,
   -- cmd = {
   --   "pyright-langserver",
@@ -315,7 +315,7 @@ require("lspconfig").pyright.setup({
 --   }
 -- end
 
-require("lspconfig").lua_ls.setup({
+vim.lsp.config('lua_ls', {
   on_attach = on_attach_func,
   on_init = function(client)
     if client.workspace_folders then
@@ -405,7 +405,7 @@ require("lspconfig").lua_ls.setup({
 
 -- Settings values:
 -- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
-require("lspconfig").gopls.setup({
+vim.lsp.config('gopls', {
   on_attach = on_attach_func,
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto
   -- -rpc.trace` and uncomment below
@@ -489,7 +489,7 @@ require("lspconfig").gopls.setup({
 --
 -- Then createa a `.clangd` file in the project dir
 -- TODO: add example
-require("lspconfig").clangd.setup({
+vim.lsp.config('clangd', {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   on_attach = on_attach_func,
   cmd = {
@@ -515,35 +515,35 @@ require("lspconfig").clangd.setup({
 })
 
 -- JavaScript/TypeScript
-require("lspconfig").ts_ls.setup({
+vim.lsp.config('ts_ls', {
   on_attach = on_attach_func,
 })
 
 -- `npm init @eslint/config` to make this work
-require("lspconfig").eslint.setup({
+vim.lsp.config('eslint', {
   on_attach = on_attach_func,
 })
-require("lspconfig").biome.setup({
+vim.lsp.config('biome', {
   on_attach = on_attach_func,
 })
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
-require("lspconfig").quick_lint_js.setup({
+vim.lsp.config('quick_lint_js', {
   on_attach = on_attach_func,
 })
 
 -- Proto files
-require("lspconfig").buf_ls.setup({
+vim.lsp.config('buf_ls', {
   on_attach = on_attach_func,
 })
 
 -- nixos configs
-require("lspconfig").nixd.setup({
+vim.lsp.config('nixd', {
   on_attach = on_attach_func,
 })
 
 -- php
-require("lspconfig").phpactor.setup({
+vim.lsp.config('phpactor', {
   on_attach = on_attach_func,
 })
 
@@ -556,7 +556,7 @@ local luacheck = {
   lintIgnoreExitCode = true,
 }
 
-require("lspconfig").efm.setup({
+vim.lsp.config('efm', {
   on_attach = on_attach_func,
   init_options = { documentFormatting = true }, -- Enable if you want formatting
   filetypes = { "lua" },
