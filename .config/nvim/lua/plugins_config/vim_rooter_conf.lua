@@ -9,6 +9,7 @@ vim.g.rooter_patterns = {
   ".svn",
   "Makefile",
   "package.json",
+  "Cargo.toml",
   "library.properties",
   -- To cd for files residing in /tmp
   -- this may break something else, so worth revisiting later
