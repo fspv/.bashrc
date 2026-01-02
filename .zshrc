@@ -13,9 +13,6 @@ export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
 autoload -Uz compinit
 compinit -d "${ZSH_COMPDUMP}"
 
-# shellcheck source=/dev/null
-[ -f ~/.zshrc.local ] && source "${HOME}/.zshrc.local"
-
 if [[ -n "$FPATH_CUSTOM" ]]
 then
     FPATH_CUSTOM_ARRAY=("${(@s/:/)FPATH_CUSTOM}")
@@ -74,6 +71,92 @@ plugins=(
 
 # disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
+
+# ============================================================================
+# Git completion performance optimization for large monorepos
+# ============================================================================
+# Threshold for considering a repo "large" (number of refs)
+__GIT_LARGE_REPO_THRESHOLD=${__GIT_LARGE_REPO_THRESHOLD:-500}
+# Cache dir for repo size checks
+__GIT_REPO_SIZE_CACHE_DIR="${HOME}/.cache/zsh-git-completion"
+mkdir -p "$__GIT_REPO_SIZE_CACHE_DIR" 2>/dev/null
+
+# Check if current repo is large (cached per repo root)
+__git_is_large_repo() {
+    local git_dir
+    git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 1
+
+    # Get absolute path for cache key
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+    local cache_key="${repo_root//\//_}"
+    local cache_file="${__GIT_REPO_SIZE_CACHE_DIR}/${cache_key}"
+
+    # Check cache (valid for 1 hour)
+    if [[ -f "$cache_file" ]]; then
+        local cache_age=$(( $(date +%s) - $(stat -f%m "$cache_file" 2>/dev/null || stat -c%Y "$cache_file" 2>/dev/null) ))
+        if (( cache_age < 3600 )); then
+            [[ $(cat "$cache_file") == "large" ]] && return 0
+            return 1
+        fi
+    fi
+
+    # Count refs (branches + tags + remotes) with timeout
+    local ref_count
+    ref_count=$(timeout 2 git for-each-ref --format='x' 2>/dev/null | wc -l | tr -d ' ')
+
+    if (( ref_count > __GIT_LARGE_REPO_THRESHOLD )); then
+        echo "large" > "$cache_file"
+        return 0
+    else
+        echo "small" > "$cache_file"
+        return 1
+    fi
+}
+
+# Disable expensive git completions for large repos
+__git_completion_setup() {
+    local was_disabled=${__git_zsh_completions_disabled:-0}
+
+    if __git_is_large_repo; then
+        # Disable branch/tag completion (the main performance killer)
+        __git_complete_refs() { return; }
+        __git_heads() { return; }
+        __git_tags() { return; }
+        __git_refs() { return; }
+        __gitcomp_direct() { return; }
+        # For zsh git completion
+        __git_zsh_completions_disabled=1
+
+        # Also disable via zstyle
+        zstyle ':completion:*:*:git*:*' tag-order ''
+        zstyle ':completion:*:*:git*:*' group-order ''
+        zstyle ':completion::complete:git-checkout:argument-rest:' tag-order ''
+        zstyle ':completion::complete:git-switch:argument-rest:' tag-order ''
+        zstyle ':completion::complete:git-branch:option-d-1:' tag-order ''
+
+        # Log only on state change
+        if [[ "$was_disabled" != "1" ]]; then
+            echo "\033[33m⚠ Git completion disabled (large repo detected)\033[0m" >&2
+        fi
+    else
+        # Re-enable for normal repos
+        unset __git_zsh_completions_disabled
+        zstyle -d ':completion:*:*:git*:*' tag-order
+
+        # Log only on state change (and only if we're in a git repo)
+        if [[ "$was_disabled" == "1" ]] && git rev-parse --git-dir &>/dev/null; then
+            echo "\033[32m✓ Git completion re-enabled\033[0m" >&2
+        fi
+    fi
+}
+
+# Hook into chpwd to detect repo changes
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd __git_completion_setup
+
+# Also run on shell startup
+__git_completion_setup 2>/dev/null
 # set descriptions format to enable group support
 zstyle ':completion:*:descriptions' format '[%d]'
 # set list-colors to enable filename colorizing
@@ -181,11 +264,16 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 source "${HOME}/.shrc"
 
+# shellcheck source=/dev/null
+[ -f "${HOME}/.zshrc.local" ] && source "${HOME}/.zshrc.local"
+
 setopt inc_append_history
 unsetopt share_history
 
 # fixes https://github.com/zsh-users/zsh-autosuggestions/pull/753
 unset ZSH_AUTOSUGGEST_USE_ASYNC
+
+which atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
 
 case "$-" in
 *i*)
