@@ -119,6 +119,21 @@ require("lazy").setup({
   -- Syntax highlighting and code navidation
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
+    init = function()
+      -- Disable entire built-in ftplugin mappings to avoid conflicts.
+      -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin for built-in ftplugins.
+      vim.g.no_plugin_maps = true
+
+      -- Or, disable per filetype (add as you like)
+      -- vim.g.no_python_maps = true
+      -- vim.g.no_ruby_maps = true
+      -- vim.g.no_rust_maps = true
+      -- vim.g.no_go_maps = true
+    end,
+    config = function()
+      -- put your config here
+    end,
   },
   {
     "nvim-treesitter/nvim-treesitter",
@@ -136,7 +151,6 @@ require("lazy").setup({
       -- Luckily, the only things that those plugins need are the custom
       -- queries, which we make available during startup.
       require("lazy.core.loader").add_to_rtp(plugin)
-      require("nvim-treesitter.query_predicates")
     end,
     keys = {
       { "<c-space>", desc = "Increment Selection" },
@@ -443,6 +457,7 @@ require("lazy").setup({
   {
     "nvim-neo-tree/neo-tree.nvim",
     cmd = "Neotree",
+    branch = "v3.x",
     keys = {
       { "<leader>nn" },
     },
