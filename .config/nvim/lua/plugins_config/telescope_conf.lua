@@ -11,6 +11,52 @@ local _append_to_telescope_prompt = function(suffix)
   end
 end
 
+--- Go one directory up in a telescope picker session.
+--- This closes the current picker and reopens it with the parent directory as cwd.
+---@param reopen_fn fun(opts: table) Function to reopen the picker with new options
+---@return fun(prompt_bufnr: number)
+local function make_go_up_one_dir(reopen_fn)
+  return function(prompt_bufnr)
+    local action_state = require("telescope.actions.state")
+    local actions = require("telescope.actions")
+
+    local picker = action_state.get_current_picker(prompt_bufnr)
+    local prompt = picker:_get_prompt()
+
+    -- Get the current cwd from the picker (file_browser stores it in finder.cwd)
+    local current_cwd = picker.cwd
+      or (picker.finder and picker.finder.cwd)
+      or vim.loop.cwd()
+
+    -- Don't go above root
+    if current_cwd == "/" then
+      vim.notify("Already at root directory", vim.log.levels.WARN)
+      return
+    end
+
+    -- Get parent directory
+    local parent_dir = vim.fn.fnamemodify(current_cwd, ":h")
+
+    -- Close current picker
+    actions.close(prompt_bufnr)
+
+    -- Reopen the picker with the parent directory and preserved prompt
+    reopen_fn({
+      cwd = parent_dir,
+      path = parent_dir,
+      default_text = prompt,
+    })
+  end
+end
+
+local live_grep_go_up_one_dir = make_go_up_one_dir(function(opts)
+  require("telescope").extensions.live_grep_args.live_grep_args(opts)
+end)
+
+local file_browser_go_up_one_dir = make_go_up_one_dir(function(opts)
+  require("telescope").extensions.file_browser.file_browser(opts)
+end)
+
 --- A helper function to run a command and get its output as a table of lines.
 --- It will return an empty table if the command fails.
 ---@param command string The shell command to execute.
@@ -234,12 +280,14 @@ require("telescope").setup({
           ["<C-x>"] = _append_to_telescope_prompt(
             "--iglob !**{test,e2e,sat,experimental,fake,mock}* "
           ),
+          ["<C-h>"] = live_grep_go_up_one_dir,
         },
         n = {
           ["<Down>"] = require("telescope.actions").cycle_history_next,
           ["<Up>"] = require("telescope.actions").cycle_history_prev,
           j = require("telescope.actions").cycle_history_next,
           k = require("telescope.actions").cycle_history_prev,
+          ["<C-h>"] = live_grep_go_up_one_dir,
         },
       },
     },
@@ -249,10 +297,10 @@ require("telescope").setup({
       hijack_netrw = true,
       mappings = {
         ["i"] = {
-          -- your custom insert mode mappings
+          ["<C-h>"] = file_browser_go_up_one_dir,
         },
         ["n"] = {
-          -- your custom normal mode mappings
+          ["<C-h>"] = file_browser_go_up_one_dir,
         },
       },
     },
@@ -324,6 +372,12 @@ vim.keymap.set(
   "<C-e>",
   require("telescope").extensions.smart_open.smart_open,
   { desc = "Smart Open" }
+)
+vim.keymap.set(
+  "n",
+  "fb/",
+  require("telescope").extensions.file_browser.file_browser,
+  { desc = "File Browser" }
 )
 
 vim.keymap.set(
