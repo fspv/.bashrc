@@ -211,6 +211,8 @@ path_push_right /usr/lib/wsl/lib
 # Add WSL lib directory to LD_LIBRARY_PATH
 ld_library_path_push_right /usr/lib/wsl/lib
 
+# MacOS-specific: `/usr/libexec/path_helper` from `/etc/profile` messes stuff up there
+export PATH_HELPER_ROOT="/opt/homebrew"
 
 plz_path() {
     FILE=$1
@@ -349,4 +351,23 @@ bzsh() {
         --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
         --bind-try $HOME/.local/share/flatpak/extension $HOME/.local/share/flatpak/extension \
         -- zsh
+}
+
+
+path_debug() {
+    echo "=== PATH ==="
+    echo "$PATH" | tr ':' '\n' | while IFS= read -r dir; do
+        echo "$dir"
+    done
+
+    if [[ -n "$LD_LIBRARY_PATH" ]]; then
+        echo ""
+        echo "=== LD_LIBRARY_PATH ==="
+        echo "$LD_LIBRARY_PATH" | tr ':' '\n' | while IFS= read -r dir; do
+            echo "$dir"
+        done
+    else
+        echo ""
+        echo "=== LD_LIBRARY_PATH (not set) ==="
+    fi
 }
