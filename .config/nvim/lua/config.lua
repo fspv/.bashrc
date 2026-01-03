@@ -34,6 +34,25 @@ else
   return
 end
 
+-- Disable the default MenuPopup autocmd that expects specific menu items like "Go to definition"
+vim.api.nvim_clear_autocmds({ group = "nvim.popupmenu" })
+
+vim.cmd([[
+  aunmenu PopUp
+  nmenu PopUp.LSP\ Definition gd
+  nmenu PopUp.LSP\ Type\ Definition <space>D
+  nmenu PopUp.LSP\ Peek\ Definition gp
+  nmenu PopUp.LSP\ Peek\ Type\ Definition gtp
+  nmenu PopUp.LSP\ Declaration gD
+  nmenu PopUp.LSP\ Rename <space>rn
+  nmenu PopUp.LSP\ References gr
+  nmenu PopUp.LSP\ Implementation gi
+  nmenu PopUp.LSP\ Find\ Symbol gf
+  nmenu PopUp.LSP\ Code\ Action <leader>ca
+  nmenu PopUp.LSP\ Incoming\ Calls <leader>ci
+  nmenu PopUp.LSP\ Outgoing\ Calls <leader>co
+]])
+
 -- Remove old log file
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
@@ -282,14 +301,14 @@ require("lazy").setup({
   -- LSP
 
   -- More convenient lsp
-  {
-    "glepnir/lspsaga.nvim",
-    lazy = true,
-    config = function()
-      require("plugins_config/lspsaga_conf")
-    end,
-    dependencies = {},
-  },
+  -- {
+  --   "glepnir/lspsaga.nvim",
+  --   lazy = true,
+  --   config = function()
+  --     require("plugins_config/lspsaga_conf")
+  --   end,
+  --   dependencies = {},
+  -- },
   -- Main LSP plugin
   {
     "neovim/nvim-lspconfig",
@@ -302,7 +321,7 @@ require("lazy").setup({
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "williamboman/mason-lspconfig.nvim",
-      "glepnir/lspsaga.nvim",
+      -- "glepnir/lspsaga.nvim",
       "hrsh7th/cmp-nvim-lsp",
     },
   },
@@ -567,8 +586,36 @@ require("lazy").setup({
     "mrcjkb/rustaceanvim",
     version = "^5",
     init = function()
+      -- Check if lspmux is available and running
+      local function is_lspmux_available()
+        -- Check if lspmux binary exists in PATH
+        if vim.fn.executable("lspmux") ~= 1 then
+          return false
+        end
+        -- Check if lspmux is running
+        local handle = io.popen("pgrep lspmux 2>/dev/null")
+        if handle then
+          local result = handle:read("*a")
+          handle:close()
+          return result ~= nil and result ~= ""
+        end
+        return false
+      end
+
+      local use_lspmux = is_lspmux_available()
+
+      if not use_lspmux then
+        vim.notify(
+          "lspmux not found or not running, falling back to rust-analyzer",
+          vim.log.levels.WARN
+        )
+      end
+
       vim.g.rustaceanvim = {
         server = {
+          cmd = use_lspmux and function()
+            return vim.lsp.rpc.connect("127.0.0.1", 27631)
+          end or nil,
           ---@param client vim.lsp.Client
           ---@param bufnr number
           ---@return nil
@@ -586,22 +633,79 @@ require("lazy").setup({
             end
           end,
           default_settings = {
-            ["rust-analyzer"] = {
-              check = {
-                command = "clippy",
-                extraArgs = {
-                  "--",
-                  "--no-deps",
-                  "-Dclippy::correctness",
-                  "-Dclippy::complexity",
-                  "-Wclippy::perf",
-                  "-Wclippy::pedantic",
+            ["rust-analyzer"] = vim.tbl_deep_extend("force", use_lspmux and {
+              lspMux = {
+                version = "1",
+                method = "connect",
+                server = "rust-analyzer",
+              },
+            } or {}, {
+              checkOnSave = false,
+              cargo = {
+                buildScripts = {
+                  enable = true,
+                  rebuildOnSave = false,
+                },
+              },
+              procMacro = {
+                enable = true,
+                attributes = {
+                  enable = true,
                 },
               },
               diagnostics = {
-                -- disabled = {"unlinked-file"},
+                experimental = {
+                  enable = false,
+                },
               },
-            },
+              cachePriming = {
+                enable = false,
+              },
+              completion = {
+                limit = 100,
+                autoimport = {
+                  enable = true,
+                },
+              },
+              files = {
+                excludeDirs = {
+                  ".git",
+                  "target",
+                  "node_modules",
+                  ".cargo",
+                },
+                watcher = "server",
+              },
+              workspace = {
+                symbol = {
+                  search = {
+                    limit = 128,
+                  },
+                },
+              },
+              typing = {
+                autoClosingAngleBrackets = {
+                  enable = true,
+                },
+              },
+              lens = {
+                enable = true,
+                references = {
+                  adt = {
+                    enable = false,
+                  },
+                  enumVariant = {
+                    enable = false,
+                  },
+                  method = {
+                    enable = false,
+                  },
+                  trait = {
+                    enable = false,
+                  },
+                },
+              },
+            }),
           },
         },
       }

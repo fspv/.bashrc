@@ -1,4 +1,4 @@
-local lspconfig_defaults = require('lspconfig.util').default_config
+local lspconfig_defaults = require("lspconfig.util").default_config
 lspconfig_defaults.capabilities = vim.tbl_deep_extend(
   "force",
   lspconfig_defaults.capabilities,
@@ -134,58 +134,33 @@ local on_attach_func = function(client, bufnr)
     ),
     { buffer = bufnr, noremap = true, desc = "Go to Type Definition" }
   )
+  vim.keymap.set("n", "gp", function()
+    require("telescope.builtin").lsp_definitions({ jump_type = "never" })
+  end, { buffer = bufnr, noremap = true, desc = "Peek Definition" })
+  vim.keymap.set("n", "gtp", function()
+    require("telescope.builtin").lsp_type_definitions({ jump_type = "never" })
+  end, { buffer = bufnr, noremap = true, desc = "Peek Type Definition" })
+  vim.keymap.set(
+    "n",
+    "<leader>ci",
+    require("telescope.builtin").lsp_incoming_calls,
+    { buffer = bufnr, noremap = true, desc = "LSP Incoming Calls" }
+  )
+  vim.keymap.set(
+    "n",
+    "<leader>co",
+    require("telescope.builtin").lsp_outgoing_calls,
+    { buffer = bufnr, noremap = true, desc = "LSP Outgoing Calls" }
+  )
   vim.keymap.set("n", "[d", function()
     vim.diagnostic.goto_prev({ float = true })
   end, { buffer = bufnr, noremap = true, desc = "Go to Prev Diagnostic" })
   vim.keymap.set("n", "]d", function()
     vim.diagnostic.goto_next({ float = true })
   end, { buffer = bufnr, noremap = true, desc = "Go to Next Diagnostic" })
-  vim.keymap.set(
-    {
-      "n",
-      "v",
-    },
-    "<leader>ca",
-    "<cmd>Lspsaga code_action<CR>",
-    { buffer = bufnr, noremap = true, desc = "Code Action" }
-  )
-  vim.keymap.set(
-    "n",
-    "gp",
-    "<cmd>Lspsaga peek_definition<CR>",
-    { buffer = bufnr, noremap = true, desc = "Peek Definition" }
-  )
-  -- FIXME: overwrites gt (next tab)
-  vim.keymap.set(
-    "n",
-    "gtp",
-    "<cmd>Lspsaga peek_type_definition<CR>",
-    { buffer = bufnr, noremap = true, desc = "Peek Type Definition" }
-  )
-  vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", {
-    buffer = bufnr,
-    noremap = true,
-    desc = "Hover Doc (press twice to scroll)",
-  })
-
-  vim.keymap.set(
-    "n",
-    "<leader>o",
-    "<cmd>Lspsaga outline<CR>",
-    { buffer = bufnr, noremap = true, desc = "Symbols Outline (Lspsaga)" }
-  )
-  vim.keymap.set(
-    "n",
-    "<Leader>ci",
-    "<cmd>Lspsaga incoming_calls<CR>",
-    { buffer = bufnr, noremap = true, desc = "Incoming Calls" }
-  )
-  vim.keymap.set(
-    "n",
-    "<Leader>co",
-    "<cmd>Lspsaga outgoing_calls<CR>",
-    { buffer = bufnr, noremap = true, desc = "Outgouing Calls" }
-  )
+  vim.keymap.set({ "n", "v" }, "<leader>ca", function()
+    require("plugins_config.code_action_preview").code_action()
+  end, { buffer = bufnr, noremap = true, desc = "Code Action" })
 
   vim.keymap.set(
     "n",
@@ -216,18 +191,18 @@ local on_attach_func = function(client, bufnr)
   -- require('symbols-outline').open_outline()
 end
 
-vim.lsp.config('yamlls', {
+vim.lsp.config("yamlls", {
   on_attach = on_attach_func,
   settings = {
     yaml = {},
   },
 })
 
-vim.lsp.config('jsonls', {
+vim.lsp.config("jsonls", {
   on_attach = on_attach_func,
 })
 
-vim.lsp.config('bashls', {
+vim.lsp.config("bashls", {
   useLibraryCodeForTypes = false,
   on_attach = on_attach_func,
   filetypes = { "sh", "zsh", "bash" },
@@ -245,7 +220,7 @@ local function get_python_path(workspace)
   return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
 end
 
-vim.lsp.config('pyright', {
+vim.lsp.config("pyright", {
   on_attach = on_attach_func,
   -- cmd = {
   --   "pyright-langserver",
@@ -315,7 +290,7 @@ vim.lsp.config('pyright', {
 --   }
 -- end
 
-vim.lsp.config('lua_ls', {
+vim.lsp.config("lua_ls", {
   on_attach = on_attach_func,
   on_init = function(client)
     if client.workspace_folders then
@@ -405,7 +380,7 @@ vim.lsp.config('lua_ls', {
 
 -- Settings values:
 -- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
-vim.lsp.config('gopls', {
+vim.lsp.config("gopls", {
   on_attach = on_attach_func,
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto
   -- -rpc.trace` and uncomment below
@@ -489,7 +464,7 @@ vim.lsp.config('gopls', {
 --
 -- Then createa a `.clangd` file in the project dir
 -- TODO: add example
-vim.lsp.config('clangd', {
+vim.lsp.config("clangd", {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   on_attach = on_attach_func,
   cmd = {
@@ -515,35 +490,35 @@ vim.lsp.config('clangd', {
 })
 
 -- JavaScript/TypeScript
-vim.lsp.config('ts_ls', {
+vim.lsp.config("ts_ls", {
   on_attach = on_attach_func,
 })
 
 -- `npm init @eslint/config` to make this work
-vim.lsp.config('eslint', {
+vim.lsp.config("eslint", {
   on_attach = on_attach_func,
 })
-vim.lsp.config('biome', {
+vim.lsp.config("biome", {
   on_attach = on_attach_func,
 })
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
-vim.lsp.config('quick_lint_js', {
+vim.lsp.config("quick_lint_js", {
   on_attach = on_attach_func,
 })
 
 -- Proto files
-vim.lsp.config('buf_ls', {
+vim.lsp.config("buf_ls", {
   on_attach = on_attach_func,
 })
 
 -- nixos configs
-vim.lsp.config('nixd', {
+vim.lsp.config("nixd", {
   on_attach = on_attach_func,
 })
 
 -- php
-vim.lsp.config('phpactor', {
+vim.lsp.config("phpactor", {
   on_attach = on_attach_func,
 })
 
@@ -556,7 +531,7 @@ local luacheck = {
   lintIgnoreExitCode = true,
 }
 
-vim.lsp.config('efm', {
+vim.lsp.config("efm", {
   on_attach = on_attach_func,
   init_options = { documentFormatting = true }, -- Enable if you want formatting
   filetypes = { "lua" },
