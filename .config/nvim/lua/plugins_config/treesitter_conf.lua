@@ -5,10 +5,10 @@ vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("treesitter", {}),
   callback = function(ev)
     local max_filesize = 500 * 1024 -- 500 KB
-    local parsers = require("nvim-treesitter.parsers")
-    local lang = parsers.ft_to_lang(ev.match)
+    local lang = vim.treesitter.language.get_lang(ev.match) or ev.match
 
-    if not parsers.has_parser(lang) then
+    local has_parser = pcall(vim.treesitter.language.inspect, lang)
+    if not has_parser then
       return
     end
 
@@ -22,7 +22,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-require("nvim-treesitter.configs").setup({
+require("nvim-treesitter").setup({
   modules = {},
 
   -- A list of parser names, or "all"
