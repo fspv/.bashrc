@@ -51,7 +51,12 @@ set updatetime=100
 set number
 
 " Preserve undo history https://neovim.io/doc/user/options.html#'undofile'
+set undodir=~/.vim/undo
 set undofile
+
+if !isdirectory(&undodir)
+    call mkdir(&undodir, "p", 0700)
+endif
 
 " Try to show at least three lines and two columns of context when
 " scrolling
