@@ -5,9 +5,9 @@
 xwayland enable
 
 set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
-exec_always rm -rf "/run/user/$(id -u)/sway_log"
+exec_always find "/run/user/$(id -u)/sway_log" -type f -delete 2>/dev/null || true
 
-exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY
+exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
 
 # Restore saved brightness on startup (run `light -O` to save)
 exec $log light -I
@@ -19,6 +19,7 @@ exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
 
 exec_always pkill -f dunst
 # xfce4-notifyd is started by dbus by default causing a race condition
+exec_always $log systemctl --user mask xfce4-notifyd.service
 exec_always $log systemctl --user stop xfce4-notifyd.service
 exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 
@@ -41,8 +42,7 @@ exec_always {
 
 # Stop unwanted services
 exec_always {
-    $log systemctl --user disable tracker-miner-fs-3.service
-    $log systemctl --user stop tracker-miner-fs-3.service
+    $log systemctl --user mask tracker-miner-fs-3.service
 }
 
 # Some cleanup
@@ -52,11 +52,10 @@ exec_always {
 
 # Make pipewire (camera and sound sharing) work
 exec_always {
-    $log systemctl --user restart wireplumber.service
-    $log systemctl --user restart xdg-desktop-portal.service
-    $log systemctl --user restart xdg-desktop-portal-gnome.service
-    $log systemctl --user restart xdg-desktop-portal-gtk.service
-    $log systemctl --user restart xdg-desktop-portal-wlr.service
+    $log systemctl --user start wireplumber.service
+    $log systemctl --user start xdg-desktop-portal.service
+    $log systemctl --user start xdg-desktop-portal-gtk.service
+    $log systemctl --user start xdg-desktop-portal-wlr.service
 }
 set $mod Mod4
 
@@ -112,6 +111,7 @@ set $lock_screen $log sh -c "swaymsg input \* xkb_switch_layout 0; flock -x -n $
 set $disable_display_and_lock_screen $log sh -c "swaymsg output \* power off; swaymsg input \* xkb_switch_layout 0; flock -x -n ${HOME}/.config/swaylock/flock swaylock -f -d"
 set $disable_display $log swaymsg "output * power off"
 set $enable_display $log swaymsg "output * power on"
+set $restart_pipewire $log systemctl --user start wireplumber pipewire
 
 # Don't sleep when fullscreen app is open
 # for_window [class=.*] inhibit_idle fullscreen
@@ -123,11 +123,11 @@ exec_always $log swayidle -w -d \
     timeout 180 '$disable_display' \
     resume '$enable_display' \
     timeout 300 '$lock_screen' \
-    resume '$enable_display' \
+    resume '$enable_display; $restart_pipewire' \
     timeout 420 'systemctl suspend' \
-    resume '$enable_display' \
+    resume '$enable_display; $restart_pipewire' \
     before-sleep '$disable_display_and_lock_screen' \
-    after-resume '$enable_display' \
+    after-resume '$enable_display; $restart_pipewire' \
     lock '$lock_screen' \
     unlock 'kill -s 1 $(pgrep swaylock)'
 
@@ -306,7 +306,7 @@ input type:keyboard {
   repeat_rate 45
 }
 
-bindsym --locked --inhibited --release Ctrl+Shift_L exec $log ~/.config/sway/scripts/toggle_input.sh
+# bindsym --locked --inhibited --release Ctrl+Shift_L exec $log ~/.config/sway/scripts/toggle_input.sh
 
 input type:touchpad {
     left_handed enabled
