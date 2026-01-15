@@ -50,6 +50,7 @@ then
     flatpak install -y --user com.parsecgaming.parsec
     flatpak install -y --user flathub org.libreoffice.LibreOffice
     flatpak install -y --user flathub org.wezfurlong.wezterm
+    flatpak install --user flathub com.logseq.Logseq
 fi
 
 "${SCRIPT_DIR}/init-nix.sh"
