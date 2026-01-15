@@ -38,6 +38,7 @@ backup
 !.config/containers
 !.config/environment.d
 !.config/flake8
+!.config/flameshot
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
