@@ -19,6 +19,8 @@ export PODMAN_COMPOSE_WARNING_LOGS=false
 
 export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
 
+export SSH_AUTH_SOCK=
+
 # systemd variables
 export SYSTEMD_PAGER=less
 export PAGER=less
@@ -152,7 +154,7 @@ else
     rm "$rmtemp";
 fi
 
-EDITOR=nvim
+EDITOR=vi
 export EDITOR
 
 # kube config
@@ -297,7 +299,7 @@ bzsh() {
         --ro-bind-try /lib64 /lib64 \
         --ro-bind /usr /usr \
         --bind /opt /opt \
-        --ro-bind /snap /snap \
+        --ro-bind-try /snap /snap \
         --ro-bind /var /var \
         --ro-bind /nix /nix \
         --ro-bind /etc /etc \
