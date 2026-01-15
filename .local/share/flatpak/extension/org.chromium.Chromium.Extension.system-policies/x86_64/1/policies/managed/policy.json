@@ -2,9 +2,11 @@
   "HomepageLocation": "about:blank",
   "SyncDisabled": true,
   "AutofillEnabled": false,
+  "AutofillCreditCardEnabled": false,
   "MetricsReportingEnabled": false,
   "BlockInsecurePrivateNetworkRequests": true,
-  "CloudReportingEnabled": true,
+  "CloudReportingEnabled": false,
+  "CloudProfileReportingEnabled": false,
   "EventLoggingEnabled": true,
   "DefaultClipboardSetting": 3,
   "HomepageIsNewTabPage": false,
@@ -15,6 +17,28 @@
   "PasswordLeakDetectionEnabled": 1,
   "DefaultCookiesSetting": 4,
   "ClearBrowsingDataOnExit": true,
+  "DefaultGeolocationSetting": 2,
+  "DefaultNotificationsSetting": 2,
+  "DefaultPopupsSetting": 2,
+  "DefaultWebBluetoothGuardSetting": 2,
+  "DefaultWebUsbGuardSetting": 2,
+  "DefaultSensorsSetting": 2,
+  "DefaultSerialGuardSetting": 2,
+  "DefaultFileSystemReadGuardSetting": 2,
+  "DefaultFileSystemWriteGuardSetting": 2,
+  "DefaultInsecureContentSetting": 2,
+  "AlternateErrorPagesEnabled": false,
+  "UrlKeyedAnonymizedDataCollectionEnabled": false,
+  "UserFeedbackAllowed": false,
+  "MediaRecommendationsEnabled": false,
+  "PromotionalTabsEnabled": false,
+  "ShowFullUrlsInAddressBar": true,
+  "BookmarkBarEnabled": true,
+  "ShowHomeButton": true,
+  "DefaultBrowserSettingEnabled": false,
+  "BrowserLabsEnabled": false,
+  "SideSearchEnabled": false,
+  "BackgroundModeEnabled": false,
   "CookiesClearOnExit": [
     {
       "clear_cookies_on_exit": true
@@ -23,7 +47,7 @@
   "ExtensionInstallForcelist": [
     "cjpalhdlnbpafiamejdnhcphjbkeiagm",
     "fihnjjcciajhdojfnbdddfaoknhalnja",
-    "dneaehbmnbhcippjikoajpoabadpodje",
+    "lcmhijbkigalmkeommnijlpobloojgfn",
     "hkligngkgcpcolhcnkgccglchdafcnao"
   ],
   "ManagedBookmarks": [
@@ -31,5 +55,6 @@
       "name": "Nix Packages",
       "url": "https://search.nixos.org/packages"
     }
-  ]
+  ],
+  "URLBlocklist": ["magnet:*"]
 }
