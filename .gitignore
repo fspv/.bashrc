@@ -1,4 +1,12 @@
 *~
+.DS_Store
+.cline
+.grok
+Library/
+Movies/
+package-lock.json
+package.json
+lazy-lock.json
 .adobe
 .android
 Android
