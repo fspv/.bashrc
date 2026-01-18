@@ -28,6 +28,7 @@ set shiftwidth=4
 set smarttab
 if has("autocmd")
   filetype plugin indent on
+  autocmd BufRead * if getline(1) =~ "^#!/usr/bin/env python" | set filetype=python | endif
 endif
 " Autoreplace tab by default
 set et
