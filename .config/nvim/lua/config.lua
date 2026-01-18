@@ -647,64 +647,6 @@ require("lazy").setup({
                   rebuildOnSave = false,
                 },
               },
-              procMacro = {
-                enable = true,
-                attributes = {
-                  enable = true,
-                },
-              },
-              diagnostics = {
-                experimental = {
-                  enable = false,
-                },
-              },
-              cachePriming = {
-                enable = false,
-              },
-              completion = {
-                limit = 100,
-                autoimport = {
-                  enable = true,
-                },
-              },
-              files = {
-                excludeDirs = {
-                  ".git",
-                  "target",
-                  "node_modules",
-                  ".cargo",
-                },
-                watcher = "server",
-              },
-              workspace = {
-                symbol = {
-                  search = {
-                    limit = 128,
-                  },
-                },
-              },
-              typing = {
-                autoClosingAngleBrackets = {
-                  enable = true,
-                },
-              },
-              lens = {
-                enable = true,
-                references = {
-                  adt = {
-                    enable = false,
-                  },
-                  enumVariant = {
-                    enable = false,
-                  },
-                  method = {
-                    enable = false,
-                  },
-                  trait = {
-                    enable = false,
-                  },
-                },
-              },
             }),
           },
         },
