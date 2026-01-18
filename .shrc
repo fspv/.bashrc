@@ -13,11 +13,15 @@ export NIX_PATH
 
 export NIX_SHELL_BASE_LEVEL=0
 
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+if [[ -z "$XDG_RUNTIME_DIR" ]]; then
+    if [[ -d "/run/user/$(id -u)" ]]; then
+        # Linux-only, doesn't work on MacOS
+        export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+        export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+    fi
+fi
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
-
-export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
 
 export SSH_AUTH_SOCK=
 
@@ -154,6 +158,12 @@ else
     rm "$rmtemp";
 fi
 
+
+
+if [ -n "$TMUX" ]; then
+    alias clear='clear && tmux clear-history'
+fi
+
 EDITOR=vi
 export EDITOR
 
@@ -207,6 +217,7 @@ path_push_right /usr/bin
 path_push_right /usr/games
 path_push_right /usr/local/games
 path_push_right /usr/lib/wsl/lib
+path_push_right "${HOME}/.local/share/bin"
 
 # Add WSL lib directory to LD_LIBRARY_PATH
 ld_library_path_push_right /usr/lib/wsl/lib
