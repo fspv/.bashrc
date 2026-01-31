@@ -12,8 +12,10 @@ local _append_to_telescope_prompt = function(suffix)
 end
 
 --- Go one directory up in a telescope picker session.
---- This closes the current picker and reopens it with the parent directory as cwd.
----@param reopen_fn fun(opts: table) Function to reopen the picker with new options
+--- This closes the current picker and reopens it with the parent
+--- directory as cwd.
+---@param reopen_fn fun(opts: table) Function to reopen the picker with
+--- new options
 ---@return fun(prompt_bufnr: number)
 local function make_go_up_one_dir(reopen_fn)
   return function(prompt_bufnr)
@@ -23,7 +25,8 @@ local function make_go_up_one_dir(reopen_fn)
     local picker = action_state.get_current_picker(prompt_bufnr)
     local prompt = picker:_get_prompt()
 
-    -- Get the current cwd from the picker (file_browser stores it in finder.cwd)
+    -- Get the current cwd from the picker
+    -- (file_browser stores it in finder.cwd)
     local current_cwd = picker.cwd
       or (picker.finder and picker.finder.cwd)
       or vim.loop.cwd()

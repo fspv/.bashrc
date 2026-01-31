@@ -34,7 +34,8 @@ else
   return
 end
 
--- Disable the default MenuPopup autocmd that expects specific menu items like "Go to definition"
+-- Disable the default MenuPopup autocmd that expects specific menu items
+-- like "Go to definition"
 vim.api.nvim_clear_autocmds({ group = "nvim.popupmenu" })
 
 vim.cmd([[
@@ -141,7 +142,8 @@ require("lazy").setup({
     branch = "main",
     init = function()
       -- Disable entire built-in ftplugin mappings to avoid conflicts.
-      -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin for built-in ftplugins.
+      -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin
+      -- for built-in ftplugins.
       vim.g.no_plugin_maps = true
 
       -- Or, disable per filetype (add as you like)
