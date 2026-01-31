@@ -50,6 +50,7 @@ backup
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
+!.config/mimeapps.list
 !.config/lazygit
 !.config/nix
 !.config/nvim

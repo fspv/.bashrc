@@ -1,0 +1,24 @@
+[Added Associations]
+x-scheme-handler/http=exo-web-browser.desktop
+x-scheme-handler/https=exo-web-browser.desktop
+video/mp4=vlc.desktop;org.xfce.Parole.desktop;
+text/plain=org.gnome.TextEditor.desktop;mousepad.desktop;org.chromium.Chromium.desktop;
+text/html=exo-web-browser.desktop;
+video/x-matroska=vlc.desktop;org.xfce.Parole.desktop;
+image/jpeg=ristretto.desktop;
+application/pdf=org.chromium.Chromium.desktop;org.gnome.Evince.desktop;atril.desktop;
+text/calendar=org.gnome.gedit.desktop;
+application/x-shellscript=nvim.desktop;
+application/json=org.gnome.TextEditor.desktop;
+video/webm=vlc.desktop;
+
+[Default Applications]
+x-scheme-handler/tg=telegramdesktop.desktop
+text/html=org.chromium.Chromium.desktop
+x-scheme-handler/http=org.chromium.Chromium.desktop
+x-scheme-handler/https=org.chromium.Chromium.desktop
+x-scheme-handler/about=org.chromium.Chromium.desktop
+x-scheme-handler/unknown=org.chromium.Chromium.desktop
+x-scheme-handler/mailto=org.chromium.Chromium.desktop
+video/webm=vlc.desktop
+text/plain=org.chromium.Chromium.desktop
