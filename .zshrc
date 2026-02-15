@@ -6,7 +6,8 @@ if [[ "$TERM_PROGRAM" == "vscode" || "$TERM_PROGRAM" == "Cursor" ]]; then
   return
 fi
 
-DISABLE_AUTO_TITLE=true
+# TODO: remove this as asciicinema seems to be ok now
+# DISABLE_AUTO_TITLE=true
 
 export ZSH_COMPDUMP="${HOME}/.cache/.zcompdump"
 
