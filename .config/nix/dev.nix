@@ -194,6 +194,7 @@ let
     unstablePkgs.luajitPackages.luacheck
     unstablePkgs.tree-sitter
     unstablePkgs.efm-langserver
+    unstablePkgs.atuin
     # Rust
     unstablePkgs.rustc
     unstablePkgs.cargo
