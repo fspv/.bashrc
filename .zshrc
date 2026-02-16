@@ -253,7 +253,7 @@ zle -N fzf_history_search
 
 bindkey $ZSH_FZF_HISTORY_SEARCH_BIND fzf_history_search
 
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_STRATEGY=(history)
 ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=(forward-char end-of-line vi-forward-char)
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
