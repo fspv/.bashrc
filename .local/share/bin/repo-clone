@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""Clone a git repository into ~/git/<host>/<owner>/<repo>/"""
+
+import argparse
+import os
+import subprocess
+import sys
+from urllib.parse import urlparse
+
+
+def parse_repo_url(url: str) -> tuple[str, str]:
+    """Parse a repo URL and return (host/owner/repo path, clone URL).
+
+    Supports:
+      - https://github.com/owner/repo.git
+      - https://github.com/owner/repo
+      - git@github.com:owner/repo.git
+      - github.com/owner/repo
+    """
+    # Handle SSH URLs: git@host:owner/repo.git
+    if url.startswith("git@"):
+        rest = url[len("git@"):]
+        host, _, path = rest.partition(":")
+        path = path.removesuffix(".git").strip("/")
+        clone_url = url
+        return os.path.join(host, path), clone_url
+
+    # If no scheme, assume https
+    if "://" not in url:
+        url = "https://" + url
+
+    parsed = urlparse(url)
+    host = parsed.hostname
+    path = parsed.path.strip("/").removesuffix(".git")
+
+    if not host or not path:
+        print(f"error: cannot parse repo URL: {url}", file=sys.stderr)
+        sys.exit(1)
+
+    clone_url = url
+    return os.path.join(host, path), clone_url
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Clone a repo into ~/git/<host>/<owner>/<repo>/")
+    parser.add_argument("repo", help="Repository URL to clone")
+    parser.add_argument("extra", nargs=argparse.REMAINDER, help="Extra arguments passed to git clone")
+    args = parser.parse_args()
+
+    rel_path, clone_url = parse_repo_url(args.repo)
+    dest = os.path.join(os.path.expanduser("~/git"), rel_path)
+
+    if os.path.exists(dest):
+        print(f"already exists: {dest}")
+        sys.exit(0)
+
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+    cmd = ["git", "clone", clone_url, dest] + args.extra
+    print(f"$ {' '.join(cmd)}")
+    sys.exit(subprocess.call(cmd))
+
+
+if __name__ == "__main__":
+    main()
