@@ -148,6 +148,14 @@ function mkdircd {
     cd "$1" || true
 }
 
+scratch() {
+    local ext="${1:-py}"
+    local f
+    f=$(mktemp "${TMPDIR:-/tmp}/scratch-XXXXXX") && mv "$f" "$f.$ext" && f="$f.$ext"
+    ${EDITOR:-vim} "$f"
+    echo "$f"
+}
+
 # add -i or -I (for newer coreutils versions) option to /bin/rm command
 rmtemp=$(mktemp)
 if rm -I "$rmtemp" &>/dev/null; then
