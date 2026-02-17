@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Sync pane context into tmux pane-local variables.
+
+Called from zsh precmd hook. Sets:
+    @pane_path  - shortened cwd (~/xai/)
+    @pane_git   - current git branch or empty
+    @pane_k8s   - k8s:context/namespace or empty
+
+Usage:
+    tmux-info <path>
+"""
+
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+
+
+GIT_BRANCH_ICON = "\ue0a0"
+
+
+def get_git_branch(path: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", path, "branch", "--show-current"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return ""
+    branch = result.stdout.strip()
+    if not branch:
+        return ""
+    return f"{GIT_BRANCH_ICON} {branch}"
+
+
+def get_kube_info() -> str:
+    result = subprocess.run(
+        ["kubectl", "config", "current-context"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return ""
+
+    ctx = result.stdout.strip()
+    short_ctx = ctx.rsplit("_", 1)[-1] if "_" in ctx else ctx
+
+    ns_result = subprocess.run(
+        ["kubectl", "config", "view", "--minify", "-o", "jsonpath={..namespace}"],
+        capture_output=True,
+        text=True,
+    )
+    ns = ns_result.stdout.strip() if ns_result.returncode == 0 else ""
+    ns = ns or "default"
+
+    return f"⎈ k8s:{short_ctx}/{ns}"
+
+
+def shorten_path(path: str) -> str:
+    home_str = str(HOME)
+    if path.startswith(home_str):
+        path = "~" + path[len(home_str):]
+    if not path.endswith("/"):
+        path += "/"
+    return path
+
+
+def set_tmux_options(variables: dict[str, str]) -> None:
+    for key, value in variables.items():
+        subprocess.run(
+            ["tmux", "set-option", "-p", key, value],
+            capture_output=True,
+        )
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print(f"Usage: {sys.argv[0]} <path>", file=sys.stderr)
+        sys.exit(1)
+
+    path = sys.argv[1]
+
+    set_tmux_options({
+        "@pane_path": shorten_path(path),
+        "@pane_git": get_git_branch(path),
+        "@pane_k8s": get_kube_info(),
+    })
+
+
+if __name__ == "__main__":
+    main()

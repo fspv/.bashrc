@@ -263,6 +263,12 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ -f "${HOME}/.p10k.zsh" ]] && source "${HOME}/.p10k.zsh"
 
+# Run precmd hook (edit the file, no shell reload needed)
+__run_precmd_hook() {
+    "${HOME}"/.config/zsh/hooks/precmd.sh "$PWD"
+}
+add-zsh-hook precmd __run_precmd_hook
+
 source "${HOME}/.shrc"
 
 # shellcheck source=/dev/null
@@ -270,11 +276,15 @@ source "${HOME}/.shrc"
 
 setopt inc_append_history
 unsetopt share_history
+setopt hist_ignore_all_dups
+setopt hist_reduce_blanks
+setopt hist_verify
 
 # fixes https://github.com/zsh-users/zsh-autosuggestions/pull/753
 unset ZSH_AUTOSUGGEST_USE_ASYNC
 
 which atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
+which zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 case "$-" in
 *i*)
