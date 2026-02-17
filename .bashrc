@@ -42,6 +42,9 @@ which kubectl >/dev/null 2>&1 && source <(kubectl completion bash 2>/dev/null)
 # shellcheck source=/dev/null
 which fzf >/dev/null 2>&1 && source <(fzf --bash 2>/dev/null)
 
+# shellcheck source=/dev/null
+which zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
+
 # Completion for hosts for ssh
 resolv_search_domains=$(grep '^search .*$' /etc/resolv.conf | sed 's/^search //')
 
