@@ -1,9 +1,36 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+path_push_left() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        path="$1:${PATH:+"$PATH"}"
+        export PATH=${path}
+    fi
+}
+
+path_push_right() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        path="${PATH:+"$PATH"}:$1"
+        export PATH=${path}
+    fi
+}
+
+path_push_right /usr/local/sbin
+path_push_right /usr/local/bin
+path_push_right /bin
+path_push_right /sbin
+path_push_right /usr/sbin
+path_push_right /usr/bin
+
+if [ -z "$HOME" ]; then
+    HOME=$(eval echo ~"$(id -un)")
+    export HOME
+fi
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+export TERM=${TERM:-xterm-256color}
+export COLORTERM=${COLORTERM:-truecolor}
 
 NIXPKGS_ALLOW_UNFREE=1
 export NIXPKGS_ALLOW_UNFREE
@@ -188,20 +215,6 @@ fi
 alias kubie="BASHRC_ALREADY_EXECUTED= ZSHRC_ALREADY_EXECUTED= kubie"
 
 # Non-interactive static and idempotent configs
-path_push_left() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        path="$1:${PATH:+"$PATH"}"
-        export PATH=${path}
-    fi
-}
-
-path_push_right() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        path="${PATH:+"$PATH"}:$1"
-        export PATH=${path}
-    fi
-}
-
 ld_library_path_push_left() {
     if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
         ld_path="$1:${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH"}"
@@ -216,12 +229,6 @@ ld_library_path_push_right() {
     fi
 }
 
-path_push_right /bin
-path_push_right /sbin
-path_push_right /usr/local/sbin
-path_push_right /usr/local/bin
-path_push_right /usr/sbin
-path_push_right /usr/bin
 path_push_right /usr/games
 path_push_right /usr/local/games
 path_push_right /usr/lib/wsl/lib

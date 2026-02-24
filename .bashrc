@@ -1,7 +1,7 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
-source "${HOME}/.shrc"
+source ~/.shrc
 
 case "$-" in
 *i*)

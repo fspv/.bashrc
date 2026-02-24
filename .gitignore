@@ -85,6 +85,7 @@ Downloads
 .env*
 .erg
 .ethereum/
+flake.lock
 .fontconfig
 .fonts
 .fonts.conf
