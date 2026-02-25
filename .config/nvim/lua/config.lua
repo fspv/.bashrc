@@ -173,10 +173,6 @@ require("lazy").setup({
       -- queries, which we make available during startup.
       require("lazy.core.loader").add_to_rtp(plugin)
     end,
-    keys = {
-      { "<c-space>", desc = "Increment Selection" },
-      { "<bs>", desc = "Decrement Selection", mode = "x" },
-    },
     ---@param opts TSConfig
     config = function(_, opts) -- luacheck: no unused args
       require("plugins_config/treesitter_conf")
@@ -1049,7 +1045,7 @@ require("lazy").setup({
   },
   {
     "danielfalk/smart-open.nvim",
-    branch = "0.2.x",
+    dir = vim.fn.stdpath("config") .. "/plugins/smart-open.nvim",
     config = function()
       require("telescope").load_extension("smart_open")
     end,

@@ -1,0 +1,283 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import subprocess
+import sys
+import time
+from dataclasses import dataclass
+from pathlib import Path
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+)
+log = logging.getLogger(__name__)
+
+
+@dataclass
+class Worktree:
+    path: Path
+    head: str
+    branch: str
+
+
+def run_git(args: list[str], capture: bool = True, cwd: Path | None = None) -> str:
+    cmd = ["git"] + args
+    log.debug("Running: %s", " ".join(cmd))
+    result = subprocess.run(cmd, capture_output=capture, text=True, check=True, cwd=cwd)
+    return result.stdout.strip() if capture else ""
+
+
+def list_worktrees() -> list[Worktree]:
+    output = run_git(["worktree", "list", "--porcelain"])
+    worktrees: list[Worktree] = []
+    path: Path | None = None
+    head: str = ""
+    branch: str = ""
+
+    for line in output.splitlines():
+        if line.startswith("worktree "):
+            path = Path(line.split(" ", 1)[1])
+        elif line.startswith("HEAD "):
+            head = line.split(" ", 1)[1]
+        elif line.startswith("branch "):
+            ref = line.split(" ", 1)[1]
+            branch = ref.removeprefix("refs/heads/")
+        elif line == "" and path is not None:
+            worktrees.append(Worktree(path=path, head=head, branch=branch))
+            path = None
+            head = ""
+            branch = ""
+
+    if path is not None:
+        worktrees.append(Worktree(path=path, head=head, branch=branch))
+
+    return worktrees
+
+
+def has_uncommitted_changes(worktree_path: Path) -> bool:
+    output = run_git(["status", "--porcelain"], cwd=worktree_path)
+    return len(output) > 0
+
+
+@dataclass
+class TmuxPane:
+    pane_id: str
+    session_name: str
+    window_name: str
+    pane_current_path: str
+    pane_current_command: str
+    pane_pid: str
+
+
+_TMUX_FORMAT = "\t".join([
+    "#{pane_id}",
+    "#{session_name}",
+    "#{window_name}",
+    "#{pane_current_path}",
+    "#{pane_current_command}",
+    "#{pane_pid}",
+])
+
+
+def find_tmux_panes_in_dir(directory: Path) -> list[TmuxPane]:
+    """Return tmux panes whose cwd is inside the given directory."""
+    result = subprocess.run(
+        ["tmux", "list-panes", "-a", "-F", _TMUX_FORMAT],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+
+    dir_str = str(directory.resolve())
+    panes = []
+    for line in result.stdout.strip().splitlines():
+        if not line:
+            continue
+        pane_id, session, window, cwd, cmd, pid = line.split("\t", 5)
+        if cwd == dir_str or cwd.startswith(dir_str + "/"):
+            panes.append(TmuxPane(
+                pane_id=pane_id,
+                session_name=session,
+                window_name=window,
+                pane_current_path=cwd,
+                pane_current_command=cmd,
+                pane_pid=pid,
+            ))
+    return panes
+
+
+def get_child_processes(pid: str) -> list[str]:
+    """Get command lines of direct child processes of pid."""
+    result = subprocess.run(
+        ["pgrep", "-P", pid],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return []
+
+    child_pids = result.stdout.strip().splitlines()
+    cmd = ["ps", "-o", "command="]
+    for pid in child_pids:
+        cmd.extend(["-p", pid])
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        return []
+
+    return [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
+
+
+def close_tmux_panes_in_worktree(worktree_path: Path) -> bool:
+    """Try to close tmux panes in the worktree directory.
+
+    Prompts the user for each pane. Returns True if no panes remain.
+    """
+    panes = find_tmux_panes_in_dir(worktree_path)
+    if not panes:
+        return True
+
+    log.info("Found %d tmux pane(s) in %s:", len(panes), worktree_path)
+
+    close_all = False
+    closed: list[str] = []
+
+    for pane in panes:
+        children = get_child_processes(pane.pane_pid)
+
+        log.info("")
+        log.info(
+            "  Pane %s  session=%s  window=%s",
+            pane.pane_id, pane.session_name, pane.window_name,
+        )
+        log.info("    cwd:   %s", pane.pane_current_path)
+        log.info("    shell: %s", pane.pane_current_command)
+        if children:
+            log.info("    processes: %s", ", ".join(children))
+
+        if not close_all:
+            answer = input("  Close this pane? [y/N/a(ll)] ").strip().lower()
+            if answer == "a":
+                close_all = True
+            elif answer != "y":
+                continue
+
+        subprocess.run(
+            ["tmux", "send-keys", "-t", pane.pane_id, "C-d"],
+            capture_output=True,
+        )
+        closed.append(pane.pane_id)
+
+    if closed:
+        time.sleep(1)
+
+    remaining = find_tmux_panes_in_dir(worktree_path)
+    if remaining:
+        log.error(
+            "Cannot delete worktree: %d tmux pane(s) still open in %s",
+            len(remaining),
+            worktree_path,
+        )
+        return False
+
+    return True
+
+
+def select_worktree_with_fzf(worktrees: list[Worktree]) -> Worktree | None:
+    if not worktrees:
+        raise ValueError("No worktrees available")
+
+    labels: list[str] = []
+    for wt in worktrees:
+        label = (
+            f"{wt.branch}  ({wt.path})"
+            if wt.branch
+            else f"(detached {wt.head[:8]})  ({wt.path})"
+        )
+        labels.append(label)
+
+    cmd = ["fzf", "--height=40%", "--reverse", "--prompt=Select worktree to delete: "]
+    log.debug("Running: %s", " ".join(cmd))
+
+    result = subprocess.run(
+        cmd,
+        input="\n".join(labels),
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    selected = result.stdout.strip()
+    idx = labels.index(selected)
+    return worktrees[idx]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Delete a git worktree with interactive selection"
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force removal even with uncommitted changes",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
+    )
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    all_worktrees = list_worktrees()
+
+    main_worktree_path = (
+        Path(run_git(["rev-parse", "--git-common-dir"])).resolve().parent
+    )
+    secondary = [wt for wt in all_worktrees if wt.path.resolve() != main_worktree_path]
+
+    if not secondary:
+        log.info("No secondary worktrees found")
+        return 0
+
+    selected = select_worktree_with_fzf(secondary)
+    if not selected:
+        log.info("No worktree selected")
+        return 0
+
+    if has_uncommitted_changes(selected.path) and not args.force:
+        log.error(
+            "Worktree '%s' has uncommitted changes. Use --force to remove anyway.",
+            selected.path,
+        )
+        return 1
+
+    answer = input(f"Remove worktree at {selected.path}? [y/N] ")
+    if answer.lower() != "y":
+        log.info("Aborted")
+        return 0
+
+    if not close_tmux_panes_in_worktree(selected.path):
+        return 1
+
+    remove_args = ["worktree", "remove", str(selected.path)]
+    if args.force:
+        remove_args.append("--force")
+
+    log.info("Running: git %s", " ".join(remove_args))
+    run_git(remove_args, capture=False)
+    log.info("Worktree removed: %s", selected.path)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

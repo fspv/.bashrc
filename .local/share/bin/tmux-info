@@ -57,13 +57,41 @@ def get_kube_info() -> str:
     return f"⎈ k8s:{short_ctx}/{ns}"
 
 
+def get_main_repo_if_worktree(path: str) -> str | None:
+    """If path is inside a git worktree, return the main repo toplevel."""
+    try:
+        git_dir = subprocess.run(
+            ["git", "-C", path, "rev-parse", "--git-dir"],
+            capture_output=True, text=True,
+        )
+        common_dir = subprocess.run(
+            ["git", "-C", path, "rev-parse", "--git-common-dir"],
+            capture_output=True, text=True,
+        )
+        if git_dir.returncode != 0 or common_dir.returncode != 0:
+            return None
+        gd = Path(git_dir.stdout.strip()).resolve()
+        cd = Path(common_dir.stdout.strip()).resolve()
+        if gd != cd:
+            return str(cd.parent)
+    except Exception:
+        pass
+    return None
+
+
 def shorten_path(path: str) -> str:
+    main_repo = get_main_repo_if_worktree(path)
+    if main_repo is not None:
+        path = main_repo
+        suffix = " (worktree)"
+    else:
+        suffix = ""
     home_str = str(HOME)
     if path.startswith(home_str):
         path = "~" + path[len(home_str):]
     if not path.endswith("/"):
         path += "/"
-    return path
+    return path + suffix
 
 
 def set_tmux_options(variables: dict[str, str]) -> None:

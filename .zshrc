@@ -158,6 +158,14 @@ add-zsh-hook chpwd __git_completion_setup
 
 # Also run on shell startup
 __git_completion_setup 2>/dev/null
+
+# Auto-set CARGO_TARGET_DIR in git worktrees to reuse main repo's target/
+__update_cargo_target_dir() {
+    local main_repo
+    main_repo=$(git-worktree-main 2>/dev/null) && export CARGO_TARGET_DIR="$main_repo/target" || unset CARGO_TARGET_DIR
+}
+add-zsh-hook chpwd __update_cargo_target_dir
+__update_cargo_target_dir 2>/dev/null
 # set descriptions format to enable group support
 zstyle ':completion:*:descriptions' format '[%d]'
 # set list-colors to enable filename colorizing
@@ -284,6 +292,75 @@ setopt hist_verify
 unset ZSH_AUTOSUGGEST_USE_ASYNC
 
 which atuin >/dev/null 2>&1 && eval "$(atuin init zsh)"
+
+# ============================================================================
+# Atuin worktree integration
+# ============================================================================
+# Atuin detects workspaces by walking up from $PWD looking for .git (file or
+# dir), then filters history with `WHERE cwd LIKE '<git_root>%'`.  Each
+# worktree has its own .git file, so they are separate workspaces.
+#
+# Fix: override $PWD when calling atuin so that
+#   1. Recording stores the main-repo-equivalent CWD.
+#   2. Searching resolves the workspace root to the main repo.
+# Uses git-worktree-main (same script as the CARGO_TARGET_DIR hook).
+
+# Cache per chpwd so we don't shell out to git on every keystroke / command.
+__update_atuin_worktree() {
+    __atuin_wt_main=$(git-worktree-main 2>/dev/null) || { unset __atuin_wt_main __atuin_wt_root; return; }
+    __atuin_wt_root=$(git rev-parse --show-toplevel 2>/dev/null) || { unset __atuin_wt_main __atuin_wt_root; return; }
+}
+add-zsh-hook chpwd __update_atuin_worktree
+__update_atuin_worktree 2>/dev/null
+
+# Map current $PWD to the main repo equivalent.
+__atuin_mapped_pwd() {
+    if [[ -n "$__atuin_wt_main" && -n "$__atuin_wt_root" ]]; then
+        echo "${__atuin_wt_main}${PWD#$__atuin_wt_root}"
+    else
+        echo "$PWD"
+    fi
+}
+
+# Override: record CWD as the main-repo path so all worktrees share history.
+_atuin_preexec() {
+    local id
+    id=$(PWD="$(__atuin_mapped_pwd)" atuin history start -- "$1")
+    export ATUIN_HISTORY_ID="$id"
+    __atuin_preexec_time=${EPOCHREALTIME-}
+}
+
+# Override: search with $PWD pointing at the main repo so atuin resolves
+# the workspace root there (finds .git *directory* instead of worktree file).
+_atuin_search() {
+    emulate -L zsh
+    zle -I
+
+    local output
+    output=$(PWD="$(__atuin_mapped_pwd)" \
+        ATUIN_SHELL=zsh ATUIN_LOG=error ATUIN_QUERY=$BUFFER \
+        atuin search $* -i 3>&1 1>&2 2>&3)
+
+    zle reset-prompt
+    echo -n ${zle_bracketed_paste[1]} >/dev/tty
+
+    if [[ -n $output ]]; then
+        RBUFFER=""
+        LBUFFER=$output
+        if [[ $LBUFFER == __atuin_accept__:* ]]; then
+            LBUFFER=${LBUFFER#__atuin_accept__:}
+            zle accept-line
+        fi
+    fi
+}
+
+# Override: autosuggest strategy needs the same $PWD mapping.
+_zsh_autosuggest_strategy_atuin() {
+    suggestion=$(PWD="$(__atuin_mapped_pwd)" \
+        ATUIN_QUERY="$1" atuin search --cmd-only --limit 1 --search-mode prefix 2>/dev/null)
+}
+# ============================================================================
+
 which zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 case "$-" in
