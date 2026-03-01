@@ -15,7 +15,11 @@
     {
       devShells = forAllSystems (system:
         let
-          stablePkgs = nixpkgs-stable.legacyPackages.${system};
+          stablePkgs = import nixpkgs-stable {
+              inherit system;
+              config.allowUnfree = true;
+          };
+
           unstablePkgs = import nixpkgs-unstable {
             inherit system;
             config.allowUnfree = true;
