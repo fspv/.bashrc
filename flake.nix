@@ -121,6 +121,7 @@
             stablePkgs.unzip
             stablePkgs.libvirt
             stablePkgs.lazygit
+            stablePkgs.git
             stablePkgs.eza
             stablePkgs.eza.man
             stablePkgs.fd
@@ -138,6 +139,10 @@
             stablePkgs.sqlite
             stablePkgs.lua
             stablePkgs.quick-lint-js
+            stablePkgs.rustc
+            stablePkgs.cargo
+            stablePkgs.clippy
+            stablePkgs.rustfmt
             unstablePkgs.phpunit
             stablePkgs.phpactor
             stablePkgs.php83Packages.php-cs-fixer
@@ -168,6 +173,8 @@
             unstablePkgs.claude-code
             unstablePkgs.pre-commit
             unstablePkgs.zoxide
+            unstablePkgs.graphite-cli
+            unstablePkgs.okta-aws-cli
           ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
             unstablePkgs.claude-code
             stablePkgs.steam-run
@@ -176,6 +183,8 @@
         {
           default = stablePkgs.mkShell {
             packages = toInstall;
+
+            LOCALE_ARCHIVE = "${stablePkgs.glibcLocales}/lib/locale/locale-archive";
 
             shellHook = ''
               # For running in docker when rc files are not checked out by default
