@@ -2,16 +2,26 @@
 # shellcheck shell=bash
 
 path_push_left() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        path="$1:${PATH:+"$PATH"}"
-        export PATH=${path}
+    if [ -d "$1" ]; then
+        [ -n "$ZSH_VERSION" ] && setopt local_options SH_WORD_SPLIT
+        local d new_path="" IFS=':'
+        for d in $PATH; do
+            [ "$d" = "$1" ] && continue
+            new_path="${new_path:+$new_path:}$d"
+        done
+        export PATH="$1${new_path:+:$new_path}"
     fi
 }
 
 path_push_right() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        path="${PATH:+"$PATH"}:$1"
-        export PATH=${path}
+    if [ -d "$1" ]; then
+        [ -n "$ZSH_VERSION" ] && setopt local_options SH_WORD_SPLIT
+        local d new_path="" IFS=':'
+        for d in $PATH; do
+            [ "$d" = "$1" ] && continue
+            new_path="${new_path:+$new_path:}$d"
+        done
+        export PATH="${new_path:+$new_path:}$1"
     fi
 }
 
@@ -21,6 +31,8 @@ path_push_right /bin
 path_push_right /sbin
 path_push_right /usr/sbin
 path_push_right /usr/bin
+path_push_right "${HOME}/.cargo/bin"
+path_push_right "${HOME}/go/bin"
 
 if [ -z "$HOME" ]; then
     HOME=$(eval echo ~"$(id -un)")
@@ -216,16 +228,26 @@ alias kubie="BASHRC_ALREADY_EXECUTED= ZSHRC_ALREADY_EXECUTED= kubie"
 
 # Non-interactive static and idempotent configs
 ld_library_path_push_left() {
-    if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
-        ld_path="$1:${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH"}"
-        export LD_LIBRARY_PATH=${ld_path}
+    if [ -d "$1" ]; then
+        [ -n "$ZSH_VERSION" ] && setopt local_options SH_WORD_SPLIT
+        local d new_path="" IFS=':'
+        for d in $LD_LIBRARY_PATH; do
+            [ "$d" = "$1" ] && continue
+            new_path="${new_path:+$new_path:}$d"
+        done
+        export LD_LIBRARY_PATH="$1${new_path:+:$new_path}"
     fi
 }
 
 ld_library_path_push_right() {
-    if [ -d "$1" ] && [[ ":$LD_LIBRARY_PATH:" != *":$1:"* ]]; then
-        ld_path="${LD_LIBRARY_PATH:+"$LD_LIBRARY_PATH"}:$1"
-        export LD_LIBRARY_PATH=${ld_path}
+    if [ -d "$1" ]; then
+        [ -n "$ZSH_VERSION" ] && setopt local_options SH_WORD_SPLIT
+        local d new_path="" IFS=':'
+        for d in $LD_LIBRARY_PATH; do
+            [ "$d" = "$1" ] && continue
+            new_path="${new_path:+$new_path:}$d"
+        done
+        export LD_LIBRARY_PATH="${new_path:+$new_path:}$1"
     fi
 }
 
