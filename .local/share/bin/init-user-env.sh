@@ -58,7 +58,7 @@ fi
 if [ "$(uname -m)" = "x86_64" ]; then
     # Not all plugins are available on aarch64 and kubectl is not really needed there now
     # shellcheck disable=SC2016
-    nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix' --pure
+    nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix oidc-login' --pure
 fi
 
 if [[ ! -v GITHUB_ACTIONS ]]; then
