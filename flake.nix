@@ -86,6 +86,7 @@
             stablePkgs.go
             stablePkgs.gotags
             stablePkgs.git
+            stablePkgs.git-lfs
             stablePkgs.jq
             stablePkgs.jq.man
             stablePkgs.yq
