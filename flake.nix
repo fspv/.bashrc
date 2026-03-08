@@ -144,6 +144,7 @@
             stablePkgs.cargo
             stablePkgs.clippy
             stablePkgs.rustfmt
+            stablePkgs.llvmPackages.libclang.lib
             unstablePkgs.phpunit
             stablePkgs.phpactor
             stablePkgs.php83Packages.php-cs-fixer
@@ -186,6 +187,7 @@
             packages = toInstall;
 
             LOCALE_ARCHIVE = "${stablePkgs.glibcLocales}/lib/locale/locale-archive";
+            LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
 
             shellHook = ''
               # For running in docker when rc files are not checked out by default
