@@ -144,6 +144,7 @@
             stablePkgs.cargo
             stablePkgs.clippy
             stablePkgs.rustfmt
+            stablePkgs.rust-analyzer
             stablePkgs.llvmPackages.libclang.lib
             unstablePkgs.phpunit
             stablePkgs.phpactor
@@ -189,6 +190,8 @@
             LOCALE_ARCHIVE = "${stablePkgs.glibcLocales}/lib/locale/locale-archive";
             LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
 
+            NIX_ENFORCE_PURITY = "";
+
             shellHook = ''
               # For running in docker when rc files are not checked out by default
               [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
@@ -196,6 +199,7 @@
               export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
               export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
               export TMPPREFIX="$HOME/.cache/zsh"
+              export LD_LIBRARY_PATH="${stablePkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/"
 
               GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
               export GIT_COMPLETION_DIR
