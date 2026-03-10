@@ -639,6 +639,9 @@ require("lazy").setup({
               },
             } or {}, {
               checkOnSave = false,
+              check = {
+                workspace = false, -- only check the crate you're editing, not --workspace
+              },
               cargo = {
                 buildScripts = {
                   enable = true,
