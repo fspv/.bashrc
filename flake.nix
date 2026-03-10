@@ -146,6 +146,18 @@
             stablePkgs.rustfmt
             stablePkgs.rust-analyzer
             stablePkgs.llvmPackages.libclang.lib
+            stablePkgs.tpm2-tss
+            stablePkgs.fontconfig
+            stablePkgs.cairo
+            stablePkgs.atk
+            stablePkgs.gdk-pixbuf
+            stablePkgs.pango
+            stablePkgs.gtk3
+            stablePkgs.libsoup_3
+            stablePkgs.webkitgtk_4_1
+            stablePkgs.libjpeg
+            stablePkgs.libnl
+            stablePkgs.libva
             unstablePkgs.phpunit
             stablePkgs.phpactor
             stablePkgs.php83Packages.php-cs-fixer
@@ -191,6 +203,11 @@
             LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
 
             NIX_ENFORCE_PURITY = "";
+
+            # Disable Nix hardening flags (fortify, format, etc.) that break
+            # autoconf-based C builds like jemalloc (strerror_r detection)
+            # and format attribute checks. Not needed for a dev shell.
+            hardeningDisable = [ "all" ];
 
             shellHook = ''
               # For running in docker when rc files are not checked out by default
