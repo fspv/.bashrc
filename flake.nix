@@ -163,6 +163,7 @@
             stablePkgs.php83Packages.php-cs-fixer
             stablePkgs.php83Packages.composer
             stablePkgs.atuin
+            stablePkgs.eternal-terminal
             unstablePkgs.tmux
             unstablePkgs.tmux.man
             unstablePkgs.neovim
@@ -216,7 +217,6 @@
               export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
               export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
               export TMPPREFIX="$HOME/.cache/zsh"
-              export LD_LIBRARY_PATH="${stablePkgs.stdenv.cc.cc.lib}/lib/:/run/opengl-driver/lib/"
 
               GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
               export GIT_COMPLETION_DIR
