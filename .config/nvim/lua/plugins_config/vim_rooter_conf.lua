@@ -7,7 +7,6 @@ vim.g.rooter_patterns = {
   ".hg",
   ".bzr",
   ".svn",
-  "Makefile",
   "package.json",
   "library.properties",
   -- To cd for files residing in /tmp
