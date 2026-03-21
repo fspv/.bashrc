@@ -197,16 +197,19 @@ vim.lsp.config("yamlls", {
     yaml = {},
   },
 })
+vim.lsp.enable("yamlls")
 
 vim.lsp.config("jsonls", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("jsonls")
 
 vim.lsp.config("bashls", {
   useLibraryCodeForTypes = false,
   on_attach = on_attach_func,
   filetypes = { "sh", "zsh", "bash" },
 })
+vim.lsp.enable("bashls")
 
 ---@param workspace string
 ---@return string
@@ -247,6 +250,7 @@ vim.lsp.config("pyright", {
     },
   },
 })
+vim.lsp.enable("pyright")
 
 -- TODO: I'm just lucky it runs before other commands. But may actually conflict
 -- with them
@@ -377,6 +381,7 @@ vim.lsp.config("lua_ls", {
     },
   },
 })
+vim.lsp.enable("lua_ls")
 
 -- Settings values:
 -- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
@@ -454,6 +459,7 @@ vim.lsp.config("gopls", {
   },
   capabilities = require("cmp_nvim_lsp").default_capabilities(),
 })
+vim.lsp.enable("gopls")
 
 -- To make it work with arduino:
 -- ```
@@ -488,39 +494,47 @@ vim.lsp.config("clangd", {
     "library.properties"
   ),
 })
+vim.lsp.enable("clangd")
 
 -- JavaScript/TypeScript
 vim.lsp.config("ts_ls", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("ts_ls")
 
 -- `npm init @eslint/config` to make this work
 vim.lsp.config("eslint", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("eslint")
 vim.lsp.config("biome", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("biome")
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
 vim.lsp.config("quick_lint_js", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("quick_lint_js")
 
 -- Proto files
 vim.lsp.config("buf_ls", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("buf_ls")
 
 -- nixos configs
 vim.lsp.config("nixd", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("nixd")
 
 -- php
 vim.lsp.config("phpactor", {
   on_attach = on_attach_func,
 })
+vim.lsp.enable("phpactor")
 
 local luacheck = {
   lintCommand = "luacheck --formatter plain --codes --no-color -",
@@ -542,6 +556,7 @@ vim.lsp.config("efm", {
     },
   },
 })
+vim.lsp.enable("efm")
 
 return {
   on_attach_func = on_attach_func,
