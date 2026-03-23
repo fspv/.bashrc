@@ -146,18 +146,17 @@
             stablePkgs.rustfmt
             stablePkgs.rust-analyzer
             stablePkgs.llvmPackages.libclang.lib
-            stablePkgs.tpm2-tss
+            # stablePkgs.tpm2-tss
             stablePkgs.fontconfig
             stablePkgs.cairo
             stablePkgs.atk
             stablePkgs.gdk-pixbuf
             stablePkgs.pango
             stablePkgs.gtk3
-            stablePkgs.libsoup_3
-            stablePkgs.webkitgtk_4_1
-            stablePkgs.libjpeg
-            stablePkgs.libnl
-            stablePkgs.libva
+            # stablePkgs.libsoup_3
+            # stablePkgs.libjpeg
+            # stablePkgs.libnl
+            # stablePkgs.libva
             unstablePkgs.phpunit
             stablePkgs.phpactor
             stablePkgs.php83Packages.php-cs-fixer
@@ -200,7 +199,6 @@
           default = stablePkgs.mkShell {
             packages = toInstall;
 
-            LOCALE_ARCHIVE = "${stablePkgs.glibcLocales}/lib/locale/locale-archive";
             LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
 
             NIX_ENFORCE_PURITY = "";
@@ -225,7 +223,7 @@
 
               unset TERM
               export SHELL=${stablePkgs.zsh}/bin/zsh
-              exec ${stablePkgs.zsh}/bin/zsh
+              [[ $- == *i* ]] && exec ${stablePkgs.zsh}/bin/zsh
             '';
           };
         }
