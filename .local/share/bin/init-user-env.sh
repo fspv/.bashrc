@@ -4,6 +4,46 @@ set -uex
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# --- User directory setup (cross-platform) ---
+mkdir -p \
+    "${HOME}/.ssh" \
+    "${HOME}/.local/bin" \
+    "${HOME}/.local/share/fonts/fonts" \
+    "${HOME}/.config" \
+    "${HOME}/.config/autostart" \
+    "${HOME}/.cache" \
+    "${HOME}/venv"
+
+chmod 700 "${HOME}/.ssh"
+chmod 700 "${HOME}/.cache"
+chmod 700 "${HOME}/.local"
+
+# Linux-specific, non-container setup
+if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
+    mkdir -p \
+        "${HOME}/.config/systemd/user" \
+        "${HOME}/.config/docker-user"
+    chmod 700 "${HOME}/.config/docker-user"
+
+    # Enable user lingering for systemd user services to persist after logout
+    if command -v loginctl &>/dev/null; then
+        loginctl enable-linger "$(id -un)" 2>/dev/null || true
+    fi
+
+    # Enable podman user socket if available
+    if command -v podman &>/dev/null && command -v systemctl &>/dev/null; then
+        systemctl --user enable --now podman.socket 2>/dev/null || true
+    fi
+
+    # Install nvidia-ctk user service if nvidia-ctk is available
+    if command -v nvidia-ctk &>/dev/null; then
+        cp "${SCRIPT_DIR}/../../../.config/systemd/user/nvidia-ctk-docker-config.service" \
+            "${HOME}/.config/systemd/user/nvidia-ctk-docker-config.service" 2>/dev/null || true
+        systemctl --user daemon-reload 2>/dev/null || true
+        systemctl --user enable --now nvidia-ctk-docker-config.service 2>/dev/null || true
+    fi
+fi
+
 declare -A repos=(
   ["plugins/zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
   ["plugins/zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
