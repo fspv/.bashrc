@@ -248,7 +248,9 @@ require("telescope").setup({
         height = 0.9,
       },
     },
-    history = false,
+    history = {
+      limit = 100,
+    },
     -- open files in the first window that is an actual file.
     -- use the current window if no other window is available.
     get_selection_window = function()
