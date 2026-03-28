@@ -156,7 +156,9 @@ function fzy.positions(needle, haystack)
   for i = n, 1, -1 do
     while j >= 1 do
       if D[i][j] ~= SCORE_MIN and (match_required or D[i][j] == M[i][j]) then
-        match_required = (i ~= 1) and (j ~= 1) and (M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE)
+        -- stylua: ignore
+        match_required = (i ~= 1) and (j ~= 1)
+          and (M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE)
         positions[i] = j
         j = j - 1
         break
@@ -169,7 +171,8 @@ function fzy.positions(needle, haystack)
   return positions
 end
 
--- If strings a or b are empty or too long, `fzy.score(a, b) == fzy.get_score_min()`.
+-- If strings a or b are empty or too long,
+-- `fzy.score(a, b) == fzy.get_score_min()`.
 function fzy.get_score_min()
   return SCORE_MIN
 end
@@ -180,9 +183,12 @@ function fzy.get_score_max()
 end
 
 -- For all strings a and b that
---  - are not covered by either `fzy.get_score_min()` or fzy.get_score_max()`, and
---  - are matched, such that `fzy.has_match(a, b) == true`,
--- then `fzy.score(a, b) > fzy.get_score_floor()` will be true.
+--  - are not covered by either `fzy.get_score_min()`
+--    or fzy.get_score_max()`, and
+--  - are matched, such that
+--    `fzy.has_match(a, b) == true`,
+-- then `fzy.score(a, b) > fzy.get_score_floor()`
+-- will be true.
 function fzy.get_score_floor()
   return (MATCH_MAX_LENGTH + 1) * SCORE_GAP_INNER
 end

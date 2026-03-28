@@ -1,6 +1,9 @@
 local file_scanner = require("telescope._extensions.smart_open.file_scanner")
 local create_entry_data = require("smart-open.entry.create")
-local create_multithread_matcher = require("smart-open.matching.multithread.create")
+-- stylua: ignore
+local create_multithread_matcher = require(
+  "smart-open.matching.multithread.create"
+)
 local priority_insert = require("smart-open.util.priority_insert")
 local virtual_name = require("smart-open.util.virtual_name")
 
@@ -80,7 +83,12 @@ return function(history, opts, context)
 
         for _, v in ipairs(results) do
           local to_insert =
-            vim.tbl_extend("keep", { ordinal = v.base_score, display = opts.display, prompt = prompt }, v)
+            -- stylua: ignore
+            vim.tbl_extend("keep", {
+              ordinal = v.base_score,
+              display = opts.display,
+              prompt = prompt,
+            }, v)
           if process_result(to_insert) then
             break
           end
@@ -94,7 +102,12 @@ return function(history, opts, context)
         prompt,
         vim.schedule_wrap(function(entry)
           local to_insert =
-            vim.tbl_extend("keep", { ordinal = entry.relevance, display = opts.display, prompt = prompt }, entry)
+            -- stylua: ignore
+            vim.tbl_extend("keep", {
+              ordinal = entry.relevance,
+              display = opts.display,
+              prompt = prompt,
+            }, entry)
 
           priority_insert(results, result_limit, to_insert, function(e)
             return e.relevance or e.base_score

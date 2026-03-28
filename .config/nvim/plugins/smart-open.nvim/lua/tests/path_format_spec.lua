@@ -1,11 +1,18 @@
 ---@diagnostic disable: undefined-global
-local format_filepath = require("telescope._extensions.smart_open.display.format_filepath")
+-- stylua: ignore
+local format_filepath = require(
+  "telescope._extensions.smart_open.display.format_filepath"
+)
 local os_home = vim.loop.os_homedir()
 
 describe("format_filepath with maxlen", function()
   it("doesn't truncate shorter paths", function()
     local expected = "hosts /etc"
-    local result = format_filepath("/etc/hosts", "hosts", { cwd = "/other", filename_first = true }, 30)
+    -- stylua: ignore
+    local result = format_filepath(
+      "/etc/hosts", "hosts",
+      { cwd = "/other", filename_first = true }, 30
+    )
     assert.are.equal(expected, result)
   end)
 
@@ -31,7 +38,9 @@ describe("format_filepath with maxlen", function()
     assert.are.equal(expected, result)
   end)
 
-  it("abbreviates home directory while shortening when cwd is outside home", function()
+  -- stylua: ignore
+  it("abbreviates home directory while shortening when cwd is outside home",
+  function()
     local expected = "filename.lua ~/src/LargeDirec…"
     local result = format_filepath(
       os_home .. "/src/LargeDirectoryName/filename.lua",
@@ -42,7 +51,9 @@ describe("format_filepath with maxlen", function()
     assert.are.equal(expected, result)
   end)
 
-  it("doesn't use abbreviated home directory when path can be relative", function()
+  -- stylua: ignore
+  it("doesn't use abbreviated home directory when path can be relative",
+  function()
     local expected = "filename.lua src/LargeDirecto…"
     local result = format_filepath(
       os_home .. "/code/src/LargeDirectoryName/filename.lua",
@@ -54,12 +65,20 @@ describe("format_filepath with maxlen", function()
   end)
 
   it("displays the right number of characters", function()
-    local path = "/base/lua/telescope/_extensions/smart_open/display/format_filepath.lua"
-    local result = format_filepath(path, "format_filepath.lua", { cwd = "/base", filename_first = true }, 61)
+    -- stylua: ignore
+    local path =
+      "/base/lua/telescope/_extensions/smart_open/display/format_filepath.lua"
+    -- stylua: ignore
+    local result = format_filepath(
+      path, "format_filepath.lua",
+      { cwd = "/base", filename_first = true }, 61
+    )
     assert.are.equal(61, vim.fn.strdisplaywidth(result))
   end)
 
-  it("abbreviates home directory while shortening when cwd is inside home", function()
+  -- stylua: ignore
+  it("abbreviates home directory while shortening when cwd is inside home",
+  function()
     local expected = "filename.lua ~/src/LargeDirec…"
     local result = format_filepath(
       os_home .. "/src/LargeDirectoryName/filename.lua",

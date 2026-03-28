@@ -75,8 +75,11 @@ local function create_entry_data(path, history, context)
       scores.recency = weights.recency * (8 / (history.recent_rank + 7))
     end
 
-    local dir = (context.current_buffer == "" or context.current_buffer == nil) and context.cwd
-      or context.current_buffer
+    -- stylua: ignore
+    local dir = (
+      context.current_buffer == ""
+      or context.current_buffer == nil
+    ) and context.cwd or context.current_buffer
 
     local prox = calculate_proximity(dir, path)
     scores.proximity = weights.proximity * normalize_proximity(prox)

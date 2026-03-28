@@ -1,6 +1,8 @@
 local shallow_copy = require("smart-open.util.table").shallow_copy
 
-local ADJUSTMENT_POINTS = 0.6 -- Increasing this leads to faster learning, but more drastic behavior swings
+-- Increasing this leads to faster learning,
+-- but more drastic behavior swings
+local ADJUSTMENT_POINTS = 0.6
 
 local M = {}
 
@@ -51,7 +53,10 @@ local function select_misses(results, selected_path)
 end
 
 -- Adjust weights based on the various scores
-local function adjust_weights(original_weights, weights, success_entry, miss_entry, factor)
+-- stylua: ignore
+local function adjust_weights(
+  original_weights, weights, success_entry, miss_entry, factor
+)
   -- skip any adjustment if the user is just going back to current
   if success_entry.current or miss_entry.current then
     return
@@ -81,8 +86,9 @@ local function adjust_weights(original_weights, weights, success_entry, miss_ent
 
   -- Deduct from the weights where the miss scored higher than the hit.
   -- Add to the weights where the hit scored higher than the miss.
-  -- Deduct/add proportionately such that the biggest differences in weight between the
-  -- hit and miss get more addition/deduction
+  -- Deduct/add proportionately such that the biggest
+  -- differences in weight between the hit and miss
+  -- get more addition/deduction
   for k, v in pairs(original_weights) do
     local hit_weight = get_unweighted(k, v, success_entry)
     local miss_weight = get_unweighted(k, v, miss_entry)
@@ -91,9 +97,17 @@ local function adjust_weights(original_weights, weights, success_entry, miss_ent
       local new_result = weights[k]
 
       if miss_weight > hit_weight then
-        new_result = math.max(1, weights[k] - ADJUSTMENT_POINTS * factor * ((miss_weight - hit_weight) / to_deduct))
+        -- stylua: ignore
+        new_result = math.max(
+          1,
+          weights[k] - ADJUSTMENT_POINTS * factor
+            * ((miss_weight - hit_weight) / to_deduct)
+        )
       elseif hit_weight > miss_weight then
-        new_result = weights[k] + ADJUSTMENT_POINTS * factor * ((hit_weight - miss_weight) / to_add)
+        -- stylua: ignore
+        new_result = weights[k]
+          + ADJUSTMENT_POINTS * factor
+          * ((hit_weight - miss_weight) / to_add)
       end
 
       weights[k] = new_result
@@ -115,14 +129,23 @@ function M.revise_weights(original_weights, results, selected)
     return original_weights
   end
 
-  -- Add and subtract amounts to the weights that contributed to the score.
-  -- The weights should be boosted according to the proportion that the category contributed
-  -- to the final score
+  -- Add and subtract amounts to the weights that
+  -- contributed to the score. The weights should be
+  -- boosted according to the proportion that the
+  -- category contributed to the final score
   for _, miss in pairs(greater_misses) do
-    adjust_weights(original_weights, new_weights, selected, miss, 1 / #greater_misses)
+    -- stylua: ignore
+    adjust_weights(
+      original_weights, new_weights,
+      selected, miss, 1 / #greater_misses
+    )
   end
   for _, miss in pairs(lesser_misses) do
-    adjust_weights(original_weights, new_weights, selected, miss, 0.1 / #lesser_misses)
+    -- stylua: ignore
+    adjust_weights(
+      original_weights, new_weights,
+      selected, miss, 0.1 / #lesser_misses
+    )
   end
 
   return new_weights

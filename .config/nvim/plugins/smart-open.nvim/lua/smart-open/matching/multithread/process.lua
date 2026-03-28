@@ -12,13 +12,21 @@ local function process(prompt, cancel_token, encoded_options, encoded_entries)
 
     local results = {}
 
-    local set_relevance = require("telescope._extensions.smart_open.finder.set_relevance")(options)
+    -- stylua: ignore
+    local set_relevance = require(
+      "telescope._extensions.smart_open.finder.set_relevance"
+    )(options)
     local priority_insert = require("smart-open.util.priority_insert")
 
     for _, entry in ipairs(entries) do
       local path, base_score, vname_pos = unpack(entry)
 
-      local e = { path = path, virtual_name = path:sub(vname_pos), base_score = base_score }
+      -- stylua: ignore
+      local e = {
+        path = path,
+        virtual_name = path:sub(vname_pos),
+        base_score = base_score,
+      }
       if prompt and #prompt > 0 then
         set_relevance.run(prompt, e)
       else
@@ -37,7 +45,11 @@ local function process(prompt, cancel_token, encoded_options, encoded_entries)
     return results, cancel_token
   end)
 
-  local packed = vim.mpack.encode({ status = ok, result = result, cancel_token = cancel_token })
+  -- stylua: ignore
+  local packed = vim.mpack.encode({
+    status = ok, result = result,
+    cancel_token = cancel_token,
+  })
 
   return packed
 end

@@ -28,7 +28,4 @@ globals = {
 -- Allow defining globals in files that match the following patterns
 allow_defined_top = true
 
--- stylua formats with column_width=80 as a soft guide,
--- but won't break single expressions (require(), long
--- function calls, etc.), producing lines up to ~120.
-max_line_length = 120
+max_line_length = 80

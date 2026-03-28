@@ -7,7 +7,10 @@ local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local telescope_config = require("telescope.config").values
 local history = require("telescope._extensions.smart_open.history")
-local make_display = require("telescope._extensions.smart_open.display.make_display")
+-- stylua: ignore
+local make_display = require(
+  "telescope._extensions.smart_open.display.make_display"
+)
 local smart_open_actions = require("smart-open.actions")
 
 local picker
@@ -18,13 +21,19 @@ function M.start(opts)
   local config = opts.config
 
   ---@diagnostic disable-next-line: param-type-mismatch
-  local current = vim.fn.bufnr("%") > 0 and vim.api.nvim_buf_get_name(vim.fn.bufnr("%")) or ""
+  -- stylua: ignore
+  local current = vim.fn.bufnr("%") > 0
+    and vim.api.nvim_buf_get_name(vim.fn.bufnr("%"))
+    or ""
 
   local context = {
     cwd = opts.cwd,
     current_buffer = current,
     ---@diagnostic disable-next-line: param-type-mismatch
-    alternate_buffer = vim.fn.bufnr("#") > 0 and vim.api.nvim_buf_get_name(vim.fn.bufnr("#")) or "",
+    -- stylua: ignore
+    alternate_buffer = vim.fn.bufnr("#") > 0
+      and vim.api.nvim_buf_get_name(vim.fn.bufnr("#"))
+      or "",
     open_buffers = get_buffer_list(),
     weights = db:get_weights(weights.default_weights),
     path_display = opts.path_display,
@@ -34,7 +43,10 @@ function M.start(opts)
     display = make_display(opts),
     cwd = opts.cwd,
     cwd_only = vim.F.if_nil(opts.cwd_only, config.cwd_only),
-    ignore_patterns = vim.F.if_nil(opts.ignore_patterns, config.ignore_patterns),
+    -- stylua: ignore
+    ignore_patterns = vim.F.if_nil(
+      opts.ignore_patterns, config.ignore_patterns
+    ),
     show_scores = vim.F.if_nil(opts.show_scores, config.show_scores),
     match_algorithm = opts.match_algorithm or config.match_algorithm,
     result_limit = vim.F.if_nil(opts.result_limit, config.result_limit),
@@ -58,7 +70,10 @@ function M.start(opts)
             history:record_usage(selection.path, true)
           end
           local original_weights = db:get_weights(weights.default_weights)
-          local revised_weights = weights.revise_weights(original_weights, finder.results, selection)
+          -- stylua: ignore
+          local revised_weights = weights.revise_weights(
+            original_weights, finder.results, selection
+          )
           db:save_weights(revised_weights)
         end,
       })
@@ -70,7 +85,10 @@ function M.start(opts)
           mode = string.lower(mode)
 
           for key_bind, key_func in pairs(mode_map) do
-            local key_bind_internal = vim.api.nvim_replace_termcodes(key_bind, true, true, true)
+            -- stylua: ignore
+            local key_bind_internal = vim.api.nvim_replace_termcodes(
+              key_bind, true, true, true
+            )
 
             applied_mappings[mode][key_bind_internal] = true
 
@@ -79,7 +97,10 @@ function M.start(opts)
         end
       end
 
-      local key_bind_internal = vim.api.nvim_replace_termcodes("<C-w>", true, true, true)
+      -- stylua: ignore
+      local key_bind_internal = vim.api.nvim_replace_termcodes(
+        "<C-w>", true, true, true
+      )
 
       if not applied_mappings.i[key_bind_internal] then
         map("i", "<C-w>", smart_open_actions.delete_buffer)
@@ -101,6 +122,9 @@ function M.start(opts)
   })
   picker:find()
 
-  vim.api.nvim_buf_set_option(picker.prompt_bufnr, "filetype", "TelescopePrompt")
+  -- stylua: ignore
+  vim.api.nvim_buf_set_option(
+    picker.prompt_bufnr, "filetype", "TelescopePrompt"
+  )
 end
 return M

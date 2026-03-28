@@ -1,16 +1,25 @@
 --- Configure set_relevance function with a matching_algorithm
 ---@param options table
 --   matching_algorithm string: fzf or fzy
---   native_fzy_path string: the path to the native fzy (only applicable if fzy is selected)
+--   native_fzy_path string: the path to the native fzy
+--   (only applicable if fzy is selected)
 --   weights table: the current weight values
 return function(options)
   local matching_algorithm = options.matching_algorithm
   local weights = options.weights
 
   matching_algorithm = matching_algorithm or "fzy"
-  assert(matching_algorithm == "fzy" or matching_algorithm == "fzf", "Matching algorithm must be fzf or fzy")
+  -- stylua: ignore
+  assert(
+    matching_algorithm == "fzy"
+      or matching_algorithm == "fzf",
+    "Matching algorithm must be fzf or fzy"
+  )
 
-  local prompt_matcher = require("smart-open.matching.algorithms." .. matching_algorithm)
+  -- stylua: ignore
+  local prompt_matcher = require(
+    "smart-open.matching.algorithms." .. matching_algorithm
+  )
   prompt_matcher.init(options)
 
   local update_match_scores = function(prompt, entry)
@@ -33,7 +42,8 @@ return function(options)
   local M = {}
 
   --- Assign a final relevance to the entry, given the filter text
-  --- additionally, store the prompt-match scores on each entry so weights can be recalculated
+  --- additionally, store the prompt-match scores on each
+  --- entry so weights can be recalculated
   ---@param prompt string: The filter text
   ---@param entry table: The entry will be modified in-place
   function M.run(prompt, entry)

@@ -199,7 +199,10 @@ function M:get_all(dir)
   -- to the canonical prefix so it matches paths stored in the DB.
   local query_dir = dir and to_canonical(dir) or dir
 
-  local result = query_dir and self.db:get_files_in(query_dir) or self.db:get_files()
+  -- stylua: ignore
+  local result = query_dir
+    and self.db:get_files_in(query_dir)
+    or self.db:get_files()
   local now = os.time()
 
   local max_score = 1
