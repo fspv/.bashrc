@@ -5,10 +5,8 @@ repos:
       - id: stylua
         types: [lua]
 
-  - repo: local
+  - repo: https://github.com/lunarmodules/luacheck
+    rev: v1.2.0
     hooks:
       - id: luacheck
-        name: luacheck
-        entry: luacheck
-        language: system
         types: [lua]

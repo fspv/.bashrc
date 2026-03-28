@@ -57,8 +57,8 @@ fi
 
 # Install pre-commit hooks if in the dotfiles repo
 DOTFILES_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
-if [[ -f "${DOTFILES_DIR}/.pre-commit-config.yaml" ]]; then
-  nix-shell -p pre-commit git --run "bash -c 'cd ${DOTFILES_DIR} && pre-commit install'" --pure
+if [[ -f "${DOTFILES_DIR}/.pre-commit-config.yaml" ]] && command -v pre-commit &>/dev/null; then
+  bash -c "cd ${DOTFILES_DIR} && pre-commit install"
 fi
 
 if [ "$(uname -m)" = "x86_64" ]; then
