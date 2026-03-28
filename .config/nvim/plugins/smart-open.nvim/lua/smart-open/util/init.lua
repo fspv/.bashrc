@@ -48,7 +48,8 @@ function util.shift_hl(hl_group, offset)
   return hl_group
 end
 
--- This is slow, and only useful temporarily in debugging situations as a replacement for vim.mpack.encode
+-- This is slow, and only useful temporarily in debugging
+-- situations as a replacement for vim.mpack.encode
 function util.pack(obj, path)
   if type(obj) == "table" then
     for k, v in pairs(obj) do

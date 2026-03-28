@@ -76,7 +76,8 @@ local function make_display(opts)
     local hl_group = {}
     local display, path_hl = format_filepath(entry.path, entry.virtual_name, filename_opts, fit_width)
 
-    -- This is the point at which the directory itself starts.  This is because we're putting the virtual_name first.
+    -- This is the point at which the directory itself
+    -- starts, because we're putting virtual_name first.
     local split_pos = #entry.virtual_name
 
     local path

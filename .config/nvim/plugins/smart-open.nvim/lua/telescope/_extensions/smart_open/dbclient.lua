@@ -3,7 +3,7 @@ local shallow_copy = require("smart-open.util.table").shallow_copy
 local has_sqlite, sqlite = pcall(require, "sqlite")
 
 if not has_sqlite then
-  error("This plugin requires sqlite.lua (https://github.com/kkharji/sqlite.lua) " .. tostring(sqlite))
+  error("This plugin requires sqlite.lua " .. "(https://github.com/kkharji/sqlite.lua) " .. tostring(sqlite))
 end
 
 local DbClient = {
@@ -39,7 +39,11 @@ function DbClient:initialize_db()
   CREATE TABLE weights (key TEXT PRIMARY KEY, value NUMBER) WITHOUT ROWID
   ]])
   self.db:eval([[
-  CREATE TABLE files (path TEXT PRIMARY KEY, expiration NUMBER, last_open NUMBER) WITHOUT ROWID
+  CREATE TABLE files (
+    path TEXT PRIMARY KEY,
+    expiration NUMBER,
+    last_open NUMBER
+  ) WITHOUT ROWID
   ]])
   self.db:eval([[ CREATE INDEX expiry ON files (expiration) ]])
   self.db:eval([[ CREATE INDEX recent ON files (last_open) ]])
@@ -81,7 +85,10 @@ function DbClient:get_files_in(dir, now)
 
   local result = self.db:eval(
     [[
-  SELECT path, expiration, RANK() OVER ( ORDER BY last_open DESC ) AS recent_rank FROM files
+  SELECT path, expiration,
+    RANK() OVER (ORDER BY last_open DESC)
+    AS recent_rank
+  FROM files
   WHERE expiration > :now AND instr(path, :dir) == 1
   ORDER BY expiration DESC
     ]],
@@ -96,7 +103,10 @@ function DbClient:get_files(now)
 
   local result = self.db:eval(
     [[
-  SELECT path, expiration, RANK() OVER ( ORDER BY last_open DESC ) AS recent_rank FROM files
+  SELECT path, expiration,
+    RANK() OVER (ORDER BY last_open DESC)
+    AS recent_rank
+  FROM files
   WHERE expiration > :now
   ORDER BY expiration DESC
     ]],

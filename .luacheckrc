@@ -28,5 +28,5 @@ globals = {
 -- Allow defining globals in files that match the following patterns
 allow_defined_top = true
 
--- Set the maximum line length
-max_line_length = 80
+-- Line length is enforced by stylua (column_width = 80)
+max_line_length = false

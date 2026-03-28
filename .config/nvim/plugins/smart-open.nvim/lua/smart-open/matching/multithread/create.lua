@@ -51,11 +51,8 @@ local function create_matcher(opts, context)
         break
       end
 
-      local entry_to_add = create_entry_data(
-        entry.path,
-        history_data_cache[entry.path] or { frecency = 0, recent_rank = 0 },
-        context
-      )
+      local history = history_data_cache[entry.path] or { frecency = 0, recent_rank = 0 }
+      local entry_to_add = create_entry_data(entry.path, history, context)
 
       process_result(vim.tbl_deep_extend("keep", entry_to_add, entry))
     end
@@ -98,7 +95,8 @@ local function create_matcher(opts, context)
       end
 
       if work_result.cancel_token == cancel_token then
-        -- This particular search hasn't been canceled, so yield these results and queue more work
+        -- This search hasn't been canceled,
+        -- so yield results and queue more work
         queue_next()
 
         combine_with_main(work_result.result)
@@ -123,7 +121,11 @@ local function create_matcher(opts, context)
   end
 
   function M.add_entry(entry, history_data)
-    table.insert(unpacked, { entry.path, entry.base_score, virtual_name.get_pos(entry.path) })
+    table.insert(unpacked, {
+      entry.path,
+      entry.base_score,
+      virtual_name.get_pos(entry.path),
+    })
 
     if history_data then
       history_data_cache[entry.path] = history_data

@@ -1,6 +1,8 @@
 local shallow_copy = require("smart-open.util.table").shallow_copy
 
-local ADJUSTMENT_POINTS = 0.6 -- Increasing this leads to faster learning, but more drastic behavior swings
+-- Increasing this leads to faster learning,
+-- but more drastic behavior swings
+local ADJUSTMENT_POINTS = 0.6
 
 local M = {}
 
@@ -81,7 +83,8 @@ local function adjust_weights(original_weights, weights, success_entry, miss_ent
 
   -- Deduct from the weights where the miss scored higher than the hit.
   -- Add to the weights where the hit scored higher than the miss.
-  -- Deduct/add proportionately such that the biggest differences in weight between the
+  -- Deduct/add proportionately such that the biggest
+  -- differences in weight between the
   -- hit and miss get more addition/deduction
   for k, v in pairs(original_weights) do
     local hit_weight = get_unweighted(k, v, success_entry)
@@ -116,7 +119,8 @@ function M.revise_weights(original_weights, results, selected)
   end
 
   -- Add and subtract amounts to the weights that contributed to the score.
-  -- The weights should be boosted according to the proportion that the category contributed
+  -- The weights should be boosted according to the
+  -- proportion that the category contributed
   -- to the final score
   for _, miss in pairs(greater_misses) do
     adjust_weights(original_weights, new_weights, selected, miss, 1 / #greater_misses)
