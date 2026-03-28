@@ -179,121 +179,26 @@ require("lazy").setup({
     end,
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
   },
-  -- Omit the final newline of a file if it wasn't present when we opened it
-  {
-    "vim-scripts/PreserveNoEOL",
-  },
+  -- PreserveNoEOL removed: use native `vim.o.fixeol = false`
 
   -- # Completion
 
-  -- Completion icons
-  {
-    "onsails/lspkind.nvim",
-  },
-  -- Show function signature when you type
-  {
-    "ray-x/lsp_signature.nvim",
-    event = "VeryLazy",
-    opts = {
-      ignore_error = function(err, ctx, config) -- luacheck: no unused args
-        -- Disable this if you experience issues with the plugin
-        return true
-      end,
-    },
-    ft = { "go", "rust", "cpp", "typescript", "javascript" },
-    config = function(_, opts)
-      require("lsp_signature").setup(opts)
-    end,
-  },
   -- Snippets collection for a set of different programming languages
   {
     "rafamadriz/friendly-snippets",
-    dependencies = {
-      "hrsh7th/cmp-vsnip",
-      --'fatih/vim-go',
-      "ray-x/go.nvim",
-    },
+    lazy = true,
   },
-  -- VSCode(LSP)'s snippet feature
+  -- Completion engine (replaces nvim-cmp + all cmp-* sources + lspkind + vsnip + LuaSnip)
   {
-    "hrsh7th/vim-vsnip",
+    "saghen/blink.cmp",
+    lazy = false,
+    version = "1.*",
     dependencies = {
       "rafamadriz/friendly-snippets",
-      "golang/vscode-go",
     },
-  },
-  -- Snippet completion and expansion integration
-  {
-    "hrsh7th/vim-vsnip-integ",
-    dependencies = {
-      "hrsh7th/vim-vsnip",
-    },
-  },
-  -- Completion engine
-  {
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
     config = function()
-      require("plugins_config/cmp_conf")
+      require("plugins_config/blink_conf")
     end,
-    dependencies = {
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-path",
-      "hrsh7th/cmp-cmdline",
-      "hrsh7th/cmp-buffer",
-      "hrsh7th/cmp-vsnip",
-      "saadparwaiz1/cmp_luasnip",
-      "onsails/lspkind.nvim",
-    },
-  },
-  -- Source for vsnip
-  {
-    "hrsh7th/cmp-vsnip",
-    lazy = false,
-    -- https://github.com/hrsh7th/cmp-vsnip/issues/5
-    commit = "1ae05c6",
-    dependencies = {
-      "hrsh7th/vim-vsnip-integ",
-    },
-  },
-  -- Luasnip
-  {
-    "L3MON4D3/LuaSnip",
-    config = function()
-      require("luasnip.loaders.from_vscode").lazy_load()
-    end,
-    dependencies = {
-      "rafamadriz/friendly-snippets",
-      "hrsh7th/nvim-cmp",
-      "golang/vscode-go",
-    },
-  },
-  -- Source for luasnip
-  {
-    "saadparwaiz1/cmp_luasnip",
-    lazy = false,
-    dependencies = {
-      "L3MON4D3/LuaSnip",
-    },
-  },
-  {
-    "hrsh7th/cmp-nvim-lsp",
-    dependencies = {},
-  },
-  -- Source for buffer words
-  {
-    "hrsh7th/cmp-buffer",
-    dependencies = {},
-  },
-  -- Source for filesystem paths
-  {
-    "hrsh7th/cmp-path",
-    dependencies = {},
-  },
-  -- Source for vim cmdline
-  {
-    "hrsh7th/cmp-cmdline",
-    dependencies = {},
   },
 
   -- LSP
@@ -319,8 +224,7 @@ require("lazy").setup({
     dependencies = {
       "nvim-tree/nvim-web-devicons",
       "williamboman/mason-lspconfig.nvim",
-      -- "glepnir/lspsaga.nvim",
-      "hrsh7th/cmp-nvim-lsp",
+      "saghen/blink.cmp",
     },
   },
   -- Format on save
@@ -392,34 +296,38 @@ require("lazy").setup({
       "neovim/nvim-lspconfig",
     },
   },
-  -- Automatically detect project root
-  {
-    "airblade/vim-rooter",
-    lazy = false,
-    config = function()
-      require("plugins_config/vim_rooter_conf")
-    end,
-  },
-  -- fuzzy search
-  {
-    "junegunn/fzf",
-    -- fzf is already installed, no build needed
-  },
-  -- Highlight trailing whitespace
-  {
-    "ntpeters/vim-better-whitespace",
-    event = "BufReadPost",
-  },
+  -- vim-rooter removed: replaced with native Lua autocmd in config
+  -- fzf and vim-better-whitespace removed: fzf redundant with telescope,
+  -- whitespace highlighting done natively
   -- Auto-complete matching quotes, brackets, etc
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
     config = true,
   },
-  -- Faster navigation
+  -- Faster navigation (replaces vim-easymotion)
   {
-    "easymotion/vim-easymotion",
-    lazy = false,
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    keys = {
+      {
+        "s",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").jump()
+        end,
+        desc = "Flash",
+      },
+      {
+        "S",
+        mode = { "n", "x", "o" },
+        function()
+          require("flash").treesitter()
+        end,
+        desc = "Flash Treesitter",
+      },
+    },
   },
   -- Async builds
   {
@@ -442,14 +350,7 @@ require("lazy").setup({
     "tpope/vim-fugitive",
     cmd = { "G", "Gdiffsplit" },
   },
-  -- Git blame virtualtext plugin
-  {
-    "f-person/git-blame.nvim",
-    init = function()
-      vim.g.gitblame_date_format = "%Y-%m-%d"
-      vim.g.gitblame_highlight_group = "NonText"
-    end,
-  },
+  -- git-blame.nvim removed: using gitsigns current_line_blame instead
   {
     "lewis6991/gitsigns.nvim",
     config = function()
@@ -532,7 +433,7 @@ require("lazy").setup({
         lsp_inlay_hints = {
           enable = false,
         },
-        luasnip = true,
+        luasnip = false,
       })
     end,
     event = { "CmdlineEnter" },
@@ -681,49 +582,44 @@ require("lazy").setup({
       require("plugins_config/quickui_conf")
     end,
   },
-  -- Barbar
+  -- Buffer line (replaces barbar.nvim)
   {
-    "romgrk/barbar.nvim",
+    "akinsho/bufferline.nvim",
+    version = "*",
     lazy = false,
-    init = function()
-      vim.g.barbar_auto_setup = false
-      vim.keymap.set(
-        "n",
-        "gT",
-        "<Cmd>BufferPrevious<CR>",
-        { noremap = true, silent = true, desc = "Prev Tab" }
-      )
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("bufferline").setup({
+        options = {
+          max_name_length = 60,
+          diagnostics = "nvim_lsp",
+          offsets = {
+            {
+              filetype = "neo-tree",
+              text = "File Explorer",
+              highlight = "Directory",
+              separator = true,
+            },
+          },
+        },
+      })
       vim.keymap.set(
         "n",
         "gt",
-        "<Cmd>BufferNext<CR>",
+        "<Cmd>BufferLineCycleNext<CR>",
         { noremap = true, silent = true, desc = "Next Tab" }
       )
-
-      -- Better highlight active tab
-      vim.cmd([[
-            hi BufferCurrent guibg=Green
-            hi BufferCurrentSign guibg=Green
-          ]])
+      vim.keymap.set(
+        "n",
+        "gT",
+        "<Cmd>BufferLineCyclePrev<CR>",
+        { noremap = true, silent = true, desc = "Prev Tab" }
+      )
     end,
-    opts = {
-      exclude_ft = { "pb.go" },
-      maximum_length = 60,
-      icons = {
-        diagnostics = {
-          enabled = true,
-        },
-      },
-    },
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-      "ryanoasis/vim-devicons",
-    },
   },
-  -- Comment code with gc
-  {
-    "tpope/vim-commentary",
-  },
+  -- vim-commentary removed: nvim 0.10 has built-in gc/gcc commenting
   {
     "fspv/sourcegraph.nvim",
     dependencies = {
@@ -738,7 +634,6 @@ require("lazy").setup({
     end,
     dependencies = {
       "Bekaboo/dropbar.nvim",
-      "arkav/lualine-lsp-progress",
     },
   },
   -- Sign column with folds etc
@@ -823,7 +718,6 @@ require("lazy").setup({
     },
     dependencies = {
       "nvim-telescope/telescope-live-grep-args.nvim",
-      "nvim-telescope/telescope-smart-history.nvim",
     },
   },
   -- Fzf interface for telescope
@@ -891,24 +785,9 @@ require("lazy").setup({
       require("plugins_config/which_key_conf")
     end,
   },
-  -- Floating terminal
-  {
-    "voldikss/vim-floaterm",
-    keys = {
-      { "<leader>ft" },
-    },
-    init = function()
-      require("plugins_config/floaterm_conf")
-    end,
-  },
-  {
-    "preservim/vim-markdown",
-    ft = "markdown",
-  },
-  -- Some fancy stuff
-  {
-    "ojroques/nvim-bufdel",
-  },
+  -- vim-floaterm removed: not in use
+  -- vim-markdown removed: treesitter markdown handles syntax
+  -- nvim-bufdel removed: bufferline handles buffer deletion
   -- Github Copilot
   -- {
   --   "github/copilot.vim",
@@ -997,14 +876,22 @@ require("lazy").setup({
       })
     end,
   },
-  -- Treesitter based argwrap
+  -- Treesitter based split/join (replaces nvim-trevJ.lua)
   {
-    "AckslD/nvim-trevJ.lua",
-    init = function()
-      vim.keymap.set("n", "<leader>w", function()
-        require("trevj").format_at_cursor()
-      end, { desc = "Wrap arguments into multiple lines" })
-    end,
+    "Wansmer/treesj",
+    keys = {
+      {
+        "<leader>w",
+        function()
+          require("treesj").toggle()
+        end,
+        desc = "Toggle split/join arguments",
+      },
+    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      use_default_keymaps = false,
+    },
   },
   -- Automatically close old buffers
   {
@@ -1056,10 +943,7 @@ require("lazy").setup({
     end,
     dependencies = {
       "kkharji/sqlite.lua",
-      -- Only required if using match_algorithm fzf
       { "nvim-telescope/telescope-fzf-native.nvim" },
-      -- Optional. If installed, native fzy will be used when match_algorithm is fzy
-      { "nvim-telescope/telescope-fzy-native.nvim" },
     },
   },
   -- Arduino utils
@@ -1070,6 +954,49 @@ require("lazy").setup({
     end,
     ft = { "arduino" },
   },
+})
+
+-- Preserve missing EOL (replaces PreserveNoEOL plugin)
+vim.o.fixeol = false
+
+-- Highlight trailing whitespace (replaces vim-better-whitespace)
+vim.api.nvim_create_autocmd("BufReadPost", {
+  callback = function()
+    vim.fn.matchadd("ExtraWhitespace", [[\s\+$]])
+  end,
+  group = vim.api.nvim_create_augroup("TrailingWhitespace", { clear = true }),
+})
+vim.api.nvim_set_hl(0, "ExtraWhitespace", { bg = "#592929" })
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  command = [[%s/\s\+$//e]],
+  group = vim.api.nvim_create_augroup("TrimWhitespaceOnSave", { clear = true }),
+})
+
+-- Auto-detect project root (replaces vim-rooter)
+vim.api.nvim_create_autocmd("BufEnter", {
+  callback = function()
+    -- Only for normal buffers
+    if vim.bo.buftype ~= "" then
+      return
+    end
+    local root = vim.fs.root(0, {
+      ".git",
+      "_darcs",
+      ".hg",
+      ".bzr",
+      ".svn",
+      "package.json",
+      "library.properties",
+      "go.mod",
+      "go.work",
+      "Cargo.toml",
+    })
+    if root then
+      vim.fn.chdir(root)
+    end
+  end,
+  group = vim.api.nvim_create_augroup("AutoRootDir", { clear = true }),
 })
 
 -- TODO: assign this to some config module
