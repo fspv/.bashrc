@@ -26,8 +26,11 @@ local function create_matcher(opts, context)
 
   local M = {}
 
+  -- stylua: ignore
   local native_fzy_path = matching_algorithm ~= "fzf"
-    and vim.api.nvim_get_runtime_file("deps/fzy-lua-native/lua/native.lua", false)[1]
+    and vim.api.nvim_get_runtime_file(
+      "deps/fzy-lua-native/lua/native.lua", false
+    )[1]
 
   local opt_table = {
     matching_algorithm = matching_algorithm,
@@ -43,21 +46,30 @@ local function create_matcher(opts, context)
 
   local function combine_with_main(thread_top_entries)
     for _, entry in ipairs(thread_top_entries) do
-      local inserted = priority_insert(top_entries, top_entry_count, entry, function(o)
-        return o.relevance or o.base_score
-      end)
+      -- stylua: ignore
+      local inserted = priority_insert(
+        top_entries, top_entry_count, entry,
+        function(o)
+          return o.relevance or o.base_score
+        end
+      )
 
       if not inserted then
         break
       end
 
+      -- stylua: ignore
       local entry_to_add = create_entry_data(
         entry.path,
-        history_data_cache[entry.path] or { frecency = 0, recent_rank = 0 },
+        history_data_cache[entry.path]
+          or { frecency = 0, recent_rank = 0 },
         context
       )
 
-      process_result(vim.tbl_deep_extend("keep", entry_to_add, entry))
+      -- stylua: ignore
+      process_result(
+        vim.tbl_deep_extend("keep", entry_to_add, entry)
+      )
     end
   end
 
@@ -82,7 +94,11 @@ local function create_matcher(opts, context)
 
       last_processed_index = last_processed_index + 1
 
-      vim.loop.queue_work(pool, prompt, cancel_token, options, packed[last_processed_index])
+      -- stylua: ignore
+      vim.loop.queue_work(
+        pool, prompt, cancel_token,
+        options, packed[last_processed_index]
+      )
     end
 
     -- Divide the work and send to queues
@@ -98,12 +114,15 @@ local function create_matcher(opts, context)
       end
 
       if work_result.cancel_token == cancel_token then
-        -- This particular search hasn't been canceled, so yield these results and queue more work
+        -- This particular search hasn't been canceled,
+        -- so yield these results and queue more work
         queue_next()
 
         combine_with_main(work_result.result)
 
-        if complete and waiting_threads == 0 and last_processed_index == #packed then
+        -- stylua: ignore
+        if complete and waiting_threads == 0
+          and last_processed_index == #packed then
           process_complete()
         end
       end
@@ -123,7 +142,11 @@ local function create_matcher(opts, context)
   end
 
   function M.add_entry(entry, history_data)
-    table.insert(unpacked, { entry.path, entry.base_score, virtual_name.get_pos(entry.path) })
+    -- stylua: ignore
+    table.insert(unpacked, {
+      entry.path, entry.base_score,
+      virtual_name.get_pos(entry.path),
+    })
 
     if history_data then
       history_data_cache[entry.path] = history_data

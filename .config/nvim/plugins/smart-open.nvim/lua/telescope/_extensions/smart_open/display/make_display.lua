@@ -1,5 +1,8 @@
 local has_devicons, devicons = pcall(require, "nvim-web-devicons")
-local format_filepath = require("telescope._extensions.smart_open.display.format_filepath")
+-- stylua: ignore
+local format_filepath = require(
+  "telescope._extensions.smart_open.display.format_filepath"
+)
 local sum = require("smart-open.util.table").sum
 local combine_display = require("smart-open.util.combine_display")
 
@@ -28,9 +31,13 @@ end
 
 local function score_display(entry)
   local scores = {
-    total = (entry.relevance or 0) > 0 and entry.relevance or entry.base_score,
+    -- stylua: ignore
+    total = (entry.relevance or 0) > 0
+      and entry.relevance or entry.base_score,
     match = (entry.scores.path_fzy or 0) + (entry.scores.path_fzf or 0),
-    fn = (entry.scores.virtual_name_fzy or 0) + (entry.scores.virtual_name_fzf or 0),
+    -- stylua: ignore
+    fn = (entry.scores.virtual_name_fzy or 0) +
+      (entry.scores.virtual_name_fzf or 0),
     frecency = entry.scores.frecency,
     recency = entry.scores.recency,
     open = entry.scores.open,
@@ -56,13 +63,20 @@ local function make_display(opts)
     if results_width then
       return results_width
     end
-    local status = require("telescope.state").get_status(vim.api.nvim_get_current_buf())
-    results_width = vim.api.nvim_win_get_width(status.results_win)
+    -- stylua: ignore
+    local status = require("telescope.state")
+      .get_status(vim.api.nvim_get_current_buf())
+    -- stylua: ignore
+    results_width =
+      vim.api.nvim_win_get_width(status.results_win)
   end
 
   local highlight
   if opts.match_algorithm == "fzf" then
-    local get_fzf_sorter = require("smart-open.matching.algorithms.fzf_implementation")
+    -- stylua: ignore
+    local get_fzf_sorter = require(
+      "smart-open.matching.algorithms.fzf_implementation"
+    )
     local fzf_sorter = get_fzf_sorter({
       case_mode = "smart_case",
       fuzzy = true,
@@ -74,16 +88,23 @@ local function make_display(opts)
 
   local function format(entry, fit_width)
     local hl_group = {}
-    local display, path_hl = format_filepath(entry.path, entry.virtual_name, filename_opts, fit_width)
+    -- stylua: ignore
+    local display, path_hl = format_filepath(
+      entry.path, entry.virtual_name,
+      filename_opts, fit_width
+    )
 
-    -- This is the point at which the directory itself starts.  This is because we're putting the virtual_name first.
+    -- This is the point at which the directory itself
+    -- starts, because we're putting the virtual_name first.
     local split_pos = #entry.virtual_name
 
     local path
     if filename_opts.filename_first then
       -- Transpose order to canonical path order.
       local spacing = 1
-      path = display:sub(#entry.virtual_name + spacing + 1) .. "/" .. entry.virtual_name
+      -- stylua: ignore
+      path = display:sub(#entry.virtual_name + spacing + 1)
+        .. "/" .. entry.virtual_name
     else
       path = display
     end
@@ -123,13 +144,21 @@ local function make_display(opts)
       table.insert(to_display, { score_display(entry) .. " " })
     end
 
-    table.insert(
-      to_display,
-      open_buffer_indicators(entry, opts.open_buffer_indicators or opts.config.open_buffer_indicators)
+    -- stylua: ignore
+    local indicators = open_buffer_indicators(
+      entry,
+      opts.open_buffer_indicators
+        or opts.config.open_buffer_indicators
     )
+    table.insert(to_display, indicators)
 
     if has_devicons and not opts.disable_devicons then
-      local icon, hl_group = devicons.get_icon(entry.virtual_name, string.match(entry.path, "%a+$"), { default = true })
+      -- stylua: ignore
+      local icon, hl_group = devicons.get_icon(
+        entry.virtual_name,
+        string.match(entry.path, "%a+$"),
+        { default = true }
+      )
       table.insert(to_display, {
         icon .. " ",
         hl_group = hl_group and { { { 0, #icon + 1 }, hl_group } },

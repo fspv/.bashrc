@@ -18,7 +18,7 @@ local get_fzf_sorter = function(opts)
   local fuzzy_mode = opts.fuzzy == nil and true or opts.fuzzy
 
   local state = {
-    prompt_cache = {}
+    prompt_cache = {},
   }
 
   local get_struct = function(prompt)
@@ -48,7 +48,7 @@ local get_fzf_sorter = function(opts)
   end
 
   function M.highlighter(_, prompt, display)
-      return fzf.get_pos(display, get_struct(prompt), state.slab)
+    return fzf.get_pos(display, get_struct(prompt), state.slab)
   end
 
   function M.destroy()

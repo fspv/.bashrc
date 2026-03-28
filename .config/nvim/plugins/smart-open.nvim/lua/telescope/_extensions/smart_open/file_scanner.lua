@@ -12,7 +12,10 @@ local function spawn(cmd, opts, input, onexit)
   local stdout = vim.loop.new_pipe(false)
   -- open an new pipe for stderr
   local stderr = vim.loop.new_pipe(false)
-  local args = vim.tbl_extend("force", opts, { stdio = { nil, stdout, stderr } })
+  -- stylua: ignore
+  local args = vim.tbl_extend(
+    "force", opts, { stdio = { nil, stdout, stderr } }
+  )
 
   handle = vim.loop.spawn(cmd, args, function(code, signal)
     -- call the exit callback with the code and signal

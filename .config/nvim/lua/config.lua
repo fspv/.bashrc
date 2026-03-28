@@ -640,7 +640,9 @@ require("lazy").setup({
             } or {}, {
               checkOnSave = false,
               check = {
-                workspace = false, -- only check the crate you're editing, not --workspace
+                -- only check the crate you're editing,
+                -- not --workspace
+                workspace = false,
               },
               cargo = {
                 buildScripts = {

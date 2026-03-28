@@ -17,6 +17,7 @@ local function fit_dir(path, available, opts)
 
   local min_limit = opts.shorten_to or 0
 
+  local fitted = false
   for segment_limit = max(segment_limits), min_limit, -1 do
     if segment_limit == 0 then
       return "…"
@@ -24,12 +25,14 @@ local function fit_dir(path, available, opts)
     for i, v in ipairs(segment_limits) do
       segment_limits[i] = math.min(v, segment_limit)
       if sum(segment_limits) + (#segments - 1) == available then
-        goto continue
+        fitted = true
+        break
       end
     end
+    if fitted then
+      break
+    end
   end
-
-  ::continue::
 
   for i, segment in ipairs(segments) do
     if segment_limits[i] == 1 then
@@ -42,8 +45,9 @@ local function fit_dir(path, available, opts)
   return table.concat(segments, "/")
 end
 
--- normalize_path ensures that the path is displayed as relative when path is under cwd,
--- and is otherwise displayed prepended with ~ when under the home directory
+-- normalize_path ensures that the path is displayed
+-- as relative when path is under cwd, and is otherwise
+-- displayed prepended with ~ when under the home directory
 -- and finally displayed as absolute in all other cases
 local function normalize_path(path, cwd)
   local p = Path:new(path)
@@ -78,7 +82,9 @@ local function format_filepath(path, filename, opts, maxlen)
         return filename .. " …", hl_group
       end
 
-      result = filename .. spacing .. fit_dir(path, remaining, { shorten_to = 8 })
+      -- stylua: ignore
+      result = filename .. spacing
+        .. fit_dir(path, remaining, { shorten_to = 8 })
     end
     local start_index = len(filename .. spacing)
     hl_group = { { start_index, start_index + len(result) }, "Directory" }
