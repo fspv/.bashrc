@@ -21,10 +21,7 @@ end)
 
 if not ok then
   print(
-    "Warning: Couldn't load fzf. "
-      .. "Do you need to add "
-      .. "nvim-telescope/telescope-fzf-native.nvim "
-      .. "to your dependencies?"
+    "Warning: Couldn't load fzf.  Do you need to add nvim-telescope/telescope-fzf-native.nvim to your dependencies?"
   )
   print("Error loading fzf:", sorter)
   return require("smart-open.matching.algorithms.fzy")

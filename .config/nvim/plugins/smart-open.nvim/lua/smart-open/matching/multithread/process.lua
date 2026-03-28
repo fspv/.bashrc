@@ -18,11 +18,7 @@ local function process(prompt, cancel_token, encoded_options, encoded_entries)
     for _, entry in ipairs(entries) do
       local path, base_score, vname_pos = unpack(entry)
 
-      local e = {
-        path = path,
-        virtual_name = path:sub(vname_pos),
-        base_score = base_score,
-      }
+      local e = { path = path, virtual_name = path:sub(vname_pos), base_score = base_score }
       if prompt and #prompt > 0 then
         set_relevance.run(prompt, e)
       else
@@ -41,11 +37,7 @@ local function process(prompt, cancel_token, encoded_options, encoded_entries)
     return results, cancel_token
   end)
 
-  local packed = vim.mpack.encode({
-    status = ok,
-    result = result,
-    cancel_token = cancel_token,
-  })
+  local packed = vim.mpack.encode({ status = ok, result = result, cancel_token = cancel_token })
 
   return packed
 end

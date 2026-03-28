@@ -22,8 +22,7 @@ function M.get_pos(path)
   local last, penultimate, current
   local k = 0
 
-  -- enforce consistent path separator on windows to
-  -- account for both forward and backward slashes
+  -- enforce consistent path separator on windows to account for both forward and backward slashes
   if win32 then
     path = path:gsub("/", path_separator):gsub("\\", path_separator)
   end
@@ -35,8 +34,7 @@ function M.get_pos(path)
   until current == nil
 
   if not last then
-    -- no path separator found, so return the start
-    -- of the string (a.k.a. use the whole string)
+    -- no path separator found, so return the start of the string (a.k.a. use the whole string)
     return 1
   end
 

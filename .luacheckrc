@@ -28,5 +28,10 @@ globals = {
 -- Allow defining globals in files that match the following patterns
 allow_defined_top = true
 
--- Line length is enforced by stylua (column_width = 80)
+-- Line length is enforced by stylua
 max_line_length = false
+
+-- Exclude vendored third-party plugins
+exclude_files = {
+  ".config/nvim/plugins/*",
+}

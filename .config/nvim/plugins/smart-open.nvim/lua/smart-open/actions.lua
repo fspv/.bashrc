@@ -10,7 +10,7 @@ local function make_delete_buffer_action(close_command)
       end)
     end
 
-  return function(prompt_bufnr, _winid)
+  return function(prompt_bufnr, winid)
     local selection = action_state.get_selected_entry()
     local picker = action_state.get_current_picker(prompt_bufnr)
 

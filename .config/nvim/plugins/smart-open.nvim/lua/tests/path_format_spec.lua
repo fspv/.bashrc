@@ -31,7 +31,7 @@ describe("format_filepath with maxlen", function()
     assert.are.equal(expected, result)
   end)
 
-  it("abbreviates home directory while shortening " .. "when cwd is outside home", function()
+  it("abbreviates home directory while shortening when cwd is outside home", function()
     local expected = "filename.lua ~/src/LargeDirec…"
     local result = format_filepath(
       os_home .. "/src/LargeDirectoryName/filename.lua",
@@ -42,7 +42,7 @@ describe("format_filepath with maxlen", function()
     assert.are.equal(expected, result)
   end)
 
-  it("doesn't use abbreviated home directory " .. "when path can be relative", function()
+  it("doesn't use abbreviated home directory when path can be relative", function()
     local expected = "filename.lua src/LargeDirecto…"
     local result = format_filepath(
       os_home .. "/code/src/LargeDirectoryName/filename.lua",
@@ -54,12 +54,12 @@ describe("format_filepath with maxlen", function()
   end)
 
   it("displays the right number of characters", function()
-    local path = "/base/lua/telescope/_extensions/" .. "smart_open/display/format_filepath.lua"
+    local path = "/base/lua/telescope/_extensions/smart_open/display/format_filepath.lua"
     local result = format_filepath(path, "format_filepath.lua", { cwd = "/base", filename_first = true }, 61)
     assert.are.equal(61, vim.fn.strdisplaywidth(result))
   end)
 
-  it("abbreviates home directory while shortening " .. "when cwd is inside home", function()
+  it("abbreviates home directory while shortening when cwd is inside home", function()
     local expected = "filename.lua ~/src/LargeDirec…"
     local result = format_filepath(
       os_home .. "/src/LargeDirectoryName/filename.lua",

@@ -1,8 +1,7 @@
 --- Configure set_relevance function with a matching_algorithm
 ---@param options table
 --   matching_algorithm string: fzf or fzy
---   native_fzy_path string: the path to the native fzy
---   (only applicable if fzy is selected)
+--   native_fzy_path string: the path to the native fzy (only applicable if fzy is selected)
 --   weights table: the current weight values
 return function(options)
   local matching_algorithm = options.matching_algorithm
@@ -34,8 +33,7 @@ return function(options)
   local M = {}
 
   --- Assign a final relevance to the entry, given the filter text
-  --- additionally, store the prompt-match scores on each
-  --- entry so weights can be recalculated
+  --- additionally, store the prompt-match scores on each entry so weights can be recalculated
   ---@param prompt string: The filter text
   ---@param entry table: The entry will be modified in-place
   function M.run(prompt, entry)
