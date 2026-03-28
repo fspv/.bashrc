@@ -55,6 +55,12 @@ fi
 
 "${SCRIPT_DIR}/init-nix.sh"
 
+# Install pre-commit hooks if in the dotfiles repo
+DOTFILES_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+if [[ -f "${DOTFILES_DIR}/.pre-commit-config.yaml" ]]; then
+  nix-shell -p pre-commit git --run "bash -c 'cd ${DOTFILES_DIR} && pre-commit install'" --pure
+fi
+
 if [ "$(uname -m)" = "x86_64" ]; then
     # Not all plugins are available on aarch64 and kubectl is not really needed there now
     # shellcheck disable=SC2016

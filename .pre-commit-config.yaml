@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v2.4.0
+    hooks:
+      - id: stylua
+        types: [lua]
+
+  - repo: local
+    hooks:
+      - id: luacheck
+        name: luacheck
+        entry: luacheck
+        language: system
+        types: [lua]
