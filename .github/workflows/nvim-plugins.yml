@@ -16,6 +16,12 @@ jobs:
   nvim-smoke-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    env:
+      BWRAPPED: "1"
+      NEOVIM_LAZY_PATH: /tmp/lazy-nvim
+      XDG_CONFIG_HOME: ${{ github.workspace }}/.config
+      XDG_DATA_HOME: /tmp/nvim-data
+      XDG_STATE_HOME: /tmp/nvim-state
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,49 +47,51 @@ jobs:
             /tmp/lazy-nvim
 
       - name: Install plugins
-        env:
-          BWRAPPED: "1"
-          NEOVIM_LAZY_PATH: /tmp/lazy-nvim
-          XDG_CONFIG_HOME: ${{ github.workspace }}/.config
-          XDG_DATA_HOME: /tmp/nvim-data
-          XDG_STATE_HOME: /tmp/nvim-state
         run: |
           nvim --headless \
             +"lua require('lazy').install({ wait = true })" \
             +qa 2>&1 | tee /tmp/nvim-install.log
 
-          if grep -qi "error" /tmp/nvim-install.log; then
-            echo "::warning::Errors detected in plugin install log"
-            cat /tmp/nvim-install.log
-          fi
-
       - name: Install treesitter parsers
-        env:
-          BWRAPPED: "1"
-          NEOVIM_LAZY_PATH: /tmp/lazy-nvim
-          XDG_CONFIG_HOME: ${{ github.workspace }}/.config
-          XDG_DATA_HOME: /tmp/nvim-data
-          XDG_STATE_HOME: /tmp/nvim-state
         run: |
           nvim --headless \
             +"TSInstallSync lua go python rust javascript" \
             +qa 2>&1 | tee /tmp/nvim-treesitter.log
 
       - name: Verify config loads without errors
-        env:
-          BWRAPPED: "1"
-          NEOVIM_LAZY_PATH: /tmp/lazy-nvim
-          XDG_CONFIG_HOME: ${{ github.workspace }}/.config
-          XDG_DATA_HOME: /tmp/nvim-data
-          XDG_STATE_HOME: /tmp/nvim-state
         run: |
-          output=$(nvim --headless \
-            +"lua vim.health.start('smoke'); print('CONFIG_OK')" \
-            +qa 2>&1)
-          echo "$output"
-          if echo "$output" | grep -q "CONFIG_OK"; then
-            echo "Config loaded successfully"
-          else
-            echo "::error::Config failed to load"
+          nvim --headless \
+            +"lua print('CONFIG_OK')" \
+            +qa 2>&1 | tee /tmp/nvim-verify.log
+
+          if grep -iq "^Error\|^E[0-9]\|Failed to run" \
+              /tmp/nvim-verify.log; then
+            echo "::error::Errors detected loading config:"
+            cat /tmp/nvim-verify.log
             exit 1
           fi
+
+          if ! grep -q "CONFIG_OK" /tmp/nvim-verify.log; then
+            echo "::error::Config failed to load"
+            cat /tmp/nvim-verify.log
+            exit 1
+          fi
+
+          echo "Config loaded successfully"
+
+      - name: Check all plugin logs for errors
+        if: always()
+        run: |
+          exit_code=0
+          for log in /tmp/nvim-install.log \
+                     /tmp/nvim-treesitter.log \
+                     /tmp/nvim-verify.log; do
+            if [ -f "$log" ] && \
+                grep -iq "^Error\|^E[0-9]\|Failed to run" "$log"
+            then
+              echo "::error::Errors in $log:"
+              grep -i "^Error\|^E[0-9]\|Failed to run" "$log"
+              exit_code=1
+            fi
+          done
+          exit $exit_code

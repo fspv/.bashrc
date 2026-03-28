@@ -248,10 +248,7 @@ require("telescope").setup({
         height = 0.9,
       },
     },
-    history = {
-      path = "~/.local/share/nvim/telescope_history.sqlite3",
-      limit = 100,
-    },
+    history = false,
     -- open files in the first window that is an actual file.
     -- use the current window if no other window is available.
     get_selection_window = function()
@@ -316,7 +313,7 @@ require("telescope").load_extension("fzf")
 require("telescope").load_extension("sourcegraph")
 require("telescope").load_extension("live_grep_args")
 require("telescope").load_extension("file_browser")
-require("telescope").load_extension("smart_history")
+
 
 vim.keymap.set("n", "z/", function()
   require("telescope.builtin").current_buffer_fuzzy_find({
