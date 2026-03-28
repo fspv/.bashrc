@@ -314,7 +314,6 @@ require("telescope").load_extension("sourcegraph")
 require("telescope").load_extension("live_grep_args")
 require("telescope").load_extension("file_browser")
 
-
 vim.keymap.set("n", "z/", function()
   require("telescope.builtin").current_buffer_fuzzy_find({
     default_text = vim.fn.expand("<cword>"),
