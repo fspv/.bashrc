@@ -51,11 +51,8 @@ local function create_matcher(opts, context)
         break
       end
 
-      local entry_to_add = create_entry_data(
-        entry.path,
-        history_data_cache[entry.path] or { frecency = 0, recent_rank = 0 },
-        context
-      )
+      local entry_to_add =
+        create_entry_data(entry.path, history_data_cache[entry.path] or { frecency = 0, recent_rank = 0 }, context)
 
       process_result(vim.tbl_deep_extend("keep", entry_to_add, entry))
     end

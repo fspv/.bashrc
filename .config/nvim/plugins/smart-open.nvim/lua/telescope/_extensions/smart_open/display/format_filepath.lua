@@ -17,6 +17,7 @@ local function fit_dir(path, available, opts)
 
   local min_limit = opts.shorten_to or 0
 
+  local fitted = false
   for segment_limit = max(segment_limits), min_limit, -1 do
     if segment_limit == 0 then
       return "…"
@@ -24,12 +25,14 @@ local function fit_dir(path, available, opts)
     for i, v in ipairs(segment_limits) do
       segment_limits[i] = math.min(v, segment_limit)
       if sum(segment_limits) + (#segments - 1) == available then
-        goto continue
+        fitted = true
+        break
       end
     end
+    if fitted then
+      break
+    end
   end
-
-  ::continue::
 
   for i, segment in ipairs(segments) do
     if segment_limits[i] == 1 then

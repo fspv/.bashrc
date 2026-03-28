@@ -30,8 +30,3 @@ allow_defined_top = true
 
 -- Line length is enforced by stylua
 max_line_length = false
-
--- Exclude vendored third-party plugins
-exclude_files = {
-  ".config/nvim/plugins/*",
-}
