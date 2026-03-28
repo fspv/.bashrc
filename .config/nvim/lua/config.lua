@@ -179,8 +179,6 @@ require("lazy").setup({
     end,
     cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
   },
-  -- PreserveNoEOL removed: use native `vim.o.fixeol = false`
-
   -- # Completion
 
   -- Snippets collection for a set of different programming languages
@@ -188,7 +186,6 @@ require("lazy").setup({
     "rafamadriz/friendly-snippets",
     lazy = true,
   },
-  -- Completion engine (replaces nvim-cmp + all cmp-* sources + lspkind + vsnip + LuaSnip)
   {
     "saghen/blink.cmp",
     lazy = false,
@@ -296,16 +293,13 @@ require("lazy").setup({
       "neovim/nvim-lspconfig",
     },
   },
-  -- vim-rooter removed: replaced with native Lua autocmd in config
-  -- fzf and vim-better-whitespace removed: fzf redundant with telescope,
-  -- whitespace highlighting done natively
   -- Auto-complete matching quotes, brackets, etc
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
     config = true,
   },
-  -- Faster navigation (replaces vim-easymotion)
+  -- Faster navigation
   {
     "folke/flash.nvim",
     event = "VeryLazy",
@@ -350,7 +344,6 @@ require("lazy").setup({
     "tpope/vim-fugitive",
     cmd = { "G", "Gdiffsplit" },
   },
-  -- git-blame.nvim removed: using gitsigns current_line_blame instead
   {
     "lewis6991/gitsigns.nvim",
     config = function()
@@ -582,7 +575,6 @@ require("lazy").setup({
       require("plugins_config/quickui_conf")
     end,
   },
-  -- Buffer line (replaces barbar.nvim)
   {
     "akinsho/bufferline.nvim",
     version = "*",
@@ -619,7 +611,6 @@ require("lazy").setup({
       )
     end,
   },
-  -- vim-commentary removed: nvim 0.10 has built-in gc/gcc commenting
   {
     "fspv/sourcegraph.nvim",
     dependencies = {
@@ -785,9 +776,6 @@ require("lazy").setup({
       require("plugins_config/which_key_conf")
     end,
   },
-  -- vim-floaterm removed: not in use
-  -- vim-markdown removed: treesitter markdown handles syntax
-  -- nvim-bufdel removed: bufferline handles buffer deletion
   -- Github Copilot
   -- {
   --   "github/copilot.vim",
@@ -876,7 +864,7 @@ require("lazy").setup({
       })
     end,
   },
-  -- Treesitter based split/join (replaces nvim-trevJ.lua)
+  -- Treesitter based split/join
   {
     "Wansmer/treesj",
     keys = {
@@ -956,10 +944,8 @@ require("lazy").setup({
   },
 })
 
--- Preserve missing EOL (replaces PreserveNoEOL plugin)
 vim.o.fixeol = false
 
--- Highlight trailing whitespace (replaces vim-better-whitespace)
 vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function()
     vim.fn.matchadd("ExtraWhitespace", [[\s\+$]])
@@ -973,7 +959,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   group = vim.api.nvim_create_augroup("TrimWhitespaceOnSave", { clear = true }),
 })
 
--- Auto-detect project root (replaces vim-rooter)
 vim.api.nvim_create_autocmd("BufEnter", {
   callback = function()
     -- Only for normal buffers
