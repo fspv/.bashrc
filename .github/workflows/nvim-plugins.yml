@@ -24,14 +24,19 @@ jobs:
         run: |
           cat > /tmp/Dockerfile.nvim-test << 'DEOF'
           FROM ubuntu:24.04
-          RUN apt-get update -qq && \
-              apt-get install -y -qq \
+          ENV DEBIAN_FRONTEND=noninteractive
+          RUN apt-get update && \
+              apt-get install -y \
                 curl git cmake build-essential \
                 nodejs npm ca-certificates && \
               curl -fsSL \
                 https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
                 | tar -xz -C /usr/local --strip-components=1 && \
-              npm install -g tree-sitter-cli && \
+              TS_VERSION=$(curl -fsSL https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest | grep -o '"tag_name": "v[^"]*"' | head -1 | grep -o '[0-9.]*') && \
+              curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/download/v${TS_VERSION}/tree-sitter-linux-x64.gz" \
+                | gunzip > /usr/local/bin/tree-sitter && \
+              chmod +x /usr/local/bin/tree-sitter && \
+              tree-sitter --version && \
               git clone --filter=blob:none --branch=stable \
                 https://github.com/folke/lazy.nvim.git \
                 /tmp/lazy-nvim && \
