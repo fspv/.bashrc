@@ -41,34 +41,11 @@ jobs:
 
       - name: Install plugins and verify
         run: |
-          cat > /tmp/nvim-smoke.lua << 'LUAEOF'
-          require('lazy').install({ wait = true })
-
-          local errors = {}
-          for name, plugin in pairs(require('lazy.core.config').plugins) do
-            if plugin._.has_errors then
-              table.insert(errors, name)
-            end
-          end
-
-          if #errors > 0 then
-            print('FAIL: ' .. table.concat(errors, ', '))
-            vim.cmd('cquit 1')
-          end
-
-          local s = require('lazy').stats()
-          print(string.format(
-            'OK: %d/%d plugins loaded', s.loaded, s.count
-          ))
-          vim.cmd('quit')
-          LUAEOF
-
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/root" \
-            -v "/tmp/nvim-smoke.lua:/tmp/nvim-smoke.lua:ro" \
             -w /root \
             -e BWRAPPED=1 \
             -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
             -e HOME=/root \
             nvim-test \
-            nvim --headless +"luafile /tmp/nvim-smoke.lua"
+            nvim --headless +"luafile ~/.config/nvim/lua/smoke_test.lua"
