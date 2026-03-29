@@ -16,37 +16,34 @@ jobs:
   nvim-smoke-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    container:
+      image: ubuntu:24.04
+      options: >-
+        --workdir /root
+      volumes:
+        - ${{ github.workspace }}:/root
     env:
       BWRAPPED: "1"
       NEOVIM_LAZY_PATH: /tmp/lazy-nvim
-      XDG_CONFIG_HOME: ${{ github.workspace }}/.config
-      XDG_DATA_HOME: /tmp/nvim-data
-      XDG_STATE_HOME: /tmp/nvim-state
+      HOME: /root
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: /root
 
-      - name: Install neovim
+      - name: Install neovim and dependencies
         run: |
+          apt-get update -qq
+          apt-get install -y -qq \
+            curl git cmake make gcc nodejs npm ca-certificates
           curl -fsSL \
             https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
             -o /tmp/nvim.tar.gz
-          sudo tar -xzf /tmp/nvim.tar.gz \
+          tar -xzf /tmp/nvim.tar.gz \
             -C /usr/local --strip-components=1
-          nvim --version | head -1
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq cmake make
           npm install -g tree-sitter-cli
-
-      - name: Symlink repo dotfiles to HOME
-        run: |
-          # init.vim sources ~/.vimrc; in production bwrap
-          # binds the repo to $HOME. Replicate that here.
-          ln -sf "$GITHUB_WORKSPACE/.vimrc" ~/
-          ln -sf "$GITHUB_WORKSPACE/.vim" ~/ 2>/dev/null || true
+          nvim --version | head -1
 
       - name: Install lazy.nvim
         run: |
