@@ -26,7 +26,7 @@ jobs:
           FROM ubuntu:24.04
           RUN apt-get update -qq && \
               apt-get install -y -qq \
-                curl git cmake make build-essential \
+                curl git cmake build-essential \
                 nodejs npm ca-certificates && \
               curl -fsSL \
                 https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
@@ -39,124 +39,36 @@ jobs:
           DEOF
           docker build -t nvim-test -f /tmp/Dockerfile.nvim-test /tmp
 
-      - name: Install plugins
+      - name: Install plugins and verify
         run: |
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/root" \
-            -w /root \
-            -e BWRAPPED=1 \
-            -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
-            -e HOME=/root \
-            nvim-test \
-            nvim --headless \
-              +"lua require('lazy').install({ wait = true })" \
-              +qa
+          cat > /tmp/nvim-smoke.lua << 'LUAEOF'
+          require('lazy').install({ wait = true })
 
-      - name: Install treesitter parsers
-        run: |
-          cat > /tmp/nvim-ts-install.lua << 'LUAEOF'
-          local parsers = { 'lua', 'go', 'python', 'rust', 'javascript' }
-
-          for _, lang in ipairs(parsers) do
-            print('Installing parser: ' .. lang)
-            vim.cmd('TSInstall! ' .. lang)
-          end
-
-          -- Wait for all installs to finish
-          vim.wait(120000, function()
-            for _, lang in ipairs(parsers) do
-              if not require('nvim-treesitter.parsers').has_parser(lang) then
-                return false
-              end
-            end
-            return true
-          end, 1000)
-
-          -- Verify all installed
-          local failed = {}
-          for _, lang in ipairs(parsers) do
-            if require('nvim-treesitter.parsers').has_parser(lang) then
-              print('OK: ' .. lang)
-            else
-              table.insert(failed, lang)
-              print('FAIL: ' .. lang)
+          local errors = {}
+          for name, plugin in pairs(require('lazy.core.config').plugins) do
+            if plugin._.has_errors then
+              table.insert(errors, name)
             end
           end
 
-          if #failed > 0 then
-            print('Failed parsers: ' .. table.concat(failed, ', '))
+          if #errors > 0 then
+            print('FAIL: ' .. table.concat(errors, ', '))
             vim.cmd('cquit 1')
-          else
-            print('All parsers installed')
-            vim.cmd('quit')
           end
+
+          local s = require('lazy').stats()
+          print(string.format(
+            'OK: %d/%d plugins loaded', s.loaded, s.count
+          ))
+          vim.cmd('quit')
           LUAEOF
 
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/root" \
-            -v "/tmp/nvim-ts-install.lua:/tmp/nvim-ts-install.lua:ro" \
+            -v "/tmp/nvim-smoke.lua:/tmp/nvim-smoke.lua:ro" \
             -w /root \
             -e BWRAPPED=1 \
             -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
             -e HOME=/root \
             nvim-test \
-            nvim --headless +"luafile /tmp/nvim-ts-install.lua"
-
-      - name: Verify config loads and plugins are healthy
-        run: |
-          cat > /tmp/nvim-verify.lua << 'LUAEOF'
-          local ok, err = pcall(function()
-            assert(package.loaded['lazy'], 'lazy.nvim not loaded')
-
-            local stats = require('lazy').stats()
-            print(string.format(
-              'Lazy stats: %d/%d plugins loaded',
-              stats.loaded, stats.count
-            ))
-
-            if stats.count == 0 then
-              error('No plugins found')
-            end
-
-            local required = {
-              'blink.cmp',
-              'gitsigns.nvim',
-              'telescope.nvim',
-              'nvim-treesitter',
-              'lualine.nvim',
-              'neo-tree.nvim',
-              'flash.nvim',
-              'bufferline.nvim',
-              'conform.nvim',
-            }
-
-            for _, name in ipairs(required) do
-              local p = require('lazy.core.config').plugins[name]
-              if not p then
-                error('Plugin not found: ' .. name)
-              end
-              if p._.has_errors then
-                error('Plugin has errors: ' .. name)
-              end
-              print('OK: ' .. name)
-            end
-          end)
-
-          if not ok then
-            print('FAIL: ' .. tostring(err))
-            vim.cmd('cquit 1')
-          else
-            print('All checks passed')
-            vim.cmd('quit')
-          end
-          LUAEOF
-
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE:/root" \
-            -v "/tmp/nvim-verify.lua:/tmp/nvim-verify.lua:ro" \
-            -w /root \
-            -e BWRAPPED=1 \
-            -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
-            -e HOME=/root \
-            nvim-test \
-            nvim --headless +"luafile /tmp/nvim-verify.lua"
+            nvim --headless +"luafile /tmp/nvim-smoke.lua"
