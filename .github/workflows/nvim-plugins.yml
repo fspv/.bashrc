@@ -54,5 +54,6 @@ jobs:
             -e BWRAPPED=1 \
             -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
             -e HOME=/root \
+            -e XDG_CACHE_HOME=/tmp/nvim-cache \
             nvim-test \
             nvim --headless +"luafile ~/.config/nvim/lua/smoke_test.lua"
