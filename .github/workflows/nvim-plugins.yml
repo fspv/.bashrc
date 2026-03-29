@@ -26,7 +26,7 @@ jobs:
           FROM ubuntu:24.04
           RUN apt-get update -qq && \
               apt-get install -y -qq \
-                curl git cmake make gcc \
+                curl git cmake make build-essential \
                 nodejs npm ca-certificates && \
               curl -fsSL \
                 https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
@@ -54,16 +54,53 @@ jobs:
 
       - name: Install treesitter parsers
         run: |
+          cat > /tmp/nvim-ts-install.lua << 'LUAEOF'
+          local parsers = { 'lua', 'go', 'python', 'rust', 'javascript' }
+
+          for _, lang in ipairs(parsers) do
+            print('Installing parser: ' .. lang)
+            vim.cmd('TSInstall! ' .. lang)
+          end
+
+          -- Wait for all installs to finish
+          vim.wait(120000, function()
+            for _, lang in ipairs(parsers) do
+              if not require('nvim-treesitter.parsers').has_parser(lang) then
+                return false
+              end
+            end
+            return true
+          end, 1000)
+
+          -- Verify all installed
+          local failed = {}
+          for _, lang in ipairs(parsers) do
+            if require('nvim-treesitter.parsers').has_parser(lang) then
+              print('OK: ' .. lang)
+            else
+              table.insert(failed, lang)
+              print('FAIL: ' .. lang)
+            end
+          end
+
+          if #failed > 0 then
+            print('Failed parsers: ' .. table.concat(failed, ', '))
+            vim.cmd('cquit 1')
+          else
+            print('All parsers installed')
+            vim.cmd('quit')
+          end
+          LUAEOF
+
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/root" \
+            -v "/tmp/nvim-ts-install.lua:/tmp/nvim-ts-install.lua:ro" \
             -w /root \
             -e BWRAPPED=1 \
             -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
             -e HOME=/root \
             nvim-test \
-            nvim --headless \
-              +"lua vim.cmd('TSInstall! lua go python rust javascript')" \
-              +qa
+            nvim --headless +"luafile /tmp/nvim-ts-install.lua"
 
       - name: Verify config loads and plugins are healthy
         run: |
