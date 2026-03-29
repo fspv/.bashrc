@@ -39,6 +39,13 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq cmake make
+          npm install -g tree-sitter-cli
+
+      - name: Prepare CI environment
+        run: |
+          # init.vim sources ~/.vimrc which doesn't exist in CI
+          touch ~/.vimrc
+          mkdir -p ~/.vim
 
       - name: Install lazy.nvim
         run: |
@@ -48,52 +55,36 @@ jobs:
 
       - name: Install plugins
         run: |
-          nvim --headless +"lua require('lazy').install({ wait = true })" +qa
+          nvim --headless \
+            +"lua require('lazy').install({ wait = true })" \
+            +qa
 
       - name: Install treesitter parsers
         run: |
           nvim --headless \
-            +"TSInstallSync lua go python rust javascript" +qa
+            +"lua vim.cmd('TSInstall! lua go python rust javascript')" \
+            +qa
 
       - name: Verify config loads and plugins are healthy
         run: |
-          nvim --headless +"lua <<EOF
+          cat > /tmp/nvim-verify.lua << 'LUAEOF'
           local ok, err = pcall(function()
-            assert(
-              package.loaded['lazy'],
-              'lazy.nvim not loaded'
-            )
+            assert(package.loaded['lazy'], 'lazy.nvim not loaded')
 
-            local lazy_stats = require('lazy').stats()
-            local loaded = lazy_stats.loaded
-            local count = lazy_stats.count
+            local stats = require('lazy').stats()
+            print(string.format(
+              'Lazy stats: %d/%d plugins loaded',
+              stats.loaded, stats.count
+            ))
 
-            print(
-              string.format(
-                'Lazy stats: %d/%d plugins loaded',
-                loaded,
-                count
-              )
-            )
-
-            if count == 0 then
+            if stats.count == 0 then
               error('No plugins found')
             end
 
-            local start_ok = lazy_stats.startuptime ~= nil
-            print(
-              string.format(
-                'Startup time: %s',
-                start_ok and tostring(lazy_stats.startuptime) .. 'ms'
-                  or 'N/A'
-              )
-            )
-
-            -- Check that key plugins loaded without errors
-            local required_plugins = {
+            local required = {
               'blink.cmp',
-              'gitsigns',
-              'telescope',
+              'gitsigns.nvim',
+              'telescope.nvim',
               'nvim-treesitter',
               'lualine.nvim',
               'neo-tree.nvim',
@@ -102,12 +93,12 @@ jobs:
               'conform.nvim',
             }
 
-            for _, name in ipairs(required_plugins) do
-              local plugin = require('lazy.core.config').plugins[name]
-              if not plugin then
+            for _, name in ipairs(required) do
+              local p = require('lazy.core.config').plugins[name]
+              if not p then
                 error('Plugin not found: ' .. name)
               end
-              if plugin._.has_errors then
+              if p._.has_errors then
                 error('Plugin has errors: ' .. name)
               end
               print('OK: ' .. name)
@@ -121,5 +112,6 @@ jobs:
             print('All checks passed')
             vim.cmd('quit')
           end
-          EOF
-          "
+          LUAEOF
+
+          nvim --headless +"luafile /tmp/nvim-verify.lua"
