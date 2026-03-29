@@ -4,6 +4,37 @@ set -uex
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+mkdir -p "${HOME}/.ssh"
+mkdir -p "${HOME}/.local/bin"
+mkdir -p "${HOME}/.local/share/fonts/fonts"
+mkdir -p "${HOME}/.config"
+mkdir -p "${HOME}/.config/autostart"
+mkdir -p "${HOME}/.cache"
+mkdir -p "${HOME}/venv"
+
+chmod 700 "${HOME}/.ssh"
+chmod 700 "${HOME}/.cache"
+chmod 700 "${HOME}/.local"
+
+if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
+    mkdir -p "${HOME}/.config/systemd/user"
+    mkdir -p "${HOME}/.config/docker-user"
+    chmod 700 "${HOME}/.config/docker-user"
+
+    if command -v loginctl &>/dev/null; then
+        loginctl enable-linger "$(id -un)" 2>/dev/null || true
+    fi
+
+    if command -v podman &>/dev/null && command -v systemctl &>/dev/null; then
+        systemctl --user enable --now podman.socket 2>/dev/null || true
+    fi
+
+    if command -v nvidia-ctk &>/dev/null; then
+        systemctl --user daemon-reload 2>/dev/null || true
+        systemctl --user enable --now nvidia-ctk-docker-config.service 2>/dev/null || true
+    fi
+fi
+
 declare -A repos=(
   ["plugins/zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
   ["plugins/zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting.git"
