@@ -1,6 +1,6 @@
 require("lazy").install({ wait = true })
 
--- Check for plugin errors
+-- Check for plugin config/load errors
 local errors = {}
 for name, plugin in pairs(require("lazy.core.config").plugins) do
   if plugin._.has_errors then
@@ -10,6 +10,24 @@ end
 
 if #errors > 0 then
   print("FAIL plugins: " .. table.concat(errors, ", "))
+  vim.cmd("cquit 1")
+end
+
+-- Check for build task failures
+local build_failures = {}
+for name, plugin in pairs(require("lazy.core.config").plugins) do
+  for _, task in ipairs(plugin._.tasks or {}) do
+    if task.name == "build" and task.error then
+      table.insert(build_failures, name .. ": " .. task.error)
+    end
+  end
+end
+
+if #build_failures > 0 then
+  print("FAIL builds:")
+  for _, msg in ipairs(build_failures) do
+    print("  " .. msg)
+  end
   vim.cmd("cquit 1")
 end
 
