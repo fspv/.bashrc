@@ -22,7 +22,7 @@ local ts = require("plugins_config.treesitter_conf")
 -- Wait for async parser installs (up to 120s)
 vim.wait(120000, function()
   for _, lang in ipairs(ts.ensure_installed) do
-    if not pcall(vim.treesitter.language.inspect, lang) then
+    if not pcall(vim.treesitter.language.add, lang) then
       return false
     end
   end
@@ -32,7 +32,7 @@ end, 2000)
 -- Verify all parsers compiled
 local failed = {}
 for _, lang in ipairs(ts.ensure_installed) do
-  if not pcall(vim.treesitter.language.inspect, lang) then
+  if not pcall(vim.treesitter.language.add, lang) then
     table.insert(failed, lang)
   end
 end
