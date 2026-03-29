@@ -23,7 +23,9 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Install parsers that we want available
-local ensure_installed = {
+local M = {}
+
+M.ensure_installed = {
   "bash",
   "c",
   "go",
@@ -36,7 +38,7 @@ local ensure_installed = {
   "zsh",
 }
 
-require("nvim-treesitter").install(ensure_installed)
+require("nvim-treesitter").install(M.ensure_installed)
 
 -- Textobjects config (handled by nvim-treesitter-textobjects)
 require("nvim-treesitter-textobjects").setup({
@@ -111,3 +113,5 @@ vim.keymap.set("x", "<BS>", function()
   table.remove(node_stack)
   select_node(node_stack[#node_stack])
 end, { desc = "Decrement treesitter selection" })
+
+return M

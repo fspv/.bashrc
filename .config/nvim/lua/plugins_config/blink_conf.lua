@@ -1,0 +1,66 @@
+require("blink.cmp").setup({
+  keymap = {
+    preset = "none",
+    ["<C-b>"] = { "scroll_documentation_up" },
+    ["<C-f>"] = { "scroll_documentation_down" },
+    ["<C-Space>"] = { "show" },
+    ["<C-e>"] = { "cancel" },
+    ["<CR>"] = { "accept", "fallback" },
+    ["<Right>"] = { "accept", "fallback" },
+    ["<C-n>"] = { "select_next", "fallback" },
+    ["<C-p>"] = { "select_prev", "fallback" },
+  },
+  appearance = {
+    use_nvim_cmp_as_default = false,
+    kind_icons = {
+      Text = "󰉿",
+      Method = "󰊕",
+      Function = "󰊕",
+      Constructor = "󰒓",
+      Field = "󰜢",
+      Variable = "󰀫",
+      Property = "󰜢",
+      Class = "󰠱",
+      Interface = "",
+      Struct = "󰙅",
+      Module = "",
+      Unit = "󰑭",
+      Value = "󰎠",
+      Enum = "",
+      EnumMember = "",
+      Keyword = "󰌋",
+      Constant = "󰏿",
+      Snippet = "",
+      Color = "󰏘",
+      File = "󰈙",
+      Reference = "󰈇",
+      Folder = "󰉋",
+      Event = "",
+      Operator = "󰆕",
+      TypeParameter = "󰗴",
+    },
+  },
+  completion = {
+    accept = {
+      auto_brackets = { enabled = true },
+    },
+    ghost_text = { enabled = false },
+    documentation = {
+      auto_show = true,
+      auto_show_delay_ms = 200,
+    },
+    list = {
+      selection = {
+        preselect = false,
+        auto_insert = false,
+      },
+    },
+  },
+  snippets = { preset = "default" },
+  sources = {
+    default = { "lsp", "path", "snippets", "buffer" },
+  },
+  cmdline = {
+    enabled = true,
+  },
+})

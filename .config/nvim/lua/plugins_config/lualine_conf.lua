@@ -17,7 +17,9 @@ require("lualine").setup({
         end,
       },
       {
-        "lsp_progress",
+        function()
+          return vim.lsp.status()
+        end,
       },
     },
     lualine_b = {
