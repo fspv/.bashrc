@@ -31,13 +31,13 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Build nix develop environment
         run: |
-          nix develop --ignore-environment --command echo "Nix develop initialised successfully!"
+          nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
       - name: Test bash
         run: |
-          nix develop --ignore-environment --command bash -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command bash -c 'echo hello'
       - name: Test zsh
         run: |
-          nix develop --ignore-environment --command zsh -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
   build-ubuntu-22-04:
     runs-on: ubuntu-22.04
     steps:
@@ -54,13 +54,13 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Build nix develop environment
         run: |
-          nix develop --ignore-environment --command echo "Nix develop initialised successfully!"
+          nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
       - name: Test bash
         run: |
-          nix develop --ignore-environment --command bash -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command bash -c 'echo hello'
       - name: Test zsh
         run: |
-          nix develop --ignore-environment --command zsh -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
   build-ubuntu-24-04-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
@@ -77,10 +77,10 @@ jobs:
           ./.local/share/bin/init-user-env.sh
       - name: Build nix develop environment
         run: |
-          nix develop --ignore-environment --command echo "Nix develop initialised successfully!"
+          nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
       - name: Test bash
         run: |
-          nix develop --ignore-environment --command bash -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command bash -c 'echo hello'
       - name: Test zsh
         run: |
-          nix develop --ignore-environment --command zsh -c 'echo hello'
+          nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
