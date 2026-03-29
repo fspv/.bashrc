@@ -158,7 +158,8 @@ require("lazy").setup({
   },
   {
     "nvim-treesitter/nvim-treesitter",
-    version = false, -- last release is way too old and doesn't work on Windows
+    version = false,
+    branch = "main",
     lazy = false,
     build = ":TSUpdate",
     dependencies = {
