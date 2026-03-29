@@ -35,10 +35,6 @@ jobs:
               npm install -g tree-sitter-cli && \
               tree-sitter --version && \
               cc --version && \
-              echo 'void tree_sitter_test(void) {}' > /tmp/t.c && \
-              cc -shared -fPIC -o /tmp/t.so /tmp/t.c && \
-              rm /tmp/t.c /tmp/t.so && \
-              echo "Shared lib compilation OK" && \
               git clone --filter=blob:none --branch=stable \
                 https://github.com/folke/lazy.nvim.git \
                 /tmp/lazy-nvim && \
@@ -56,4 +52,35 @@ jobs:
             -e HOME=/root \
             -e XDG_CACHE_HOME=/tmp/nvim-cache \
             nvim-test \
-            nvim --headless +"luafile ~/.config/nvim/lua/smoke_test.lua"
+            nvim --headless +"luafile ~/.config/nvim/lua/smoke_test.lua" \
+            2>&1 | tee /tmp/nvim-output.log
+
+      - name: Post failure logs
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = '';
+            try {
+              log = fs.readFileSync('/tmp/nvim-output.log', 'utf8');
+            } catch (e) {
+              log = 'Could not read log file: ' + e.message;
+            }
+            // Truncate to fit GitHub comment limits
+            if (log.length > 60000) {
+              log = log.slice(-60000);
+            }
+            const body = [
+              '### nvim-smoke-test failure log',
+              '',
+              '```',
+              log,
+              '```',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
