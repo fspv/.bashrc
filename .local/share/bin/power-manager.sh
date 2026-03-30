@@ -219,5 +219,5 @@ while true; do
     fi
     
     # Wait before checking again
-    sleep $CHECK_INTERVAL
+    sleep "$CHECK_INTERVAL"
 done
