@@ -1,0 +1,56 @@
+name: ShellCheck
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**/*.sh'
+      - '**/*.bash'
+      - '.github/workflows/shellcheck.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**/*.sh'
+      - '**/*.bash'
+      - '.github/workflows/shellcheck.yml'
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Find and check shell scripts
+        run: |
+          # Find .sh and .bash files, plus files with shell shebangs (excluding .git and zsh scripts)
+          files=$(find . -name '.git' -prune -o \( -name '*.sh' -o -name '*.bash' \) -print)
+          shebang_files=$(find . -name '.git' -prune -o -type f ! -name '*.sh' ! -name '*.bash' -print0 | xargs -0 grep -l '^#!/.*\(bash\|sh\)' 2>/dev/null || true)
+          all_files=$(echo -e "${files}\n${shebang_files}" | sort -u | grep -v '^$')
+
+          echo "Files to check:"
+          echo "${all_files}"
+          echo "---"
+
+          # Filter out zsh scripts
+          check_files=""
+          for f in ${all_files}; do
+            if head -1 "${f}" | grep -q 'zsh'; then
+              echo "Skipping zsh script: ${f}"
+              continue
+            fi
+            check_files="${check_files} ${f}"
+          done
+
+          if [ -z "${check_files}" ]; then
+            echo "No shell scripts found to check"
+            exit 0
+          fi
+
+          # shellcheck disable=SC2086
+          shellcheck ${check_files}
