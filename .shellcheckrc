@@ -1,2 +1,0 @@
-# Don't follow sourced files that aren't part of the repo
-disable=SC1091
