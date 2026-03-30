@@ -1,4 +1,4 @@
-#!/bin/sh -ue
+#!/bin/bash -ue
 
 COMMAND=$(printf ' %q' "$@")
 _NAME=$(basename "$1")

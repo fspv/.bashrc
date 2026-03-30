@@ -37,9 +37,9 @@ export XDG_CURRENT_DESKTOP=sway
 APP=$(flatpak info -l org.swaywm.sway)/files
 export LD_LIBRARY_PATH="${APP}/lib:${LD_LIBRARY_PATH}"
 export PATH="${APP}/bin:${PATH}"
-echo "MANDATORY_MANPATH ${APP}/share/man" > ${HOME}/.manpath
-export WLR_XWAYLAND=${APP}/bin/Xwayland
-export LIBINPUT_QUIRKS_DIR=${APP}/share/libinput
+echo "MANDATORY_MANPATH ${APP}/share/man" > "${HOME}/.manpath"
+export WLR_XWAYLAND="${APP}/bin/Xwayland"
+export LIBINPUT_QUIRKS_DIR="${APP}/share/libinput"
 
 # bwrap \
 #     --bind /cdrom /cdrom \
