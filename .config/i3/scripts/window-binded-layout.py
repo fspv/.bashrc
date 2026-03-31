@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import sys
 import logging
 import subprocess
+import sys
 import time
-import i3ipc
 from collections import OrderedDict
+
+import i3ipc
 
 log = logging.getLogger()
 log_handler = logging.StreamHandler(sys.stdout)
