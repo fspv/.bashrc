@@ -27,6 +27,7 @@ if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
 
     if command -v podman &>/dev/null && command -v systemctl &>/dev/null; then
         systemctl --user enable --now podman.socket 2>/dev/null || true
+        systemctl --user enable --now podman-restart.service 2>/dev/null || true
     fi
 
     if command -v nvidia-ctk &>/dev/null; then
