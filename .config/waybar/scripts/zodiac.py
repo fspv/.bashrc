@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 def get_zodiac() -> str:
+    """Return today's zodiac sign as a waybar JSON message."""
     now = datetime.now()
     month = now.month
     day = now.day

@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 def get_moon_phase() -> None:
+    """Print the current moon phase as a waybar JSON message."""
     # Known new moon date
     known_new_moon = datetime(2000, 1, 6, 18, 14, 0)
     now = datetime.now()

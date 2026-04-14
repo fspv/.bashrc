@@ -43,10 +43,11 @@ class LRU(OrderedDict[int, dict[str, int]]):
             del self[oldest]
 
 
-windows = LRU(maxsize=1024)
+WINDOWS = LRU(maxsize=1024)
 
 
 def run_command(args: list[str]) -> tuple[int, bytes, bytes]:
+    """Run a subprocess and return (returncode, stdout, stderr)."""
     log.debug("Trying to run command: %s", args)
     process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate()
@@ -63,6 +64,7 @@ def run_command(args: list[str]) -> tuple[int, bytes, bytes]:
 
 
 def get_layout() -> int | None:
+    """Return the active xkb layout index, or None on error / unknown layout."""
     retcode, out, _ = run_command([XKBLAYOUT_STATE, "print", "%c"])
     if retcode != 0:
         return None
@@ -75,10 +77,12 @@ def get_layout() -> int | None:
 
 
 def set_layout(layout: int) -> None:
+    """Switch the active xkb layout to the given index."""
     run_command([XKBLAYOUT_STATE, "set", str(layout)])
 
 
 def window_change(_conn: i3ipc.Connection, event: i3ipc.Event) -> int:
+    """i3 window-change handler: persist + restore xkb layout per window."""
     log.debug(vars(event.container))
 
     if not event.container.focused:
@@ -88,26 +92,27 @@ def window_change(_conn: i3ipc.Connection, event: i3ipc.Event) -> int:
     if prev_layout is None:
         return 0
 
-    if windows.prev_window_id in windows:
-        windows[windows.prev_window_id]["layout"] = prev_layout
+    if WINDOWS.prev_window_id in WINDOWS:
+        WINDOWS[WINDOWS.prev_window_id]["layout"] = prev_layout
 
     cur_window_id = event.container.id
-    if cur_window_id not in windows:
+    if cur_window_id not in WINDOWS:
         # No layout stored for this window yet; initialise with current layout.
         log.debug("Store layout for %s", cur_window_id)
-        windows[cur_window_id] = {"layout": prev_layout}
-    elif windows[cur_window_id]["layout"] != prev_layout:
+        WINDOWS[cur_window_id] = {"layout": prev_layout}
+    elif WINDOWS[cur_window_id]["layout"] != prev_layout:
         log.debug("Restore layout for %s", cur_window_id)
-        set_layout(windows[cur_window_id]["layout"])
-    windows[cur_window_id]["last_access_time"] = int(time.time())
+        set_layout(WINDOWS[cur_window_id]["layout"])
+    WINDOWS[cur_window_id]["last_access_time"] = int(time.time())
 
-    windows.prev_window_id = cur_window_id
-    log.debug(windows)
+    WINDOWS.prev_window_id = cur_window_id
+    log.debug(WINDOWS)
 
     return 0
 
 
 def main() -> None:
+    """Connect to i3 IPC and listen for window events forever."""
     while True:
         time.sleep(2)  # give i3 time to start
         conn = i3ipc.Connection()
