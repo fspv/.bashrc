@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 from collections import OrderedDict
+from typing import Any
 
 import i3ipc
 
@@ -14,33 +15,35 @@ log.addHandler(log_handler)
 log.setLevel(logging.DEBUG)
 
 
-class LRU(OrderedDict):
-    'Limit size, evicting the least recently looked-up key when full'
+class LRU(OrderedDict[int, dict[str, int]]):
+    """Limit size, evicting the least recently looked-up key when full"""
 
-    def __init__(self, maxsize=128, *args, **kwds):
+    def __init__(self, maxsize: int = 128, *args: Any, **kwds: Any) -> None:
         self.maxsize = maxsize
         super().__init__(*args, **kwds)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: int) -> dict[str, int]:
         value = super().__getitem__(key)
         self.move_to_end(key)
         return value
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: int, value: dict[str, int]) -> None:
         super().__setitem__(key, value)
         if len(self) > self.maxsize:
             oldest = next(iter(self))
             del self[oldest]
 
-windows = LRU(1024)
-prev_window_id = 0
+
+class State:
+    """Holds module-level mutable state to avoid `global` statements."""
+
+    windows: LRU = LRU(1024)
+    prev_window_id: int = 0
 
 
-def run_shell_return_output(command):
-    log.debug("Trying to run command: {0}".format(command))
-    p = subprocess.Popen(command, shell=True,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
+def run_shell_return_output(command: str) -> tuple[int, bytes, bytes]:
+    log.debug("Trying to run command: %s", command)
+    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
 
     log.debug(out)
@@ -49,75 +52,62 @@ def run_shell_return_output(command):
 
     retcode = p.returncode
 
-    # Print error if return code is not 0
     if retcode != 0:
-        e = "Command '{0}' exited with return code {1}".format(command, retcode)
-        log.error(e)
+        log.error("Command '%s' exited with return code %s", command, retcode)
 
     return retcode, out, err
 
 
-def get_layout():
-    retcode, out, err = run_shell_return_output(
-                            "~/.config/i3/scripts/xkblayout-state print %c"
-                        )
+def get_layout() -> int | None:
+    retcode, out, _ = run_shell_return_output("~/.config/i3/scripts/xkblayout-state print %c")
+    if retcode != 0:
+        return None
+
     layout = int(out.strip())
 
-    if retcode == 0 and (
-                layout in [
-                    0, # en
-                    1, # ru
-                ]
-            ):
+    if layout in (0, 1):  # 0 = en, 1 = ru
         return layout
-    else:
-        return False
+    return None
 
-def set_layout(layout):
-    run_shell_return_output(
-        "~/.config/i3/scripts/xkblayout-state set {}".format(layout))
 
-def window_change(conn, e):
-    global windows
-    global prev_window_id
+def set_layout(layout: int) -> None:
+    run_shell_return_output(f"~/.config/i3/scripts/xkblayout-state set {layout}")
 
+
+def window_change(_conn: i3ipc.Connection, e: i3ipc.Event) -> int:
     log.debug(vars(e.container))
 
     if not e.container.focused:
         return 0
 
-    # Update layout for previous window
     prev_layout = get_layout()
-    if prev_window_id in windows:
-        windows[prev_window_id]['layout'] = prev_layout
+    if prev_layout is None:
+        return 0
 
-    # Restore layout to current window
+    if State.prev_window_id in State.windows:
+        State.windows[State.prev_window_id]["layout"] = prev_layout
+
     cur_window_id = e.container.id
-    if not cur_window_id in windows:
-        # If there was no layout for this window
-        # before = not doing anything, just create
-        # new key for it
-        log.debug('Store layout for {}'.format(cur_window_id))
-        windows[cur_window_id] = {}
-        windows[cur_window_id]['layout'] = prev_layout
-    elif windows[cur_window_id]['layout'] != prev_layout:
-        # Try to set layout to saved
-        log.debug('Restore layout for {}'.format(cur_window_id))
-        set_layout(windows[cur_window_id]['layout'])
-    windows[cur_window_id]['last_access_time'] = int(time.time())
+    if cur_window_id not in State.windows:
+        # No layout stored for this window yet; initialise with current layout.
+        log.debug("Store layout for %s", cur_window_id)
+        State.windows[cur_window_id] = {"layout": prev_layout}
+    elif State.windows[cur_window_id]["layout"] != prev_layout:
+        log.debug("Restore layout for %s", cur_window_id)
+        set_layout(State.windows[cur_window_id]["layout"])
+    State.windows[cur_window_id]["last_access_time"] = int(time.time())
 
-    # Current window become previous for next window change focus
-    prev_window_id = cur_window_id
-    log.debug(windows)
+    State.prev_window_id = cur_window_id
+    log.debug(State.windows)
 
     return 0
 
 
-def main():
+def main() -> None:
     while True:
-        time.sleep(2) # give i3 time to start
+        time.sleep(2)  # give i3 time to start
         conn = i3ipc.Connection()
-        conn.on('window', window_change)
+        conn.on("window", window_change)
         conn.main()
 
 

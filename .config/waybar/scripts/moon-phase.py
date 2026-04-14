@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 
 
-def get_moon_phase():
+def get_moon_phase() -> None:
     # Known new moon date
     known_new_moon = datetime(2000, 1, 6, 18, 14, 0)
     now = datetime.now()
@@ -15,7 +15,7 @@ def get_moon_phase():
     phase = (seconds_since_new / (synodic_month * 86400)) % 1
 
     # Icons with exact phase boundaries
-    phases = [
+    phases: list[tuple[float, str, str]] = [
         (0.0625, "🌑", "New Moon"),
         (0.1875, "🌒", "Waxing Crescent"),
         (0.3125, "🌓", "First Quarter"),
