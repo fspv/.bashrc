@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import os.path
 import subprocess
 import sys
 import time
@@ -14,11 +15,19 @@ log_handler = logging.StreamHandler(sys.stdout)
 log.addHandler(log_handler)
 log.setLevel(logging.DEBUG)
 
+XKBLAYOUT_STATE = os.path.expanduser("~/.config/i3/scripts/xkblayout-state")
+
 
 class LRU(OrderedDict[int, dict[str, int]]):
-    """Limit size, evicting the least recently looked-up key when full"""
+    """Limit size, evicting the least recently looked-up key when full.
 
-    def __init__(self, maxsize: int = 128, *args: Any, **kwds: Any) -> None:
+    Also tracks the previously focused window id so callers don't need a
+    separate global.
+    """
+
+    prev_window_id: int = 0
+
+    def __init__(self, *args: Any, maxsize: int = 128, **kwds: Any) -> None:
         self.maxsize = maxsize
         super().__init__(*args, **kwds)
 
@@ -34,32 +43,27 @@ class LRU(OrderedDict[int, dict[str, int]]):
             del self[oldest]
 
 
-class State:
-    """Holds module-level mutable state to avoid `global` statements."""
-
-    windows: LRU = LRU(1024)
-    prev_window_id: int = 0
+windows = LRU(maxsize=1024)
 
 
-def run_shell_return_output(command: str) -> tuple[int, bytes, bytes]:
-    log.debug("Trying to run command: %s", command)
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = p.communicate()
+def run_command(args: list[str]) -> tuple[int, bytes, bytes]:
+    log.debug("Trying to run command: %s", args)
+    process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate()
 
     log.debug(out)
     if err:
         log.error(err)
 
-    retcode = p.returncode
-
+    retcode = process.returncode
     if retcode != 0:
-        log.error("Command '%s' exited with return code %s", command, retcode)
+        log.error("Command %s exited with return code %s", args, retcode)
 
     return retcode, out, err
 
 
 def get_layout() -> int | None:
-    retcode, out, _ = run_shell_return_output("~/.config/i3/scripts/xkblayout-state print %c")
+    retcode, out, _ = run_command([XKBLAYOUT_STATE, "print", "%c"])
     if retcode != 0:
         return None
 
@@ -71,34 +75,34 @@ def get_layout() -> int | None:
 
 
 def set_layout(layout: int) -> None:
-    run_shell_return_output(f"~/.config/i3/scripts/xkblayout-state set {layout}")
+    run_command([XKBLAYOUT_STATE, "set", str(layout)])
 
 
-def window_change(_conn: i3ipc.Connection, e: i3ipc.Event) -> int:
-    log.debug(vars(e.container))
+def window_change(_conn: i3ipc.Connection, event: i3ipc.Event) -> int:
+    log.debug(vars(event.container))
 
-    if not e.container.focused:
+    if not event.container.focused:
         return 0
 
     prev_layout = get_layout()
     if prev_layout is None:
         return 0
 
-    if State.prev_window_id in State.windows:
-        State.windows[State.prev_window_id]["layout"] = prev_layout
+    if windows.prev_window_id in windows:
+        windows[windows.prev_window_id]["layout"] = prev_layout
 
-    cur_window_id = e.container.id
-    if cur_window_id not in State.windows:
+    cur_window_id = event.container.id
+    if cur_window_id not in windows:
         # No layout stored for this window yet; initialise with current layout.
         log.debug("Store layout for %s", cur_window_id)
-        State.windows[cur_window_id] = {"layout": prev_layout}
-    elif State.windows[cur_window_id]["layout"] != prev_layout:
+        windows[cur_window_id] = {"layout": prev_layout}
+    elif windows[cur_window_id]["layout"] != prev_layout:
         log.debug("Restore layout for %s", cur_window_id)
-        set_layout(State.windows[cur_window_id]["layout"])
-    State.windows[cur_window_id]["last_access_time"] = int(time.time())
+        set_layout(windows[cur_window_id]["layout"])
+    windows[cur_window_id]["last_access_time"] = int(time.time())
 
-    State.prev_window_id = cur_window_id
-    log.debug(State.windows)
+    windows.prev_window_id = cur_window_id
+    log.debug(windows)
 
     return 0
 
