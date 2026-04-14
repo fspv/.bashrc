@@ -3,13 +3,13 @@ import json
 from datetime import datetime
 
 
-def get_zodiac():
+def get_zodiac() -> str:
+    """Return today's zodiac sign as a waybar JSON message."""
     now = datetime.now()
     month = now.month
     day = now.day
 
-    # Zodiac signs with dates and symbols
-    zodiacs = [
+    zodiacs: list[tuple[tuple[int, int], tuple[int, int], str, str]] = [
         ((3, 21), (4, 19), "♈", "Aries"),
         ((4, 20), (5, 20), "♉", "Taurus"),
         ((5, 21), (6, 20), "♊", "Gemini"),
@@ -28,11 +28,10 @@ def get_zodiac():
         start_month, start_day = start
         end_month, end_day = end
 
-        # Handle zodiac signs that span across year boundary
-        if start_month > end_month:  # Capricorn case
-            if month == start_month and day >= start_day:
-                return json.dumps({"text": symbol, "tooltip": name})
-            elif month == end_month and day <= end_day:
+        if start_month > end_month:  # Capricorn (spans year boundary)
+            if (month == start_month and day >= start_day) or (
+                month == end_month and day <= end_day
+            ):
                 return json.dumps({"text": symbol, "tooltip": name})
         elif (
             (month == start_month and day >= start_day)
