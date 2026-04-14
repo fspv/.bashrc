@@ -25,5 +25,7 @@ jobs:
 
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
+        env:
+          SHELLCHECK_OPTS: --exclude=SC1071
         with:
-          ignore_paths: .config/zsh
+          ignore_names: xkblayout-state .bashrc
