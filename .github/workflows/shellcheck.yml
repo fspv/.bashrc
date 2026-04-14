@@ -23,9 +23,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-        env:
-          SHELLCHECK_OPTS: --exclude=SC1071
-        with:
-          ignore_names: xkblayout-state .bashrc
+        run: git ls-files -z | xargs -0 file --mime-type | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' | grep -v '^\.config/zsh/' | xargs shellcheck
