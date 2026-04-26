@@ -368,6 +368,7 @@ bzsh() {
         --bind-try $HOME/.cache/gopls $HOME/.cache/gopls \
         --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
         --bind-try $HOME/.config/autostart $HOME/.config/autostart \
+        --bind-try $HOME/.config/atuin $HOME/.config/atuin \
         --bind-try $HOME/.config/flake8 $HOME/.config/flake8 \
         --bind-try $HOME/.config/gtk-3.0 $HOME/.config/gtk-3.0 \
         --bind-try $HOME/.config/i3 $HOME/.config/i3 \
@@ -387,6 +388,7 @@ bzsh() {
         --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
         --bind-try $HOME/.config/containers $HOME/.config/containers \
         --bind-try $HOME/.config/Code $HOME/.config/Code \
+        --bind-try $HOME/.config/zsh $HOME/.config/zsh \
         --bind-try $HOME/.local/bin $HOME/.local/bin \
         --bind-try $HOME/.local/include $HOME/.local/include \
         --bind-try $HOME/.local/lib $HOME/.local/lib \
@@ -395,6 +397,7 @@ bzsh() {
         --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
         --bind-try $HOME/.local/share/tampermonkey $HOME/.local/share/tampermonkey \
         --bind-try $HOME/.local/share/fonts $HOME/.local/share/fonts \
+        --bind-try $HOME/.local/share/zoxide $HOME/.local/share/zoxide \
         --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
         --bind-try $HOME/.local/share/flatpak/extension $HOME/.local/share/flatpak/extension \
