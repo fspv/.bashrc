@@ -41,21 +41,18 @@ vim.cmd([[
     endif
 
     call quickui#menu#install(
-    \    '&Signify',
+    \    '&Git Signs',
     \    [
-    \       ["Diff", "SignifyDiff"],
-    \       ["Diff!", "SignifyDiff!"],
-    \       ["Fold", "SignifyFold"],
-    \       ["Fold!", "SignifyFold!"],
-    \       ["List", "SignifyList"],
-    \       ["Enable", "SignifyEnable"],
-    \       ["Enable All", "SignifyEnableAll"],
-    \       ["Disable", "SignifyDisable"],
-    \       ["Disable All", "SignifyDisableAll"],
-    \       ["Toggle", "SignifyToggle"],
-    \       ["Toggle Highlight", "SignifyToggleHighlight"],
-    \       ["Refresh", "SignifyRefresh"],
-    \       ["Debug", "SignifyDebug"],
+    \       ["Diff", "Gitsigns diffthis"],
+    \       ["Diff ~", "lua require('gitsigns').diffthis('~')"],
+    \       ["Toggle Signs", "Gitsigns toggle_signs"],
+    \       ["Toggle Line Highlight", "Gitsigns toggle_linehl"],
+    \       ["Toggle Word Diff", "Gitsigns toggle_word_diff"],
+    \       ["Toggle Deleted", "Gitsigns toggle_deleted"],
+    \       ["Toggle Current Line Blame", "Gitsigns toggle_current_line_blame"],
+    \       ["Stage Buffer", "Gitsigns stage_buffer"],
+    \       ["Reset Buffer", "Gitsigns reset_buffer"],
+    \       ["Refresh", "Gitsigns refresh"],
     \    ]
     \)
 
@@ -117,8 +114,8 @@ vim.cmd([[
     \       ["&Show diagnostics\tgl", "lua vim.diagnostic.open_float()"],
     \       ["&Previous diagnostics\t[d", "lua vim.diagnostic.goto_prev()"],
     \       ["&Next diagnostics\t]d", "lua vim.diagnostic.goto_next()"],
-    \       ["Hunk Diff", "SignifyHunkDiff"],
-    \       ["Hunk Undo", "SignifyHunkUndo"],
+    \       ["Hunk Preview", "Gitsigns preview_hunk"],
+    \       ["Hunk Reset", "Gitsigns reset_hunk"],
     \    ],
     \    {'index':g:quickui#context#cursor}
     \)<CR>
