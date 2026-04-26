@@ -127,15 +127,6 @@ require("lazy").setup({
     lazy = false,
     priority = 999,
   },
-  {
-    "ryanoasis/vim-devicons",
-    lazy = false,
-    priority = 999,
-    dependencies = {
-      "ctrlpvim/ctrlp.vim",
-    },
-  },
-
   -- Syntax highlighting and code navigation.
   -- nvim-treesitter (the parser manager / install framework) was archived in
   -- April 2026. Parser installation is now done in-place in
