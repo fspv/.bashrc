@@ -27,4 +27,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
       - name: Run ShellCheck
-        run: git ls-files -z | xargs -0 file --mime-type | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' | grep -v '^\.config/zsh/' | xargs shellcheck
+        run: |
+          git ls-files -z | xargs -0 file --mime-type | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' | grep -v '^\.config/zsh/' | xargs shellcheck
