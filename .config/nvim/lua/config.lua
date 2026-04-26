@@ -136,10 +136,16 @@ require("lazy").setup({
     },
   },
 
-  -- Syntax highlighting and code navidation
+  -- Syntax highlighting and code navigation.
+  -- nvim-treesitter (the parser manager / install framework) was archived in
+  -- April 2026. Parser installation is now done in-place in
+  -- `plugins_config/treesitter_conf.lua` against upstream parser repos.
+  -- nvim-treesitter-textobjects works standalone and is the entry point that
+  -- loads our treesitter config.
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
+    lazy = false,
     init = function()
       -- Disable entire built-in ftplugin mappings to avoid conflicts.
       -- See https://github.com/neovim/neovim/tree/master/runtime/ftplugin
@@ -153,30 +159,8 @@ require("lazy").setup({
       -- vim.g.no_go_maps = true
     end,
     config = function()
-      -- put your config here
-    end,
-  },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    lazy = false,
-    build = ":TSUpdate",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter-textobjects",
-    },
-    init = function(plugin)
-      -- PERF: add nvim-treesitter queries to the rtp and it's custom query
-      -- predicates early This is needed because a bunch of plugins no longer
-      -- `require("nvim-treesitter")`, which no longer trigger the
-      -- **nvim-treesitter** module to be loaded in time.
-      -- Luckily, the only things that those plugins need are the custom
-      -- queries, which we make available during startup.
-      require("lazy.core.loader").add_to_rtp(plugin)
-    end,
-    ---@param opts TSConfig
-    config = function(_, opts) -- luacheck: no unused args
       require("plugins_config/treesitter_conf")
     end,
-    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
   },
   -- # Completion
 
@@ -219,7 +203,6 @@ require("lazy").setup({
     end,
     dependencies = {
       "nvim-tree/nvim-web-devicons",
-      "williamboman/mason-lspconfig.nvim",
       "saghen/blink.cmp",
     },
   },
@@ -334,10 +317,6 @@ require("lazy").setup({
       require("plugins_config/ctrlp_conf")
     end,
   },
-  -- HG plugin
-  {
-    "ludovicchabant/vim-lawrencium",
-  },
   -- Git plugin
   {
     "tpope/vim-fugitive",
@@ -414,7 +393,6 @@ require("lazy").setup({
     dependencies = { -- optional packages
       "ray-x/guihua.lua",
       "neovim/nvim-lspconfig",
-      "nvim-treesitter/nvim-treesitter",
     },
     config = function()
       -- TODO: not sure if this actually does anything
@@ -432,44 +410,6 @@ require("lazy").setup({
     ft = { "go", "gomod" },
     -- if you need to install/update all binaries
     build = ':lua require("go.install").update_all_sync()',
-  },
-  {
-    "golang/vscode-go",
-    ft = "go",
-    build = function(plugin)
-      -- Pop top level `.source.go` key from the vscode json. It is not
-      -- compatible with both vsnip and luasnip
-      vim.print("Got plugin path " .. plugin.dir)
-      local snippets_path = plugin.dir .. "/extension/snippets/go.json"
-
-      vim.print("Got file path " .. snippets_path)
-      local snippet_file = io.open(snippets_path, "r")
-
-      vim.print("Reading " .. snippets_path)
-      ---@diagnostic disable-next-line: need-check-nil
-      local initial_json = snippet_file:read("*a")
-      ---@diagnostic disable-next-line: need-check-nil
-      snippet_file:close()
-
-      vim.print("Decoding " .. snippets_path)
-      local decoded_json = vim.json.decode(initial_json)
-
-      if decoded_json[".source.go"] == nil then
-        return
-      end
-
-      vim.print("Encoding " .. snippets_path)
-      local fixed_json = vim.json.encode(decoded_json[".source.go"])
-
-      vim.print("Writing " .. snippets_path)
-      snippet_file = io.open(snippets_path, "w+")
-      ---@diagnostic disable-next-line: need-check-nil
-      snippet_file:write(fixed_json)
-      ---@diagnostic disable-next-line: need-check-nil
-      snippet_file:close()
-
-      vim.print("Written " .. snippets_path)
-    end,
   },
   -- sudo snap install rustup --classic,
   -- sudo snap install rust-analyzer --beta,
@@ -784,7 +724,6 @@ require("lazy").setup({
     "olimorris/codecompanion.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "nvim-treesitter/nvim-treesitter",
     },
     config = function()
       require("codecompanion").setup({
@@ -875,7 +814,6 @@ require("lazy").setup({
         desc = "Toggle split/join arguments",
       },
     },
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
     opts = {
       use_default_keymaps = false,
     },
@@ -922,6 +860,10 @@ require("lazy").setup({
   {
     "mbbill/undotree",
   },
+  -- Vendored under `.config/nvim/plugins/smart-open.nvim` because we need its
+  -- git worktree detection (treats sibling worktrees as part of the same
+  -- frecency scope) which other frecency pickers don't provide. sqlite.lua is
+  -- a low-maintenance native-code dependency; revisit if it breaks.
   {
     "danielfalk/smart-open.nvim",
     dir = vim.fn.stdpath("config") .. "/plugins/smart-open.nvim",
