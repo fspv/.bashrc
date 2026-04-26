@@ -1,0 +1,84 @@
+name: Neovim Deprecation Check
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.config/nvim/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.config/nvim/**'
+
+jobs:
+  nvim-deprecation-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build test container
+        run: |
+          cat > /tmp/Dockerfile.nvim-deprecations << 'DEOF'
+          FROM ubuntu:24.04
+          ENV DEBIAN_FRONTEND=noninteractive
+          RUN apt-get update && \
+              apt-get install -y \
+                curl git cmake build-essential \
+                nodejs npm ca-certificates golang-go && \
+              curl -fsSL \
+                https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz \
+                | tar -xz -C /usr/local --strip-components=1 && \
+              npm install -g tree-sitter-cli && \
+              tree-sitter --version && \
+              git clone --filter=blob:none --branch=stable \
+                https://github.com/folke/lazy.nvim.git \
+                /tmp/lazy-nvim && \
+              apt-get clean
+          DEOF
+          docker build -t nvim-deprecations -f /tmp/Dockerfile.nvim-deprecations /tmp
+
+      - name: Run deprecation check
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/root" \
+            -w /root \
+            -e BWRAPPED=1 \
+            -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
+            -e HOME=/root \
+            -e XDG_CACHE_HOME=/tmp/nvim-cache \
+            nvim-deprecations \
+            nvim --headless +"luafile ~/.config/nvim/lua/deprecation_check.lua" \
+            2>&1 | tee /tmp/nvim-deprecations.log
+
+      - name: Post failure logs
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = '';
+            try {
+              log = fs.readFileSync('/tmp/nvim-deprecations.log', 'utf8');
+            } catch (e) {
+              log = 'Could not read log file: ' + e.message;
+            }
+            if (log.length > 60000) {
+              log = log.slice(-60000);
+            }
+            const body = [
+              '### nvim-deprecation-check failure log',
+              '',
+              '```',
+              log,
+              '```',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
