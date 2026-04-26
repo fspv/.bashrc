@@ -32,19 +32,19 @@ if #recorded == 0 then
 end
 
 print(string.format("FAIL: %d deprecation(s) recorded", #recorded))
-for i, d in ipairs(recorded) do
-  local plugin = d.plugin or "neovim"
-  local version = d.version or "?"
-  local alternative = d.alternative or "(none)"
+for i, dep in ipairs(recorded) do
+  local plugin = dep.plugin or "neovim"
+  local version = dep.version or "?"
+  local alternative = dep.alternative or "(none)"
   print(
     string.format(
       "\n[%d] %s (%s, removed in %s)\n    use: %s%s",
       i,
-      d.name,
+      dep.name,
       plugin,
       version,
       alternative,
-      d.traceback or ""
+      dep.traceback or ""
     )
   )
 end
