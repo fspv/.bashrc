@@ -321,14 +321,14 @@ require("lazy").setup({
   },
   -- View PRs
   {
-    "sindrets/diffview.nvim",
+    "dlyongemallo/diffview.nvim",
   },
   -- More fancy git stuff
   {
     "NeogitOrg/neogit",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "sindrets/diffview.nvim",
+      "dlyongemallo/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
     config = true,
@@ -920,6 +920,9 @@ vim.api.nvim_create_autocmd("BufEnter", {
 vim.cmd("set completeopt=menu,menuone,noselect")
 -- have a global statusline at the bottom instead of one for each window
 vim.cmd("set laststatus=3")
+
+-- :GhLink / <leader>gy -> permanent GitHub URL for the current line(s)
+require("github_link").setup()
 
 vim.g.clipboard = {
   name = "OSC 52",
