@@ -11,7 +11,7 @@ exec_always --no-startup-id sh -c "xss-lock -- ${HOME}/.config/i3/scripts/lock-s
 exec --no-startup-id sh -c "${HOME}/.config/i3/scripts/window-binded-layout.sh"
 exec_always --no-startup-id sh -c "setxkbmap -model pc105 -layout us,ru -option grp:win_space_toggle,grp_led:caps,lv3:lalt_switch,ctrl:nocaps,compose:rwin"
 
-exec_always --no-startup-id sh -c "dunst -layer overlay -config ${HOME}/.dunstrc"
+exec_always --no-startup-id sh -c "dunst -layer overlay"
 exec --no-startup-id sh -c "volumeicon"
 
 # Creates a fake graphical-session.target, required by some systemd units
