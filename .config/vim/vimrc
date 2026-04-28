@@ -1,6 +1,6 @@
 " Read custom after configuration
 if filereadable($HOME . '/.vim/manual/before.vim')
-    source <sfile>:h/.vim/manual/before.vim
+    execute 'source' $HOME . '/.vim/manual/before.vim'
 endif
 
 if filereadable("/etc/vim/vimrc")
@@ -209,5 +209,5 @@ autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
 
 " Read custom after configuration
 if filereadable($HOME . '/.vim/manual/after.vim')
-    source <sfile>:h/.vim/manual/after.vim
+    execute 'source' $HOME . '/.vim/manual/after.vim'
 endif

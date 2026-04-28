@@ -44,15 +44,18 @@ backup
 .config/*
 !.config/autostart
 !.config/containers
+!.config/dunst
 !.config/environment.d
 !.config/flake8
 !.config/flameshot
+!.config/git
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
 !.config/mimeapps.list
 !.config/lazygit
 !.config/nix
+!.config/npm
 !.config/nvim
 .config/nvim/lua/plugins_config_manual/*
 .config/nvim/lua/plugins_local
@@ -63,6 +66,7 @@ backup
 !.config/systemd
 !.config/terminator
 !.config/tmux
+!.config/vim
 !.config/waybar
 !.config/wezterm
 .continue

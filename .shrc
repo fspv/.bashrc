@@ -62,6 +62,8 @@ fi
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
 
+export NPM_CONFIG_USERCONFIG="${HOME}/.config/npm/npmrc"
+
 export SSH_AUTH_SOCK=
 
 # systemd variables
