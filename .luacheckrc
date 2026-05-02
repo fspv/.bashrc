@@ -29,3 +29,5 @@ globals = {
 allow_defined_top = true
 
 max_line_length = 80
+
+ignore = { "212/_.*" }

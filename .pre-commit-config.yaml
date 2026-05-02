@@ -5,8 +5,46 @@ repos:
       - id: stylua
         types: [lua]
 
-  - repo: https://github.com/lunarmodules/luacheck
-    rev: v1.2.0
+  - repo: local
     hooks:
-      - id: luacheck
-        types: [lua]
+      - id: act-lint
+        name: act / lint.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/lint.yml
+
+      - id: nix-develop
+        name: nix develop
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: nix develop --ignore-environment --keep HOME --command echo "ok"
+
+      - id: act-nvim-deprecations
+        name: act / nvim-deprecations.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/nvim-deprecations.yml
+
+      - id: act-nvim-plugins
+        name: act / nvim-plugins.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/nvim-plugins.yml
+
+      - id: act-python-lint
+        name: act / python-lint.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/python-lint.yml
+
+      - id: act-sway-config
+        name: act / sway-config.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/sway-config.yml

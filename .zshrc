@@ -361,7 +361,21 @@ _zsh_autosuggest_strategy_atuin() {
 }
 # ============================================================================
 
+__check_pre_commit() {
+    [[ -f .pre-commit-config.yaml ]] || return
+    command -v pre-commit >/dev/null 2>&1 || return
+    local hooks_dir
+    hooks_dir=$(git rev-parse --git-path hooks 2>/dev/null) || return
+    if [[ ! -f "$hooks_dir/pre-commit" ]] || ! grep -q "pre-commit" "$hooks_dir/pre-commit" 2>/dev/null; then
+        echo "\033[33m⚠ .pre-commit-config.yaml found but hooks not installed — run: pre-commit install\033[0m" >&2
+    fi
+}
+add-zsh-hook chpwd __check_pre_commit
+__check_pre_commit 2>/dev/null
+
 which zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+
+which direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
 case "$-" in
 *i*)

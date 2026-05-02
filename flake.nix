@@ -139,6 +139,7 @@
             stablePkgs.php83
             stablePkgs.sqlite
             stablePkgs.lua
+            stablePkgs.act
             stablePkgs.quick-lint-js
             stablePkgs.rustc
             stablePkgs.cargo
@@ -190,6 +191,8 @@
             unstablePkgs.zoxide
             unstablePkgs.graphite-cli
             unstablePkgs.okta-aws-cli
+            unstablePkgs.direnv
+            unstablePkgs.nix-direnv
           ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
             unstablePkgs.claude-code
             stablePkgs.steam-run

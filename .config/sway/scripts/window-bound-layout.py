@@ -8,13 +8,16 @@
 import logging
 import sys
 import time
-from typing import Any, Callable, Dict, Optional, TypeVar
+from collections.abc import Callable
+from typing import Any, ClassVar, TypeVar
 
 import i3ipc
 
-WINDOW_PREV_FOCUSED: Optional[int] = None
-
 _T = TypeVar("_T")
+
+
+class FocusState:
+    prev: int | None = None
 
 
 def log_params_and_output(func: Callable[..., _T]) -> Callable[..., _T]:
@@ -40,18 +43,18 @@ class LayoutCache:
     Also makes a code for saving/restoring layout a bit more readable
     """
 
-    _cache: Dict[int, Dict[str, int]] = {}
+    _cache: ClassVar[dict[int, dict[str, int]]] = {}
 
     @log_params_and_output
     def has_saved(self, window_id: int) -> bool:
         return window_id in self._cache
 
     @log_params_and_output
-    def save(self, window_id: int, layout: Dict[str, int]) -> None:
+    def save(self, window_id: int, layout: dict[str, int]) -> None:
         self._cache[window_id] = layout
 
     @log_params_and_output
-    def retrieve(self, window_id: int) -> Dict[str, int]:
+    def retrieve(self, window_id: int) -> dict[str, int]:
         return self._cache[window_id]
 
     @log_params_and_output
@@ -61,12 +64,12 @@ class LayoutCache:
 
 
 @log_params_and_output
-def current_layout(ipc: i3ipc.Connection) -> Dict[str, int]:
+def current_layout(ipc: i3ipc.Connection) -> dict[str, int]:
     """
     Just get a current global layout and return it
     """
 
-    layouts: Dict[str, int] = {}
+    layouts: dict[str, int] = {}
     for ipc_input in ipc.get_inputs():
         layouts[ipc_input.identifier] = ipc_input.xkb_active_layout_index
 
@@ -74,7 +77,7 @@ def current_layout(ipc: i3ipc.Connection) -> Dict[str, int]:
 
 
 @log_params_and_output
-def restore_layout(ipc: i3ipc.Connection, layout: Dict[str, int]) -> None:
+def restore_layout(ipc: i3ipc.Connection, layout: dict[str, int]) -> None:
     """
     Sets global layout, provided in the argument
     """
@@ -89,10 +92,8 @@ def on_window_focus(ipc: i3ipc.Connection, event: i3ipc.Event) -> None:
     and restores a layout if it was in the cache
     """
 
-    global WINDOW_PREV_FOCUSED
-
     current_window = event.container.id
-    prev_window = WINDOW_PREV_FOCUSED
+    prev_window = FocusState.prev
 
     layout_cache = LayoutCache()
 
@@ -104,7 +105,7 @@ def on_window_focus(ipc: i3ipc.Connection, event: i3ipc.Event) -> None:
     if layout_cache.has_saved(current_window):
         restore_layout(ipc, layout_cache.retrieve(current_window))
 
-    WINDOW_PREV_FOCUSED = current_window
+    FocusState.prev = current_window
 
 
 @log_params_and_output
@@ -128,8 +129,6 @@ def on_window(ipc: i3ipc.Connection, event: i3ipc.Event) -> None:
 
 
 def main() -> None:
-    global WINDOW_PREV_FOCUSED
-
     logging.getLogger().setLevel(logging.DEBUG)
 
     while True:
@@ -143,7 +142,7 @@ def main() -> None:
             window_focused = ipc_connection.get_tree().find_focused()
 
             if window_focused is not None:
-                WINDOW_PREV_FOCUSED = window_focused.id
+                FocusState.prev = window_focused.id
 
             # Init callback handler and start the main loop
             ipc_connection.on("window", on_window)
