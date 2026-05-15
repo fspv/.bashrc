@@ -1,4 +1,4 @@
--- TODO: port to lua
+-- TODO: replace vim-quickui with vim.ui.select based menu
 vim.cmd([[
     " clear all the menus
     call quickui#menu#reset()
@@ -59,31 +59,15 @@ vim.cmd([[
     call quickui#menu#install(
     \    '&Fuzzy search',
     \    [
-    \       ["&Files\tff/", "ProjectFiles"],
-    \       ["&File content\tfc/", "ProjectRg"],
-    \       ["&Git files\t:GFiles", "GFiles"],
-    \       ["&Git staged files\t:GFiles?", "GFiles?"],
-    \       ["&Git commits\t:Commits [LOG_OPTS]", "Commits"],
-    \       ["&Git commits (current buffer)\t:BCommits [LOG_OPTS]",
-    \        "BCommits"],
-    \       ["&Buffers\tBuffers:", "Buffers"],
-    \       ["&Lines (all buffers)\t:Lines", "Lines"],
-    \       ["&Lines (current buffer)\t:BLines", "BLines"],
-    \       ["&Tags (project)\t:Tags", "Tags"],
-    \       ["&Tags (current buffer)\t:BTags", "BTags"],
-    \       ["&Colors\t:Colors", "Colors"],
-    \       ["&Marks\t:Marks", "Marks"],
-    \       ["&Windows\t:Windows", "Windows"],
-    \       ["&Snippets\t:Snippets", "Snippets"],
-    \       ["&Commands\t:Commands", "Commands"],
-    \       ["&Maps\t:Maps", "Maps"],
-    \       ["&Help tags\t:Helptags", "Helptags"],
-    \       ["&File types\t:Filetypes", "Filetypes"],
-    \       ["&Command history\t:History:", "History:"],
-    \       ["&Old files and open buffers history\t:History",
-    \        "History"],
-    \       ["&Ripgrep\t:Rg [PATTERN]", "Rg"],
-    \       ["&Locate\t:Locate [PATTERN]", "Locate"],
+    \       ["&Git files\tff/", "Telescope git_files"],
+    \       ["&Live grep\tfc/", "Telescope live_grep"],
+    \       ["&Buffers", "Telescope buffers"],
+    \       ["&Document symbols\tfs/", "Telescope lsp_document_symbols"],
+    \       ["&Resume\tfr/", "Telescope resume"],
+    \       ["&Help tags", "Telescope help_tags"],
+    \       ["&Commands", "Telescope commands"],
+    \       ["&Marks", "Telescope marks"],
+    \       ["&Keymaps", "Telescope keymaps"],
     \    ]
     \)
 

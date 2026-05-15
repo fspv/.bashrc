@@ -159,7 +159,7 @@ local on_attach_func = function(client, bufnr)
     vim.diagnostic.goto_next({ float = true })
   end, { buffer = bufnr, noremap = true, desc = "Go to Next Diagnostic" })
   vim.keymap.set({ "n", "v" }, "<leader>ca", function()
-    require("plugins_config.code_action_preview").code_action()
+    vim.lsp.buf.code_action()
   end, { buffer = bufnr, noremap = true, desc = "Code Action" })
 
   vim.keymap.set(

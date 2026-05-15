@@ -56,10 +56,6 @@ local live_grep_go_up_one_dir = make_go_up_one_dir(function(opts)
   require("telescope").extensions.live_grep_args.live_grep_args(opts)
 end)
 
-local file_browser_go_up_one_dir = make_go_up_one_dir(function(opts)
-  require("telescope").extensions.file_browser.file_browser(opts)
-end)
-
 --- A helper function to run a command and get its output as a table of lines.
 --- It will return an empty table if the command fails.
 ---@param command string The shell command to execute.
@@ -293,28 +289,13 @@ require("telescope").setup({
         },
       },
     },
-    file_browser = {
-      theme = "ivy",
-      -- disables netrw and use telescope-file-browser in its place
-      hijack_netrw = true,
-      mappings = {
-        ["i"] = {
-          ["<C-h>"] = file_browser_go_up_one_dir,
-        },
-        ["n"] = {
-          ["<C-h>"] = file_browser_go_up_one_dir,
-        },
-      },
-    },
   },
 })
 
 -- To get extension loaded and working with telescope, you need to call
 -- load_extension, somewhere after setup function:
 require("telescope").load_extension("fzf")
-require("telescope").load_extension("sourcegraph")
 require("telescope").load_extension("live_grep_args")
-require("telescope").load_extension("file_browser")
 
 vim.keymap.set("n", "z/", function()
   require("telescope.builtin").current_buffer_fuzzy_find({
@@ -374,13 +355,6 @@ vim.keymap.set(
   require("telescope").extensions.smart_open.smart_open,
   { desc = "Smart Open" }
 )
-vim.keymap.set(
-  "n",
-  "fb/",
-  require("telescope").extensions.file_browser.file_browser,
-  { desc = "File Browser" }
-)
-
 vim.keymap.set(
   "n",
   "<leader>r",
