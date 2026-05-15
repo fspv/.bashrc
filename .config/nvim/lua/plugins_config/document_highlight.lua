@@ -1,5 +1,5 @@
--- Native document highlight: highlights other uses of the symbol under cursor.
--- Replaces RRethy/vim-illuminate with built-in vim.lsp.buf.document_highlight().
+-- Native document highlight: highlights other uses of the
+-- symbol under cursor. Replaces RRethy/vim-illuminate.
 local M = {}
 
 function M.setup()
