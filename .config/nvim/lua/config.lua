@@ -119,6 +119,8 @@ require("lazy").setup({
       require("plugins_config/gruvbox_conf")
     end,
   },
+  -- TODO: replace nvim-web-devicons with echasnovski/mini.icons
+  -- (better perf, use MiniIcons.mock_nvim_web_devicons() for compat)
   -- Icons
   {
     "nvim-tree/nvim-web-devicons",
@@ -318,6 +320,8 @@ require("lazy").setup({
       require("plugins_config/neotree_conf")
     end,
     dependencies = {
+      -- TODO: drop plenary when neo-tree v4.0 ships
+      -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
@@ -454,6 +458,9 @@ require("lazy").setup({
     end,
     lazy = false, -- This plugin is already lazy
   },
+  -- TODO: remove when neo-tree and telescope drop plenary
+  -- neo-tree v4.0: https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
+  -- telescope: https://github.com/nvim-telescope/telescope.nvim/pull/3647
   {
     "nvim-lua/plenary.nvim",
     lazy = true,
