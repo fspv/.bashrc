@@ -1,8 +1,8 @@
 -- Added 'A' option to prvent swp file messages, I never acted on them anyway
 vim.o.shortmess = "ltToOCFA"
 
-if vim.fn.has("nvim-0.10") == 0 then
-  print("nvim-0.10 is required to use plugins")
+if vim.fn.has("nvim-0.12") == 0 then
+  print("nvim-0.12 is required to use plugins")
   return
 end
 
@@ -86,8 +86,6 @@ vim.api.nvim_create_autocmd({ "BufReadPre" }, {
     if ok and stats and (stats.size > 20480000) then
       vim.b.large_buf = true
       vim.cmd("syntax off")
-      -- vim.cmd("IlluminatePauseBuf")     -- disable vim-illuminate
-      -- vim.cmd("IndentBlanklineDisable") -- disable indent-blankline.nvim
       vim.bo.foldmethod = "manual"
       vim.bo.spell = false
     else
@@ -121,6 +119,8 @@ require("lazy").setup({
       require("plugins_config/gruvbox_conf")
     end,
   },
+  -- TODO: replace nvim-web-devicons with echasnovski/mini.icons
+  -- (better perf, use MiniIcons.mock_nvim_web_devicons() for compat)
   -- Icons
   {
     "nvim-tree/nvim-web-devicons",
@@ -242,30 +242,6 @@ require("lazy").setup({
       })
     end,
   },
-  -- Highlight other uses of symbol under cursor
-  {
-    "RRethy/vim-illuminate",
-    event = "BufReadPost",
-    config = function()
-      -- change the highlight style
-      vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
-      vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
-      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
-
-      --- auto update the highlight style on colorscheme change
-      vim.api.nvim_create_autocmd({ "ColorScheme" }, {
-        pattern = { "*" },
-        callback = function(ev) -- luacheck: no unused args
-          vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
-          vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
-          vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
-        end,
-      })
-    end,
-    dependencies = {
-      "neovim/nvim-lspconfig",
-    },
-  },
   -- Auto-complete matching quotes, brackets, etc
   {
     "windwp/nvim-autopairs",
@@ -327,7 +303,6 @@ require("lazy").setup({
   {
     "NeogitOrg/neogit",
     dependencies = {
-      "nvim-lua/plenary.nvim",
       "dlyongemallo/diffview.nvim",
       "nvim-telescope/telescope.nvim",
     },
@@ -345,6 +320,8 @@ require("lazy").setup({
       require("plugins_config/neotree_conf")
     end,
     dependencies = {
+      -- TODO: drop plenary when neo-tree v4.0 ships
+      -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
@@ -481,6 +458,9 @@ require("lazy").setup({
     end,
     lazy = false, -- This plugin is already lazy
   },
+  -- TODO: remove when neo-tree and telescope drop plenary
+  -- neo-tree v4.0: https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
+  -- telescope: https://github.com/nvim-telescope/telescope.nvim/pull/3647
   {
     "nvim-lua/plenary.nvim",
     lazy = true,
@@ -505,6 +485,8 @@ require("lazy").setup({
       require("plugins_config/quickui_conf")
     end,
   },
+  -- TODO: bufferline.nvim is stale (last commit Jan 2025). Consider
+  -- alternatives: barbar.nvim, mini.tabline, or going tab-less.
   {
     "akinsho/bufferline.nvim",
     version = "*",
@@ -540,12 +522,6 @@ require("lazy").setup({
         { noremap = true, silent = true, desc = "Prev Tab" }
       )
     end,
-  },
-  {
-    "fspv/sourcegraph.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
   },
   -- Status Line
   {
@@ -651,13 +627,6 @@ require("lazy").setup({
   {
     "nvim-telescope/telescope-live-grep-args.nvim",
   },
-  {
-    "nvim-telescope/telescope-file-browser.nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "nvim-lua/plenary.nvim",
-    },
-  },
   -- Identation indication
   {
     "HiPhish/rainbow-delimiters.nvim",
@@ -682,10 +651,6 @@ require("lazy").setup({
       require("plugins_config/matchup_conf")
     end,
   },
-  -- Debug
-  {
-    "stevearc/profile.nvim",
-  },
   -- Show diagnostics window
   {
     "folke/trouble.nvim",
@@ -704,93 +669,6 @@ require("lazy").setup({
     end,
     config = function()
       require("plugins_config/which_key_conf")
-    end,
-  },
-  -- Github Copilot
-  -- {
-  --   "github/copilot.vim",
-  --   cmd = "Copilot",
-  -- },
-  {
-    "olimorris/codecompanion.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    config = function()
-      require("codecompanion").setup({
-        display = {
-          chat = {
-            show_settings = true,
-            window = {
-              position = "right",
-            },
-          },
-        },
-        strategies = {
-          chat = {
-            adapter = "ollama",
-            model = "gemma3:4b",
-            slash_commands = {
-              ["file"] = {
-                callback = "strategies.chat.slash_commands.file",
-                description = "Select a file",
-                opts = {
-                  provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
-                  contains_code = true,
-                },
-              },
-              ["buffer"] = {
-                callback = "strategies.chat.slash_commands.buffer",
-                description = "Select a buffer",
-                opts = {
-                  provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
-                  contains_code = true,
-                },
-              },
-              ["symbols"] = {
-                callback = "strategies.chat.slash_commands.symbols",
-                description = "Select symbols from a file",
-                opts = {
-                  provider = "telescope", -- Other options include 'default', 'mini_pick', 'fzf_lua'
-                  contains_code = true,
-                },
-              },
-            },
-          },
-          inline = {
-            adapter = "ollama",
-            model = "gemma3:4b",
-            keymaps = {
-              accept_change = {
-                modes = { n = "ga" },
-                description = "Accept the suggested change",
-              },
-              reject_change = {
-                modes = { n = "gr" },
-                description = "Reject the suggested change",
-              },
-            },
-          },
-        },
-        adapters = {
-          llama3 = function()
-            return require("codecompanion.adapters").extend("ollama", {
-              name = "ollama", -- Give this adapter a different name to differentiate it from the default ollama adapter
-              schema = {
-                model = {
-                  default = "gemma3:4b",
-                },
-                num_ctx = {
-                  default = 10000,
-                },
-                num_predict = {
-                  default = -1,
-                },
-              },
-            })
-          end,
-        },
-      })
     end,
   },
   -- Treesitter based split/join
@@ -866,14 +744,6 @@ require("lazy").setup({
       { "nvim-telescope/telescope-fzf-native.nvim" },
     },
   },
-  -- Arduino utils
-  {
-    "stevearc/vim-arduino",
-    init = function(self) -- luacheck: no unused args
-      vim.g.arduino_dir = "/snap/arduino/current"
-    end,
-    ft = { "arduino" },
-  },
 })
 
 vim.o.fixeol = false
@@ -942,38 +812,5 @@ vim.g.clipboard = {
 -- Load local manual configuration if exists
 pcall(require, "plugins_config_manual/config") -- Best effort
 
--- Enable profiler
--- * Must enable and disable (toggle) it manually
--- * Writes the profile into `~/profile.json`
--- * Profile can be opened with `chrome://tracing/`
--- * Profile gets very large quite soon, so don't run it for too long
-local should_profile = os.getenv("NVIM_PROFILE")
-
-local function toggle_profile()
-  local prof = require("profile")
-  if prof.is_recording() then
-    prof.stop()
-    vim.ui.input({
-      prompt = "Save profile to:",
-      completion = "file",
-      default = "profile.json",
-    }, function(filename)
-      if filename then
-        prof.export(filename)
-        vim.notify(string.format("Wrote %s", filename))
-      end
-    end)
-  else
-    prof.start("*")
-  end
-end
-
-if should_profile then
-  vim.keymap.set("", "<leader>xx", toggle_profile, { desc = "Toggle Profile" })
-  require("profile").instrument_autocmds()
-  if should_profile:lower():match("^start") then
-    require("profile").start("*")
-  else
-    require("profile").instrument("*")
-  end
-end
+-- Native document highlight (replaces vim-illuminate)
+require("plugins_config.document_highlight").setup()
