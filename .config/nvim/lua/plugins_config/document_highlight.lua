@@ -23,7 +23,9 @@ function M.setup()
 
   vim.api.nvim_create_autocmd("LspAttach", {
     group = group,
-    ---@param args {buf: integer, data: {client_id: integer}}
+    ---@param args
+    ---| vim.api.keyset.create_autocmd.callback_args
+    ---| {data: vim.event.lspattach.data}
     ---@return nil
     callback = function(args)
       ---@type vim.lsp.Client|nil
