@@ -2,10 +2,12 @@
 -- symbol under cursor. Replaces RRethy/vim-illuminate.
 local M = {}
 
+---@return nil
 function M.setup()
   local group =
     vim.api.nvim_create_augroup("native_document_highlight", { clear = true })
 
+  ---@return nil
   local function set_hl()
     vim.api.nvim_set_hl(0, "LspReferenceText", { link = "Visual" })
     vim.api.nvim_set_hl(0, "LspReferenceRead", { link = "Visual" })
@@ -21,7 +23,10 @@ function M.setup()
 
   vim.api.nvim_create_autocmd("LspAttach", {
     group = group,
+    ---@param args {buf: integer, data: {client_id: integer}}
+    ---@return nil
     callback = function(args)
+      ---@type vim.lsp.Client|nil
       local client = vim.lsp.get_client_by_id(args.data.client_id)
       if
         not client
