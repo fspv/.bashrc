@@ -462,8 +462,7 @@ require("lazy").setup({
     end,
     lazy = false, -- This plugin is already lazy
   },
-  -- TODO: URGENT — plenary.nvim is being archived on 2026-06-30.
-  -- Remove once neo-tree v4.0 and telescope drop the dependency.
+  -- TODO: remove when neo-tree and telescope drop plenary
   -- neo-tree v4.0: https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
   -- telescope: https://github.com/nvim-telescope/telescope.nvim/pull/3647
   {
@@ -706,7 +705,7 @@ require("lazy").setup({
         .. "terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
         "tabdo Neotree close",
-        "tabdo UndotreeHide",
+        "tabdo Undotree close",
         "tabdo DiffviewClose",
         "tabdo Trouble diagnostics close",
       }
@@ -730,18 +729,10 @@ require("lazy").setup({
       "luukvbaal/statuscol.nvim",
     },
   },
-  -- TODO: nvim 0.12 ships native :Undotree (packadd nvim.undotree).
-  -- Try the native version and remove this plugin if sufficient.
-  -- Visualise undo tree
-  {
-    "mbbill/undotree",
-  },
   -- Vendored under `.config/nvim/plugins/smart-open.nvim` because we need its
   -- git worktree detection (treats sibling worktrees as part of the same
-  -- frecency scope) which other frecency pickers don't provide.
-  -- TODO: sqlite.lua (kkharji) is stale since ~2023 and loads native code
-  -- via FFI. If it breaks, consider snacks.nvim picker (has built-in
-  -- frecency without sqlite) or telescope-frecency.nvim (dropped sqlite).
+  -- frecency scope) which other frecency pickers don't provide. sqlite.lua is
+  -- a low-maintenance native-code dependency; revisit if it breaks.
   {
     "danielfalk/smart-open.nvim",
     dir = vim.fn.stdpath("config") .. "/plugins/smart-open.nvim",
@@ -754,6 +745,9 @@ require("lazy").setup({
     },
   },
 })
+
+-- Native undotree (nvim 0.12+), replaces mbbill/undotree
+vim.cmd("packadd nvim.undotree")
 
 vim.o.fixeol = false
 
