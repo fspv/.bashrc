@@ -242,6 +242,8 @@ require("lazy").setup({
       })
     end,
   },
+  -- TODO: nvim-autopairs maintenance is slow. If it breaks, switch to
+  -- echasnovski/mini.pairs (actively maintained, drop-in replacement).
   -- Auto-complete matching quotes, brackets, etc
   {
     "windwp/nvim-autopairs",
@@ -356,6 +358,8 @@ require("lazy").setup({
       require("plugins_config/vim_go_conf")
     end,
   },
+  -- TODO: guihua.lua (go.nvim UI dep) is stale (no commits in 2+ years).
+  -- If it breaks, go.nvim may still work without it (UI features degrade).
   {
     "ray-x/go.nvim",
     dependencies = { -- optional packages
@@ -701,7 +705,7 @@ require("lazy").setup({
         .. "terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
         "tabdo Neotree close",
-        "tabdo UndotreeHide",
+        "tabdo Undotree close",
         "tabdo DiffviewClose",
         "tabdo Trouble diagnostics close",
       }
@@ -725,10 +729,6 @@ require("lazy").setup({
       "luukvbaal/statuscol.nvim",
     },
   },
-  -- Visualise undo tree
-  {
-    "mbbill/undotree",
-  },
   -- Vendored under `.config/nvim/plugins/smart-open.nvim` because we need its
   -- git worktree detection (treats sibling worktrees as part of the same
   -- frecency scope) which other frecency pickers don't provide. sqlite.lua is
@@ -745,6 +745,9 @@ require("lazy").setup({
     },
   },
 })
+
+-- Native undotree (nvim 0.12+), replaces mbbill/undotree
+vim.cmd("packadd nvim.undotree")
 
 vim.o.fixeol = false
 
