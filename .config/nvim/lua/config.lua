@@ -242,6 +242,8 @@ require("lazy").setup({
       })
     end,
   },
+  -- TODO: nvim-autopairs maintenance is slow. If it breaks, switch to
+  -- echasnovski/mini.pairs (actively maintained, drop-in replacement).
   -- Auto-complete matching quotes, brackets, etc
   {
     "windwp/nvim-autopairs",
@@ -356,6 +358,8 @@ require("lazy").setup({
       require("plugins_config/vim_go_conf")
     end,
   },
+  -- TODO: guihua.lua (go.nvim UI dep) is stale (no commits in 2+ years).
+  -- If it breaks, go.nvim may still work without it (UI features degrade).
   {
     "ray-x/go.nvim",
     dependencies = { -- optional packages
@@ -458,7 +462,8 @@ require("lazy").setup({
     end,
     lazy = false, -- This plugin is already lazy
   },
-  -- TODO: remove when neo-tree and telescope drop plenary
+  -- TODO: URGENT — plenary.nvim is being archived on 2026-06-30.
+  -- Remove once neo-tree v4.0 and telescope drop the dependency.
   -- neo-tree v4.0: https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
   -- telescope: https://github.com/nvim-telescope/telescope.nvim/pull/3647
   {
@@ -725,14 +730,18 @@ require("lazy").setup({
       "luukvbaal/statuscol.nvim",
     },
   },
+  -- TODO: nvim 0.12 ships native :Undotree (packadd nvim.undotree).
+  -- Try the native version and remove this plugin if sufficient.
   -- Visualise undo tree
   {
     "mbbill/undotree",
   },
   -- Vendored under `.config/nvim/plugins/smart-open.nvim` because we need its
   -- git worktree detection (treats sibling worktrees as part of the same
-  -- frecency scope) which other frecency pickers don't provide. sqlite.lua is
-  -- a low-maintenance native-code dependency; revisit if it breaks.
+  -- frecency scope) which other frecency pickers don't provide.
+  -- TODO: sqlite.lua (kkharji) is stale since ~2023 and loads native code
+  -- via FFI. If it breaks, consider snacks.nvim picker (has built-in
+  -- frecency without sqlite) or telescope-frecency.nvim (dropped sqlite).
   {
     "danielfalk/smart-open.nvim",
     dir = vim.fn.stdpath("config") .. "/plugins/smart-open.nvim",
