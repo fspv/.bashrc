@@ -23,6 +23,7 @@ globals = {
   "vim.cmd",
   "vim.keymap",
   "vim.diagnostic",
+  "MiniIcons",
 }
 
 -- Allow defining globals in files that match the following patterns

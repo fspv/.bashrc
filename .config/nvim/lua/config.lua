@@ -119,13 +119,17 @@ require("lazy").setup({
       require("plugins_config/gruvbox_conf")
     end,
   },
-  -- TODO: replace nvim-web-devicons with echasnovski/mini.icons
-  -- (better perf, use MiniIcons.mock_nvim_web_devicons() for compat)
-  -- Icons
+  -- Icons. Vendored mini.icons; mocks nvim-web-devicons so plugins still
+  -- requiring "nvim-web-devicons" keep working.
   {
-    "nvim-tree/nvim-web-devicons",
+    "echasnovski/mini.icons",
+    dir = vim.fn.stdpath("config") .. "/plugins/mini.icons",
     lazy = false,
     priority = 999,
+    config = function()
+      require("mini.icons").setup()
+      MiniIcons.mock_nvim_web_devicons()
+    end,
   },
   -- Syntax highlighting and code navigation.
   -- nvim-treesitter (the parser manager / install framework) was archived in
@@ -193,7 +197,7 @@ require("lazy").setup({
       require("plugins_config/lsp_conf")
     end,
     dependencies = {
-      "nvim-tree/nvim-web-devicons",
+      "echasnovski/mini.icons",
       "saghen/blink.cmp",
     },
   },
@@ -242,13 +246,14 @@ require("lazy").setup({
       })
     end,
   },
-  -- TODO: nvim-autopairs maintenance is slow. If it breaks, switch to
-  -- echasnovski/mini.pairs (actively maintained, drop-in replacement).
-  -- Auto-complete matching quotes, brackets, etc
+  -- Auto-complete matching quotes, brackets, etc. Vendored mini.pairs.
   {
-    "windwp/nvim-autopairs",
+    "echasnovski/mini.pairs",
+    dir = vim.fn.stdpath("config") .. "/plugins/mini.pairs",
     event = "InsertEnter",
-    config = true,
+    config = function()
+      require("mini.pairs").setup()
+    end,
   },
   -- Faster navigation
   {
@@ -325,7 +330,7 @@ require("lazy").setup({
       -- TODO: drop plenary when neo-tree v4.0 ships
       -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
       "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons",
+      "echasnovski/mini.icons",
       "MunifTanjim/nui.nvim",
     },
   },
@@ -496,7 +501,7 @@ require("lazy").setup({
     version = "*",
     lazy = false,
     dependencies = {
-      "nvim-tree/nvim-web-devicons",
+      "echasnovski/mini.icons",
     },
     config = function()
       require("bufferline").setup({
@@ -597,7 +602,7 @@ require("lazy").setup({
     "Bekaboo/dropbar.nvim",
     dependencies = {
       "nvim-telescope/telescope-fzf-native.nvim",
-      "nvim-tree/nvim-web-devicons",
+      "echasnovski/mini.icons",
     },
   },
   -- Alternative to fzf
