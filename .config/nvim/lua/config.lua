@@ -327,7 +327,8 @@ require("lazy").setup({
       require("plugins_config/neotree_conf")
     end,
     dependencies = {
-      -- TODO: drop plenary when neo-tree v4.0 ships
+      -- TODO(urgent): drop plenary when neo-tree v4.0 ships (plenary
+      -- sunsets June 30, 2026).
       -- https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
       "nvim-lua/plenary.nvim",
       "echasnovski/mini.icons",
@@ -363,8 +364,8 @@ require("lazy").setup({
       require("plugins_config/vim_go_conf")
     end,
   },
-  -- TODO: guihua.lua (go.nvim UI dep) is stale (no commits in 2+ years).
-  -- If it breaks, go.nvim may still work without it (UI features degrade).
+  -- NOTE: guihua.lua (go.nvim UI dep) is a single-author project tightly
+  -- coupled to ray-x's ecosystem. Active as of May 2026 but small user base.
   {
     "ray-x/go.nvim",
     dependencies = { -- optional packages
@@ -467,7 +468,8 @@ require("lazy").setup({
     end,
     lazy = false, -- This plugin is already lazy
   },
-  -- TODO: remove when neo-tree and telescope drop plenary
+  -- TODO(urgent): plenary.nvim sunsets June 30, 2026 (critical fixes only).
+  -- Remove when neo-tree and telescope drop the dependency.
   -- neo-tree v4.0: https://github.com/nvim-neo-tree/neo-tree.nvim/issues/2014
   -- telescope: https://github.com/nvim-telescope/telescope.nvim/pull/3647
   {
@@ -494,8 +496,9 @@ require("lazy").setup({
       require("plugins_config/quickui_conf")
     end,
   },
-  -- TODO: bufferline.nvim is stale (last commit Jan 2025). Consider
-  -- alternatives: barbar.nvim, mini.tabline, or going tab-less.
+  -- TODO: bufferline.nvim is stale (last commit Jan 2025, 77 open issues,
+  -- 23 unmerged PRs). Consider replacing with mini.tabline (echasnovski,
+  -- actively maintained) or a native 'tabline' function (~30 lines of Lua).
   {
     "akinsho/bufferline.nvim",
     version = "*",
@@ -736,8 +739,10 @@ require("lazy").setup({
   },
   -- Vendored under `.config/nvim/plugins/smart-open.nvim` because we need its
   -- git worktree detection (treats sibling worktrees as part of the same
-  -- frecency scope) which other frecency pickers don't provide. sqlite.lua is
-  -- a low-maintenance native-code dependency; revisit if it breaks.
+  -- frecency scope) which other frecency pickers don't provide.
+  -- WARN: sqlite.lua (kkharji) is effectively unmaintained (last real commit
+  -- Apr 2024, 19 unanswered issues). Native FFI binding = supply-chain risk.
+  -- Fallback: telescope.builtin.oldfiles + custom recent_and_modified_files.
   {
     "danielfalk/smart-open.nvim",
     dir = vim.fn.stdpath("config") .. "/plugins/smart-open.nvim",
