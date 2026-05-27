@@ -99,11 +99,6 @@ if [ "$(uname -m)" = "x86_64" ]; then
     nix-shell -p krew git cacert --command 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" && krew update && krew install fuzzy get-all grep ktop neat stern tail tree access-matrix oidc-login' --pure
 fi
 
-if [[ ! -v GITHUB_ACTIONS ]]; then
-    # Requires bubblewrap which doesn't work in GitHub Actions
-    nix-shell -p arduino-cli bubblewrap --command "arduino-cli core install arduino:avr" --pure
-fi
-
 NERDFONTS_PATH=${HOME}/.local/share/fonts/fonts/nerdfonts/
 mkdir -p "${NERDFONTS_PATH}"
 nix-shell --pure -p nix nerd-fonts.jetbrains-mono --run "cp --no-preserve=mode -R $(nix-instantiate --eval --expr 'with import <nixpkgs> {}; pkgs.nerd-fonts.jetbrains-mono.outPath')/share/fonts/truetype/NerdFonts/* ${NERDFONTS_PATH}"
