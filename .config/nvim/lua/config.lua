@@ -363,8 +363,6 @@ require("lazy").setup({
       require("plugins_config/vim_go_conf")
     end,
   },
-  -- TODO: guihua.lua (go.nvim UI dep) is stale (no commits in 2+ years).
-  -- If it breaks, go.nvim may still work without it (UI features degrade).
   {
     "ray-x/go.nvim",
     dependencies = { -- optional packages
