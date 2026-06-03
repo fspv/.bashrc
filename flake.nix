@@ -1,13 +1,17 @@
-# nix develop --ignore-environment --keep HOME
+# nix develop -i
 {
   description = "Development shell with stable and unstable packages";
 
   inputs = {
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs-stable";
+    };
   };
 
-  outputs = { self, nixpkgs-stable, nixpkgs-unstable }:
+  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay }:
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
@@ -18,11 +22,16 @@
           stablePkgs = import nixpkgs-stable {
               inherit system;
               config.allowUnfree = true;
+              overlays = [ rust-overlay.overlays.default ];
           };
 
           unstablePkgs = import nixpkgs-unstable {
             inherit system;
             config.allowUnfree = true;
+          };
+
+          rustToolchain = stablePkgs.rust-bin.stable.latest.default.override {
+            extensions = [ "rust-src" "rust-analyzer" ];
           };
 
           toInstall = [
@@ -141,11 +150,7 @@
             stablePkgs.lua
             stablePkgs.act
             stablePkgs.quick-lint-js
-            stablePkgs.rustc
-            stablePkgs.cargo
-            stablePkgs.clippy
-            stablePkgs.rustfmt
-            stablePkgs.rust-analyzer
+            rustToolchain
             stablePkgs.llvmPackages.libclang.lib
             # stablePkgs.tpm2-tss
             stablePkgs.fontconfig
