@@ -7,3 +7,4 @@
 - No short variable names or acronyms (apart from conventional like `i` for iterator position). We're not in 1980 and it is not that hard to auto-complete long variable names now.
 - All variable names should align. So for example don't call variable `s3_client` in one place, but `client` in another.
 - All the style rules above apply to the new code, but if there if code in the modified file which already does something in a certain way, keep it. The rule for minimal and readable diffs still applies.
+- Instead of ";" either split into smaller sentences or use commas.
