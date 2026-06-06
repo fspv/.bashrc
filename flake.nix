@@ -3,7 +3,7 @@
   description = "Development shell with stable and unstable packages";
 
   inputs = {
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
@@ -103,7 +103,6 @@
             stablePkgs.oh-my-zsh
             stablePkgs.fzf
             stablePkgs.fzf.man
-            stablePkgs.fzf-zsh
             stablePkgs.fzf-git-sh
             stablePkgs.kubectl
             stablePkgs.kubectl.man
