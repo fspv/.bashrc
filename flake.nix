@@ -9,9 +9,11 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
+    # jj with git-lfs support: https://github.com/jj-vcs/jj/pull/9068
+    jj-with-lfs-support.url = "git+https://github.com/jj-vcs/jj?ref=refs/pull/9068/head";
   };
 
-  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay }:
+  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay, jj-with-lfs-support }:
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
@@ -197,6 +199,7 @@
             unstablePkgs.okta-aws-cli
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
+            (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: { doCheck = false; }))
           ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
             unstablePkgs.claude-code
             stablePkgs.steam-run
