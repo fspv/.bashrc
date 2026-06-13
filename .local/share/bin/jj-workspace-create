@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+)
+log = logging.getLogger(__name__)
+
+WORKSPACE_BASE = Path.home() / "git"
+
+
+def run_jj(args: list[str], capture: bool = True) -> str:
+    cmd = ["jj", "--no-pager"] + args
+    log.debug("Running: %s", " ".join(cmd))
+    result = subprocess.run(cmd, capture_output=capture, text=True, check=True)
+    return result.stdout.strip() if capture else ""
+
+
+def list_remotes() -> dict[str, str]:
+    output = run_jj(["git", "remote", "list"])
+    remotes: dict[str, str] = {}
+    for line in output.splitlines():
+        if not line:
+            continue
+        name, url = line.split(" ", 1)
+        remotes[name] = url
+    return remotes
+
+
+def parse_remote_url(url: str) -> tuple[str, str, str]:
+    """Parse remote URL into (host, org, repo) tuple."""
+    ssh_match = re.match(r"^git@([^:]+):(.+)/(.+?)(?:\.git)?$", url)
+    if ssh_match:
+        return ssh_match.group(1), ssh_match.group(2), ssh_match.group(3)
+
+    https_match = re.match(r"^https?://([^/]+)/(.+)/(.+?)(?:\.git)?$", url)
+    if https_match:
+        return https_match.group(1), https_match.group(2), https_match.group(3)
+
+    raise ValueError(f"Cannot parse remote URL: {url}")
+
+
+def get_workspace_base_path(url: str) -> Path:
+    host, org, repo = parse_remote_url(url)
+    return WORKSPACE_BASE / host / org / f"{repo}-jj-workspaces"
+
+
+def list_local_bookmarks() -> list[str]:
+    output = run_jj(["bookmark", "list", "-T", 'name ++ "\\n"'])
+    return sorted({b for b in output.splitlines() if b})
+
+
+def list_remote_bookmarks() -> list[str]:
+    output = run_jj(
+        ["bookmark", "list", "--all-remotes", "-T",
+         'if(remote, name ++ "@" ++ remote ++ "\\n", "")']
+    )
+    return sorted({b for b in output.splitlines() if b})
+
+
+def select_bookmark_with_fzf(bookmarks: list[str]) -> str | None:
+    if not bookmarks:
+        raise ValueError("No bookmarks available")
+
+    cmd = ["fzf", "--height=40%", "--reverse", "--prompt=Select bookmark: "]
+    log.debug("Running: %s", " ".join(cmd))
+
+    result = subprocess.run(
+        cmd,
+        input="\n".join(bookmarks),
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    return result.stdout.strip()
+
+
+def create_workspace(base_path: Path, bookmark: str) -> Path:
+    workspace_path = base_path / bookmark
+    name = re.sub(r"[/@]", "-", bookmark)
+
+    if workspace_path.exists():
+        raise FileExistsError(f"Workspace path already exists: {workspace_path}")
+
+    workspace_path.parent.mkdir(parents=True, exist_ok=True)
+
+    cmd = [
+        "jj", "workspace", "add",
+        "--name", name,
+        str(workspace_path),
+        "-r", bookmark,
+    ]
+    log.info("Running: %s", " ".join(cmd))
+    subprocess.run(cmd, check=True)
+
+    return workspace_path
+
+
+def create_tmux_session(workspace_path: Path) -> None:
+    # tmux forbids '.' and ':' in session names
+    session_name = re.sub(r"[.:]", "-", str(workspace_path.relative_to(Path.home())))
+
+    # Check if session already exists.
+    result = subprocess.run(
+        ["tmux", "has-session", "-t", session_name],
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        log.info("tmux session '%s' already exists", session_name)
+        return
+
+    cmd = ["tmux", "new-session", "-d", "-s", session_name, "-c", str(workspace_path)]
+    log.info("Creating tmux session: %s", session_name)
+    subprocess.run(cmd, check=True)
+
+    subprocess.run(
+        ["tmux", "split-window", "-h", "-t", session_name, "-c", str(workspace_path)],
+        check=True,
+    )
+    subprocess.run(
+        ["tmux", "split-window", "-v", "-t", session_name, "-c", str(workspace_path)],
+        check=True,
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Create a jj workspace with interactive bookmark selection"
+    )
+    parser.add_argument(
+        "--remote",
+        default="origin",
+        help="Git remote to use for path resolution (default: origin)",
+    )
+    parser.add_argument(
+        "--include-remote",
+        action="store_true",
+        help="Include remote-tracking bookmarks in selection",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
+    )
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    remotes = list_remotes()
+    if args.remote not in remotes:
+        log.error(
+            "Remote '%s' not found. Available remotes: %s",
+            args.remote,
+            ", ".join(remotes),
+        )
+        return 1
+
+    base_path = get_workspace_base_path(remotes[args.remote])
+    log.debug("Workspace base path: %s", base_path)
+
+    bookmarks = list_local_bookmarks()
+    if args.include_remote:
+        for rb in list_remote_bookmarks():
+            if rb not in bookmarks:
+                bookmarks.append(rb)
+        bookmarks.sort()
+
+    selected = select_bookmark_with_fzf(bookmarks)
+    if not selected:
+        log.info("No bookmark selected")
+        return 0
+
+    workspace_path = create_workspace(base_path, selected)
+    create_tmux_session(workspace_path)
+    print(workspace_path)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

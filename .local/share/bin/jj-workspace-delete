@@ -1,0 +1,272 @@
+#!/usr/bin/env python3
+
+import argparse
+import logging
+import subprocess
+import sys
+import time
+from dataclasses import dataclass
+from pathlib import Path
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+)
+log = logging.getLogger(__name__)
+
+# The main workspace is always named "default" in jj and must never be deleted.
+MAIN_WORKSPACE = "default"
+
+_WORKSPACE_TEMPLATE = (
+    'name ++ "\\t" ++ self.root() ++ "\\t" '
+    '++ if(target.empty(), "empty", "nonempty") ++ "\\n"'
+)
+
+
+@dataclass
+class Workspace:
+    name: str
+    root: Path
+    empty: bool
+
+
+def run_jj(args: list[str], capture: bool = True) -> str:
+    cmd = ["jj", "--no-pager"] + args
+    log.debug("Running: %s", " ".join(cmd))
+    result = subprocess.run(cmd, capture_output=capture, text=True, check=True)
+    return result.stdout.strip() if capture else ""
+
+
+def current_workspace_root() -> Path:
+    return Path(run_jj(["workspace", "root"])).resolve()
+
+
+def list_workspaces() -> list[Workspace]:
+    output = run_jj(["workspace", "list", "-T", _WORKSPACE_TEMPLATE])
+    workspaces: list[Workspace] = []
+    for line in output.splitlines():
+        if not line:
+            continue
+        name, root, empty = line.split("\t", 2)
+        # The main workspace has no recorded path and renders an inline error;
+        # it is excluded by name anyway.
+        if name == MAIN_WORKSPACE:
+            continue
+        workspaces.append(Workspace(name=name, root=Path(root), empty=empty == "empty"))
+    return workspaces
+
+
+@dataclass
+class TmuxPane:
+    pane_id: str
+    session_name: str
+    window_name: str
+    pane_current_path: str
+    pane_current_command: str
+    pane_pid: str
+
+
+_TMUX_FORMAT = "\t".join([
+    "#{pane_id}",
+    "#{session_name}",
+    "#{window_name}",
+    "#{pane_current_path}",
+    "#{pane_current_command}",
+    "#{pane_pid}",
+])
+
+
+def find_tmux_panes_in_dir(directory: Path) -> list[TmuxPane]:
+    """Return tmux panes whose cwd is inside the given directory."""
+    result = subprocess.run(
+        ["tmux", "list-panes", "-a", "-F", _TMUX_FORMAT],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+
+    dir_str = str(directory.resolve())
+    panes = []
+    for line in result.stdout.strip().splitlines():
+        if not line:
+            continue
+        pane_id, session, window, cwd, cmd, pid = line.split("\t", 5)
+        if cwd == dir_str or cwd.startswith(dir_str + "/"):
+            panes.append(TmuxPane(
+                pane_id=pane_id,
+                session_name=session,
+                window_name=window,
+                pane_current_path=cwd,
+                pane_current_command=cmd,
+                pane_pid=pid,
+            ))
+    return panes
+
+
+def get_child_processes(pid: str) -> list[str]:
+    """Get command lines of direct child processes of pid."""
+    result = subprocess.run(
+        ["pgrep", "-P", pid],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return []
+
+    child_pids = result.stdout.strip().splitlines()
+    cmd = ["ps", "-o", "command="]
+    for pid in child_pids:
+        cmd.extend(["-p", pid])
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        return []
+
+    return [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
+
+
+def close_tmux_panes_in_workspace(workspace_path: Path) -> bool:
+    """Try to close tmux panes in the workspace directory.
+
+    Prompts the user for each pane. Returns True if no panes remain.
+    """
+    panes = find_tmux_panes_in_dir(workspace_path)
+    if not panes:
+        return True
+
+    log.info("Found %d tmux pane(s) in %s:", len(panes), workspace_path)
+
+    close_all = False
+    closed: list[str] = []
+
+    for pane in panes:
+        children = get_child_processes(pane.pane_pid)
+
+        log.info("")
+        log.info(
+            "  Pane %s  session=%s  window=%s",
+            pane.pane_id, pane.session_name, pane.window_name,
+        )
+        log.info("    cwd:   %s", pane.pane_current_path)
+        log.info("    shell: %s", pane.pane_current_command)
+        if children:
+            log.info("    processes: %s", ", ".join(children))
+
+        if not close_all:
+            answer = input("  Close this pane? [y/N/a(ll)] ").strip().lower()
+            if answer == "a":
+                close_all = True
+            elif answer != "y":
+                continue
+
+        subprocess.run(
+            ["tmux", "send-keys", "-t", pane.pane_id, "C-d"],
+            capture_output=True,
+        )
+        closed.append(pane.pane_id)
+
+    if closed:
+        time.sleep(1)
+
+    remaining = find_tmux_panes_in_dir(workspace_path)
+    if remaining:
+        log.error(
+            "Cannot delete workspace: %d tmux pane(s) still open in %s",
+            len(remaining),
+            workspace_path,
+        )
+        return False
+
+    return True
+
+
+def select_workspace_with_fzf(workspaces: list[Workspace]) -> Workspace | None:
+    if not workspaces:
+        raise ValueError("No workspaces available")
+
+    labels: list[str] = []
+    for ws in workspaces:
+        marker = "" if ws.empty else "  [has changes]"
+        labels.append(f"{ws.name}  ({ws.root}){marker}")
+
+    cmd = ["fzf", "--height=40%", "--reverse", "--prompt=Select workspace to delete: "]
+    log.debug("Running: %s", " ".join(cmd))
+
+    result = subprocess.run(
+        cmd,
+        input="\n".join(labels),
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        return None
+
+    selected = result.stdout.strip()
+    idx = labels.index(selected)
+    return workspaces[idx]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Delete a jj workspace with interactive selection"
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Forget the workspace even if its working copy has changes",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output",
+    )
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    current_root = current_workspace_root()
+    deletable = [
+        ws for ws in list_workspaces() if ws.root.resolve() != current_root
+    ]
+
+    if not deletable:
+        log.info("No secondary workspaces found")
+        return 0
+
+    selected = select_workspace_with_fzf(deletable)
+    if not selected:
+        log.info("No workspace selected")
+        return 0
+
+    if not selected.empty and not args.force:
+        log.error(
+            "Workspace '%s' has working-copy changes. Use --force to delete anyway.",
+            selected.name,
+        )
+        return 1
+
+    answer = input(f"Delete workspace '{selected.name}' at {selected.root}? [y/N] ")
+    if answer.lower() != "y":
+        log.info("Aborted")
+        return 0
+
+    if not close_tmux_panes_in_workspace(selected.root):
+        return 1
+
+    log.info("Running: jj workspace forget %s", selected.name)
+    run_jj(["workspace", "forget", selected.name], capture=False)
+
+    log.info("Removing directory: %s", selected.root)
+    subprocess.run(["rm", "-rf", str(selected.root)], check=True)
+
+    log.info("Workspace deleted: %s", selected.name)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
