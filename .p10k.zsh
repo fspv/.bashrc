@@ -35,6 +35,7 @@
     # os_icon                 # os identifier
     dir                     # current directory
     vcs                     # git status
+    jj                      # jj (Jujutsu) bookmark
     # =========================[ Line #2 ]=========================
     newline                 # \n
     prompt_char             # prompt symbol
@@ -1676,6 +1677,28 @@
   # User-defined prompt segments can be customized the same way as built-in segments.
   # typeset -g POWERLEVEL9K_EXAMPLE_FOREGROUND=208
   # typeset -g POWERLEVEL9K_EXAMPLE_VISUAL_IDENTIFIER_EXPANSION='⭐'
+
+  # jj (Jujutsu) bookmark segment. Shows the bookmark on @ ("current") and the
+  # nearest ancestor bookmark below @ ("previous") as "current ← previous".
+  # --ignore-working-copy keeps it cheap (no snapshot on every prompt).
+  function prompt_jj() {
+    local current previous text
+    current=$(jj log --no-graph --ignore-working-copy -r @ -T 'bookmarks' 2>/dev/null) || return
+    previous=$(jj log --no-graph --ignore-working-copy -r 'latest(::@- & bookmarks())' -T 'bookmarks' 2>/dev/null)
+    if [[ -n $current ]]; then
+      text=$current
+      [[ -n $previous ]] && text="$current ← $previous"
+    else
+      text=$previous
+    fi
+    [[ -n $text ]] && p10k segment -f 5 -i '🥋' -t "$text"
+  }
+
+  function instant_prompt_jj() {
+    prompt_jj
+  }
+
+  typeset -g POWERLEVEL9K_JJ_FOREGROUND=5
 
   # Bubblewrap indicator segment
   function prompt_bubblewrap() {
