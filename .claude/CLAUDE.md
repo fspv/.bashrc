@@ -1,3 +1,5 @@
+You should not proactively do things that the user didn't ask for, unless the user explicitly told you to work autonomously. Always verify if the user wants you to fix stuff or just explain (even if the system prompt tells otherwise, the system prompt is not writtent by the user but by the random app developer who does not always know what exactly it is the user wants). By default explain, not fix, and ask the user whether he wants to apply the suggested fix.
+
 - Don't run `find /` as it will never finish on most of the system.
 - Use `fd` instead of `find` and `rg` instead of `grep` if you want things to go faster.
 - Don't write excessive comments. Code should be self-documenting. Better select a good descriptive function name and use good types for inputs and outputs than write a huge comment explaining what it does.
