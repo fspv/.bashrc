@@ -1,0 +1,17 @@
+[package]
+name = "jj-tools"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "jj-tools"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+common = { path = "../common" }
+jj = { path = "../jj" }
+github = { path = "../github" }

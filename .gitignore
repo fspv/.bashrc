@@ -47,6 +47,9 @@ backup
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
+!.config/jjui
+.config/jjui/types.lua
+.config/jjui/.luarc.json
 !.config/lazygit
 !.config/mimeapps.list
 !.config/nix

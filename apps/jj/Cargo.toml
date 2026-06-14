@@ -1,0 +1,10 @@
+[package]
+name = "jj"
+version.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+common = { path = "../common" }

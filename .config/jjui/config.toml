@@ -1,0 +1,9 @@
+[preview]
+revision_command = ["util", "exec", "--", "jjui-tools", "pr-preview", "$change_id"]
+evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1"]
+oplog_command = ["op", "show", "$operation_id", "--color", "always"]
+file_command = ["diff", "--color", "always", "-r", "$change_id", "$file"]
+position = "auto"
+show_at_start = true
+width_percentage = 50.0
+width_increment_percentage = 5.0

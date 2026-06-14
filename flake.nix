@@ -11,9 +11,13 @@
     };
     # jj with git-lfs support: https://github.com/jj-vcs/jj/pull/9068
     jj-with-lfs-support.url = "git+https://github.com/jj-vcs/jj?ref=refs/pull/9068/head";
+    apps = {
+      url = "path:./apps";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
 
-  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay, jj-with-lfs-support }:
+  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay, jj-with-lfs-support, apps }:
     let
       supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
@@ -199,6 +203,9 @@
             unstablePkgs.okta-aws-cli
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
+            unstablePkgs.jjui
+            apps.packages.${system}.jjui-tools
+            apps.packages.${system}.jj-tools
             (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: { doCheck = false; }))
           ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
             unstablePkgs.claude-code
