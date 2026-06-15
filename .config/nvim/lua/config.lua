@@ -696,11 +696,16 @@ require("lazy").setup({
       use_default_keymaps = false,
     },
   },
-  -- Automatically close old buffers
+  -- Detach LSP clients from idle, hidden buffers so language servers stop
+  -- tracking files you are no longer editing. Buffers stay open and re-attach
+  -- when you return. Replaces chrisgrieser/nvim-early-retirement (archived),
+  -- which closed the buffers outright.
   {
-    "chrisgrieser/nvim-early-retirement",
-    config = true,
+    dir = vim.fn.stdpath("config") .. "/plugins/lsp-retirement",
     event = "VeryLazy",
+    config = function()
+      require("lsp_retirement").setup()
+    end,
   },
   -- Automatically saves session by cwd
   {
