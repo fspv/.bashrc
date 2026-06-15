@@ -694,11 +694,13 @@ require("lazy").setup({
       use_default_keymaps = false,
     },
   },
-  -- Automatically close old buffers
+  -- Detach LSP clients from idle, hidden buffers
   {
-    "chrisgrieser/nvim-early-retirement",
-    config = true,
+    dir = vim.fn.stdpath("config") .. "/plugins/lsp-retirement",
     event = "VeryLazy",
+    config = function()
+      require("lsp_retirement").setup()
+    end,
   },
   -- Automatically saves session by cwd
   {
