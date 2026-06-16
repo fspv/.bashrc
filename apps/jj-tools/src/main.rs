@@ -8,8 +8,8 @@ use common::Result;
 use github::{create_pr, current_user, pr_for_branch, set_pr_base, BranchName, PullRequest};
 use jj::{
     bookmarks_in_range, colocated_repo_root, conflicted_bookmarks, current_stack_tips, git_export,
-    git_push, parent_bookmark, untracked_origin_bookmarks, working_copy_change, BookmarkName,
-    Revset,
+    git_push, is_diff_empty, parent_bookmark, untracked_origin_bookmarks, working_copy_change,
+    BookmarkName, Revset,
 };
 
 #[derive(Parser)]
@@ -62,6 +62,7 @@ struct PlanEntry {
     parent: BranchName,
     pr: Option<PullRequest>,
     action: Action,
+    empty: bool,
 }
 
 fn main() {
@@ -109,6 +110,19 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     let me = current_user()?;
     let plan = build_plan(&trunk, &base, &bookmarks, &me)?;
     print_plan(&me, &plan, &repo_root);
+
+    let empty: Vec<&str> = plan
+        .iter()
+        .filter(|e| matches!(e.action, Action::Create | Action::Update) && e.empty)
+        .map(|e| e.bookmark.as_str())
+        .collect();
+    if !empty.is_empty() {
+        eprintln!(
+            "These bookmarks have an empty diff against their base (would be empty PRs): {}",
+            empty.join(", ")
+        );
+        return Ok(1);
+    }
 
     let new_prs = plan.iter().filter(|e| e.action == Action::Create).count();
     if new_prs > args.max_new_prs {
@@ -160,8 +174,14 @@ fn build_plan(
 ) -> Result<Vec<PlanEntry>> {
     let mut plan = Vec::with_capacity(bookmarks.len());
     for bookmark in bookmarks {
-        let parent = parent_bookmark(trunk, bookmark)?
+        let parent_mark = parent_bookmark(trunk, bookmark)?;
+        let parent = parent_mark
+            .as_ref()
             .map_or_else(|| base.clone(), |p| BranchName::new(p.as_str()));
+        let from = parent_mark
+            .as_ref()
+            .map_or_else(|| trunk.clone(), |p| Revset::new(p.as_str()));
+        let empty = is_diff_empty(&from, bookmark)?;
         let pr = pr_for_branch(&BranchName::new(bookmark.as_str()))?;
         let action = match &pr {
             None => Action::Create,
@@ -174,6 +194,7 @@ fn build_plan(
             parent,
             pr,
             action,
+            empty,
         });
     }
     Ok(plan)

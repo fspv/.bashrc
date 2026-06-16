@@ -197,6 +197,27 @@ pub fn untracked_origin_bookmarks() -> Result<Vec<BookmarkName>> {
     )
 }
 
+/// Whether the diff from `from` to the `bookmark` tip has no file changes
+/// (i.e. it would produce an empty pull request).
+///
+/// # Errors
+/// Returns an error if the `jj diff` command fails.
+pub fn is_diff_empty(from: &Revset, bookmark: &BookmarkName) -> Result<bool> {
+    let output = run_output(
+        "jj",
+        &[
+            "--ignore-working-copy",
+            "diff",
+            "--from",
+            from.as_str(),
+            "--to",
+            bookmark.as_str(),
+            "--name-only",
+        ],
+    )?;
+    Ok(output.is_empty())
+}
+
 /// Push the given bookmarks to origin (force-updates rewrites).
 ///
 /// # Errors
