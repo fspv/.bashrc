@@ -186,6 +186,14 @@ pub fn conflicted_bookmarks() -> Result<Vec<BookmarkName>> {
     bookmark_list(&[], "if(conflict, name ++ \"\\n\", \"\")")
 }
 
+/// All local bookmark names, in jj template order.
+///
+/// # Errors
+/// Returns an error if the `jj` command fails.
+pub fn local_bookmarks() -> Result<Vec<BookmarkName>> {
+    bookmark_list(&[], "name ++ \"\\n\"")
+}
+
 /// Local bookmarks whose `@origin` remote exists but is not tracked.
 ///
 /// # Errors
@@ -218,6 +226,23 @@ pub fn is_diff_empty(from: &Revset, bookmark: &BookmarkName) -> Result<bool> {
     Ok(output.is_empty())
 }
 
+/// Whether `ancestor` resolves at or below `descendant` in the local DAG
+/// (its commit is contained in `descendant`'s ancestry, equality included).
+///
+/// Used to detect a push that GitHub would treat as a merge: when a PR head
+/// is pushed at or below its base branch, GitHub auto-closes the PR as merged.
+///
+/// # Errors
+/// Returns an error if the `jj log` command fails.
+pub fn is_ancestor(ancestor: &Revset, descendant: &Revset) -> Result<bool> {
+    let revset = format!("({}) & ::({})", ancestor.as_str(), descendant.as_str());
+    let output = run_output(
+        "jj",
+        &["--ignore-working-copy", "log", "--no-graph", "-r", &revset, "-T", "commit_id"],
+    )?;
+    Ok(!output.is_empty())
+}
+
 /// Push the given bookmarks to origin (force-updates rewrites).
 ///
 /// # Errors
@@ -232,6 +257,44 @@ pub fn git_push(bookmarks: &[BookmarkName]) -> Result<()> {
     for bookmark in bookmarks {
         args.push("--bookmark".into());
         args.push(bookmark.as_str().to_string());
+    }
+    let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
+    run_streaming_checked("jj", &arg_refs)
+}
+
+/// Fetch only the given bookmarks from origin, updating their remote-tracking refs.
+///
+/// Branches that do not exist on the remote are ignored by `jj`.
+///
+/// # Errors
+/// Returns an error if the `jj git fetch` command fails.
+pub fn git_fetch(bookmarks: &[BookmarkName]) -> Result<()> {
+    let mut args: Vec<String> = vec![
+        "--no-pager".into(),
+        "--ignore-working-copy".into(),
+        "git".into(),
+        "fetch".into(),
+    ];
+    for bookmark in bookmarks {
+        args.push("--branch".into());
+        args.push(bookmark.as_str().to_string());
+    }
+    let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
+    run_streaming_checked("jj", &arg_refs)
+}
+
+/// Start tracking the `@origin` remote of each given bookmark.
+///
+/// # Errors
+/// Returns an error if the `jj bookmark track` command fails.
+pub fn git_track(bookmarks: &[BookmarkName]) -> Result<()> {
+    if bookmarks.is_empty() {
+        return Ok(());
+    }
+    let mut args: Vec<String> =
+        vec!["--ignore-working-copy".into(), "bookmark".into(), "track".into()];
+    for bookmark in bookmarks {
+        args.push(format!("{}@origin", bookmark.as_str()));
     }
     let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
     run_streaming_checked("jj", &arg_refs)

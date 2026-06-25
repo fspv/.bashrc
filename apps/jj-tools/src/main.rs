@@ -5,11 +5,13 @@ use std::process::exit;
 
 use clap::{Args, Parser, Subcommand};
 use common::Result;
-use github::{create_pr, current_user, pr_for_branch, set_pr_base, BranchName, PullRequest};
+use github::{
+    create_pr, current_user, pr_for_branch, set_pr_base, BranchName, PrState, PullRequest,
+};
 use jj::{
     bookmarks_in_range, colocated_repo_root, conflicted_bookmarks, current_stack_tips, git_export,
-    git_push, is_diff_empty, parent_bookmark, untracked_origin_bookmarks, working_copy_change,
-    BookmarkName, Revset,
+    git_fetch, git_push, git_track, is_ancestor, is_diff_empty, local_bookmarks, parent_bookmark,
+    untracked_origin_bookmarks, working_copy_change, BookmarkName, Revset,
 };
 
 #[derive(Parser)]
@@ -23,6 +25,8 @@ struct Cli {
 enum Tool {
     /// Sync a jj bookmark DAG to GitHub as base-pointer PRs (trees supported).
     PrSync(PrSyncArgs),
+    /// Fetch the origin branches matching your local bookmarks and track them.
+    FetchAndTrack,
 }
 
 #[derive(Args)]
@@ -60,6 +64,7 @@ enum Action {
 struct PlanEntry {
     bookmark: BookmarkName,
     parent: BranchName,
+    base_revset: Revset,
     pr: Option<PullRequest>,
     action: Action,
     empty: bool,
@@ -68,6 +73,7 @@ struct PlanEntry {
 fn main() {
     let result = match Cli::parse().tool {
         Tool::PrSync(args) => pr_sync(args),
+        Tool::FetchAndTrack => fetch_and_track(),
     };
     match result {
         Ok(code) => exit(code),
@@ -76,6 +82,22 @@ fn main() {
             exit(1);
         }
     }
+}
+
+fn fetch_and_track() -> Result<i32> {
+    let bookmarks = local_bookmarks()?;
+    if bookmarks.is_empty() {
+        println!("No local bookmarks to fetch.");
+        return Ok(0);
+    }
+    git_fetch(&bookmarks)?;
+    let local: HashSet<&str> = bookmarks.iter().map(BookmarkName::as_str).collect();
+    let to_track: Vec<BookmarkName> = untracked_origin_bookmarks()?
+        .into_iter()
+        .filter(|bookmark| local.contains(bookmark.as_str()))
+        .collect();
+    git_track(&to_track)?;
+    Ok(0)
 }
 
 fn pr_sync(args: PrSyncArgs) -> Result<i32> {
@@ -133,6 +155,16 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         return Ok(1);
     }
 
+    let would_merge = would_auto_merge(&plan)?;
+    if !would_merge.is_empty() {
+        eprintln!(
+            "Refusing to push: these bookmarks sit at or below their PR base, so GitHub would \
+             auto-close their PRs as merged: {}",
+            would_merge.join(", ")
+        );
+        return Ok(1);
+    }
+
     if args.dry_run {
         return Ok(0);
     }
@@ -148,8 +180,24 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         return Ok(0);
     }
 
-    apply(&plan, args.ready)?;
+    apply(&plan, &base, args.ready)?;
     Ok(0)
+}
+
+/// Bookmarks whose push would make their head an ancestor of (or equal to) their
+/// PR base, which GitHub treats as a merge and auto-closes the PR.
+fn would_auto_merge(plan: &[PlanEntry]) -> Result<Vec<String>> {
+    let mut flagged = Vec::new();
+    for entry in plan {
+        let open = matches!(
+            entry.pr.as_ref().map(|pr| pr.state),
+            Some(PrState::Open | PrState::Draft)
+        );
+        if open && is_ancestor(&Revset::new(entry.bookmark.as_str()), &entry.base_revset)? {
+            flagged.push(entry.bookmark.as_str().to_string());
+        }
+    }
+    Ok(flagged)
 }
 
 fn blocked_bookmarks(bookmarks: &[BookmarkName]) -> Result<Option<Vec<String>>> {
@@ -186,12 +234,14 @@ fn build_plan(
         let action = match &pr {
             None => Action::Create,
             Some(pr) if pr.author != me => Action::Skip,
+            Some(pr) if matches!(pr.state, PrState::Merged | PrState::Closed) => Action::Skip,
             Some(pr) if pr.base != parent => Action::Update,
             Some(_) => Action::Noop,
         };
         plan.push(PlanEntry {
             bookmark: bookmark.clone(),
             parent,
+            base_revset: from,
             pr,
             action,
             empty,
@@ -210,17 +260,27 @@ fn print_plan(me: &str, plan: &[PlanEntry], repo_root: &Path) {
                 pr.number, entry.bookmark, pr.base, entry.parent
             ),
             (Action::Noop, Some(pr)) => println!("  ok      #{} {}", pr.number, entry.bookmark),
-            (Action::Skip, Some(pr)) => println!(
-                "  SKIP    #{} {}  (owned by @{}, not you)",
-                pr.number, entry.bookmark, pr.author
-            ),
+            (Action::Skip, Some(pr)) => {
+                let reason = match pr.state {
+                    PrState::Merged => "already merged".to_string(),
+                    PrState::Closed => "closed".to_string(),
+                    _ => format!("owned by @{}, not you", pr.author),
+                };
+                println!("  SKIP    #{} {}  ({reason})", pr.number, entry.bookmark);
+            }
             _ => {}
         }
     }
     println!("Repo dir: {}", repo_root.display());
 }
 
-fn apply(plan: &[PlanEntry], ready: bool) -> Result<()> {
+fn apply(plan: &[PlanEntry], trunk: &BranchName, ready: bool) -> Result<()> {
+    for entry in plan {
+        if let (Action::Update, Some(pr)) = (&entry.action, &entry.pr) {
+            set_pr_base(pr.number, trunk)?;
+        }
+    }
+
     let push: Vec<BookmarkName> = plan
         .iter()
         .filter(|e| e.action != Action::Skip)
