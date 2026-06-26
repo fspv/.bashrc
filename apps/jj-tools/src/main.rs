@@ -31,7 +31,8 @@ enum Tool {
 
 #[derive(Args)]
 struct PrSyncArgs {
-    /// Revset of stack leaves (default: all leaves of the stack @ is on).
+    /// Revset of stack leaves (default: ascendants of @; if the full tree differs
+    /// from GitHub, requires confirming a full-tree submit or aborts).
     tips: Option<String>,
     /// GitHub base branch for stack roots.
     #[arg(long, default_value = "main")]
@@ -104,16 +105,52 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     let trunk = Revset::new(args.trunk);
     let base = BranchName::new(args.base);
 
-    // Resolve the default tips against @ *before* moving into the colocated repo,
-    // so they reflect the workspace the user actually ran from.
-    let tips = match args.tips {
-        Some(tips) => Revset::new(tips),
-        None => current_stack_tips(&trunk, working_copy_change()?.as_str()),
+    // Resolve tips against @ *before* moving into the colocated repo, so they
+    // reflect the workspace the user actually ran from.
+    // Explicit `tips` wins. Otherwise default to ascendants of @ only; offer the
+    // full stack tree when its PR topology differs from GitHub.
+    let explicit_tips = args.tips.is_some();
+    let (ascendant_tips, full_tree_tips) = match args.tips {
+        Some(tips) => {
+            let tips = Revset::new(tips);
+            (tips.clone(), tips)
+        }
+        None => {
+            let anchor = working_copy_change()?.as_str().to_string();
+            (
+                Revset::new(anchor.as_str()),
+                current_stack_tips(&trunk, anchor.as_str()),
+            )
+        }
     };
 
     // gh (and ref export) must run in the colocated workspace; cd there once.
     let repo_root = colocated_repo_root()?;
     std::env::set_current_dir(&repo_root)?;
+
+    let me = current_user()?;
+
+    let mut plan_already_printed = false;
+    let tips = if explicit_tips {
+        ascendant_tips
+    } else {
+        let full_bookmarks = bookmarks_in_range(&trunk, &full_tree_tips)?;
+        let full_plan = build_plan(&trunk, &base, &full_bookmarks, &me)?;
+        if tree_differs_from_github(&full_plan) {
+            println!(
+                "Local stack tree differs from GitHub PR topology (new PRs, reordered bases, etc.)."
+            );
+            print_plan(&me, &full_plan, &repo_root);
+            if !confirm("Submit the entire related tree? [y/N] ")? {
+                eprintln!("Aborted: tree differs from GitHub and full-tree submit was declined.");
+                return Ok(1);
+            }
+            plan_already_printed = true;
+            full_tree_tips
+        } else {
+            ascendant_tips
+        }
+    };
 
     let bookmarks = bookmarks_in_range(&trunk, &tips)?;
     if bookmarks.is_empty() {
@@ -129,9 +166,10 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         return Ok(1);
     }
 
-    let me = current_user()?;
     let plan = build_plan(&trunk, &base, &bookmarks, &me)?;
-    print_plan(&me, &plan, &repo_root);
+    if !plan_already_printed {
+        print_plan(&me, &plan, &repo_root);
+    }
 
     let empty: Vec<&str> = plan
         .iter()
@@ -182,6 +220,15 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
 
     apply(&plan, &base, args.ready)?;
     Ok(0)
+}
+
+/// Whether the local bookmark DAG's PR topology differs from GitHub's for this stack.
+///
+/// Differs when a bookmark still needs a PR (new node) or an owned open PR's base
+/// does not match the local parent bookmark (reorder / retarget).
+fn tree_differs_from_github(plan: &[PlanEntry]) -> bool {
+    plan.iter()
+        .any(|entry| matches!(entry.action, Action::Create | Action::Update))
 }
 
 /// Bookmarks whose push would make their head an ancestor of (or equal to) their
