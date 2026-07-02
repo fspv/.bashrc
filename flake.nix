@@ -172,7 +172,6 @@
             stablePkgs.phpactor
             stablePkgs.php83Packages.php-cs-fixer
             stablePkgs.php83Packages.composer
-            stablePkgs.atuin
             stablePkgs.eternal-terminal
             unstablePkgs.tmux
             unstablePkgs.tmux.man
