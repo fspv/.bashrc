@@ -198,7 +198,6 @@
             unstablePkgs.claude-code
             unstablePkgs.pre-commit
             unstablePkgs.zoxide
-            unstablePkgs.graphite-cli
             unstablePkgs.okta-aws-cli
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
