@@ -59,11 +59,9 @@ if [[ -n "$ZSH_PLUGIN_DIRS" && -n "${ZSH_CUSTOM}" ]]; then
 fi
 
 plugins=(
-    git
     kubectl
     kubectx
     virtualenv
-    forgit
     fzf-tab
     zsh-autosuggestions
     zsh-syntax-highlighting # always last!
