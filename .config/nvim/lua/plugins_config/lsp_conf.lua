@@ -401,17 +401,15 @@ vim.lsp.config("gopls", {
     if string.find(startpath, "plz%-out") then
       -- Separate branch, because otherwise it defaults to the repo root and
       -- becomes too slow
-      return require("lspconfig/util").root_pattern("go.mod", "go.work")(
-        startpath
-      )
+      return vim.fs.root(startpath, { "go.mod", "go.work" })
     else
-      return require("lspconfig/util").root_pattern(
-        -- Order here matters
+      -- Order here matters
+      return vim.fs.root(startpath, {
         "BUILD",
         "go.work",
         "go.mod",
-        ".git"
-      )(startpath)
+        ".git",
+      })
     end
   end,
   settings = {
@@ -479,16 +477,18 @@ vim.lsp.config("clangd", {
     "--background-index",
     "--header-insertion-decorators",
   },
-  root_dir = require("lspconfig/util").root_pattern(
-    ".clangd",
-    ".clang-tidy",
-    ".clang-format",
-    "compile_commands.json",
-    "compile_flags.txt",
-    "configure.ac",
-    ".git",
-    "library.properties"
-  ),
+  root_dir = function(startpath)
+    return vim.fs.root(startpath, {
+      ".clangd",
+      ".clang-tidy",
+      ".clang-format",
+      "compile_commands.json",
+      "compile_flags.txt",
+      "configure.ac",
+      ".git",
+      "library.properties",
+    })
+  end,
 })
 vim.lsp.enable("clangd")
 
