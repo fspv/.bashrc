@@ -36,6 +36,7 @@
           };
         in
         {
+          comment-lsp = tool "comment-lsp";
           jjui-tools = tool "jjui-tools";
           jj-tools = tool "jj-tools";
 

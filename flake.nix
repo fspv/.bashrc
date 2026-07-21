@@ -202,6 +202,7 @@
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
             unstablePkgs.jjui
+            apps.packages.${system}.comment-lsp
             apps.packages.${system}.jjui-tools
             apps.packages.${system}.jj-tools
             (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: { doCheck = false; }))
