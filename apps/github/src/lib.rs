@@ -48,6 +48,24 @@ impl fmt::Display for PrState {
     }
 }
 
+/// The aggregate review decision GitHub reports for a pull request.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReviewDecision {
+    Approved,
+    ChangesRequested,
+    ReviewRequired,
+}
+
+impl fmt::Display for ReviewDecision {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Approved => "APPROVED",
+            Self::ChangesRequested => "CHANGES_REQUESTED",
+            Self::ReviewRequired => "REVIEW_REQUIRED",
+        })
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PullRequest {
     pub number: u64,
@@ -55,11 +73,17 @@ pub struct PullRequest {
     pub url: String,
     pub base: BranchName,
     pub author: String,
+    /// `None` when the repo requires no review and none was given.
+    pub review_decision: Option<ReviewDecision>,
 }
 
 impl fmt::Display for PullRequest {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "#{}  {}  {}", self.number, self.state, self.url)
+        write!(f, "#{}  {}", self.number, self.state)?;
+        if let Some(decision) = self.review_decision {
+            write!(f, "  {decision}")?;
+        }
+        write!(f, "  {}", self.url)
     }
 }
 
@@ -78,6 +102,8 @@ struct RawPullRequest {
     #[serde(rename = "baseRefName")]
     base_ref_name: String,
     author: Author,
+    #[serde(rename = "reviewDecision")]
+    review_decision: String,
 }
 
 impl From<RawPullRequest> for PullRequest {
@@ -91,12 +117,19 @@ impl From<RawPullRequest> for PullRequest {
                 _ => PrState::Open,
             }
         };
+        let review_decision = match raw.review_decision.as_str() {
+            "APPROVED" => Some(ReviewDecision::Approved),
+            "CHANGES_REQUESTED" => Some(ReviewDecision::ChangesRequested),
+            "REVIEW_REQUIRED" => Some(ReviewDecision::ReviewRequired),
+            _ => None,
+        };
         Self {
             number: raw.number,
             state,
             url: raw.url,
             base: BranchName(raw.base_ref_name),
             author: raw.author.login,
+            review_decision,
         }
     }
 }
@@ -116,13 +149,133 @@ pub fn pr_for_branch(branch: &BranchName) -> Result<Option<PullRequest>> {
             "--state",
             "all",
             "--json",
-            "number,state,isDraft,url,baseRefName,author",
+            "number,state,isDraft,url,baseRefName,author,reviewDecision",
         ],
         PLAIN_OUTPUT,
     )?;
     let raws: Vec<RawPullRequest> =
         serde_json::from_str(&json).map_err(|e| Error::Parse(e.to_string()))?;
     Ok(raws.into_iter().next().map(PullRequest::from))
+}
+
+/// An unresolved review thread on a pull request, summarized by its first comment.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedThread {
+    pub path: String,
+    /// `None` for outdated threads whose line no longer exists.
+    pub line: Option<u64>,
+    pub author: String,
+    pub body: String,
+}
+
+const REVIEW_THREADS_QUERY: &str = "\
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      reviewThreads(first: 100) {
+        nodes {
+          isResolved
+          path
+          line
+          comments(first: 1) { nodes { author { login } body } }
+        }
+      }
+    }
+  }
+}";
+
+#[derive(Deserialize)]
+struct ThreadsResponse {
+    data: ThreadsData,
+}
+
+#[derive(Deserialize)]
+struct ThreadsData {
+    repository: ThreadsRepository,
+}
+
+#[derive(Deserialize)]
+struct ThreadsRepository {
+    #[serde(rename = "pullRequest")]
+    pull_request: ThreadsPullRequest,
+}
+
+#[derive(Deserialize)]
+struct ThreadsPullRequest {
+    #[serde(rename = "reviewThreads")]
+    review_threads: RawThreadNodes,
+}
+
+#[derive(Deserialize)]
+struct RawThreadNodes {
+    nodes: Vec<RawThread>,
+}
+
+#[derive(Deserialize)]
+struct RawThread {
+    #[serde(rename = "isResolved")]
+    is_resolved: bool,
+    path: String,
+    line: Option<u64>,
+    comments: RawCommentNodes,
+}
+
+#[derive(Deserialize)]
+struct RawCommentNodes {
+    nodes: Vec<RawComment>,
+}
+
+#[derive(Deserialize)]
+struct RawComment {
+    /// `None` for comments whose author account was deleted.
+    author: Option<Author>,
+    body: String,
+}
+
+/// The unresolved review threads of PR `number` in the current repo.
+///
+/// # Errors
+/// Returns an error if the `gh api graphql` command fails or its JSON cannot
+/// be parsed.
+pub fn unresolved_threads(number: u64) -> Result<Vec<UnresolvedThread>> {
+    let query_arg = format!("query={REVIEW_THREADS_QUERY}");
+    let number_arg = format!("number={number}");
+    let json = run_output_env(
+        "gh",
+        &[
+            "api",
+            "graphql",
+            "-F",
+            "owner={owner}",
+            "-F",
+            "repo={repo}",
+            "-F",
+            &number_arg,
+            "-f",
+            &query_arg,
+        ],
+        PLAIN_OUTPUT,
+    )?;
+    let response: ThreadsResponse =
+        serde_json::from_str(&json).map_err(|e| Error::Parse(e.to_string()))?;
+    let threads = response
+        .data
+        .repository
+        .pull_request
+        .review_threads
+        .nodes
+        .into_iter()
+        .filter(|thread| !thread.is_resolved)
+        .filter_map(|thread| {
+            thread.comments.nodes.into_iter().next().map(|comment| UnresolvedThread {
+                path: thread.path,
+                line: thread.line,
+                author: comment.author.map_or_else(|| "ghost".to_string(), |a| a.login),
+                body: comment.body,
+            })
+        })
+        .collect();
+    Ok(threads)
 }
 
 /// The login of the authenticated GitHub user.
