@@ -20,6 +20,7 @@
               ./Cargo.toml
               ./Cargo.lock
               ./common
+              ./comment-lsp
               ./jj
               ./github
               ./jjui-tools
