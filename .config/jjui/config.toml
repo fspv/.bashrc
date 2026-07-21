@@ -11,24 +11,8 @@ width_increment_percentage = 5.0
 [[actions]]
 name = "fetch-and-rebase"
 lua = '''
-flash("Fetching tracked bookmarks...")
-local out1, err1 = jj("git", "fetch", "--tracked")
-
-if err1 and #err1 > 0 then
-  flash({ text = "Fetch failed:\n" .. err1, error = true, sticky = true })
-  return
-end
-flash(out1)
-
-flash("Rebasing onto main (skip-emptied)...")
-local out2, err2 = jj("rebase", "-b", "@", "--skip-emptied", "-o", "main")
-
-if err2 and #err2 > 0 then
-  flash({ text = "Rebase failed:\n" .. err2, error = true, sticky = true })
-  return
-end
-flash(out2)
-
+jj_async("git", "fetch", "--tracked")
+jj_async("rebase", "-b", "@", "--skip-emptied", "-o", "main")
 revisions.refresh()
 '''
 
