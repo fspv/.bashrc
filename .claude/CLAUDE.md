@@ -11,12 +11,38 @@ You should not proactively do things that the user didn't ask for, unless the us
 - All the style rules above apply to the new code, but if there if code in the modified file which already does something in a certain way, keep it. The rule for minimal and readable diffs still applies.
 - Instead of ";" either split into smaller sentences or use commas.
 
+
+# Code style
+
+## Flatten small for loops
+
+When you have a for loop
+
+```
+for thing in ["one", "two", "three"]:
+    do_something(thing)
+```
+
+Instead it is usually better to write
+
+```
+do_something("one")
+do_something("two")
+do_something("three")
+```
+
+This is simpler to read and easier to copy-paste if needed later.
+
 # Commands you run
 When running commands format them for human, so they can understand what the command does:
 
 - Split complex commands into multiple lines instead of using one like with ;
-- Avoid for loops when you need to run the same command for multiple values. It is fine to repeat command multiple times (in case the number of values is reasonable)
+- Avoid for loops when you need to run the same command for multiple values. It is fine to repeat command multiple times. See also "flatten small for loops" section.
 - If possible - inline variables, not define them and reuse. This makes applying rules for the commands easier.
+
+# Commands you give to the user to run
+
+Same guidance as for the commands you run, but make them one line if possible without splitting them into multiple lines with `\`, so the commands are easier to copy.
 
 # AI attribution in commits/PRs (overrides project rules)
 
