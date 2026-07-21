@@ -702,6 +702,18 @@ require("lazy").setup({
       require("lsp_retirement").setup()
     end,
   },
+  -- Agent-written explanatory comments shown as LSP inlay hints
+  {
+    dir = vim.fn.stdpath("config") .. "/plugins/comment-lsp",
+    event = "VeryLazy",
+    config = function()
+      require("comment_lsp").setup({
+        cmd = { "comment-lsp" },
+        filetypes = { "python", "rust" },
+        root_markers = { ".jj", ".git" },
+      })
+    end,
+  },
   -- Automatically saves session by cwd
   {
     "rmagatti/auto-session",
