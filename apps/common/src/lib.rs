@@ -25,6 +25,10 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+fn log_command(program: &str, args: &[&str]) {
+    eprintln!("+ {program} {}", args.join(" "));
+}
+
 /// Run a command, capturing and returning its trimmed stdout.
 ///
 /// # Errors
@@ -41,6 +45,7 @@ pub fn run_output(program: &str, args: &[&str]) -> Result<String> {
 /// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
 /// (with the captured stderr) if it exits with a non-zero status.
 pub fn run_output_env(program: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String> {
+    log_command(program, args);
     let mut command = Command::new(program);
     command.args(args);
     for (key, value) in env {
@@ -66,6 +71,7 @@ pub fn run_output_env(program: &str, args: &[&str], env: &[(&str, &str)]) -> Res
 /// # Errors
 /// Returns [`Error::Spawn`] if the process cannot be started.
 pub fn run_streaming(program: &str, args: &[&str]) -> Result<i32> {
+    log_command(program, args);
     let status = Command::new(program)
         .args(args)
         .status()
