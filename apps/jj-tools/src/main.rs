@@ -2,6 +2,8 @@ use std::collections::HashSet;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::exit;
+use std::thread::sleep;
+use std::time::Duration;
 
 use clap::{Args, Parser, Subcommand};
 use common::Result;
@@ -333,8 +335,14 @@ fn apply(plan: &[PlanEntry], trunk: &BranchName, ready: bool) -> Result<()> {
         .filter(|e| e.action != Action::Skip)
         .map(|e| e.bookmark.clone())
         .collect();
+    for (index, bookmark) in push.iter().enumerate() {
+        if index > 0 {
+            println!("Sleeping 15s before the next push to avoid GitHub rate limits...");
+            sleep(Duration::from_secs(15));
+        }
+        git_push(std::slice::from_ref(bookmark))?;
+    }
     if !push.is_empty() {
-        git_push(&push)?;
         git_export()?;
     }
 
