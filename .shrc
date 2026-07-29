@@ -213,7 +213,7 @@ if [ -n "$TMUX" ]; then
     alias clear='clear && tmux clear-history'
 fi
 
-EDITOR=vi
+EDITOR="${EDITOR:-vi}"
 export EDITOR
 
 # kube config

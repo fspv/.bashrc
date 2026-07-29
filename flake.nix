@@ -231,6 +231,7 @@
               export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
               export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
               export TMPPREFIX="$HOME/.cache/zsh"
+              export EDITOR=nvim
 
               GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
               export GIT_COMPLETION_DIR
