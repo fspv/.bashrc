@@ -202,6 +202,7 @@
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
             unstablePkgs.jjui
+            unstablePkgs.delta
             apps.packages.${system}.comment-lsp
             apps.packages.${system}.jjui-tools
             apps.packages.${system}.jj-tools
