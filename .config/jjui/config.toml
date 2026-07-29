@@ -21,3 +21,13 @@ action = "fetch-and-rebase"
 key = "F"
 scope = "revisions"
 desc = "fetch tracked + rebase onto main"
+
+[[actions]]
+name = "edit-file"
+lua = '''exec_shell('$EDITOR -- "$file"')'''
+
+[[bindings]]
+action = "edit-file"
+key = "e"
+scope = "revisions.details"
+desc = "open file in editor"
