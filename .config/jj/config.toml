@@ -1,0 +1,33 @@
+#:schema https://jj-vcs.github.io/jj/latest/config-schema.json
+
+# The [user] section lives in conf.d/user.toml, which is symlinked out of this
+# repository.
+
+# [experimental-advance-branches]
+# enabled-branches = ["glob:*"]
+
+[revsets]
+log = "ancestors(reachable(@ | working_copies() | bookmarks(), mutable()), 2) | trunk()"
+
+[ui]
+default-command = "log"
+diff-formatter = "delta"
+
+[merge-tools.delta]
+diff-args = [
+  "--paging=never",
+  "--width=$width",
+  "--line-numbers",
+  "--file-transformation=s#^(left|right)/##",
+  "$left",
+  "$right",
+]
+diff-expected-exit-codes = [0, 1]
+
+[aliases]
+tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
+spr = ["util", "exec", "--", "jj-spr"]
+
+[revset-aliases]
+"closest_bookmark(to)" = "heads(::to & bookmarks())"
+"immutable_heads()" = "builtin_immutable_heads() ~ remote_bookmarks(remote=backup)"
