@@ -27,6 +27,12 @@ diff-expected-exit-codes = [0, 1]
 [aliases]
 tug = ["bookmark", "move", "--from", "closest_bookmark(@-)", "--to", "@-"]
 spr = ["util", "exec", "--", "jj-spr"]
+pr-fetch = ["util", "exec", "--", "bash", "-c", '''
+set -euo pipefail
+branch=$(gh pr view "$1" --json headRefName -q .headRefName)
+jj git fetch --remote origin --bookmark "exact:$branch"
+jj log -r "$branch@origin"
+''', "pr-fetch"]
 
 [revset-aliases]
 "closest_bookmark(to)" = "heads(::to & bookmarks())"
