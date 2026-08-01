@@ -11,6 +11,11 @@ You should not proactively do things that the user didn't ask for, unless the us
 - All the style rules above apply to the new code, but if there if code in the modified file which already does something in a certain way, keep it. The rule for minimal and readable diffs still applies.
 - Instead of ";" either split into smaller sentences or use commas.
 
+# Subagents
+
+Use subagents heavily. If you have a well-specified and scoped task spawn a subagent instead of doing it yourself. Also, if the task is simple and unambiguosly verifiable (like for example run tests, lints, refactor code when how to refactor is known exactly), feel free to select a less capable model, but after it finishes, spawn a good model to validate the work of that model.
+
+Also, remember that you can spawn parallel agents, which is useful when you doing investigations, implementing multiple features, etc.
 
 # Code style
 
