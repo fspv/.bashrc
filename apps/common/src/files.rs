@@ -6,7 +6,6 @@ use std::ffi::OsString;
 use std::fs::{self, Metadata};
 use std::os::unix::fs::MetadataExt as _;
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
 
 use rustix::fs::{AtFlags, CWD, Timespec, Timestamps, utimensat};
 
@@ -176,29 +175,71 @@ impl std::ops::AddAssign for CopyReport {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+struct Timestamp {
+    seconds: i64,
+    nanoseconds: i64,
+}
+
 /// What makes two entries interchangeable, so one can stand in for the other as a
 /// hardlink.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy)]
 struct Signature {
     directory: bool,
     symlink: bool,
     length: u64,
-    modified: SystemTime,
+    modified: Timestamp,
+    changed: Timestamp,
 }
 
 impl Signature {
-    fn of(metadata: &Metadata) -> Result<Self> {
-        Ok(Self {
+    fn of(metadata: &Metadata) -> Self {
+        Self {
             directory: metadata.is_dir(),
             symlink: metadata.is_symlink(),
             length: metadata.len(),
-            modified: metadata.modified()?,
-        })
+            modified: Timestamp {
+                seconds: metadata.mtime(),
+                nanoseconds: metadata.mtime_nsec(),
+            },
+            changed: Timestamp {
+                seconds: metadata.ctime(),
+                nanoseconds: metadata.ctime_nsec(),
+            },
+        }
     }
 
     fn of_path(path: &Path) -> Result<Self> {
-        Self::of(&read_metadata_without_following_symlinks(path)?)
+        Ok(Self::of(&read_metadata_without_following_symlinks(path)?))
     }
+
+    fn is_indistinguishable_from(&self, other: &Self) -> bool {
+        self.directory == other.directory
+            && self.symlink == other.symlink
+            && self.length == other.length
+            && self.modified == other.modified
+    }
+}
+
+fn is_unchanged_copy(
+    source: &Path,
+    source_signature: Signature,
+    candidate: &Path,
+    candidate_signature: Option<Signature>,
+) -> Result<bool> {
+    let Some(existing) = candidate_signature else {
+        return Ok(false);
+    };
+    if !existing.is_indistinguishable_from(&source_signature) {
+        return Ok(false);
+    }
+    if source_signature.modified < existing.changed {
+        return Ok(true);
+    }
+    if source_signature.symlink {
+        return Ok(read_symlink_target(source)? == read_symlink_target(candidate)?);
+    }
+    Ok(read_file_bytes(source)? == read_file_bytes(candidate)?)
 }
 
 /// Copies `source` and everything below it to `destination`, hardlinking any entry
@@ -249,12 +290,14 @@ pub fn copy_tree_if_present(
 pub fn all_files_are_unchanged_in(source: &Path, candidate: &Path) -> Result<bool> {
     let reusable = signatures_by_name(candidate)?;
     for name in list_directory(source)? {
-        let signature = Signature::of_path(&source.join(&name))?;
+        let entry = source.join(&name);
+        let existing = candidate.join(&name);
+        let signature = Signature::of_path(&entry)?;
         if signature.directory {
-            if !all_files_are_unchanged_in(&source.join(&name), &candidate.join(&name))? {
+            if !all_files_are_unchanged_in(&entry, &existing)? {
                 return Ok(false);
             }
-        } else if reusable.get(&name) != Some(&signature) {
+        } else if !is_unchanged_copy(&entry, signature, &existing, reusable.get(&name).copied())? {
             return Ok(false);
         }
     }
@@ -281,7 +324,13 @@ fn copy_directory(
             copy_directory(&entry, &placed, candidate.as_deref(), report)?;
             continue;
         }
-        let identical = candidate.filter(|_| reusable.get(&name) == Some(&signature));
+        let identical = match candidate {
+            Some(existing) => {
+                is_unchanged_copy(&entry, signature, &existing, reusable.get(&name).copied())?
+                    .then_some(existing)
+            }
+            None => None,
+        };
         match identical {
             Some(existing) => {
                 create_hard_link_replacing_existing(&existing, &placed)?;
@@ -301,7 +350,13 @@ fn copy_file(
     signature: Signature,
     report: &mut CopyReport,
 ) -> Result<()> {
-    let identical = reuse.filter(|path| Signature::of_path(path).ok() == Some(signature));
+    let identical = match reuse {
+        Some(path) => {
+            is_unchanged_copy(source, signature, path, Signature::of_path(path).ok())?
+                .then_some(path)
+        }
+        None => None,
+    };
     if let Some(existing) = identical {
         create_hard_link_replacing_existing(existing, destination)?;
         report.linked_files += 1;

@@ -44,7 +44,7 @@ pub fn run(target: &Workspace, generation: &Generation) -> Result<Restored> {
     // The checkout's own object store and reflogs are added to, never deleted, so
     // whatever it already has stays available. `.git/config` describes the machine
     // rather than the work, and is left alone.
-    let mut content = files::copy_tree(&stored_git.objects(), &checkout_git.objects(), None)?;
+    let mut content = git::add_absent_objects(&stored_git, &checkout_git)?;
     content += files::copy_tree_if_present(&stored_git.reflogs(), &checkout_git.reflogs(), None)?;
     content +=
         files::copy_tree_if_present(&stored_git.submodules(), &checkout_git.submodules(), None)?;

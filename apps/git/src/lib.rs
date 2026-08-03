@@ -4,6 +4,7 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
+use common::files::{self, CopyReport};
 use common::{Error, Result, ToolVersion, run_output};
 use serde::{Deserialize, Serialize};
 
@@ -65,6 +66,50 @@ impl GitDirectory {
     #[must_use]
     pub fn head(&self) -> PathBuf {
         self.0.join("HEAD")
+    }
+}
+
+/// Adds `source`'s objects to `destination`, leaving what is already there alone.
+///
+/// Everything under `objects` except `info` is content-addressed: loose objects
+/// and packs are named by the hash of their bytes. An entry the destination
+/// already holds is therefore the same bytes, and stays untouched — git marks
+/// them read-only to say exactly that. `info` is derived state and stays local.
+///
+/// # Errors
+/// Returns an error if an entry cannot be read or written, or if a same-named
+/// entry differs in size, which in a content-addressed store means corruption.
+pub fn add_absent_objects(source: &GitDirectory, destination: &GitDirectory) -> Result<CopyReport> {
+    let mut report = CopyReport::default();
+    for name in files::list_directory(&source.objects())? {
+        if name == "info" {
+            continue;
+        }
+        let from = source.objects().join(&name);
+        let to = destination.objects().join(&name);
+        files::create_directory_and_parents(&to)?;
+        for entry in files::list_directory(&from)? {
+            add_if_absent(&from.join(&entry), &to.join(&entry), &mut report)?;
+        }
+    }
+    Ok(report)
+}
+
+fn add_if_absent(source: &Path, destination: &Path, report: &mut CopyReport) -> Result<()> {
+    let length = files::read_metadata_without_following_symlinks(source)?.len();
+    match files::read_metadata_without_following_symlinks(destination) {
+        Ok(existing) if existing.len() == length => Ok(()),
+        Ok(existing) => Err(Error::State(format!(
+            "`{}` holds {} bytes where the snapshot has {length}; the object store is corrupt",
+            destination.display(),
+            existing.len(),
+        ))),
+        Err(_) => {
+            files::copy_file_preserving_modification_time(source, destination)?;
+            report.copied_files += 1;
+            report.copied_bytes += length;
+            Ok(())
+        }
     }
 }
 
