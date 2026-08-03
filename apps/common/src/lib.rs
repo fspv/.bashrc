@@ -1,6 +1,12 @@
+use std::fmt;
+use std::path::PathBuf;
 use std::process::Command;
 
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use tracing::Level;
+
+pub mod files;
 
 /// Errors shared across the tool crates.
 #[derive(Debug, Error)]
@@ -19,14 +25,84 @@ pub enum Error {
     },
     #[error(transparent)]
     Io(#[from] std::io::Error),
+    #[error("could not {operation} `{path}`: {source}")]
+    File {
+        operation: &'static str,
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
     #[error("could not parse output: {0}")]
     Parse(String),
+    #[error("{0}")]
+    State(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// Sends log records to stderr. Commands are recorded at `DEBUG`, so a tool that
+/// runs unattended stays quiet at `INFO`.
+pub fn log_to_stderr(level: Level) {
+    tracing_subscriber::fmt()
+        .with_max_level(level)
+        .with_writer(std::io::stderr)
+        .without_time()
+        .with_target(false)
+        .init();
+}
+
+/// The version string a tool reports for itself.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToolVersion(String);
+
+impl ToolVersion {
+    pub fn new(version: impl Into<String>) -> Self {
+        Self(version.into())
+    }
+}
+
+impl fmt::Display for ToolVersion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Hostname(String);
+
+impl Hostname {
+    /// # Errors
+    /// Returns [`Error::Parse`] if the kernel reports a name that is not utf-8.
+    pub fn of_this_machine() -> Result<Self> {
+        let name = rustix::system::uname();
+        name.nodename()
+            .to_str()
+            .map(|nodename| Self(nodename.to_string()))
+            .map_err(|_| Error::Parse("the hostname is not utf-8".to_string()))
+    }
+}
+
+impl fmt::Display for Hostname {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+/// Renders a byte count the way `ls -h` does, as in `4.9 GiB`.
+#[must_use]
+pub fn format_bytes_in_binary_units(count: u64) -> String {
+    let units = ["B", "KiB", "MiB", "GiB", "TiB"];
+    let mut tenths = count * 10;
+    let mut unit = 0;
+    while tenths >= 10 * 1024 && unit + 1 < units.len() {
+        tenths /= 1024;
+        unit += 1;
+    }
+    format!("{}.{} {}", tenths / 10, tenths % 10, units[unit])
+}
+
 fn log_command(program: &str, args: &[&str]) {
-    eprintln!("+ {program} {}", args.join(" "));
+    tracing::debug!("+ {program} {}", args.join(" "));
 }
 
 /// Run a command, capturing and returning its trimmed stdout.

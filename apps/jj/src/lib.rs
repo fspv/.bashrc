@@ -3,10 +3,13 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use common::{run_output, run_streaming, run_streaming_checked, Error, Result};
+use common::files;
+use common::{Error, Result, ToolVersion, run_output, run_streaming, run_streaming_checked};
+use git::ObjectId;
+use serde::{Deserialize, Serialize};
 
 /// A jj change id: the stable identifier of a change across rewrites.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ChangeId(String);
 
 impl ChangeId {
@@ -30,7 +33,7 @@ impl fmt::Display for ChangeId {
 }
 
 /// A local bookmark (branch) name.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BookmarkName(String);
 
 impl BookmarkName {
@@ -338,4 +341,298 @@ pub fn show(change_id: &ChangeId) -> Result<i32> {
         "jj",
         &["show", "--color", "always", "-r", change_id.as_str()],
     )
+}
+
+/// # Errors
+/// Returns an error if `jj --version` fails.
+pub fn version() -> Result<ToolVersion> {
+    Ok(ToolVersion::new(run_output("jj", &["--version"])?))
+}
+
+/// Where jj keeps its state in a workspace.
+#[derive(Debug, Clone)]
+pub struct JjDirectory(PathBuf);
+
+impl JjDirectory {
+    #[must_use]
+    pub fn in_checkout(root: &Path) -> Self {
+        Self(root.join(".jj"))
+    }
+
+    #[must_use]
+    pub fn path(&self) -> &Path {
+        &self.0
+    }
+
+    #[must_use]
+    pub fn operation_heads(&self) -> PathBuf {
+        self.0.join("repo").join("op_heads").join("heads")
+    }
+
+    #[must_use]
+    pub fn operation(&self, operation: &OperationId) -> PathBuf {
+        self.0
+            .join("repo")
+            .join("op_store")
+            .join("operations")
+            .join(operation.as_str())
+    }
+
+    #[must_use]
+    pub fn working_copy_checkout(&self) -> PathBuf {
+        self.0.join("working_copy").join("checkout")
+    }
+}
+
+/// An entry in the operation log.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct OperationId(String);
+
+impl OperationId {
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for OperationId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+/// The commit jj is currently editing.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WorkingCopy {
+    pub change: ChangeId,
+    pub commit: ObjectId,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Bookmark {
+    pub name: BookmarkName,
+    pub target: ObjectId,
+}
+
+/// The directory a jj workspace lives in.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WorkspaceRoot(PathBuf);
+
+impl WorkspaceRoot {
+    #[must_use]
+    pub fn as_path(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl From<PathBuf> for WorkspaceRoot {
+    fn from(path: PathBuf) -> Self {
+        Self(path)
+    }
+}
+
+impl FromStr for WorkspaceRoot {
+    type Err = Error;
+
+    fn from_str(path: &str) -> Result<Self> {
+        Ok(Self(PathBuf::from(path)))
+    }
+}
+
+impl fmt::Display for WorkspaceRoot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.display().fmt(f)
+    }
+}
+
+/// A jj workspace at a known path, for acting on a repository other than the one
+/// in the current directory.
+#[derive(Debug, Clone)]
+pub struct Workspace {
+    root: WorkspaceRoot,
+}
+
+impl Workspace {
+    #[must_use]
+    pub const fn at(root: WorkspaceRoot) -> Self {
+        Self { root }
+    }
+
+    #[must_use]
+    pub const fn root(&self) -> &WorkspaceRoot {
+        &self.root
+    }
+
+    /// The repo directory, resolving the `.jj/repo` pointer file that secondary
+    /// workspaces use.
+    ///
+    /// # Errors
+    /// Returns an error if the pointer file cannot be read.
+    pub fn repo_dir(&self) -> Result<PathBuf> {
+        let pointer = self.root.as_path().join(".jj").join("repo");
+        if pointer.is_dir() {
+            return Ok(pointer);
+        }
+        let target = self
+            .root
+            .as_path()
+            .join(".jj")
+            .join(files::read_file_text(&pointer)?.trim());
+        Ok(target.canonicalize().unwrap_or(target))
+    }
+
+    /// The operations the repo currently has as heads.
+    ///
+    /// # Errors
+    /// Returns an error if the op heads directory cannot be listed.
+    pub fn op_heads(&self) -> Result<Vec<OperationId>> {
+        let heads = self.repo_dir()?.join("op_heads").join("heads");
+        let mut ids: Vec<OperationId> = files::list_directory(&heads)?
+            .iter()
+            .map(|name| OperationId(name.to_string_lossy().into_owned()))
+            .collect();
+        ids.sort();
+        Ok(ids)
+    }
+
+    /// # Errors
+    /// Returns an error if `jj log` fails or its output cannot be parsed.
+    pub fn working_copy(&self) -> Result<WorkingCopy> {
+        let line = self.log_revset("@", "change_id ++ \" \" ++ commit_id")?;
+        let (change, commit) = line
+            .split_once(' ')
+            .ok_or_else(|| Error::Parse(format!("unexpected working copy line: {line}")))?;
+        Ok(WorkingCopy {
+            change: ChangeId(change.to_string()),
+            commit: commit.parse()?,
+        })
+    }
+
+    /// # Errors
+    /// Returns an error if `trunk()` does not resolve to a single commit.
+    pub fn trunk(&self) -> Result<ObjectId> {
+        self.log_revset("trunk()", "commit_id")?.parse()
+    }
+
+    /// The tips of everything not yet immutable: the work a backup must cover.
+    ///
+    /// # Errors
+    /// Returns an error if `jj log` fails.
+    pub fn mutable_heads(&self) -> Result<Vec<ObjectId>> {
+        self.commit_ids_in_revset("heads(mutable())")
+    }
+
+    /// # Errors
+    /// Returns an error if `jj log` fails.
+    pub fn divergent_changes(&self) -> Result<Vec<ChangeId>> {
+        Ok(self
+            .log_revset("divergent()", "change_id ++ \"\\n\"")?
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(|line| ChangeId(line.to_string()))
+            .collect())
+    }
+
+    /// Local bookmarks pointing into `revset`, with the commit each names.
+    ///
+    /// # Errors
+    /// Returns an error if `jj bookmark list` fails or its output cannot be parsed.
+    pub fn bookmarks(&self, within: &Revset) -> Result<Vec<Bookmark>> {
+        let listing = self.jj(&[
+            "bookmark",
+            "list",
+            "-r",
+            within.as_str(),
+            "-T",
+            r#"if(remote, "", if(normal_target, name ++ " " ++ normal_target.commit_id() ++ "\n", ""))"#,
+        ])?;
+        listing
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(|line| {
+                let (name, target) = line
+                    .split_once(' ')
+                    .ok_or_else(|| Error::Parse(format!("unexpected bookmark line: {line}")))?;
+                Ok(Bookmark {
+                    name: BookmarkName(name.to_string()),
+                    target: target.parse()?,
+                })
+            })
+            .collect()
+    }
+
+    /// # Errors
+    /// Returns an error if `jj bookmark list` fails.
+    pub fn conflicted_bookmarks(&self) -> Result<Vec<BookmarkName>> {
+        Ok(self
+            .jj(&[
+                "bookmark",
+                "list",
+                "-T",
+                "if(conflict, name ++ \"\\n\", \"\")",
+            ])?
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(|line| BookmarkName(line.to_string()))
+            .collect())
+    }
+
+    /// The id of the operation the repo is currently at.
+    ///
+    /// # Errors
+    /// Returns an error if `jj op log` fails.
+    pub fn latest_operation(&self) -> Result<OperationId> {
+        let id = self.jj(&["op", "log", "--no-graph", "-n", "1", "-T", "id"])?;
+        Ok(OperationId(id))
+    }
+
+    /// Records the working copy's current contents in `@`.
+    ///
+    /// jj has no command dedicated to this: every invocation that does not pass
+    /// `--ignore-working-copy` snapshots first, so this asks for the one that
+    /// then does the least.
+    ///
+    /// # Errors
+    /// Returns an error if the snapshot fails.
+    pub fn snapshot_working_copy(&self) -> Result<()> {
+        run_output(
+            "jj",
+            &[
+                "-R",
+                self.path()?,
+                "--no-pager",
+                "log",
+                "-r",
+                "none()",
+                "-T",
+                "",
+            ],
+        )
+        .map(drop)
+    }
+
+    fn commit_ids_in_revset(&self, revset: &str) -> Result<Vec<ObjectId>> {
+        self.log_revset(revset, "commit_id ++ \"\\n\"")?
+            .lines()
+            .filter(|line| !line.is_empty())
+            .map(str::parse)
+            .collect()
+    }
+
+    fn log_revset(&self, revset: &str, template: &str) -> Result<String> {
+        self.jj(&["log", "--no-graph", "-r", revset, "-T", template])
+    }
+
+    fn jj(&self, arguments: &[&str]) -> Result<String> {
+        let mut all = vec!["-R", self.path()?, "--no-pager", "--ignore-working-copy"];
+        all.extend_from_slice(arguments);
+        run_output("jj", &all)
+    }
+
+    fn path(&self) -> Result<&str> {
+        self.root
+            .as_path()
+            .to_str()
+            .ok_or_else(|| Error::Parse(format!("path is not utf-8: {}", self.root)))
+    }
 }

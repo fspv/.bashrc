@@ -1,6 +1,16 @@
 [workspace]
 resolver = "3"
-members = ["common", "comment-lsp", "jj", "github", "jjui-tools", "jj-tools"]
+members = [
+    "common",
+    "comment-lsp",
+    "git",
+    "jj",
+    "github",
+    "jjui-tools",
+    "jj-tools",
+    "jj-snapshot",
+    "snapshot-store",
+]
 
 [workspace.package]
 version = "0.1.0"

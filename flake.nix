@@ -206,6 +206,8 @@
             apps.packages.${system}.comment-lsp
             apps.packages.${system}.jjui-tools
             apps.packages.${system}.jj-tools
+            apps.packages.${system}.jj-snapshot
+            apps.packages.${system}.snapshot-store
             (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: { doCheck = false; }))
           ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
             unstablePkgs.claude-code

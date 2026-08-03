@@ -13,5 +13,6 @@ workspace = true
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 common = { path = "../common" }
+tracing = "0.1"
 jj = { path = "../jj" }
 github = { path = "../github" }

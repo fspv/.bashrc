@@ -21,10 +21,13 @@
               ./Cargo.lock
               ./common
               ./comment-lsp
+              ./git
               ./jj
               ./github
               ./jjui-tools
               ./jj-tools
+              ./jj-snapshot
+              ./snapshot-store
             ];
           };
           tool = name: pkgs.rustPlatform.buildRustPackage {
@@ -33,12 +36,15 @@
             src = workspaceSrc;
             cargoLock.lockFile = ./Cargo.lock;
             cargoBuildFlags = [ "-p" name ];
+            cargoTestFlags = [ "--lib" ];
           };
         in
         {
           comment-lsp = tool "comment-lsp";
           jjui-tools = tool "jjui-tools";
           jj-tools = tool "jj-tools";
+          jj-snapshot = tool "jj-snapshot";
+          snapshot-store = tool "snapshot-store";
 
           default = self.packages.${system}.jjui-tools;
         });

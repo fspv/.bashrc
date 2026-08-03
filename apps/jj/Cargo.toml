@@ -8,3 +8,5 @@ workspace = true
 
 [dependencies]
 common = { path = "../common" }
+git = { path = "../git" }
+serde = { version = "1", features = ["derive"] }

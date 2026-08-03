@@ -38,6 +38,7 @@ struct Server {
 }
 
 fn main() -> Result<()> {
+    common::log_to_stderr(tracing::Level::DEBUG);
     let cli = Cli::parse();
     let cache_root = match cli.cache_dir {
         Some(cache_dir) => cache_dir,

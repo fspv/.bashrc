@@ -74,6 +74,7 @@ struct PlanEntry {
 }
 
 fn main() {
+    common::log_to_stderr(tracing::Level::DEBUG);
     let result = match Cli::parse().tool {
         Tool::PrSync(args) => pr_sync(args),
         Tool::FetchAndTrack => fetch_and_track(),
@@ -112,18 +113,15 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     // Explicit `tips` wins. Otherwise default to ascendants of @ only; offer the
     // full stack tree when its PR topology differs from GitHub.
     let explicit_tips = args.tips.is_some();
-    let (ascendant_tips, full_tree_tips) = match args.tips {
-        Some(tips) => {
-            let tips = Revset::new(tips);
-            (tips.clone(), tips)
-        }
-        None => {
-            let anchor = working_copy_change()?.as_str().to_string();
-            (
-                Revset::new(anchor.as_str()),
-                current_stack_tips(&trunk, anchor.as_str()),
-            )
-        }
+    let (ascendant_tips, full_tree_tips) = if let Some(tips) = args.tips {
+        let tips = Revset::new(tips);
+        (tips.clone(), tips)
+    } else {
+        let anchor = working_copy_change()?.as_str().to_string();
+        (
+            Revset::new(anchor.as_str()),
+            current_stack_tips(&trunk, anchor.as_str()),
+        )
     };
 
     // gh (and ref export) must run in the colocated workspace; cd there once.
@@ -173,11 +171,7 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         print_plan(&me, &plan, &repo_root);
     }
 
-    let empty: Vec<&str> = plan
-        .iter()
-        .filter(|e| matches!(e.action, Action::Create | Action::Update) && e.empty)
-        .map(|e| e.bookmark.as_str())
-        .collect();
+    let empty = bookmarks_with_an_empty_diff(&plan);
     if !empty.is_empty() {
         eprintln!(
             "These bookmarks have an empty diff against their base (would be empty PRs): {}",
@@ -222,6 +216,14 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
 
     apply(&plan, &base, args.ready)?;
     Ok(0)
+}
+
+/// Bookmarks that would be pushed as a pull request containing no changes.
+fn bookmarks_with_an_empty_diff(plan: &[PlanEntry]) -> Vec<&str> {
+    plan.iter()
+        .filter(|entry| matches!(entry.action, Action::Create | Action::Update) && entry.empty)
+        .map(|entry| entry.bookmark.as_str())
+        .collect()
 }
 
 /// Whether the local bookmark DAG's PR topology differs from GitHub's for this stack.
@@ -303,7 +305,9 @@ fn print_plan(me: &str, plan: &[PlanEntry], repo_root: &Path) {
     println!("Plan (you are @{me}):");
     for entry in plan {
         match (&entry.action, &entry.pr) {
-            (Action::Create, _) => println!("  CREATE  {}  (base {})", entry.bookmark, entry.parent),
+            (Action::Create, _) => {
+                println!("  CREATE  {}  (base {})", entry.bookmark, entry.parent);
+            }
             (Action::Update, Some(pr)) => println!(
                 "  UPDATE  #{} {}  (base {} -> {})",
                 pr.number, entry.bookmark, pr.base, entry.parent

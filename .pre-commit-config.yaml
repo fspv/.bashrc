@@ -7,6 +7,20 @@ repos:
 
   - repo: local
     hooks:
+      - id: cargo-clippy
+        name: cargo clippy (apps)
+        language: system
+        files: ^apps/
+        pass_filenames: false
+        entry: env NIX_ENFORCE_PURITY=0 cargo clippy --manifest-path apps/Cargo.toml --all-targets -- --deny warnings
+
+      - id: cargo-test
+        name: cargo test (apps)
+        language: system
+        files: ^apps/
+        pass_filenames: false
+        entry: env NIX_ENFORCE_PURITY=0 cargo test --manifest-path apps/Cargo.toml
+
       - id: act-lint
         name: act / lint.yml
         language: system

@@ -32,6 +32,7 @@ enum Tool {
 }
 
 fn main() {
+    common::log_to_stderr(tracing::Level::DEBUG);
     let result = match Cli::parse().tool {
         Tool::PrPreview { change_id } => pr_preview(&change_id),
     };

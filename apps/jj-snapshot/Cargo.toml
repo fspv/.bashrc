@@ -1,0 +1,29 @@
+[package]
+name = "jj-snapshot"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "jj_snapshot"
+path = "src/lib.rs"
+
+[[bin]]
+name = "jj-snapshot"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
+clap = { version = "4", features = ["derive"] }
+common = { path = "../common" }
+git = { path = "../git" }
+jj = { path = "../jj" }
+serde = { version = "1", features = ["derive"] }
+snapshot-store = { path = "../snapshot-store" }
+toml = "0.9"
+tracing = "0.1"
+
+[dev-dependencies]
+tempfile = "3"

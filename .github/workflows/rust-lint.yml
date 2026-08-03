@@ -1,0 +1,33 @@
+name: Rust Lint
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/**'
+      - '.github/workflows/rust-lint.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'apps/**'
+      - '.github/workflows/rust-lint.yml'
+
+jobs:
+  clippy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run clippy
+        run: cargo clippy --all-targets -- --deny warnings
+
+      - name: Run unit tests
+        run: cargo test --lib
