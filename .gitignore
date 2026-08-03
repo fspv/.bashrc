@@ -107,6 +107,7 @@ flake.lock
 git
 .gitconfig
 .gitkraken/
+.gitlab/
 .gitmodules
 .gk/
 .gksu.lock
