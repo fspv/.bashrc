@@ -108,6 +108,7 @@ let
     stablePkgs.docker-machine-kvm2
     stablePkgs.nodejs_22
     stablePkgs.yarn
+    stablePkgs.pnpm
     stablePkgs.ponysay
     stablePkgs.openssl
     stablePkgs.openssl.dev
@@ -173,10 +174,13 @@ let
     stablePkgs.lua
     stablePkgs.quick-lint-js
     stablePkgs.clang
+    stablePkgs.parallel
+    stablePkgs.k9s
     unstablePkgs.phpunit
     stablePkgs.phpactor
     stablePkgs.php83Packages.php-cs-fixer
     stablePkgs.php83Packages.composer
+    stablePkgs.prometheus.cli
     unstablePkgs.tmux
     unstablePkgs.tmux.man
     unstablePkgs.neovim
@@ -195,12 +199,15 @@ let
     unstablePkgs.tree-sitter
     unstablePkgs.efm-langserver
     unstablePkgs.atuin
+    unstablePkgs.zoxide
+    unstablePkgs.pre-commit
     # Rust
     unstablePkgs.rustc
     unstablePkgs.cargo
     unstablePkgs.rust-analyzer
     unstablePkgs.clippy
     unstablePkgs.rustfmt
+    unstablePkgs.lspmux
     # unfree NIXPKGS_ALLOW_UNFREE=1
     # pkgs.vagrant
     # Other
