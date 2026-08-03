@@ -16,7 +16,9 @@ from pathlib import Path
 
 
 def _unique_id_prefix(figure_name: str, occurrence: int) -> str:
-    return f"fig-{figure_name}-{occurrence}-"  # no CSS id selector may open with a digit
+    return (
+        f"fig-{figure_name}-{occurrence}-"  # no CSS id selector may open with a digit
+    )
 
 
 def _stripped_of_document_prologue(svg: str) -> str:
@@ -25,9 +27,13 @@ def _stripped_of_document_prologue(svg: str) -> str:
 
 def _qualified_ids(svg: str, prefix: str) -> str:
     declared: list[str] = re.findall(r'\bid="([^"]+)"', svg)
-    alternatives = "|".join(re.escape(d) for d in sorted(set(declared), key=len, reverse=True))
+    alternatives = "|".join(
+        re.escape(d) for d in sorted(set(declared), key=len, reverse=True)
+    )
     renamed = re.sub(rf'\bid="({alternatives})"', rf'id="{prefix}\1"', svg)
-    pointing_at_one = rf"#({alternatives})(?![\w:.-])"  # url(#x), href="#x", "#x{{", "#x "
+    pointing_at_one = (
+        rf"#({alternatives})(?![\w:.-])"  # url(#x), href="#x", "#x{{", "#x "
+    )
     return re.sub(pointing_at_one, rf"#{prefix}\1", renamed)
 
 
@@ -68,7 +74,9 @@ def _inline_figures(page: Path) -> int:
     )
     shared = _repeated_ids(bundled)
     if shared:
-        raise ValueError(f"the bundled page declares these ids twice: {', '.join(shared)}")
+        raise ValueError(
+            f"the bundled page declares these ids twice: {', '.join(shared)}"
+        )
 
     _ = page.write_text(bundled)
     return inlined

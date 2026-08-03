@@ -28,14 +28,15 @@ backup
 .chef
 .chrome-remote-desktop-session
 .chromium-bsu
-**/.claude/settings.local.json
-.claude/plugins/
 .clickhouse*
 .cline
 .cloud-locale-test.skip
 .codeblocks
 !.config/
 .config/*
+!.config/agents
+.config/agents/settings.local.json
+.config/agents/plugins/
 !.config/autostart
 !.config/containers
 !.config/direnv
