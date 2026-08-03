@@ -13,3 +13,5 @@ __pycache__
 *.swp
 .venv
 doc/tags
+
+**/.claude/settings.local.json
