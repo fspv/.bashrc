@@ -275,7 +275,7 @@ __run_precmd_hook() {
 }
 add-zsh-hook precmd __run_precmd_hook
 
-source "${HOME}/.shrc"
+source "${HOME}/.config/shell/rc.sh"
 
 # shellcheck source=/dev/null
 [ -f "${HOME}/.zshrc.local" ] && source "${HOME}/.zshrc.local"
