@@ -23,6 +23,29 @@ scope = "revisions"
 desc = "fetch tracked + rebase onto main"
 
 [[actions]]
+name = "pr-stack"
+lua = '''
+local number = input({ title = "PR number", prompt = "#" })
+if not number or number == "" then return end
+local branch, err = jj("util", "exec", "--", "gh", "pr", "view", number, "--json", "headRefName", "-q", ".headRefName")
+if not branch then
+  flash({ text = "gh pr view " .. number .. " failed: " .. (err or "?"), error = true })
+  return
+end
+branch = branch:gsub("%s+$", "")
+jj_async("git", "fetch", "--remote", "origin", "--bookmark", "exact:" .. branch)
+revset.set("trunk()..(" .. branch .. "@origin | @)")
+revisions.refresh()
+flash("PR #" .. number .. ": " .. branch)
+'''
+
+[[bindings]]
+action = "pr-stack"
+seq = ["g", "p"]
+scope = "revisions"
+desc = "fetch a GitHub PR and show its stack"
+
+[[actions]]
 name = "edit-file"
 lua = '''exec_shell('$EDITOR -- "$file"')'''
 
