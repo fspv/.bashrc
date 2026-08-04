@@ -20,6 +20,7 @@ backup
 .bashrc.local
 .bashrc.manual
 .bashrc-master
+.bazel-cache
 .bin
 .boto
 .byobu
