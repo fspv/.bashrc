@@ -56,7 +56,9 @@ if [[ -z "$XDG_RUNTIME_DIR" ]]; then
     if [[ -d "/run/user/$(id -u)" ]]; then
         # Linux-only, doesn't work on MacOS
         export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-        export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+        if [[ -S "$XDG_RUNTIME_DIR/podman/podman.sock" ]]; then
+            export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+        fi
     fi
 fi
 
