@@ -173,6 +173,9 @@
             stablePkgs.php83Packages.php-cs-fixer
             stablePkgs.php83Packages.composer
             stablePkgs.eternal-terminal
+            stablePkgs.awscli2
+            stablePkgs.bubblewrap
+            stablePkgs.nsjail
             unstablePkgs.tmux
             unstablePkgs.tmux.man
             unstablePkgs.neovim
