@@ -87,7 +87,7 @@ impl FromStr for GenerationId {
 
     fn from_str(text: &str) -> Result<Self> {
         DateTime::parse_from_rfc3339(text)
-            .map(|moment| Self(moment.with_timezone(&Utc)))
+            .map(|moment| Self::at(moment.with_timezone(&Utc)))
             .map_err(|_| Error::Parse(format!("`{text}` is not a generation id")))
     }
 }
@@ -156,7 +156,7 @@ impl Staging {
         let published = self.store.join(self.id.to_string());
         files::rename(&self.path, &published)?;
 
-        let pending = self.store.join(format!(".{CURRENT_LINK}-{}", self.id));
+        let pending = self.store.join(format!(".{CURRENT_LINK}-pending"));
         files::create_symlink_replacing_existing(Path::new(&self.id.to_string()), &pending)?;
         files::rename(&pending, &self.store.join(CURRENT_LINK))?;
 
@@ -290,11 +290,6 @@ impl Store {
     /// locked, including by a run that crashed.
     pub fn lock(&self) -> Result<Lock> {
         let path = self.root.as_path().join(LOCK_FILE);
-        if let Some(holder) = self.lock_holder()? {
-            return Err(Error::State(format!(
-                "store is locked by {holder}: run `snapshot-store unlock` once that run is known to be gone"
-            )));
-        }
         let holder = Holder {
             host: Hostname::of_this_machine()?,
             pid: std::process::id(),
@@ -302,8 +297,16 @@ impl Store {
         };
         let recorded = toml::to_string(&holder)
             .map_err(|error| Error::State(format!("cannot record the lock holder: {error}")))?;
-        files::write_file_creating_parents(&path, recorded.as_bytes())?;
-        Ok(Lock { path })
+        if files::write_file_if_absent(&path, recorded.as_bytes())? {
+            return Ok(Lock { path });
+        }
+        let current = self.lock_holder()?.map_or_else(
+            || "a run that has just released it".to_string(),
+            |holder| holder.to_string(),
+        );
+        Err(Error::State(format!(
+            "store is locked by {current}: run `snapshot-store unlock` once that run is known to be gone"
+        )))
     }
 
     /// # Errors
@@ -408,6 +411,11 @@ mod tests {
         let id = GenerationId::at(fixed_now());
         assert_eq!(id.to_string(), "2027-01-15T08:00:00Z");
         assert_eq!(id.to_string().parse::<GenerationId>().unwrap(), id);
+        assert_eq!(
+            "2027-01-15T08:00:00.5Z".parse::<GenerationId>().unwrap(),
+            id,
+            "parsing truncates to the second, as directory names do"
+        );
     }
 
     #[test]

@@ -4,7 +4,7 @@ use std::path::Path;
 
 use common::files::{self, CopyReport};
 use common::{Error, Result};
-use git::{GitDirectory, Repo};
+use git::{GitDirectory, Head, Repo};
 use jj::{BookmarkName, ChangeId, JjDirectory, Workspace};
 use snapshot_store::Generation;
 
@@ -41,9 +41,10 @@ pub fn run(target: &Workspace, generation: &Generation) -> Result<Restored> {
     require_present_in_checkout(checkout_git.path())?;
     require_unmodified_working_copy(&repo, target)?;
 
-    // The checkout's own object store and reflogs are added to, never deleted, so
-    // whatever it already has stays available. `.git/config` describes the machine
-    // rather than the work, and is left alone.
+    // The checkout's own object store is added to, never deleted, so whatever it
+    // already has stays available. The generation's reflogs replace same-named
+    // files outright. `.git/config` describes the machine rather than the work,
+    // and is left alone.
     let mut content = git::add_absent_objects(&stored_git, &checkout_git)?;
     content += files::copy_tree_if_present(&stored_git.reflogs(), &checkout_git.reflogs(), None)?;
     content +=
@@ -65,6 +66,9 @@ pub fn run(target: &Workspace, generation: &Generation) -> Result<Restored> {
     files::create_directory_and_parents(&checkout_git.loose_refs())?;
     content += files::copy_tree(&stored_git.packed_refs(), &checkout_git.packed_refs(), None)?;
 
+    // Detaching HEAD first keeps the reset from moving a branch the checkout
+    // happened to have checked out.
+    repo.set_head(&Head::Detached(manifest.working_copy.commit.clone()))?;
     repo.reset_hard(&manifest.working_copy.commit)?;
     repo.set_head(&manifest.head)?;
 

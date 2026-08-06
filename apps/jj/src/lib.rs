@@ -166,7 +166,15 @@ pub fn parent_bookmark(trunk: &Revset, bookmark: &BookmarkName) -> Result<Option
 pub fn working_copy_change() -> Result<ChangeId> {
     let id = run_output(
         "jj",
-        &["--ignore-working-copy", "log", "--no-graph", "-r", "@", "-T", "change_id"],
+        &[
+            "--ignore-working-copy",
+            "log",
+            "--no-graph",
+            "-r",
+            "@",
+            "-T",
+            "change_id",
+        ],
     )?;
     Ok(ChangeId(id))
 }
@@ -241,7 +249,15 @@ pub fn is_ancestor(ancestor: &Revset, descendant: &Revset) -> Result<bool> {
     let revset = format!("({}) & ::({})", ancestor.as_str(), descendant.as_str());
     let output = run_output(
         "jj",
-        &["--ignore-working-copy", "log", "--no-graph", "-r", &revset, "-T", "commit_id"],
+        &[
+            "--ignore-working-copy",
+            "log",
+            "--no-graph",
+            "-r",
+            &revset,
+            "-T",
+            "commit_id",
+        ],
     )?;
     Ok(!output.is_empty())
 }
@@ -294,8 +310,11 @@ pub fn git_track(bookmarks: &[BookmarkName]) -> Result<()> {
     if bookmarks.is_empty() {
         return Ok(());
     }
-    let mut args: Vec<String> =
-        vec!["--ignore-working-copy".into(), "bookmark".into(), "track".into()];
+    let mut args: Vec<String> = vec![
+        "--ignore-working-copy".into(),
+        "bookmark".into(),
+        "track".into(),
+    ];
     for bookmark in bookmarks {
         args.push(format!("{}@origin", bookmark.as_str()));
     }
@@ -308,7 +327,10 @@ pub fn git_track(bookmarks: &[BookmarkName]) -> Result<()> {
 /// # Errors
 /// Returns an error if the `jj git export` command fails.
 pub fn git_export() -> Result<()> {
-    run_streaming_checked("jj", &["--no-pager", "--ignore-working-copy", "git", "export"])
+    run_streaming_checked(
+        "jj",
+        &["--no-pager", "--ignore-working-copy", "git", "export"],
+    )
 }
 
 /// The main (colocated) workspace root, which holds `.git`. Works from any workspace.
@@ -450,12 +472,26 @@ impl fmt::Display for WorkspaceRoot {
 #[derive(Debug, Clone)]
 pub struct Workspace {
     root: WorkspaceRoot,
+    at_operation: Option<OperationId>,
 }
 
 impl Workspace {
     #[must_use]
     pub const fn at(root: WorkspaceRoot) -> Self {
-        Self { root }
+        Self {
+            root,
+            at_operation: None,
+        }
+    }
+
+    /// The same workspace with every read pinned to `operation`, so a series of
+    /// queries describes one moment rather than whatever jj moves to in between.
+    #[must_use]
+    pub fn pinned_at(&self, operation: OperationId) -> Self {
+        Self {
+            root: self.root.clone(),
+            at_operation: Some(operation),
+        }
     }
 
     #[must_use]
@@ -625,6 +661,9 @@ impl Workspace {
 
     fn jj(&self, arguments: &[&str]) -> Result<String> {
         let mut all = vec!["-R", self.path()?, "--no-pager", "--ignore-working-copy"];
+        if let Some(operation) = &self.at_operation {
+            all.extend_from_slice(&["--at-operation", operation.as_str()]);
+        }
         all.extend_from_slice(arguments);
         run_output("jj", &all)
     }

@@ -1,9 +1,9 @@
 //! Checking that a generation contains everything it names.
 //!
 //! Only what is new is walked. Everything below `trunk()` arrived with the clone,
-//! and everything a previous generation already proved is shared with this one by
-//! hardlink — the same inodes, not copies — so re-reading it would cost a minute
-//! of network round trips to learn nothing.
+//! and everything a previous generation already proved — checked file by file to
+//! still be in the repository — is shared with this one by hardlink, so re-reading
+//! it would cost a minute of network round trips to learn nothing.
 
 use std::path::Path;
 

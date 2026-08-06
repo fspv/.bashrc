@@ -92,7 +92,7 @@ impl fmt::Display for Hostname {
 #[must_use]
 pub fn format_bytes_in_binary_units(count: u64) -> String {
     let units = ["B", "KiB", "MiB", "GiB", "TiB"];
-    let mut tenths = count * 10;
+    let mut tenths = u128::from(count) * 10;
     let mut unit = 0;
     while tenths >= 10 * 1024 && unit + 1 < units.len() {
         tenths /= 1024;

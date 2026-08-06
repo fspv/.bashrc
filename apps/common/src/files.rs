@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::fs::{self, Metadata};
+use std::io::Write as _;
 use std::os::unix::fs::MetadataExt as _;
 use std::path::{Path, PathBuf};
 
@@ -66,6 +67,28 @@ pub fn write_file_creating_parents(path: &Path, contents: &[u8]) -> Result<()> {
     fs::write(path, contents).add_path("write", path)
 }
 
+/// Creates `path` with `contents` only if nothing is there yet.
+///
+/// The check and the creation are one atomic step, so two contenders cannot
+/// both succeed. Returns whether the file was created.
+///
+/// # Errors
+/// Returns [`Error::File`] if the file cannot be created or written.
+pub fn write_file_if_absent(path: &Path, contents: &[u8]) -> Result<bool> {
+    match fs::File::create_new(path) {
+        Ok(mut file) => {
+            file.write_all(contents).add_path("write", path)?;
+            Ok(true)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
+        Err(source) => Err(Error::File {
+            operation: "create",
+            path: path.to_path_buf(),
+            source,
+        }),
+    }
+}
+
 /// Succeeds if the directory is already there.
 ///
 /// # Errors
@@ -109,17 +132,25 @@ pub fn rename(from: &Path, to: &Path) -> Result<()> {
 pub fn copy_file_preserving_modification_time(source: &Path, destination: &Path) -> Result<()> {
     fs::copy(source, destination).add_path("copy", source)?;
     let metadata = read_metadata_without_following_symlinks(source)?;
-    let modified = Timespec {
-        tv_sec: metadata.mtime(),
-        tv_nsec: metadata.mtime_nsec(),
+    set_modification_time(
+        destination,
+        Signature::of(&metadata).modified,
+        AtFlags::empty(),
+    )
+}
+
+fn set_modification_time(path: &Path, modified: Timestamp, flags: AtFlags) -> Result<()> {
+    let time = Timespec {
+        tv_sec: modified.seconds,
+        tv_nsec: modified.nanoseconds,
     };
     let times = Timestamps {
-        last_access: modified,
-        last_modification: modified,
+        last_access: time,
+        last_modification: time,
     };
-    utimensat(CWD, destination, &times, AtFlags::empty()).map_err(|errno| Error::File {
+    utimensat(CWD, path, &times, flags).map_err(|errno| Error::File {
         operation: "set the modification time of",
-        path: destination.to_path_buf(),
+        path: path.to_path_buf(),
         source: errno.into(),
     })
 }
@@ -213,11 +244,14 @@ impl Signature {
         Ok(Self::of(&read_metadata_without_following_symlinks(path)?))
     }
 
-    fn is_indistinguishable_from(&self, other: &Self) -> bool {
+    const fn has_same_shape(&self, other: &Self) -> bool {
         self.directory == other.directory
             && self.symlink == other.symlink
             && self.length == other.length
-            && self.modified == other.modified
+    }
+
+    fn is_indistinguishable_from(&self, other: &Self) -> bool {
+        self.has_same_shape(other) && self.modified == other.modified
     }
 }
 
@@ -282,23 +316,29 @@ pub fn copy_tree_if_present(
     copy_tree(source, destination, reuse)
 }
 
-/// Whether `candidate` holds an unchanged copy of every file in `source`, so
-/// copying `source` would share all of them instead of writing any anew.
+/// Whether `candidate` still holds every file below `source`, at the same size.
+///
+/// Extra files in `candidate` are fine: this asks whether a copy of `candidate`
+/// would contain everything `source` does. Neither bytes nor times are compared,
+/// so this is for content-addressed trees, where a name pins what a file holds
+/// but its modification time may be freshened in place.
 ///
 /// # Errors
 /// Returns [`Error::File`] if `source` cannot be read.
-pub fn all_files_are_unchanged_in(source: &Path, candidate: &Path) -> Result<bool> {
-    let reusable = signatures_by_name(candidate)?;
+pub fn all_files_are_still_present_in(source: &Path, candidate: &Path) -> Result<bool> {
+    let held = signatures_by_name(candidate)?;
     for name in list_directory(source)? {
         let entry = source.join(&name);
-        let existing = candidate.join(&name);
         let signature = Signature::of_path(&entry)?;
         if signature.directory {
-            if !all_files_are_unchanged_in(&entry, &existing)? {
+            if !all_files_are_still_present_in(&entry, &candidate.join(&name))? {
                 return Ok(false);
             }
-        } else if !is_unchanged_copy(&entry, signature, &existing, reusable.get(&name).copied())? {
-            return Ok(false);
+            continue;
+        }
+        match held.get(&name) {
+            Some(existing) if existing.has_same_shape(&signature) => {}
+            _ => return Ok(false),
         }
     }
     Ok(true)
@@ -351,10 +391,8 @@ fn copy_file(
     report: &mut CopyReport,
 ) -> Result<()> {
     let identical = match reuse {
-        Some(path) => {
-            is_unchanged_copy(source, signature, path, Signature::of_path(path).ok())?
-                .then_some(path)
-        }
+        Some(path) => is_unchanged_copy(source, signature, path, Signature::of_path(path).ok())?
+            .then_some(path),
         None => None,
     };
     if let Some(existing) = identical {
@@ -365,6 +403,7 @@ fn copy_file(
     }
     if signature.symlink {
         create_symlink_replacing_existing(&read_symlink_target(source)?, destination)?;
+        set_modification_time(destination, signature.modified, AtFlags::SYMLINK_NOFOLLOW)?;
     } else {
         copy_file_preserving_modification_time(source, destination)?;
     }
@@ -392,7 +431,7 @@ mod tests {
     use std::os::unix::fs::MetadataExt as _;
     use std::path::Path;
 
-    use super::{CopyReport, all_files_are_unchanged_in, copy_tree, copy_tree_if_present};
+    use super::{CopyReport, all_files_are_still_present_in, copy_tree, copy_tree_if_present};
 
     fn write(path: &Path, contents: &str) {
         fs::create_dir_all(path.parent().unwrap()).unwrap();
@@ -538,16 +577,41 @@ mod tests {
     }
 
     #[test]
-    fn reports_whether_every_file_is_unchanged_elsewhere() {
+    fn reports_whether_every_file_is_still_present_elsewhere() {
         let root = tempfile::tempdir().unwrap();
         let source = root.path().join("source");
-        write(&source.join("one.pack"), "contents");
+        write(&source.join("pack/one.pack"), "contents");
         let copy = root.path().join("copy");
         copy_tree(&source, &copy, None).unwrap();
 
-        assert!(all_files_are_unchanged_in(&source, &copy).unwrap());
+        assert!(all_files_are_still_present_in(&copy, &source).unwrap());
 
         write(&source.join("two.pack"), "added later");
-        assert!(!all_files_are_unchanged_in(&source, &copy).unwrap());
+        assert!(
+            all_files_are_still_present_in(&copy, &source).unwrap(),
+            "new files in the source do not invalidate what the copy holds"
+        );
+
+        fs::remove_file(source.join("pack/one.pack")).unwrap();
+        assert!(!all_files_are_still_present_in(&copy, &source).unwrap());
+    }
+
+    #[test]
+    fn an_unchanged_symlink_is_hardlinked_on_the_next_copy() {
+        let root = tempfile::tempdir().unwrap();
+        let source = root.path().join("source");
+        write(&source.join("file"), "contents");
+        std::os::unix::fs::symlink("file", source.join("link")).unwrap();
+        let first = root.path().join("first");
+        copy_tree(&source, &first, None).unwrap();
+
+        let second = root.path().join("second");
+        let report = copy_tree(&source, &second, Some(&first)).unwrap();
+
+        assert_eq!((report.linked_files, report.copied_files), (2, 0));
+        assert_eq!(
+            fs::read_link(second.join("link")).unwrap(),
+            Path::new("file")
+        );
     }
 }

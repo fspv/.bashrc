@@ -4,7 +4,7 @@ use std::path::Path;
 
 use chrono::Utc;
 use common::files::{self, CopyReport};
-use common::{Hostname, Result, ToolVersion};
+use common::{Error, Hostname, Result, ToolVersion};
 use git::{GitDirectory, ObjectId, Repo};
 use jj::{JjDirectory, Revset, Workspace};
 use snapshot_store::{Generation, GenerationId, Retention, Store};
@@ -31,7 +31,9 @@ pub struct Request<'a> {
 /// verifies.
 ///
 /// jj records the working copy in `@` first, so that edits made since the last jj
-/// command are part of the generation rather than left behind.
+/// command are part of the generation rather than left behind. Every jj read after
+/// that is pinned to the operation head read with the pointers, so the manifest
+/// describes one moment even if jj runs concurrently.
 ///
 /// # Errors
 /// Returns an error if the store is locked, the repository cannot be inspected,
@@ -48,6 +50,13 @@ pub fn run(request: &Request) -> Result<Outcome> {
 
     let repo = Repo::in_worktree(workspace.root().as_path());
     let pointers = Pointers::read(workspace, &repo)?;
+    let [operation] = pointers.operation_heads.as_slice() else {
+        return Err(Error::State(format!(
+            "the operation log has {} heads: the repository is being changed concurrently; retry once it settles",
+            pointers.operation_heads.len()
+        )));
+    };
+    let workspace = &workspace.pinned_at(operation.clone());
     let trunk = workspace.trunk()?;
     let mutable_heads = workspace.mutable_heads()?;
     let working_copy = workspace.working_copy()?;
@@ -107,8 +116,9 @@ struct CopiedState {
     proven: AlreadyProven,
 }
 
-/// What a previous generation lets this one take as read, because this one shares
-/// its object store rather than holding a copy of it.
+/// What a previous generation lets this one take as read, because every object
+/// file it holds is still in the repository unchanged, and so landed in this
+/// generation's copy too.
 struct AlreadyProven {
     heads: Vec<ObjectId>,
     scope: Verified,
@@ -199,7 +209,7 @@ fn copy_repository_state(
 
     let proven = match (previous, previous_git.as_ref()) {
         (Some(generation), Some(reused))
-            if files::all_files_are_unchanged_in(&source_git.packs(), &reused.packs())? =>
+            if files::all_files_are_still_present_in(&reused.objects(), &source_git.objects())? =>
         {
             AlreadyProven::by(generation)
         }

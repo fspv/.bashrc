@@ -337,6 +337,29 @@ fn consecutive_generations_share_their_packs() {
 }
 
 #[test]
+fn losing_an_object_the_last_generation_held_forces_a_full_verification() {
+    let fixture = Fixture::new();
+    let source = fixture.clone_repo("source");
+    make_work(&source);
+    fs::write(file_in(&source, "orphan"), "kept by nothing\n").unwrap();
+    let orphan = git(source.root().as_path(), &["hash-object", "-w", "orphan"]);
+    fs::remove_file(file_in(&source, "orphan")).unwrap();
+    let store = fixture.store();
+    back_up(&source, &store);
+
+    let loose =
+        source
+            .root()
+            .as_path()
+            .join(format!(".git/objects/{}/{}", &orphan[..2], &orphan[2..]));
+    fs::remove_file(loose).unwrap();
+    next_second();
+    let second = back_up(&source, &store);
+
+    assert_eq!(second.manifest.verified, Verified::Fully);
+}
+
+#[test]
 fn restoring_onto_a_modified_checkout_is_refused() {
     let fixture = Fixture::new();
     let source = fixture.clone_repo("source");

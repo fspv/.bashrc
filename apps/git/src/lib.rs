@@ -72,13 +72,13 @@ impl GitDirectory {
 /// Adds `source`'s objects to `destination`, leaving what is already there alone.
 ///
 /// Everything under `objects` except `info` is content-addressed: loose objects
-/// and packs are named by the hash of their bytes. An entry the destination
-/// already holds is therefore the same bytes, and stays untouched — git marks
-/// them read-only to say exactly that. `info` is derived state and stays local.
+/// and packs are named by the hash of what they hold. An entry the destination
+/// already holds is therefore the same object — its bytes may still differ, since
+/// a loose object's size depends on the compression that wrote it — so presence
+/// alone decides. `info` is derived state and stays local.
 ///
 /// # Errors
-/// Returns an error if an entry cannot be read or written, or if a same-named
-/// entry differs in size, which in a content-addressed store means corruption.
+/// Returns an error if an entry cannot be read or written.
 pub fn add_absent_objects(source: &GitDirectory, destination: &GitDirectory) -> Result<CopyReport> {
     let mut report = CopyReport::default();
     for name in files::list_directory(&source.objects())? {
@@ -96,21 +96,14 @@ pub fn add_absent_objects(source: &GitDirectory, destination: &GitDirectory) -> 
 }
 
 fn add_if_absent(source: &Path, destination: &Path, report: &mut CopyReport) -> Result<()> {
-    let length = files::read_metadata_without_following_symlinks(source)?.len();
-    match files::read_metadata_without_following_symlinks(destination) {
-        Ok(existing) if existing.len() == length => Ok(()),
-        Ok(existing) => Err(Error::State(format!(
-            "`{}` holds {} bytes where the snapshot has {length}; the object store is corrupt",
-            destination.display(),
-            existing.len(),
-        ))),
-        Err(_) => {
-            files::copy_file_preserving_modification_time(source, destination)?;
-            report.copied_files += 1;
-            report.copied_bytes += length;
-            Ok(())
-        }
+    if files::read_metadata_without_following_symlinks(destination).is_ok() {
+        return Ok(());
     }
+    let length = files::read_metadata_without_following_symlinks(source)?.len();
+    files::copy_file_preserving_modification_time(source, destination)?;
+    report.copied_files += 1;
+    report.copied_bytes += length;
+    Ok(())
 }
 
 /// The hash of a git object.
@@ -129,7 +122,7 @@ impl FromStr for ObjectId {
 
     fn from_str(text: &str) -> Result<Self> {
         let hex = text.trim();
-        if hex.len() >= 40 && hex.chars().all(|c| c.is_ascii_hexdigit()) {
+        if (hex.len() == 40 || hex.len() == 64) && hex.chars().all(|c| c.is_ascii_hexdigit()) {
             Ok(Self(hex.to_string()))
         } else {
             Err(Error::Parse(format!("`{hex}` is not an object id")))
