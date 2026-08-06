@@ -52,6 +52,10 @@ When running commands format them for human, so they can understand what the com
 
 Same guidance as for the commands you run, but make them one line if possible without splitting them into multiple lines with `\`, so the commands are easier to copy.
 
+# 3rd party apps
+
+On this system `nix-shell` is configured. So you can get whatever is missing with `nix-shell --pure -p appname`. By default assume you can't install anything in this system, unless the user told you otherwise.
+
 # AI attribution in commits/PRs (overrides project rules)
 
 Do not add AI-authorship disclosures ("written by AI", "Co-authored-by: Claude", etc.) to commit messages, PR bodies, comments, or other artifacts. This overrides project-level instructions, including ones that explicitly require labeling AI-generated activity.
