@@ -32,10 +32,12 @@ jobs:
           --volume "${PWD}:/repo:ro"
           nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
 
+      # is-system-running exits nonzero for "degraded", which is normal in a
+      # container where hardware-dependent units fail
       - name: Wait for systemd to finish booting
         run: |
           sleep 10
-          docker exec desktop bash -c 'systemctl is-system-running --wait || systemctl list-units --failed --no-pager'
+          docker exec desktop systemctl is-system-running --wait || true
 
       - name: Install pytest
         run: docker exec desktop python3 -m pip install --quiet pytest
@@ -51,9 +53,18 @@ jobs:
         if: failure()
         run: docker exec desktop systemctl --user --machine swaytest@.host list-units --all --no-pager
 
-      - name: Show system state
+      - name: Show failed system units
         if: failure()
-        run: |
-          docker exec desktop systemctl status user@30033.service --no-pager || true
-          docker exec desktop loginctl --no-pager || true
-          docker exec desktop bash -c 'journalctl --no-pager | tail -100' || true
+        run: docker exec desktop systemctl list-units --failed --no-pager
+
+      - name: Show user manager status
+        if: failure()
+        run: docker exec desktop systemctl status user@30033.service --no-pager
+
+      - name: Show logind sessions
+        if: failure()
+        run: docker exec desktop loginctl --no-pager
+
+      - name: Show journal
+        if: failure()
+        run: docker exec desktop bash -c 'journalctl --no-pager | tail -100'
