@@ -11,16 +11,15 @@ from pathlib import Path
 
 import pytest
 
-TEST_USER = "swaytest"
-
 
 def run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(command, capture_output=True, text=True, check=False)
 
 
 def sway_user_systemctl(*arguments: str) -> subprocess.CompletedProcess[str]:
-    machine = f"{TEST_USER}@.host"
-    return run_command(["systemctl", "--user", "--machine", machine, *arguments])
+    return run_command(
+        ["systemctl", "--user", "--machine", "swaytest@.host", *arguments]
+    )
 
 
 def sway_user_manager_environment() -> dict[str, str]:
@@ -34,7 +33,7 @@ def sway_user_unit_is_active(unit_name: str) -> bool:
 
 
 def sway_user_process_running(process_name: str) -> bool:
-    pgrep = run_command(["pgrep", "--uid", TEST_USER, "--exact", process_name])
+    pgrep = run_command(["pgrep", "--uid", "swaytest", "--exact", process_name])
     return pgrep.returncode == 0
 
 
@@ -47,12 +46,12 @@ def wait_for(condition: Callable[[], bool], description: str) -> None:
 
 
 def run_as_sway_user(*command: str) -> subprocess.CompletedProcess[str]:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     return run_command(
         [
             "runuser",
             "-u",
-            TEST_USER,
+            "swaytest",
             "--",
             "env",
             f"XDG_RUNTIME_DIR=/run/user/{user_id}",
@@ -62,7 +61,7 @@ def run_as_sway_user(*command: str) -> subprocess.CompletedProcess[str]:
 
 
 def sway_user_gsetting(schema: str, key: str) -> str:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     bus_address = f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{user_id}/bus"
     return run_as_sway_user(bus_address, "gsettings", "get", schema, key).stdout.strip()
 
@@ -76,9 +75,9 @@ def expected_baseline_environment(user_id: int) -> dict[str, str]:
         "ECORE_EVAS_ENGINE": "wayland_egl",
         "ELM_ENGINE": "wayland_egl",
         "GTK_IM_MODULE": "fcitx",
-        "HOME": f"/var/home/{TEST_USER}",
+        "HOME": "/var/home/swaytest",
         "LANG": "en_US.UTF-8",
-        "LOGNAME": TEST_USER,
+        "LOGNAME": "swaytest",
         "MOZ_ENABLE_WAYLAND": "1",
         "PATH": "/usr/local/sbin:/usr/local/bin:/usr/bin:/var/lib/snapd/snap/bin",
         "QT_IM_MODULE": "fcitx",
@@ -86,9 +85,9 @@ def expected_baseline_environment(user_id: int) -> dict[str, str]:
         "QT_QPA_PLATFORMTHEME": "gtk3",
         "SDL_VIDEODRIVER": "wayland",
         "SHELL": "/bin/bash",
-        "USER": TEST_USER,
+        "USER": "swaytest",
         "XDG_DATA_DIRS": (
-            f"/var/home/{TEST_USER}/.local/share/flatpak/exports/share"
+            "/var/home/swaytest/.local/share/flatpak/exports/share"
             ":/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/"
             ":/var/lib/snapd/desktop"
         ),
@@ -100,15 +99,15 @@ def expected_baseline_environment(user_id: int) -> dict[str, str]:
 
 @pytest.fixture(scope="module")
 def sway_user_home() -> Path:
-    subprocess.run(["useradd", "--no-create-home", TEST_USER], check=True)
-    home_directory = Path("/home") / TEST_USER
+    subprocess.run(["useradd", "--no-create-home", "swaytest"], check=True)
+    home_directory = Path("/home/swaytest")
     shutil.copytree(Path("/repo"), home_directory, symlinks=True)
     subprocess.run(
-        ["chown", "--recursive", f"{TEST_USER}:{TEST_USER}", str(home_directory)],
+        ["chown", "--recursive", "swaytest:swaytest", str(home_directory)],
         check=True,
     )
-    subprocess.run(["loginctl", "enable-linger", TEST_USER], check=True)
-    runtime_bus = Path(f"/run/user/{pwd.getpwnam(TEST_USER).pw_uid}/bus")
+    subprocess.run(["loginctl", "enable-linger", "swaytest"], check=True)
+    runtime_bus = Path(f"/run/user/{pwd.getpwnam('swaytest').pw_uid}/bus")
     wait_for(runtime_bus.exists, "user manager dbus socket")
     return home_directory
 
@@ -122,12 +121,12 @@ def environment_before_session(sway_user_home: Path) -> dict[str, str]:
 def sway_launcher(
     sway_user_home: Path, environment_before_session: dict[str, str]
 ) -> Iterator[subprocess.Popen[bytes]]:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     launcher = subprocess.Popen(
         [
             "runuser",
             "-u",
-            TEST_USER,
+            "swaytest",
             "--",
             "env",
             f"XDG_RUNTIME_DIR=/run/user/{user_id}",
@@ -147,7 +146,7 @@ def sway_launcher(
 def test_environment_before_session(
     environment_before_session: dict[str, str],
 ) -> None:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     assert environment_before_session == expected_baseline_environment(user_id)
 
 
@@ -159,7 +158,7 @@ def test_session_targets_active(sway_launcher: subprocess.Popen[bytes]) -> None:
 def test_environment_pushed_to_user_manager(
     sway_launcher: subprocess.Popen[bytes],
 ) -> None:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     environment = sway_user_manager_environment()
     swaysock = environment.pop("SWAYSOCK")
     assert re.fullmatch(
@@ -256,7 +255,7 @@ def test_gsettings_applied(sway_launcher: subprocess.Popen[bytes]) -> None:
 def test_teardown_stops_session_and_restores_environment(
     sway_launcher: subprocess.Popen[bytes],
 ) -> None:
-    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    user_id = pwd.getpwnam("swaytest").pw_uid
     swaysock = sway_user_manager_environment()["SWAYSOCK"]
     # sway dies executing "exit" without sending the IPC reply, so the swaymsg
     # return code is meaningless
