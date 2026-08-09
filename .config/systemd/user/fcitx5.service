@@ -1,0 +1,8 @@
+[Unit]
+Description=Fcitx5 input method
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+
+[Service]
+ExecStart=/usr/bin/fcitx5 -D --verbose 5
+Restart=on-failure

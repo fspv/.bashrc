@@ -1,0 +1,70 @@
+name: Sway Session
+
+on:
+  push:
+    paths:
+      - '.config/sway/**'
+      - '.config/systemd/user/**'
+      - '.github/workflows/sway-session.yml'
+  pull_request:
+    paths:
+      - '.config/sway/**'
+      - '.config/systemd/user/**'
+      - '.github/workflows/sway-session.yml'
+
+jobs:
+  test-sway-session:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # The host profile leaks into the container and breaks PAM for user@.service
+      - name: Unload host apparmor profile for unix_chkpwd
+        run: sudo apparmor_parser -R /etc/apparmor.d/unix-chkpwd
+
+      - name: Start desktop container
+        run: >
+          docker run --detach --tty --name desktop
+          --privileged --cgroupns=private
+          --env container=docker
+          --volume "${PWD}:/repo:ro"
+          nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
+
+      # is-system-running exits nonzero for "degraded", which is normal in a
+      # container where hardware-dependent units fail, so accept it explicitly
+      - name: Wait for systemd to finish booting
+        run: |
+          sleep 10
+          docker exec desktop bash -c "systemctl is-system-running --wait | grep --extended-regexp '^(running|degraded)$'"
+
+      - name: Install pytest
+        run: docker exec desktop python3 -m pip install --quiet pytest
+
+      - name: Run session tests
+        run: docker exec desktop python3 -m pytest -v -p no:cacheprovider /repo/.config/sway/tests/test_sway_session.py
+
+      - name: Show sway log
+        if: failure()
+        run: docker exec desktop cat /home/swaytest/sway.log
+
+      - name: Show user units
+        if: failure()
+        run: docker exec desktop systemctl --user --machine swaytest@.host list-units --all --no-pager
+
+      - name: Show failed system units
+        if: failure()
+        run: docker exec desktop systemctl list-units --failed --no-pager
+
+      - name: Show user manager status
+        if: failure()
+        run: docker exec desktop systemctl status user@30033.service --no-pager
+
+      - name: Show logind sessions
+        if: failure()
+        run: docker exec desktop loginctl --no-pager
+
+      - name: Show journal
+        if: failure()
+        run: docker exec desktop journalctl --no-pager

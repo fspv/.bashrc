@@ -4,3 +4,14 @@ Documentation=man:systemd.special(7)
 BindsTo=graphical-session.target
 Wants=graphical-session-pre.target
 After=graphical-session-pre.target
+
+Wants=plasma-polkit-agent.service
+Wants=wireplumber.service
+Wants=xdg-desktop-portal.service
+Wants=xdg-desktop-portal-gtk.service
+Wants=xdg-desktop-portal-wlr.service
+Wants=nm-applet.service
+Wants=blueman-applet.service
+Wants=dunst.service
+Wants=fcitx5.service
+Wants=window-bound-layout.service

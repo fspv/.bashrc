@@ -7,23 +7,11 @@ xwayland enable
 set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
 exec_always find "/run/user/$(id -u)/sway_log" -type f -delete 2>/dev/null || true
 
-exec $log ${HOME}/.config/sway/scripts/session.sh
-
-exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
+# Single chained command because the target must not start before the environment is set
+exec $log sh -c "dbus-update-activation-environment --systemd XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY XCURSOR_THEME XCURSOR_SIZE && systemctl --user reset-failed && systemctl --user start sway-session.target"
 
 # Restore saved brightness on startup (run `light -O` to save)
 exec $log light -I
-
-exec_always $log fcitx5 --replace -D --verbose 5
-
-exec_always pkill -f window-bound-layout
-exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
-
-exec_always pkill -f dunst
-# xfce4-notifyd is started by dbus by default causing a race condition
-exec_always $log systemctl --user mask xfce4-notifyd.service
-exec_always $log systemctl --user stop xfce4-notifyd.service
-exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
 
 exec_always {
     $log gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
@@ -36,29 +24,11 @@ exec_always {
 
 seat * xcursor_theme Adwaita 24
 
-# Start required services
-exec_always {
-    $log systemctl --user enable plasma-polkit-agent.service
-    $log systemctl --user start plasma-polkit-agent.service
-}
-
-# Stop unwanted services
-exec_always {
-    $log systemctl --user mask tracker-miner-fs-3.service
-}
-
 # Some cleanup
 exec_always {
     $log rm -rf "${HOME}/.tor project/" "${HOME}/.wine" "${HOME}/.wget-hsts" "${HOME}/.zcompdump*" "${HOME}/.local/share/tracker/"
 }
 
-# Make pipewire (camera and sound sharing) work
-exec_always {
-    $log systemctl --user start wireplumber.service
-    $log systemctl --user start xdg-desktop-portal.service
-    $log systemctl --user start xdg-desktop-portal-gtk.service
-    $log systemctl --user start xdg-desktop-portal-wlr.service
-}
 set $mod Mod4
 
 # MacOS-like keybindings
@@ -119,7 +89,9 @@ set $restart_pipewire $log systemctl --user start wireplumber pipewire
 # for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
-exec_always pkill -f swayidle
+# pkill --older spares the instance being started concurrently by the next
+# exec_always line, plain pkill races it and can kill it right after start
+exec_always pkill --older 5 -x swayidle
 # Check ${XDG_RUNTIME_DIR}/sway_log/swayidle.log to validate this works
 exec_always $log swayidle -w -d \
     timeout 180 '$disable_display' \
@@ -326,5 +298,3 @@ bar {
     swaybar_command .config/waybar/cmd
 }
 
-exec_always $log nm-applet --indicator
-exec_always $log blueman-applet
