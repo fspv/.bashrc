@@ -67,4 +67,4 @@ jobs:
 
       - name: Show journal
         if: failure()
-        run: docker exec desktop bash -c 'journalctl --no-pager | tail -100'
+        run: docker exec desktop journalctl --no-pager

@@ -21,6 +21,13 @@ sway --debug --verbose >"$HOME/sway.log" 2>&1
 
 systemctl --user start --job-mode=replace-irreversibly sway-session-shutdown.target
 systemctl --user unset-environment \
-    DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY \
-    XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE \
-    XCURSOR_THEME XCURSOR_SIZE GTK_IM_MODULE QT_IM_MODULE XMODIFIERS
+    DISPLAY \
+    WAYLAND_DISPLAY \
+    SWAYSOCK \
+    I3SOCK \
+    XAUTHORITY \
+    XDG_CURRENT_DESKTOP \
+    XDG_SESSION_DESKTOP \
+    XDG_SESSION_TYPE \
+    XCURSOR_THEME \
+    XCURSOR_SIZE

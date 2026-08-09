@@ -8,17 +8,19 @@ set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
 exec_always find "/run/user/$(id -u)/sway_log" -type f -delete 2>/dev/null || true
 
 # Single chained command because the target must not start before the environment is set
-exec $log sh -c "dbus-update-activation-environment --systemd XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY XCURSOR_THEME XCURSOR_SIZE GTK_IM_MODULE QT_IM_MODULE XMODIFIERS && systemctl --user reset-failed && systemctl --user start sway-session.target"
+exec $log sh -c "dbus-update-activation-environment --systemd XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY XCURSOR_THEME XCURSOR_SIZE && systemctl --user reset-failed && systemctl --user start sway-session.target"
 
 # Restore saved brightness on startup (run `light -O` to save)
 exec $log light -I
 
 exec_always $log fcitx5 --replace -D --verbose 5
 
-exec_always pkill -f window-bound-layout
+# pkill --older spares the instance being started concurrently by the next
+# exec_always line, plain pkill races it and can kill it right after start
+exec_always pkill --older 5 -f window-bound-layout
 exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
 
-exec_always pkill -f dunst
+exec_always pkill --older 5 -x dunst
 # xfce4-notifyd is started by dbus by default causing a race condition
 exec_always $log systemctl --user mask xfce4-notifyd.service
 exec_always $log systemctl --user stop xfce4-notifyd.service
@@ -100,7 +102,7 @@ set $restart_pipewire $log systemctl --user start wireplumber pipewire
 # for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
-exec_always pkill -f swayidle
+exec_always pkill --older 5 -x swayidle
 # Check ${XDG_RUNTIME_DIR}/sway_log/swayidle.log to validate this works
 exec_always $log swayidle -w -d \
     timeout 180 '$disable_display' \
