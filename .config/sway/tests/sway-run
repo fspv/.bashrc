@@ -15,7 +15,7 @@ export XMODIFIERS=@im=fcitx
 
 export XDG_CURRENT_DESKTOP=sway
 
-cd
+cd || exit
 
 sway --debug --verbose >"$HOME/sway.log" 2>&1
 
