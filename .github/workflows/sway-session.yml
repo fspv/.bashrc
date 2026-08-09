@@ -34,9 +34,9 @@ jobs:
           nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
 
       - name: Wait for systemd to finish booting
-        run: >
-          docker exec desktop bash -c
-          'systemctl is-system-running --wait || systemctl list-units --failed --no-pager'
+        run: |
+          sleep 10
+          docker exec desktop bash -c 'systemctl is-system-running --wait || systemctl list-units --failed --no-pager'
 
       - name: Install pytest
         run: docker exec desktop python3 -m pip install --quiet pytest
