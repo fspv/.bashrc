@@ -5,15 +5,11 @@ on:
     paths:
       - '.config/sway/**'
       - '.config/systemd/user/**'
-      - '.local/share/bin/sway-run'
-      - 'tests/test_sway_session.py'
       - '.github/workflows/sway-session.yml'
   pull_request:
     paths:
       - '.config/sway/**'
       - '.config/systemd/user/**'
-      - '.local/share/bin/sway-run'
-      - 'tests/test_sway_session.py'
       - '.github/workflows/sway-session.yml'
 
 jobs:
@@ -24,9 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # The host profile confines unix_chkpwd inside the container too,
-      # breaking PAM for user@.service. See apparmor="DENIED" in the container
-      # journal when this is missing.
+      # The host profile leaks into the container and breaks PAM for user@.service
       - name: Unload host apparmor profile for unix_chkpwd
         run: sudo apparmor_parser -R /etc/apparmor.d/unix-chkpwd
 
@@ -47,7 +41,7 @@ jobs:
         run: docker exec desktop python3 -m pip install --quiet pytest
 
       - name: Run session tests
-        run: docker exec desktop python3 -m pytest -v -p no:cacheprovider /repo/tests/test_sway_session.py
+        run: docker exec desktop python3 -m pytest -v -p no:cacheprovider /repo/.config/sway/tests/test_sway_session.py
 
       - name: Show sway log
         if: failure()

@@ -51,4 +51,4 @@ jobs:
 
       - name: Mypy strict
         if: always()
-        run: mypy --strict .config/i3/scripts/window-binded-layout.py .config/sway/scripts/window-bound-layout.py .config/waybar/scripts/moon-phase.py .config/waybar/scripts/zodiac.py tests/test_sway_session.py
+        run: mypy --strict .config/i3/scripts/window-binded-layout.py .config/sway/scripts/window-bound-layout.py .config/waybar/scripts/moon-phase.py .config/waybar/scripts/zodiac.py .config/sway/tests/test_sway_session.py
