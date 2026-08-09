@@ -48,7 +48,6 @@ def run_as_sway_user(*command: str) -> subprocess.CompletedProcess[str]:
             TEST_USER,
             "--",
             "env",
-            f"HOME=/home/{TEST_USER}",
             f"XDG_RUNTIME_DIR=/run/user/{user_id}",
             *command,
         ]
@@ -80,7 +79,6 @@ def sway_launcher(sway_user_home: Path) -> Iterator[subprocess.Popen[bytes]]:
             TEST_USER,
             "--",
             "env",
-            f"HOME={sway_user_home}",
             f"XDG_RUNTIME_DIR=/run/user/{user_id}",
             "WLR_BACKENDS=headless",
             "WLR_RENDERER=pixman",
