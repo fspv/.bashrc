@@ -304,13 +304,13 @@ require("lazy").setup({
   },
   -- View PRs
   {
-    "dlyongemallo/diffview.nvim",
+    "dlyongemallo/diffview-plus.nvim",
   },
   -- More fancy git stuff
   {
     "NeogitOrg/neogit",
     dependencies = {
-      "dlyongemallo/diffview.nvim",
+      "dlyongemallo/diffview-plus.nvim",
       "nvim-telescope/telescope.nvim",
     },
     config = true,
