@@ -17,18 +17,32 @@
     };
   };
 
-  outputs = { self, nixpkgs-stable, nixpkgs-unstable, rust-overlay, jj-with-lfs-support, apps }:
+  outputs =
+    {
+      self,
+      nixpkgs-stable,
+      nixpkgs-unstable,
+      rust-overlay,
+      jj-with-lfs-support,
+      apps,
+    }:
     let
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
     in
     {
-      devShells = forAllSystems (system:
+      devShells = forAllSystems (
+        system:
         let
           stablePkgs = import nixpkgs-stable {
-              inherit system;
-              config.allowUnfree = true;
-              overlays = [ rust-overlay.overlays.default ];
+            inherit system;
+            config.allowUnfree = true;
+            overlays = [ rust-overlay.overlays.default ];
           };
 
           unstablePkgs = import nixpkgs-unstable {
@@ -37,10 +51,13 @@
           };
 
           rustToolchain = stablePkgs.rust-bin.stable.latest.default.override {
-            extensions = [ "rust-src" "rust-analyzer" ];
+            extensions = [
+              "rust-src"
+              "rust-analyzer"
+            ];
           };
 
-          toInstall = [
+          toInstallBasic = [
             # Allow to go deeper
             stablePkgs.nix
             stablePkgs.nix.man
@@ -98,8 +115,6 @@
             stablePkgs.zsh
             stablePkgs.zsh.man
             stablePkgs.zsh-completions
-            stablePkgs.go
-            stablePkgs.gotags
             stablePkgs.git
             stablePkgs.git-lfs
             stablePkgs.jq
@@ -110,23 +125,14 @@
             stablePkgs.fzf
             stablePkgs.fzf.man
             stablePkgs.fzf-git-sh
-            stablePkgs.kubectl
-            stablePkgs.kubectl.man
-            stablePkgs.minikube
-            stablePkgs.krew
-            stablePkgs.kubie
             stablePkgs.docker-client
             stablePkgs.skopeo
             stablePkgs.skopeo.man
-            stablePkgs.nodejs_22
-            stablePkgs.yarn
             stablePkgs.ponysay
             stablePkgs.openssl
             stablePkgs.openssl.dev
             stablePkgs.pkg-config
             stablePkgs.fortune
-            stablePkgs.gh
-            stablePkgs.src-cli
             stablePkgs.zip
             stablePkgs.unixtools.xxd
             stablePkgs.nixfmt-rfc-style
@@ -135,7 +141,6 @@
             stablePkgs.vim
             stablePkgs.unzip
             stablePkgs.libvirt
-            stablePkgs.lazygit
             stablePkgs.git
             stablePkgs.eza
             stablePkgs.eza.man
@@ -147,43 +152,52 @@
             stablePkgs.dnsutils
             stablePkgs.dnsutils.man
             stablePkgs.nasm
-            stablePkgs.mercurial
             stablePkgs.fping
             stablePkgs.whois
-            stablePkgs.php83
             stablePkgs.sqlite
-            stablePkgs.lua
-            stablePkgs.act
-            stablePkgs.quick-lint-js
-            rustToolchain
-            stablePkgs.llvmPackages.libclang.lib
-            # stablePkgs.tpm2-tss
-            stablePkgs.fontconfig
-            stablePkgs.cairo
-            stablePkgs.atk
-            stablePkgs.gdk-pixbuf
-            stablePkgs.pango
-            stablePkgs.gtk3
-            # stablePkgs.libsoup_3
-            # stablePkgs.libjpeg
-            # stablePkgs.libnl
-            # stablePkgs.libva
-            unstablePkgs.phpunit
-            stablePkgs.phpactor
-            stablePkgs.php83Packages.php-cs-fixer
-            stablePkgs.php83Packages.composer
             stablePkgs.eternal-terminal
-            stablePkgs.awscli2
             stablePkgs.bubblewrap
             stablePkgs.nsjail
             unstablePkgs.tmux
             unstablePkgs.tmux.man
             unstablePkgs.neovim
             unstablePkgs.vimPlugins.lazy-nvim
+            unstablePkgs.atuin
+          ];
+
+          toInstallExtra = [
+            stablePkgs.go
+            stablePkgs.gotags
+            stablePkgs.kubectl
+            stablePkgs.kubectl.man
+            stablePkgs.minikube
+            stablePkgs.krew
+            stablePkgs.kubie
+            stablePkgs.nodejs_22
+            stablePkgs.yarn
+            stablePkgs.gh
+            stablePkgs.src-cli
+            stablePkgs.lazygit
+            stablePkgs.php83
+            stablePkgs.lua
+            stablePkgs.act
+            stablePkgs.quick-lint-js
+            stablePkgs.phpactor
+            stablePkgs.php83Packages.php-cs-fixer
+            stablePkgs.php83Packages.composer
             unstablePkgs.gopls
             unstablePkgs.pyright
             unstablePkgs.black
             unstablePkgs.isort
+            unstablePkgs.phpunit
+            stablePkgs.awscli2
+            stablePkgs.mercurial
+            stablePkgs.fontconfig
+            stablePkgs.cairo
+            stablePkgs.atk
+            stablePkgs.gdk-pixbuf
+            stablePkgs.pango
+            stablePkgs.gtk3
             unstablePkgs.typescript-language-server
             unstablePkgs.vscode-langservers-extracted
             unstablePkgs.yaml-language-server
@@ -193,17 +207,17 @@
             unstablePkgs.luajitPackages.luacheck
             unstablePkgs.tree-sitter
             unstablePkgs.efm-langserver
-            unstablePkgs.atuin
             unstablePkgs.k9s
             unstablePkgs.lspmux
             unstablePkgs.pnpm
             unstablePkgs.prometheus.cli
-            unstablePkgs.claude-code
             unstablePkgs.pre-commit
             unstablePkgs.zoxide
             unstablePkgs.okta-aws-cli
             unstablePkgs.direnv
             unstablePkgs.nix-direnv
+            rustToolchain
+            stablePkgs.llvmPackages.libclang.lib
             unstablePkgs.jjui
             unstablePkgs.delta
             apps.packages.${system}.comment-lsp
@@ -211,44 +225,55 @@
             apps.packages.${system}.jj-tools
             apps.packages.${system}.jj-snapshot
             apps.packages.${system}.snapshot-store
-            (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: { doCheck = false; }))
-          ] ++ (nixpkgs-stable.lib.optionals (system == "x86_64-linux") [
-            unstablePkgs.claude-code
-            stablePkgs.steam-run
-          ]);
+            (jj-with-lfs-support.packages.${system}.default.overrideAttrs (_: {
+              doCheck = false;
+            }))
+          ]
+          ++ (builtins.filter
+            (package: nixpkgs-stable.lib.meta.availableOn stablePkgs.stdenv.hostPlatform package)
+            [
+              unstablePkgs.claude-code
+              stablePkgs.steam-run
+            ]
+          );
+
+          makeShell =
+            packages:
+            stablePkgs.mkShell {
+              inherit packages;
+
+              LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
+
+              NIX_ENFORCE_PURITY = "";
+
+              # Disable Nix hardening flags (fortify, format, etc.) that break
+              # autoconf-based C builds like jemalloc (strerror_r detection)
+              # and format attribute checks. Not needed for a dev shell.
+              hardeningDisable = [ "all" ];
+
+              shellHook = ''
+                # For running in docker when rc files are not checked out by default
+                [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
+
+                export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
+                export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
+                export TMPPREFIX="$HOME/.cache/zsh"
+                export EDITOR=nvim
+
+                GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
+                export GIT_COMPLETION_DIR
+
+                mkdir -p $HOME/.config/github-copilot
+
+                unset TERM
+                export SHELL=${stablePkgs.zsh}/bin/zsh
+                [[ $- == *i* ]] && exec ${stablePkgs.zsh}/bin/zsh
+              '';
+            };
         in
         {
-          default = stablePkgs.mkShell {
-            packages = toInstall;
-
-            LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
-
-            NIX_ENFORCE_PURITY = "";
-
-            # Disable Nix hardening flags (fortify, format, etc.) that break
-            # autoconf-based C builds like jemalloc (strerror_r detection)
-            # and format attribute checks. Not needed for a dev shell.
-            hardeningDisable = [ "all" ];
-
-            shellHook = ''
-              # For running in docker when rc files are not checked out by default
-              [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
-
-              export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
-              export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
-              export TMPPREFIX="$HOME/.cache/zsh"
-              export EDITOR=nvim
-
-              GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
-              export GIT_COMPLETION_DIR
-
-              mkdir -p $HOME/.config/github-copilot
-
-              unset TERM
-              export SHELL=${stablePkgs.zsh}/bin/zsh
-              [[ $- == *i* ]] && exec ${stablePkgs.zsh}/bin/zsh
-            '';
-          };
+          default = makeShell (toInstallBasic ++ toInstallExtra);
+          basic = makeShell toInstallBasic;
         }
       );
     };
