@@ -1,0 +1,53 @@
+name: Sway Session
+
+on:
+  push:
+    paths:
+      - '.config/sway/**'
+      - '.config/systemd/user/**'
+      - '.local/share/bin/sway-run'
+      - 'tests/test_sway_session.py'
+      - '.github/workflows/sway-session.yml'
+  pull_request:
+    paths:
+      - '.config/sway/**'
+      - '.config/systemd/user/**'
+      - '.local/share/bin/sway-run'
+      - 'tests/test_sway_session.py'
+      - '.github/workflows/sway-session.yml'
+
+jobs:
+  test-sway-session:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start desktop container
+        run: >
+          docker run --detach --tty --name desktop
+          --privileged --cgroupns=host
+          --env container=docker
+          --volume /sys/fs/cgroup:/sys/fs/cgroup:rw
+          --volume "${PWD}:/repo:ro"
+          nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
+
+      - name: Wait for systemd to finish booting
+        run: >
+          docker exec desktop bash -c
+          'systemctl is-system-running --wait || systemctl list-units --failed --no-pager'
+
+      - name: Install pytest
+        run: docker exec desktop python3 -m pip install --quiet pytest
+
+      - name: Run session tests
+        run: docker exec desktop python3 -m pytest -v -p no:cacheprovider /repo/tests/test_sway_session.py
+
+      - name: Show sway log
+        if: failure()
+        run: docker exec desktop cat /home/swaytest/sway.log
+
+      - name: Show user units
+        if: failure()
+        run: docker exec desktop systemctl --user --machine swaytest@.host list-units --all --no-pager

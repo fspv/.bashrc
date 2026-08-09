@@ -7,9 +7,10 @@ xwayland enable
 set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
 exec_always find "/run/user/$(id -u)/sway_log" -type f -delete 2>/dev/null || true
 
-exec $log ${HOME}/.config/sway/scripts/session.sh
-
-exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
+# Push the session environment to systemd/dbus, then start the session target.
+# Services are pulled in declaratively via Wants= in sway-session.target.
+# Single chained command because the target must not start before the environment is set.
+exec $log sh -c "dbus-update-activation-environment --systemd XDG_CURRENT_DESKTOP=sway XDG_SESSION_DESKTOP=sway XDG_SESSION_TYPE=wayland DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY XCURSOR_THEME XCURSOR_SIZE GTK_IM_MODULE QT_IM_MODULE XMODIFIERS && systemctl --user reset-failed && systemctl --user start sway-session.target"
 
 # Restore saved brightness on startup (run `light -O` to save)
 exec $log light -I
@@ -36,29 +37,11 @@ exec_always {
 
 seat * xcursor_theme Adwaita 24
 
-# Start required services
-exec_always {
-    $log systemctl --user enable plasma-polkit-agent.service
-    $log systemctl --user start plasma-polkit-agent.service
-}
-
-# Stop unwanted services
-exec_always {
-    $log systemctl --user mask tracker-miner-fs-3.service
-}
-
 # Some cleanup
 exec_always {
     $log rm -rf "${HOME}/.tor project/" "${HOME}/.wine" "${HOME}/.wget-hsts" "${HOME}/.zcompdump*" "${HOME}/.local/share/tracker/"
 }
 
-# Make pipewire (camera and sound sharing) work
-exec_always {
-    $log systemctl --user start wireplumber.service
-    $log systemctl --user start xdg-desktop-portal.service
-    $log systemctl --user start xdg-desktop-portal-gtk.service
-    $log systemctl --user start xdg-desktop-portal-wlr.service
-}
 set $mod Mod4
 
 # MacOS-like keybindings
@@ -326,5 +309,3 @@ bar {
     swaybar_command .config/waybar/cmd
 }
 
-exec_always $log nm-applet --indicator
-exec_always $log blueman-applet

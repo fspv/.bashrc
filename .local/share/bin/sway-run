@@ -1,0 +1,26 @@
+#!/bin/sh
+
+export QT_QPA_PLATFORM=wayland
+export QT_QPA_PLATFORMTHEME=gtk3
+export ECORE_EVAS_ENGINE=wayland_egl
+export ELM_ENGINE=wayland_egl
+export SDL_VIDEODRIVER=wayland
+export _JAVA_AWT_WM_NONREPARENTING=1
+export MOZ_ENABLE_WAYLAND=1
+export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+
+export XDG_CURRENT_DESKTOP=sway
+
+cd
+
+sway --debug --verbose >"$HOME/sway.log" 2>&1
+
+systemctl --user start --job-mode=replace-irreversibly sway-session-shutdown.target
+systemctl --user unset-environment \
+    DISPLAY WAYLAND_DISPLAY SWAYSOCK I3SOCK XAUTHORITY \
+    XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE \
+    XCURSOR_THEME XCURSOR_SIZE GTK_IM_MODULE QT_IM_MODULE XMODIFIERS
