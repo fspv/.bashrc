@@ -7,6 +7,8 @@ xwayland enable
 set $log ${HOME}/.config/sway/scripts/log_wrapper.sh
 exec_always find "/run/user/$(id -u)/sway_log" -type f -delete 2>/dev/null || true
 
+exec $log ${HOME}/.config/sway/scripts/session.sh
+
 exec $log systemctl --user import-environment DISPLAY WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XAUTHORITY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS
 
 # Restore saved brightness on startup (run `light -O` to save)
