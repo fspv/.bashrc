@@ -24,6 +24,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # The host profile confines unix_chkpwd inside the container too,
+      # breaking PAM for user@.service. See apparmor="DENIED" in the container
+      # journal when this is missing.
+      - name: Unload host apparmor profile for unix_chkpwd
+        run: sudo apparmor_parser -R /etc/apparmor.d/unix-chkpwd
+
       - name: Start desktop container
         run: >
           docker run --detach --tty --name desktop
