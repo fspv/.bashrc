@@ -27,9 +27,8 @@ jobs:
       - name: Start desktop container
         run: >
           docker run --detach --tty --name desktop
-          --privileged --cgroupns=host
+          --privileged --cgroupns=private
           --env container=docker
-          --volume /sys/fs/cgroup:/sys/fs/cgroup:rw
           --volume "${PWD}:/repo:ro"
           nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
 
@@ -51,3 +50,10 @@ jobs:
       - name: Show user units
         if: failure()
         run: docker exec desktop systemctl --user --machine swaytest@.host list-units --all --no-pager
+
+      - name: Show system state
+        if: failure()
+        run: |
+          docker exec desktop systemctl status user@30033.service --no-pager || true
+          docker exec desktop loginctl --no-pager || true
+          docker exec desktop bash -c 'journalctl --no-pager | tail -100' || true
