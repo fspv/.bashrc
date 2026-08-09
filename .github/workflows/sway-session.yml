@@ -33,11 +33,11 @@ jobs:
           nuhotetotniksvoboden/bootc-desktop-base:latest /sbin/init
 
       # is-system-running exits nonzero for "degraded", which is normal in a
-      # container where hardware-dependent units fail
+      # container where hardware-dependent units fail, so accept it explicitly
       - name: Wait for systemd to finish booting
         run: |
           sleep 10
-          docker exec desktop systemctl is-system-running --wait || true
+          docker exec desktop bash -c "systemctl is-system-running --wait | grep --extended-regexp '^(running|degraded)$'"
 
       - name: Install pytest
         run: docker exec desktop python3 -m pip install --quiet pytest
