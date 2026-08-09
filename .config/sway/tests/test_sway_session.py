@@ -67,6 +67,37 @@ def sway_user_gsetting(schema: str, key: str) -> str:
     return run_as_sway_user(bus_address, "gsettings", "get", schema, key).stdout.strip()
 
 
+# The values not owned by the session: set by the user manager itself (HOME,
+# PATH, ...), by environment generators (XDG_DATA_DIRS) and by
+# .config/environment.d/apps.conf
+def expected_baseline_environment(user_id: int) -> dict[str, str]:
+    return {
+        "DBUS_SESSION_BUS_ADDRESS": f"unix:path=/run/user/{user_id}/bus",
+        "ECORE_EVAS_ENGINE": "wayland_egl",
+        "ELM_ENGINE": "wayland_egl",
+        "GTK_IM_MODULE": "fcitx",
+        "HOME": f"/var/home/{TEST_USER}",
+        "LANG": "en_US.UTF-8",
+        "LOGNAME": TEST_USER,
+        "MOZ_ENABLE_WAYLAND": "1",
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/bin:/var/lib/snapd/snap/bin",
+        "QT_IM_MODULE": "fcitx",
+        "QT_QPA_PLATFORM": "wayland",
+        "QT_QPA_PLATFORMTHEME": "gtk3",
+        "SDL_VIDEODRIVER": "wayland",
+        "SHELL": "/bin/bash",
+        "USER": TEST_USER,
+        "XDG_DATA_DIRS": (
+            f"/var/home/{TEST_USER}/.local/share/flatpak/exports/share"
+            ":/var/lib/flatpak/exports/share:/usr/local/share/:/usr/share/"
+            ":/var/lib/snapd/desktop"
+        ),
+        "XDG_RUNTIME_DIR": f"/run/user/{user_id}",
+        "XMODIFIERS": "@im=fcitx",
+        "_JAVA_AWT_WM_NONREPARENTING": "1",
+    }
+
+
 @pytest.fixture(scope="module")
 def sway_user_home() -> Path:
     subprocess.run(["useradd", "--no-create-home", TEST_USER], check=True)
@@ -83,7 +114,14 @@ def sway_user_home() -> Path:
 
 
 @pytest.fixture(scope="module")
-def sway_launcher(sway_user_home: Path) -> Iterator[subprocess.Popen[bytes]]:
+def environment_before_session(sway_user_home: Path) -> dict[str, str]:
+    return sway_user_manager_environment()
+
+
+@pytest.fixture(scope="module")
+def sway_launcher(
+    sway_user_home: Path, environment_before_session: dict[str, str]
+) -> Iterator[subprocess.Popen[bytes]]:
     user_id = pwd.getpwnam(TEST_USER).pw_uid
     launcher = subprocess.Popen(
         [
@@ -106,6 +144,13 @@ def sway_launcher(sway_user_home: Path) -> Iterator[subprocess.Popen[bytes]]:
     launcher.kill()
 
 
+def test_environment_before_session(
+    environment_before_session: dict[str, str],
+) -> None:
+    user_id = pwd.getpwnam(TEST_USER).pw_uid
+    assert environment_before_session == expected_baseline_environment(user_id)
+
+
 def test_session_targets_active(sway_launcher: subprocess.Popen[bytes]) -> None:
     assert sway_user_unit_is_active("sway-session.target")
     assert sway_user_unit_is_active("graphical-session.target")
@@ -116,29 +161,22 @@ def test_environment_pushed_to_user_manager(
 ) -> None:
     user_id = pwd.getpwnam(TEST_USER).pw_uid
     environment = sway_user_manager_environment()
-    assert environment["XDG_CURRENT_DESKTOP"] == "sway"
-    assert environment["XDG_SESSION_DESKTOP"] == "sway"
-    assert environment["XDG_SESSION_TYPE"] == "wayland"
-    assert environment["DISPLAY"] == ":0"
-    assert environment["WAYLAND_DISPLAY"] == "wayland-1"
-    assert Path(f"/run/user/{user_id}/wayland-1").is_socket()
+    swaysock = environment.pop("SWAYSOCK")
     assert re.fullmatch(
-        rf"/run/user/{user_id}/sway-ipc\.{user_id}\.[0-9]+\.sock",
-        environment["SWAYSOCK"],
+        rf"/run/user/{user_id}/sway-ipc\.{user_id}\.[0-9]+\.sock", swaysock
     )
-    assert Path(environment["SWAYSOCK"]).is_socket()
-    assert environment["I3SOCK"] == environment["SWAYSOCK"]
-    assert environment["XCURSOR_THEME"] == "Adwaita"
-    assert environment["XCURSOR_SIZE"] == "24"
-    # sway does not create an xauth file, so XAUTHORITY is never populated
-    assert "XAUTHORITY" not in environment
-    # the IM variables are pushed by fcitx5 itself, not by the session chain
-    wait_for(
-        lambda: sway_user_manager_environment().get("GTK_IM_MODULE") == "fcitx",
-        "GTK_IM_MODULE pushed by fcitx5",
-    )
-    assert sway_user_manager_environment()["QT_IM_MODULE"] == "fcitx"
-    assert sway_user_manager_environment()["XMODIFIERS"] == "@im=fcitx"
+    assert Path(swaysock).is_socket()
+    assert environment.pop("I3SOCK") == swaysock
+    assert Path(f"/run/user/{user_id}/wayland-1").is_socket()
+    assert environment == expected_baseline_environment(user_id) | {
+        "DISPLAY": ":0",
+        "WAYLAND_DISPLAY": "wayland-1",
+        "XCURSOR_SIZE": "24",
+        "XCURSOR_THEME": "Adwaita",
+        "XDG_CURRENT_DESKTOP": "sway",
+        "XDG_SESSION_DESKTOP": "sway",
+        "XDG_SESSION_TYPE": "wayland",
+    }
 
 
 def test_sway_ipc_responds(sway_launcher: subprocess.Popen[bytes]) -> None:
@@ -169,10 +207,16 @@ def test_wanted_services_running(sway_launcher: subprocess.Popen[bytes]) -> None
     )
     wait_for(lambda: sway_user_unit_is_active("nm-applet.service"), "nm-applet")
     wait_for(lambda: sway_user_unit_is_active("blueman-applet.service"), "blueman")
+    wait_for(lambda: sway_user_unit_is_active("dunst.service"), "dunst")
+    wait_for(lambda: sway_user_unit_is_active("fcitx5.service"), "fcitx5")
+    wait_for(
+        lambda: sway_user_unit_is_active("window-bound-layout.service"),
+        "window-bound-layout",
+    )
 
 
-# window-bound-layout is not asserted: its startup script installs a
-# virtualenv from the network, which the test container does not have
+# the window-bound-layout process is not asserted: its startup script installs
+# a virtualenv from the network, which the test container does not have
 def test_desktop_processes_running(sway_launcher: subprocess.Popen[bytes]) -> None:
     wait_for(lambda: sway_user_process_running("sway"), "sway")
     wait_for(lambda: sway_user_process_running("Xwayland"), "Xwayland")
@@ -209,9 +253,10 @@ def test_gsettings_applied(sway_launcher: subprocess.Popen[bytes]) -> None:
     assert sway_user_gsetting(interface, "monospace-font-name") == "'Ubuntu Mono 11'"
 
 
-def test_teardown_stops_session_and_clears_environment(
+def test_teardown_stops_session_and_restores_environment(
     sway_launcher: subprocess.Popen[bytes],
 ) -> None:
+    user_id = pwd.getpwnam(TEST_USER).pw_uid
     swaysock = sway_user_manager_environment()["SWAYSOCK"]
     # sway dies executing "exit" without sending the IPC reply, so the swaymsg
     # return code is meaningless
@@ -222,20 +267,14 @@ def test_teardown_stops_session_and_clears_environment(
         "graphical-session.target stopped",
     )
     assert not sway_user_unit_is_active("sway-session.target")
-    # the applets race compositor death and can end up "failed" instead of
-    # "inactive", both mean stopped
     assert not sway_user_unit_is_active("nm-applet.service")
     assert not sway_user_unit_is_active("blueman-applet.service")
-    environment = sway_user_manager_environment()
-    assert "DISPLAY" not in environment
-    assert "WAYLAND_DISPLAY" not in environment
-    assert "SWAYSOCK" not in environment
-    assert "I3SOCK" not in environment
-    assert "XAUTHORITY" not in environment
-    assert "XDG_CURRENT_DESKTOP" not in environment
-    assert "XDG_SESSION_DESKTOP" not in environment
-    assert "XDG_SESSION_TYPE" not in environment
-    assert "XCURSOR_THEME" not in environment
-    assert "XCURSOR_SIZE" not in environment
-    # the IM variables are not asserted, fcitx5 owns them and outlives the
-    # session
+    assert not sway_user_unit_is_active("dunst.service")
+    assert not sway_user_unit_is_active("fcitx5.service")
+    assert not sway_user_unit_is_active("window-bound-layout.service")
+    wait_for(
+        lambda: (
+            sway_user_manager_environment() == expected_baseline_environment(user_id)
+        ),
+        "environment restored to the pre-session baseline",
+    )

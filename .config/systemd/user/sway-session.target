@@ -12,3 +12,6 @@ Wants=xdg-desktop-portal-gtk.service
 Wants=xdg-desktop-portal-wlr.service
 Wants=nm-applet.service
 Wants=blueman-applet.service
+Wants=dunst.service
+Wants=fcitx5.service
+Wants=window-bound-layout.service

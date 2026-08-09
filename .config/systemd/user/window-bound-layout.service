@@ -1,0 +1,8 @@
+[Unit]
+Description=Window bound layout
+PartOf=graphical-session.target
+After=graphical-session-pre.target
+
+[Service]
+ExecStart=%h/.config/sway/scripts/window-bound-layout.sh
+Restart=on-failure

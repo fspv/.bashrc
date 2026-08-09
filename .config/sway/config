@@ -13,19 +13,6 @@ exec $log sh -c "dbus-update-activation-environment --systemd XDG_CURRENT_DESKTO
 # Restore saved brightness on startup (run `light -O` to save)
 exec $log light -I
 
-exec_always $log fcitx5 --replace -D --verbose 5
-
-# pkill --older spares the instance being started concurrently by the next
-# exec_always line, plain pkill races it and can kill it right after start
-exec_always pkill --older 5 -f window-bound-layout
-exec_always $log ${HOME}/.config/sway/scripts/window-bound-layout.sh
-
-exec_always pkill --older 5 -x dunst
-# xfce4-notifyd is started by dbus by default causing a race condition
-exec_always $log systemctl --user mask xfce4-notifyd.service
-exec_always $log systemctl --user stop xfce4-notifyd.service
-exec_always $log dunst -layer overlay -config ${HOME}/.dunstrc
-
 exec_always {
     $log gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
     $log gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
@@ -102,6 +89,8 @@ set $restart_pipewire $log systemctl --user start wireplumber pipewire
 # for_window [class=.*] inhibit_idle fullscreen
 for_window [app_id=.*] inhibit_idle fullscreen
 
+# pkill --older spares the instance being started concurrently by the next
+# exec_always line, plain pkill races it and can kill it right after start
 exec_always pkill --older 5 -x swayidle
 # Check ${XDG_RUNTIME_DIR}/sway_log/swayidle.log to validate this works
 exec_always $log swayidle -w -d \
