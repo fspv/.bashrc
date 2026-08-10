@@ -231,10 +231,10 @@
           ]
           ++ (builtins.filter
             (package: nixpkgs-stable.lib.meta.availableOn stablePkgs.stdenv.hostPlatform package)
-            [
-              unstablePkgs.claude-code
-              stablePkgs.steam-run
-            ]
+            (
+              [ unstablePkgs.claude-code ]
+              ++ nixpkgs-stable.lib.optional stablePkgs.stdenv.hostPlatform.isx86_64 stablePkgs.steam-run
+            )
           );
 
           makeShell =
