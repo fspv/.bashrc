@@ -16,6 +16,7 @@
     "modules-right": [
         "custom/load",
         "memory",
+        "custom/oom",
         "idle_inhibitor",
         "custom/updates",
         "network",
@@ -107,14 +108,18 @@
         "tooltip": true
     },
     "custom/load": {
-        "exec": "uptime | sed 's/.*load average: //'",
+        "exec": "cut -d' ' -f1-3 /proc/loadavg",
         "interval": 10,
         "tooltip": false
     },
     "memory": {
         "interval": 10,
-        "format": "{used:0.1f}G/{total:0.1f}G",
-        "tooltip-format": "RAM: {used:0.1f}G / {total:0.1f}G ({percentage}%)\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G"
+        "format": "{percentage}%"
+    },
+    "custom/oom": {
+        "exec": "grep oom_kill /proc/vmstat",
+        "interval": 10,
+        "tooltip": false
     },
     "custom/updates": {
         "exec": "sh -c 'count=$(cat /tmp/updates-available-cache 2>/dev/null || echo 0); if [ \"$count\" -gt 0 ]; then echo \"{\\\"text\\\": \\\"📦 $count\\\", \\\"tooltip\\\": \\\"$count updates available\\\", \\\"class\\\": \\\"updates\\\"}\"; else echo \"{\\\"text\\\": \\\"\\\", \\\"tooltip\\\": \\\"System up to date\\\"}\"; fi'",
