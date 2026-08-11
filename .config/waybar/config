@@ -108,12 +108,12 @@
         "tooltip": true
     },
     "cpu": {
-        "format": "LA: {load:0.0f}",
+        "format": "{load:0.0f}",
         "interval": 30
     },
     "memory": {
         "interval": 30,
-        "format": "MEM: {percentage}%",
+        "format": "{percentage}%",
         "tooltip-format": "Used: {used:0.1f}G / {total:0.1f}G\nSwap: {swapUsed:0.1f}G / {swapTotal:0.1f}G"
     },
     "custom/oom": {
