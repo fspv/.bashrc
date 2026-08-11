@@ -339,6 +339,7 @@ label:focus {
 }
 
 #custom-load,
+#custom-memory,
 #custom-oom {
     padding: 0 10px;
 }
