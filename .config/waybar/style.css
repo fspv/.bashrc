@@ -337,3 +337,9 @@ label:focus {
 #language {
     margin: 0 0px;
 }
+
+#custom-load {
+    background-color: #2ecc71;  /* Same as cpu */
+    color: #000000;
+    padding: 0 10px;
+}
