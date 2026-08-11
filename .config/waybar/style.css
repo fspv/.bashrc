@@ -337,3 +337,7 @@ label:focus {
 #language {
     margin: 0 0px;
 }
+
+#custom-oom {
+    padding: 0 10px;
+}
