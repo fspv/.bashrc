@@ -339,13 +339,13 @@ label:focus {
 }
 
 #custom-load {
-    background-color: #2ecc71;  /* Same as cpu */
+    background-color: #2ecc71;
     color: #000000;
     padding: 0 10px;
 }
 
 #custom-oom {
-    background-color: #f0932b;  /* Same as temperature */
+    background-color: #f0932b;
     color: #000000;
     padding: 0 10px;
 }
