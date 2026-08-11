@@ -338,14 +338,7 @@ label:focus {
     margin: 0 0px;
 }
 
-#custom-load {
-    background-color: #2ecc71;
-    color: #000000;
-    padding: 0 10px;
-}
-
+#custom-load,
 #custom-oom {
-    background-color: #f0932b;
-    color: #000000;
     padding: 0 10px;
 }
