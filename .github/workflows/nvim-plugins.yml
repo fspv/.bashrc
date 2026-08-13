@@ -12,13 +12,21 @@ on:
     paths:
       - '.config/nvim/**'
 
+permissions:
+  contents: read
+
 jobs:
   nvim-smoke-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Build test container
         run: |
@@ -56,7 +64,7 @@ jobs:
 
       - name: Post failure logs
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const fs = require('fs');

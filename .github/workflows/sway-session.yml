@@ -12,13 +12,18 @@ on:
       - '.config/systemd/user/**'
       - '.github/workflows/sway-session.yml'
 
+permissions:
+  contents: read
+
 jobs:
   test-sway-session:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       # The host profile leaks into the container and breaks PAM for user@.service
       - name: Unload host apparmor profile for unix_chkpwd
