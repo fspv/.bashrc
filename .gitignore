@@ -46,6 +46,9 @@ backup
 !.config/flake8
 !.config/flameshot
 !.config/git
+!.config/github-copilot
+.config/github-copilot/*
+!.config/github-copilot/.gitkeep
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
