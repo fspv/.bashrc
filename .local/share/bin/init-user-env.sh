@@ -17,7 +17,7 @@ if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
     fi
 fi
 
-if [[ ! -v GITHUB_ACTIONS ]] && test -f /.dockerenv; then
+if [[ -z "${GITHUB_ACTIONS:-}" ]] && test -f /.dockerenv; then
   exit 0
 fi
 
