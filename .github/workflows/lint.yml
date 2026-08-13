@@ -43,3 +43,34 @@ jobs:
 
       - name: Run luacheck
         run: luacheck .
+
+  lua-language-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install lua-language-server
+        run: |
+          sudo mkdir -p /opt/lua-language-server
+          curl -sSL \
+            "https://github.com/LuaLS/lua-language-server/releases/download/3.19.1/lua-language-server-3.19.1-linux-x64.tar.gz" \
+            | sudo tar -xz -C /opt/lua-language-server
+
+      - name: Write luarc
+        run: |
+          echo '{ "runtime.version": "LuaJIT", "diagnostics.globals": ["vim"] }' > /tmp/luarc.json
+
+      - name: Check own config, leaving the vendored plugins alone
+        run: |
+          /opt/lua-language-server/bin/lua-language-server \
+            --check "$PWD/.config/nvim/lua" \
+            --checklevel=Error \
+            --configpath=/tmp/luarc.json \
+            --logpath=/tmp/lua-language-server-log
+          /opt/lua-language-server/bin/lua-language-server \
+            --check "$PWD/.config/nvim/after" \
+            --checklevel=Error \
+            --configpath=/tmp/luarc.json \
+            --logpath=/tmp/lua-language-server-log
