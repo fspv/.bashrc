@@ -61,6 +61,30 @@ jobs:
       - name: Test zsh
         run: |
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+  build-macos-arm64:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: taiki-e/checkout-action@v1
+      - name: Set up Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Init user env
+        # macOS ships bash 3.2 which can't run these scripts, so use bash from nix
+        run: |
+          nix-shell -p bash --run ./.local/share/bin/init-nix.sh
+          nix-shell -p bash --run ./.local/share/bin/init-user-env.sh
+      - name: Build nix develop environment
+        run: |
+          nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
+      - name: Test bash
+        run: |
+          nix develop --ignore-environment --keep HOME --command bash -c 'echo hello'
+      - name: Test zsh
+        run: |
+          nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
   build-ubuntu-24-04-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
