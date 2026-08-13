@@ -17,8 +17,6 @@ on:
       - 'requirements.txt'
       - 'requirements-dev.txt'
       - '.github/workflows/dependency-audit.yml'
-  # Advisories are published against dependencies that have not changed, so the
-  # scan has to run on a timer as well as on push.
   schedule:
     - cron: '19 9 * * 5'
 

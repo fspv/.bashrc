@@ -1,8 +1,5 @@
 name: Nix Audit
 
-# The flake is deliberately unlocked, so there is no manifest to diff against.
-# Instead the dev shell is realised and its store closure is scanned, which
-# reports whatever `nix develop` resolves to today.
 on:
   schedule:
     - cron: '19 9 * * 5'
