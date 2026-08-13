@@ -43,6 +43,10 @@
       url = "github:Aloxaf/fzf-tab";
       flake = false;
     };
+    tmux-autoreload = {
+      url = "github:b0o/tmux-autoreload";
+      flake = false;
+    };
   };
 
   outputs =
@@ -60,6 +64,7 @@
       forgit,
       you-should-use,
       fzf-tab,
+      tmux-autoreload,
     }:
     let
       supportedSystems = [
@@ -203,6 +208,8 @@
             stablePkgs.eternal-terminal
             unstablePkgs.tmux
             unstablePkgs.tmux.man
+            # Watcher used by tmux-autoreload
+            stablePkgs.entr
             unstablePkgs.neovim
             unstablePkgs.vimPlugins.lazy-nvim
             unstablePkgs.atuin
@@ -308,6 +315,10 @@
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
                 export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
+                export TMUX_PLUGIN_SENSIBLE=${unstablePkgs.tmuxPlugins.sensible.rtp}
+                export TMUX_PLUGIN_RESURRECT=${unstablePkgs.tmuxPlugins.resurrect.rtp}
+                export TMUX_PLUGIN_SIDEBAR=${unstablePkgs.tmuxPlugins.sidebar.rtp}
+                export TMUX_PLUGIN_AUTORELOAD=${tmux-autoreload}/tmux-autoreload.tmux
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim
 
