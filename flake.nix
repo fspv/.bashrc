@@ -169,7 +169,6 @@
             stablePkgs.kubectl
             stablePkgs.kubectl.man
             stablePkgs.minikube
-            stablePkgs.krew
             stablePkgs.kubelogin-oidc
             stablePkgs.kubie
             stablePkgs.nodejs_22
