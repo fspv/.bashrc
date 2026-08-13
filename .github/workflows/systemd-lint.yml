@@ -1,0 +1,39 @@
+name: Systemd Lint
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.config/systemd/**'
+      - '.github/workflows/systemd-lint.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.config/systemd/**'
+      - '.github/workflows/systemd-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  systemd-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Verify user units, ignoring what the runner does not have installed
+        run: |
+          XDG_RUNTIME_DIR=$(mktemp -d)
+          export XDG_RUNTIME_DIR
+
+          git ls-files '.config/systemd/user/*.service' '.config/systemd/user/*.timer' '.config/systemd/user/*.target' \
+            | xargs systemd-analyze verify --user 2>&1 \
+            | grep -vE "Failed to connect to system bus|is not executable|not found\.$|is masked\.$" \
+            | tee /tmp/systemd-verify.log
+
+          test ! -s /tmp/systemd-verify.log
