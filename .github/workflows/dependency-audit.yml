@@ -1,0 +1,45 @@
+name: Dependency Audit
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/Cargo.lock'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
+      - '.github/workflows/dependency-audit.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'apps/Cargo.lock'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
+      - '.github/workflows/dependency-audit.yml'
+  # Advisories are published against dependencies that have not changed, so the
+  # scan has to run on a timer as well as on push.
+  schedule:
+    - cron: '19 9 * * 5'
+
+permissions:
+  contents: read
+
+jobs:
+  osv-scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install osv-scanner
+        run: |
+          curl -sSL -o /tmp/osv-scanner \
+            "https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64"
+          chmod +x /tmp/osv-scanner
+          sudo mv /tmp/osv-scanner /usr/local/bin/
+
+      - name: Scan lockfiles
+        run: osv-scanner scan source --recursive .
