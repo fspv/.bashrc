@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: taiki-e/checkout-action@v1
       - name: Set up Nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: taiki-e/checkout-action@v1
       - name: Set up Nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
@@ -67,7 +67,6 @@ jobs:
       - name: Checkout repository
         uses: taiki-e/checkout-action@v1
       - name: Set up Nix
-        # v27 ships a Nix installer which uses UIDs reserved by macOS 15
         uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
@@ -93,7 +92,7 @@ jobs:
       - name: Checkout repository
         uses: taiki-e/checkout-action@v1
       - name: Set up Nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
