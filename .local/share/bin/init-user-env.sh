@@ -3,13 +3,14 @@
 set -uex
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
-chmod 700 "${HOME}/.ssh"
-chmod 700 "${HOME}/.cache"
-chmod 700 "${HOME}/.local"
+chmod 700 "${DOTFILES_DIR}/.ssh"
+chmod 700 "${DOTFILES_DIR}/.cache"
+chmod 700 "${DOTFILES_DIR}/.local"
 
 if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
-    chmod 700 "${HOME}/.config/docker-user"
+    chmod 700 "${DOTFILES_DIR}/.config/docker-user"
 
     if command -v loginctl &>/dev/null; then
         loginctl enable-linger "$(id -un)" 2>/dev/null || true
@@ -40,7 +41,6 @@ fi
 "${SCRIPT_DIR}/init-nix.sh"
 
 # Install pre-commit hooks if in the dotfiles repo
-DOTFILES_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 if [[ -f "${DOTFILES_DIR}/.pre-commit-config.yaml" ]] && command -v pre-commit &>/dev/null; then
   bash -c "cd ${DOTFILES_DIR} && pre-commit install"
 fi
