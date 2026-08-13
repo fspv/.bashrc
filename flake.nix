@@ -156,8 +156,6 @@
             stablePkgs.whois
             stablePkgs.sqlite
             stablePkgs.eternal-terminal
-            stablePkgs.bubblewrap
-            stablePkgs.nsjail
             unstablePkgs.tmux
             unstablePkgs.tmux.man
             unstablePkgs.neovim
@@ -232,7 +230,13 @@
           ++ (builtins.filter
             (package: nixpkgs-stable.lib.meta.availableOn stablePkgs.stdenv.hostPlatform package)
             (
-              [ unstablePkgs.claude-code ]
+              [
+                stablePkgs.bubblewrap
+                stablePkgs.nsjail
+                (unstablePkgs.claude-code.overrideAttrs (_: {
+                  doInstallCheck = false;
+                }))
+              ]
               ++ nixpkgs-stable.lib.optional stablePkgs.stdenv.hostPlatform.isx86_64 stablePkgs.steam-run
             )
           );
