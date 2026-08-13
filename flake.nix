@@ -15,6 +15,34 @@
       url = "path:./apps";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
     };
+    zsh-autosuggestions = {
+      url = "github:zsh-users/zsh-autosuggestions";
+      flake = false;
+    };
+    zsh-syntax-highlighting = {
+      url = "github:zsh-users/zsh-syntax-highlighting";
+      flake = false;
+    };
+    powerlevel10k = {
+      url = "github:romkatv/powerlevel10k";
+      flake = false;
+    };
+    zsh-vi-mode = {
+      url = "github:jeffreytse/zsh-vi-mode";
+      flake = false;
+    };
+    forgit = {
+      url = "github:wfxr/forgit";
+      flake = false;
+    };
+    you-should-use = {
+      url = "github:MichaelAquilina/zsh-you-should-use";
+      flake = false;
+    };
+    fzf-tab = {
+      url = "github:Aloxaf/fzf-tab";
+      flake = false;
+    };
   };
 
   outputs =
@@ -25,6 +53,13 @@
       rust-overlay,
       jj-with-lfs-support,
       apps,
+      zsh-autosuggestions,
+      zsh-syntax-highlighting,
+      powerlevel10k,
+      zsh-vi-mode,
+      forgit,
+      you-should-use,
+      fzf-tab,
     }:
     let
       supportedSystems = [
@@ -55,6 +90,16 @@
               "rust-src"
               "rust-analyzer"
             ];
+          };
+
+          zshCustom = stablePkgs.linkFarm "oh-my-zsh-custom" {
+            "plugins/zsh-autosuggestions" = zsh-autosuggestions;
+            "plugins/zsh-syntax-highlighting" = zsh-syntax-highlighting;
+            "themes/powerlevel10k" = powerlevel10k;
+            "plugins/zsh-vi-mode" = zsh-vi-mode;
+            "plugins/forgit" = forgit;
+            "plugins/you-should-use" = you-should-use;
+            "plugins/fzf-tab" = fzf-tab;
           };
 
           toInstallBasic = [
@@ -261,6 +306,8 @@
                 [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
 
                 export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
+                export ZSH_CUSTOM=${zshCustom}
+                export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
                 export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim
