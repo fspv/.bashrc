@@ -72,11 +72,9 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Init user env
-        # macOS ships bash 3.2 which can't run init-user-env.sh, so use bash
-        # from nix for it, available after init-nix.sh sets up the channel
         run: |
           ./.local/share/bin/init-nix.sh
-          nix-shell -p bash --run ./.local/share/bin/init-user-env.sh
+          ./.local/share/bin/init-user-env.sh
       - name: Build nix develop environment
         run: |
           nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
