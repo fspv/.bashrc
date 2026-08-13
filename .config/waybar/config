@@ -80,7 +80,7 @@
     "custom/blueberry": {
         "format": "󰂯",
         "tooltip": "Bluetooth Settings",
-        "on-click": "nix-shell -E 'with import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-25.05.tar.gz\") {}; mkShell { buildInputs = [ blueberry ]; }' --run blueberry"
+        "on-click": "nix-shell -E 'with import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-26.05.tar.gz\") {}; mkShell { buildInputs = [ blueberry ]; }' --run blueberry"
     },
     "backlight": {
         "device": "intel_backlight",
