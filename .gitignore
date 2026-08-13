@@ -46,6 +46,7 @@ backup
 !.config/flake8
 !.config/flameshot
 !.config/git
+!.config/gitleaks
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
