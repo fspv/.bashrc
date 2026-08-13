@@ -97,6 +97,13 @@
             ];
           };
 
+          tmuxPluginsDir = stablePkgs.linkFarm "tmux-plugins" {
+            sensible = builtins.dirOf unstablePkgs.tmuxPlugins.sensible.rtp;
+            resurrect = builtins.dirOf unstablePkgs.tmuxPlugins.resurrect.rtp;
+            sidebar = builtins.dirOf unstablePkgs.tmuxPlugins.sidebar.rtp;
+            autoreload = tmux-autoreload;
+          };
+
           zshCustom = stablePkgs.linkFarm "oh-my-zsh-custom" {
             "plugins/zsh-autosuggestions" = zsh-autosuggestions;
             "plugins/zsh-syntax-highlighting" = zsh-syntax-highlighting;
@@ -315,10 +322,7 @@
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
                 export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
-                export TMUX_PLUGIN_SENSIBLE=${unstablePkgs.tmuxPlugins.sensible.rtp}
-                export TMUX_PLUGIN_RESURRECT=${unstablePkgs.tmuxPlugins.resurrect.rtp}
-                export TMUX_PLUGIN_SIDEBAR=${unstablePkgs.tmuxPlugins.sidebar.rtp}
-                export TMUX_PLUGIN_AUTORELOAD=${tmux-autoreload}/tmux-autoreload.tmux
+                export TMUX_PLUGINS=${tmuxPluginsDir}
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim
 
