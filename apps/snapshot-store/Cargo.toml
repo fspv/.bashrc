@@ -2,6 +2,7 @@
 name = "snapshot-store"
 version.workspace = true
 edition.workspace = true
+publish = false
 
 [lib]
 name = "snapshot_store"

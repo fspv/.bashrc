@@ -1,0 +1,42 @@
+name: Cargo Deny
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/**/Cargo.toml'
+      - 'apps/Cargo.lock'
+      - 'apps/deny.toml'
+      - '.github/workflows/cargo-deny.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'apps/**/Cargo.toml'
+      - 'apps/Cargo.lock'
+      - 'apps/deny.toml'
+      - '.github/workflows/cargo-deny.yml'
+  schedule:
+    - cron: '19 9 * * 5'
+
+permissions:
+  contents: read
+
+jobs:
+  cargo-deny:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --locked
+
+      - name: Check advisories, bans, licenses and sources
+        run: cargo deny check
