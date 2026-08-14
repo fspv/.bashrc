@@ -51,7 +51,6 @@
 
   outputs =
     {
-      self,
       nixpkgs-stable,
       nixpkgs-unstable,
       rust-overlay,
