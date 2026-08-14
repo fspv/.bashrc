@@ -3,7 +3,6 @@ useDefault = true
 
 [[allowlists]]
 description = "git object ids in neovim plugin pins are not sourcegraph tokens"
-targetRules = ["sourcegraph-access-token"]
 condition = "AND"
 paths = [
   '''\.config/nvim/lazy-lock\.json$''',

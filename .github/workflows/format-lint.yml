@@ -30,7 +30,7 @@ jobs:
         run: pipx install yamllint
 
       - name: Run yamllint
-        run: git ls-files '*.yml' '*.yaml' | xargs yamllint -c .config/yamllint/config.yaml
+        run: export PATH="$(pipx environment --value PIPX_BIN_DIR):$PATH"; git ls-files '*.yml' '*.yaml' | xargs yamllint -c .config/yamllint/config.yaml
 
   taplo:
     runs-on: ubuntu-latest

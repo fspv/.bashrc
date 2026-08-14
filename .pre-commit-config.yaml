@@ -84,12 +84,12 @@ repos:
         always_run: true
         entry: .local/share/bin/act-staged -W .github/workflows/python-lint.yml
 
-      - id: act-secret-scan
-        name: act / secret-scan.yml
+      - id: gitleaks
+        name: gitleaks
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/secret-scan.yml
+        entry: nix-shell --pure -p gitleaks git --run 'gitleaks git . --config .config/gitleaks/gitleaks.toml --redact --no-banner --log-opts=HEAD'
 
       - id: act-sway-config
         name: act / sway-config.yml
