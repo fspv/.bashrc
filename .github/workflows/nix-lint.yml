@@ -35,5 +35,5 @@ jobs:
           nix run nixpkgs#statix -- check flake.nix
           nix run nixpkgs#statix -- check apps/flake.nix
 
-      - name: Run deadnix
-        run: nix run nixpkgs#deadnix -- --fail flake.nix apps/flake.nix
+      - name: Run deadnix, whose lambda check does not understand flake outputs
+        run: nix run nixpkgs#deadnix -- --fail --no-lambda-pattern-names flake.nix apps/flake.nix
