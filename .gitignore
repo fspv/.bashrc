@@ -42,6 +42,7 @@ backup
 !.config/containers
 !.config/direnv
 !.config/dunst
+!.config/editorconfig-checker
 !.config/environment.d
 !.config/flake8
 !.config/flameshot
@@ -74,6 +75,7 @@ backup
 !.config/vim
 !.config/waybar
 !.config/wezterm
+!.config/yamllint
 .continue
 .cups
 .cursor
