@@ -1,0 +1,57 @@
+name: Systemd Lint
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.config/systemd/**'
+      - '.github/workflows/systemd-lint.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.config/systemd/**'
+      - '.github/workflows/systemd-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  systemd-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Add the nvidia container toolkit repository
+        run: |
+          curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+            | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+          curl -fsSL https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
+            | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+            | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+      - name: Install the programs the units start
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            fcitx5 \
+            network-manager-gnome \
+            nix-bin \
+            nvidia-container-toolkit-base \
+            podman
+
+      - name: Verify user units
+        env:
+          # %h has to resolve to the checkout, since the units start scripts
+          # that live in this repository.
+          HOME: ${{ github.workspace }}
+        run: |
+          XDG_RUNTIME_DIR=$(mktemp -d)
+          export XDG_RUNTIME_DIR
+
+          find .config/systemd/user -maxdepth 1 -type f \( -name '*.service' -o -name '*.timer' -o -name '*.target' \) \
+            -exec systemd-analyze verify --user {} +

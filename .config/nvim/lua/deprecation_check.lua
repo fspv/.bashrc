@@ -5,6 +5,7 @@
 local recorded = {}
 
 local original_deprecate = vim.deprecate
+---@diagnostic disable-next-line: duplicate-set-field
 vim.deprecate = function(name, alternative, version, plugin, backtrace)
   table.insert(recorded, {
     name = name,

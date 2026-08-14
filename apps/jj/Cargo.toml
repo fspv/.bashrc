@@ -2,6 +2,7 @@
 name = "jj"
 version.workspace = true
 edition.workspace = true
+publish = false
 
 [lints]
 workspace = true

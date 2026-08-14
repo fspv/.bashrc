@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "git object ids in neovim plugin pins are not sourcegraph tokens"
+targetRules = ["sourcegraph-access-token"]
+condition = "AND"
+paths = [
+  '''\.config/nvim/lazy-lock\.json$''',
+  '''\.config/nvim/lua/config\.lua$''',
+]
+regexTarget = "secret"
+regexes = ['''^[0-9a-f]{40}$''']

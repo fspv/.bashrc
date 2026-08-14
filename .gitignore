@@ -42,6 +42,7 @@ backup
 !.config/containers
 !.config/direnv
 !.config/dunst
+!.config/editorconfig-checker
 !.config/environment.d
 !.config/flake8
 !.config/flameshot
@@ -49,6 +50,7 @@ backup
 !.config/github-copilot
 .config/github-copilot/*
 !.config/github-copilot/.gitkeep
+!.config/gitleaks
 !.config/gtk-3.0/settings.ini
 !.config/i3
 !.config/i3status
@@ -71,11 +73,13 @@ backup
 !.config/sway
 !.config/swaylock
 !.config/systemd
+!.config/taplo
 !.config/terminator
 !.config/tmux
 !.config/vim
 !.config/waybar
 !.config/wezterm
+!.config/yamllint
 .continue
 .cups
 .cursor

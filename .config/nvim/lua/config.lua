@@ -57,7 +57,7 @@ vim.cmd([[
 -- Remove old log file
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
-    local log_path = vim.lsp.get_log_path()
+    local log_path = vim.lsp.log.get_filename()
 
     -- Check if log file exists and remove it
     local file = io.open(log_path, "r")
@@ -429,7 +429,7 @@ require("lazy").setup({
             -- this is needed because the plugin initializes lsp on its own
             require("plugins_config/lsp_conf").on_attach_func(client, bufnr)
 
-            if client.supports_method("textDocument/formatting") then
+            if client:supports_method("textDocument/formatting") then
               vim.api.nvim_create_autocmd("BufWritePre", {
                 buffer = bufnr,
                 callback = function()
@@ -833,4 +833,4 @@ vim.g.clipboard = {
 pcall(require, "plugins_config_manual/config") -- Best effort
 
 -- Native document highlight (replaces vim-illuminate)
-require("plugins_config.document_highlight").setup()
+require("plugins_config/document_highlight").setup()

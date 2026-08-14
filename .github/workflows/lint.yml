@@ -14,11 +14,16 @@ on:
       - '*.md'
       - '**/*.md'
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Install stylua
         run: |
@@ -38,3 +43,53 @@ jobs:
 
       - name: Run luacheck
         run: luacheck .
+
+  lua-language-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install lua-language-server
+        run: |
+          sudo mkdir -p /opt/lua-language-server
+          version=$(basename "$(curl -sSL -o /dev/null -w '%{url_effective}' \
+            https://github.com/LuaLS/lua-language-server/releases/latest)")
+          curl -sSL \
+            "https://github.com/LuaLS/lua-language-server/releases/download/${version}/lua-language-server-${version}-linux-x64.tar.gz" \
+            | sudo tar -xz -C /opt/lua-language-server
+
+      - name: Install the libraries the config is written against
+        run: |
+          sudo mkdir -p /opt/nvim /opt/telescope.nvim
+          curl -sSL \
+            "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-$(uname -m).tar.gz" \
+            | sudo tar -xz -C /opt/nvim --strip-components=1
+          sudo git clone --depth=1 https://github.com/nvim-telescope/telescope.nvim.git /opt/telescope.nvim
+
+      - name: Write luarc
+        run: |
+          cat > /tmp/luarc.json <<'JSON'
+          {
+            "runtime.version": "LuaJIT",
+            "diagnostics.globals": ["vim", "MiniIcons"],
+            "workspace.library": [
+              "/opt/nvim/share/nvim/runtime/lua",
+              "/opt/telescope.nvim/lua"
+            ]
+          }
+          JSON
+
+      - name: Check own config, leaving the vendored plugins alone
+        run: |
+          /opt/lua-language-server/bin/lua-language-server \
+            --check "$PWD/.config/nvim/lua" \
+            --checklevel=Warning \
+            --configpath=/tmp/luarc.json \
+            --logpath=/tmp/lua-language-server-log
+          /opt/lua-language-server/bin/lua-language-server \
+            --check "$PWD/.config/nvim/after" \
+            --checklevel=Warning \
+            --configpath=/tmp/luarc.json \
+            --logpath=/tmp/lua-language-server-log

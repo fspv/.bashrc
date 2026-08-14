@@ -21,6 +21,34 @@ repos:
         pass_filenames: false
         entry: env NIX_ENFORCE_PURITY=0 cargo test --manifest-path apps/Cargo.toml
 
+      - id: act-actionlint
+        name: act / actionlint.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/actionlint.yml
+
+      - id: act-actions-security
+        name: act / actions-security.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/actions-security.yml
+
+      - id: act-dependency-audit
+        name: act / dependency-audit.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/dependency-audit.yml
+
+      - id: act-format-lint
+        name: act / format-lint.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/format-lint.yml
+
       - id: act-lint
         name: act / lint.yml
         language: system
@@ -56,9 +84,23 @@ repos:
         always_run: true
         entry: act -W .github/workflows/python-lint.yml
 
+      - id: act-secret-scan
+        name: act / secret-scan.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/secret-scan.yml
+
       - id: act-sway-config
         name: act / sway-config.yml
         language: system
         pass_filenames: false
         always_run: true
         entry: act -W .github/workflows/sway-config.yml
+
+      - id: act-systemd-lint
+        name: act / systemd-lint.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: act -W .github/workflows/systemd-lint.yml

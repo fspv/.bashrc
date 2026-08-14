@@ -35,7 +35,7 @@ local s = require("lazy").stats()
 print(string.format("OK: %d/%d plugins loaded", s.loaded, s.count))
 
 -- Check treesitter parsers (list comes from treesitter_conf)
-local ts = require("plugins_config.treesitter_conf")
+local ts = require("plugins_config/treesitter_conf")
 
 -- Wait for async parser installs (up to 120s)
 vim.wait(120000, function()
