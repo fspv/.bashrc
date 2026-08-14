@@ -277,6 +277,13 @@
             stablePkgs.llvmPackages.libclang.lib
             unstablePkgs.jjui
             unstablePkgs.delta
+            (unstablePkgs.google-cloud-sdk.withExtraComponents (
+              with unstablePkgs.google-cloud-sdk.components;
+              [
+                gke-gcloud-auth-plugin
+                kubectl-oidc
+              ]
+            ))
             apps.packages.${system}.comment-lsp
             apps.packages.${system}.jjui-tools
             apps.packages.${system}.jj-tools
