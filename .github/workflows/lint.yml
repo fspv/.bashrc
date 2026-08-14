@@ -85,11 +85,11 @@ jobs:
         run: |
           /opt/lua-language-server/bin/lua-language-server \
             --check "$PWD/.config/nvim/lua" \
-            --checklevel=Error \
+            --checklevel=Warning \
             --configpath=/tmp/luarc.json \
             --logpath=/tmp/lua-language-server-log
           /opt/lua-language-server/bin/lua-language-server \
             --check "$PWD/.config/nvim/after" \
-            --checklevel=Error \
+            --checklevel=Warning \
             --configpath=/tmp/luarc.json \
             --logpath=/tmp/lua-language-server-log

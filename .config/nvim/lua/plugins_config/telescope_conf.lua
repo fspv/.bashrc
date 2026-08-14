@@ -27,9 +27,9 @@ local function make_go_up_one_dir(reopen_fn)
 
     -- Get the current cwd from the picker
     -- (file_browser stores it in finder.cwd)
-    local current_cwd = picker.cwd
-      or (picker.finder and picker.finder.cwd)
-      or vim.loop.cwd()
+    local current_cwd = assert(
+      picker.cwd or (picker.finder and picker.finder.cwd) or vim.loop.cwd()
+    )
 
     -- Don't go above root
     if current_cwd == "/" then
@@ -91,7 +91,7 @@ end
 --- 3. Files from currently open and listed buffers.
 --- 4. Files in the same directory as the current buffer.
 ---
----@param opts? telescope.PickerConfig Optional Telescope configuration to pass
+---@param opts? table Optional Telescope configuration to pass
 ---to the picker.
 local function recent_and_modified_files(opts)
   opts = opts or {}
