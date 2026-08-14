@@ -54,13 +54,32 @@ jobs:
       - name: Install lua-language-server
         run: |
           sudo mkdir -p /opt/lua-language-server
+          version=$(basename "$(curl -sSL -o /dev/null -w '%{url_effective}' \
+            https://github.com/LuaLS/lua-language-server/releases/latest)")
           curl -sSL \
-            "https://github.com/LuaLS/lua-language-server/releases/download/3.19.1/lua-language-server-3.19.1-linux-x64.tar.gz" \
+            "https://github.com/LuaLS/lua-language-server/releases/download/${version}/lua-language-server-${version}-linux-x64.tar.gz" \
             | sudo tar -xz -C /opt/lua-language-server
+
+      - name: Install the libraries the config is written against
+        run: |
+          sudo mkdir -p /opt/nvim /opt/telescope.nvim
+          curl -sSL \
+            "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-$(uname -m).tar.gz" \
+            | sudo tar -xz -C /opt/nvim --strip-components=1
+          sudo git clone --depth=1 https://github.com/nvim-telescope/telescope.nvim.git /opt/telescope.nvim
 
       - name: Write luarc
         run: |
-          echo '{ "runtime.version": "LuaJIT", "diagnostics.globals": ["vim"] }' > /tmp/luarc.json
+          cat > /tmp/luarc.json <<'JSON'
+          {
+            "runtime.version": "LuaJIT",
+            "diagnostics.globals": ["vim", "MiniIcons"],
+            "workspace.library": [
+              "/opt/nvim/share/nvim/runtime/lua",
+              "/opt/telescope.nvim/lua"
+            ]
+          }
+          JSON
 
       - name: Check own config, leaving the vendored plugins alone
         run: |
