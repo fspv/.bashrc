@@ -44,6 +44,14 @@ jobs:
         uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
         with:
           languages: ${{ matrix.language }}
+          # Everything except the rust workspace lives under a dot directory,
+          # which the extractors skip unless they are named.
+          config: |
+            paths:
+              - .config
+              - .github
+              - .local
+              - apps
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
