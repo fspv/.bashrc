@@ -47,6 +47,9 @@ backup
 !.config/flake8
 !.config/flameshot
 !.config/git
+!.config/github-copilot
+.config/github-copilot/*
+!.config/github-copilot/.gitkeep
 !.config/gitleaks
 !.config/gtk-3.0/settings.ini
 !.config/i3
@@ -70,6 +73,7 @@ backup
 !.config/sway
 !.config/swaylock
 !.config/systemd
+!.config/taplo
 !.config/terminator
 !.config/tmux
 !.config/vim

@@ -328,8 +328,6 @@
                 GIT_COMPLETION_DIR=${stablePkgs.git}/share/git/contrib/completion
                 export GIT_COMPLETION_DIR
 
-                mkdir -p $HOME/.config/github-copilot
-
                 unset TERM
                 export SHELL=${stablePkgs.zsh}/bin/zsh
                 [[ $- == *i* ]] && exec ${stablePkgs.zsh}/bin/zsh

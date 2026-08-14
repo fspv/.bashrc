@@ -49,7 +49,7 @@ jobs:
           sudo chmod +x /usr/local/bin/taplo
 
       - name: Run taplo
-        run: git ls-files '*.toml' | xargs taplo lint --no-schema
+        run: git ls-files '*.toml' | xargs taplo lint --config .config/taplo/taplo.toml
 
   editorconfig-checker:
     runs-on: ubuntu-latest
