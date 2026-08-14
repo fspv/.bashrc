@@ -26,6 +26,8 @@ jobs:
 
       - name: Install actionlint
         run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
           version=$(basename "$(curl -sSL -o /dev/null -w '%{url_effective}' \
             https://github.com/rhysd/actionlint/releases/latest)")
           curl -sSL \
