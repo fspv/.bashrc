@@ -43,18 +43,18 @@ class LayoutCache:
     Also makes a code for saving/restoring layout a bit more readable
     """
 
-    _cache: ClassVar[dict[int, dict[str, int]]] = {}
+    _cache: ClassVar[dict[int, int]] = {}
 
     @log_params_and_output
     def has_saved(self, window_id: int) -> bool:
         return window_id in self._cache
 
     @log_params_and_output
-    def save(self, window_id: int, layout: dict[str, int]) -> None:
+    def save(self, window_id: int, layout: int) -> None:
         self._cache[window_id] = layout
 
     @log_params_and_output
-    def retrieve(self, window_id: int) -> dict[str, int]:
+    def retrieve(self, window_id: int) -> int:
         return self._cache[window_id]
 
     @log_params_and_output
@@ -64,25 +64,29 @@ class LayoutCache:
 
 
 @log_params_and_output
-def current_layout(ipc: i3ipc.Connection) -> dict[str, int]:
+def current_layout(ipc: i3ipc.Connection) -> int:
     """
     Just get a current global layout and return it
     """
 
-    layouts: dict[str, int] = {}
-    for ipc_input in ipc.get_inputs():
-        layouts[ipc_input.identifier] = ipc_input.xkb_active_layout_index
+    layout_index: int = next(
+        ipc_input.xkb_active_layout_index
+        for ipc_input in ipc.get_inputs()
+        # Any keyboard works: they all share one layout group
+        if ipc_input.type == "keyboard"
+        # Except virtual ones (fcitx5): they have own single-layout keymaps
+        and ipc_input.identifier != "0:0:wlr_virtual_keyboard_v1"
+    )
 
-    return layouts
+    return layout_index
 
 
 @log_params_and_output
-def restore_layout(ipc: i3ipc.Connection, layout: dict[str, int]) -> None:
+def restore_layout(ipc: i3ipc.Connection, layout: int) -> None:
     """
     Sets global layout, provided in the argument
     """
-    for input_id, layout_index in layout.items():
-        ipc.command(f'input "{input_id}" xkb_switch_layout {layout_index}')
+    ipc.command(f"input type:keyboard xkb_switch_layout {layout}")
 
 
 @log_params_and_output

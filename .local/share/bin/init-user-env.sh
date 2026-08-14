@@ -30,6 +30,10 @@ then
     flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
 
     flatpak install -y --user org.chromium.Chromium
+    # To avoid crashes because of GDK exiting when libwayland occasionally fails to parse the stream
+    # Changes nothing functionally.
+    flatpak override --user --env=GDK_BACKEND=x11 --socket=x11 org.chromium.Chromium
+
     flatpak install -y --user org.gnome.Evince
     flatpak install -y --user org.keepassxc.KeePassXC
     flatpak install -y --user com.parsecgaming.parsec
