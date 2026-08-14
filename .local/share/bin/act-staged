@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eu
+temp_dir=$(mktemp -d)
+trap 'rm -rf "$temp_dir"' EXIT
+git archive "$(git write-tree)" | tar -x -C "$temp_dir"
+act -C "$temp_dir" $(< .config/act/actrc) "$@"
