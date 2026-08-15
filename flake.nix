@@ -255,6 +255,7 @@
             stablePkgs.gdk-pixbuf
             stablePkgs.pango
             stablePkgs.gtk3
+            stablePkgs.clang-tools
             unstablePkgs.typescript-language-server
             unstablePkgs.vscode-langservers-extracted
             unstablePkgs.yaml-language-server
