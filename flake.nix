@@ -323,9 +323,6 @@
               hardeningDisable = [ "all" ];
 
               shellHook = ''
-                # For running in docker when rc files are not checked out by default
-                [ -d $HOME/.git ] || (TMP=$(mktemp -d) && git clone https://github.com/fspv/.bashrc.git $TMP && cp -r $TMP/{*,.*} $HOME/ && rm -rf $TMP && $HOME/.local/share/bin/init-user-env.sh)
-
                 export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
