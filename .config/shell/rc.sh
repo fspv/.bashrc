@@ -358,7 +358,6 @@ bzsh() {
         --ro-bind /nix /nix \
         --ro-bind /etc /etc \
         --ro-bind-try /run/systemd/resolve/ /run/systemd/resolve/ \
-        --ro-bind-try $USR_LIB_LOCALES_PATH /usr/lib/locale \
         --dev /dev \
         --proc /proc \
         --tmpfs /tmp \
@@ -370,6 +369,11 @@ bzsh() {
         --tmpfs $HOME/.ssh \
         --tmpfs /etc/ssh/ssh_config.d \
         --bind-try $HOME/.cache/gopls $HOME/.cache/gopls \
+        --bind-try $HOME/.cache/clangd $HOME/.cache/clangd \
+        --bind-try $HOME/.cache/nix $HOME/.cache/nix \
+        --bind-try $HOME/.config/shell $HOME/.config/shell \
+        --bind-try $HOME/.config/bash $HOME/.config/bash \
+        --bind-try $HOME/.config/zsh $HOME/.config/zsh \
         --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
         --bind-try $HOME/.config/autostart $HOME/.config/autostart \
         --bind-try $HOME/.config/atuin $HOME/.config/atuin \
@@ -379,6 +383,7 @@ bzsh() {
         --bind-try $HOME/.config/i3status $HOME/.config/i3status \
         --bind-try $HOME/.config/nix $HOME/.config/nix \
         --bind-try $HOME/.config/nvim $HOME/.config/nvim \
+        --bind-try $HOME/.config/vim $HOME/.config/vim \
         --bind-try $HOME/.config/github-copilot $HOME/.config/github-copilot \
         --bind-try $HOME/.config/systemd $HOME/.config/systemd \
         --bind-try $HOME/.config/pulse $HOME/.config/pulse \
@@ -396,12 +401,14 @@ bzsh() {
         --bind-try $HOME/.local/bin $HOME/.local/bin \
         --bind-try $HOME/.local/include $HOME/.local/include \
         --bind-try $HOME/.local/lib $HOME/.local/lib \
+        --bind-try $HOME/.local/share/atuin $HOME/.local/share/atuin \
         --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
         --bind-try $HOME/.local/share/bin $HOME/.local/share/bin \
         --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
         --bind-try $HOME/.local/share/tampermonkey $HOME/.local/share/tampermonkey \
         --bind-try $HOME/.local/share/fonts $HOME/.local/share/fonts \
         --bind-try $HOME/.local/share/zoxide $HOME/.local/share/zoxide \
+        --bind-try $HOME/.local/share/direnv $HOME/.local/share/direnv \
         --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
         --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
         --bind-try $HOME/.local/share/flatpak/extension $HOME/.local/share/flatpak/extension \
