@@ -97,33 +97,14 @@ jobs:
   emmylua-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Checkout repository
+        uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+
+      - name: Set up Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
         with:
-          persist-credentials: false
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Install emmylua_check
-        run: |
-          sudo mkdir -p /opt/emmylua
-          version=$(basename "$(curl -sSL -o /dev/null -w '%{url_effective}' \
-            https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/latest)")
-          curl -sSL \
-            "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/${version}/emmylua_check-linux-x64.tar.gz" \
-            | sudo tar -xz -C /opt/emmylua
-
-      - name: Install the libraries the config is written against
-        run: |
-          sudo mkdir -p /opt/nvim /opt/telescope.nvim /opt/nvim-lua-libs
-          curl -sSL \
-            "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-$(uname -m).tar.gz" \
-            | sudo tar -xz -C /opt/nvim --strip-components=1
-          sudo git clone --depth=1 https://github.com/nvim-telescope/telescope.nvim.git /opt/telescope.nvim
-          sudo ln -s /opt/nvim/share/nvim/runtime/lua /opt/nvim-lua-libs/nvim-runtime
-          sudo ln -s /opt/telescope.nvim/lua /opt/nvim-lua-libs/telescope-nvim
-
-      - name: Check own config using the repo .emmyrc.json
-        env:
-          NVIM_LUA_LIBS: /opt/nvim-lua-libs
-        run: |
-          /opt/emmylua/emmylua_check "$PWD/.config/nvim" \
-            --output-format github \
-            --warnings-as-errors
+      - name: Run flake checks
+        run: nix flake check

@@ -74,6 +74,13 @@
         "aarch64-darwin"
       ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
+
+      nvimLuaLibsFor =
+        unstablePkgs:
+        unstablePkgs.linkFarm "nvim-lua-libs" {
+          nvim-runtime = "${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua";
+          telescope-nvim = "${unstablePkgs.vimPlugins.telescope-nvim}/lua";
+        };
     in
     {
       devShells = forAllSystems (
@@ -97,10 +104,7 @@
             ];
           };
 
-          nvimLuaLibs = stablePkgs.linkFarm "nvim-lua-libs" {
-            nvim-runtime = "${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua";
-            telescope-nvim = "${unstablePkgs.vimPlugins.telescope-nvim}/lua";
-          };
+          nvimLuaLibs = nvimLuaLibsFor unstablePkgs;
 
           tmuxPluginsDir = stablePkgs.linkFarm "tmux-plugins" {
             sensible = builtins.dirOf unstablePkgs.tmuxPlugins.sensible.rtp;
@@ -350,6 +354,26 @@
         {
           default = makeShell (toInstallBasic ++ toInstallExtra);
           basic = makeShell toInstallBasic;
+        }
+      );
+
+      checks = forAllSystems (
+        system:
+        let
+          unstablePkgs = import nixpkgs-unstable { inherit system; };
+        in
+        {
+          emmylua =
+            unstablePkgs.runCommand "emmylua-check"
+              {
+                nativeBuildInputs = [ unstablePkgs.emmylua-check ];
+                NVIM_LUA_LIBS = nvimLuaLibsFor unstablePkgs;
+              }
+              ''
+                export HOME=$TMPDIR
+                emmylua_check ${self}/.config/nvim --warnings-as-errors
+                touch $out
+              '';
         }
       );
     };
