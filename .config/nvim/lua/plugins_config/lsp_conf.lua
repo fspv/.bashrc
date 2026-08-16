@@ -1,6 +1,6 @@
-vim.lsp.config("*", {
+vim.lsp.config["*"] = {
   capabilities = require("blink.cmp").get_lsp_capabilities(),
-})
+}
 
 -- Uncomment for debug and use LspLog
 -- vim.lsp.set_log_level("debug")
@@ -188,24 +188,24 @@ local on_attach_func = function(client, bufnr)
   -- require('symbols-outline').open_outline()
 end
 
-vim.lsp.config("yamlls", {
+vim.lsp.config.yamlls = {
   on_attach = on_attach_func,
   settings = {
     yaml = {},
   },
-})
+}
 vim.lsp.enable("yamlls")
 
-vim.lsp.config("jsonls", {
+vim.lsp.config.jsonls = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("jsonls")
 
-vim.lsp.config("bashls", {
+vim.lsp.config.bashls = {
   useLibraryCodeForTypes = false,
   on_attach = on_attach_func,
   filetypes = { "sh", "zsh", "bash" },
-})
+}
 vim.lsp.enable("bashls")
 
 ---@param workspace string
@@ -220,7 +220,7 @@ local function get_python_path(workspace)
   return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
 end
 
-vim.lsp.config("pyright", {
+vim.lsp.config.pyright = {
   on_attach = on_attach_func,
   -- cmd = {
   --   "pyright-langserver",
@@ -246,7 +246,7 @@ vim.lsp.config("pyright", {
       },
     },
   },
-})
+}
 vim.lsp.enable("pyright")
 
 -- TODO: I'm just lucky it runs before other commands. But may actually conflict
@@ -291,7 +291,7 @@ vim.lsp.enable("pyright")
 --   }
 -- end
 
-vim.lsp.config("lua_ls", {
+vim.lsp.config.lua_ls = {
   on_attach = on_attach_func,
   on_init = function(client)
     if client.workspace_folders then
@@ -308,7 +308,7 @@ vim.lsp.config("lua_ls", {
     end
 
     client.config.settings.Lua =
-      vim.tbl_deep_extend("force", client.config.settings.Lua, {
+      vim.tbl_deep_extend("force", client.config.settings.Lua --[[@as table]], {
         runtime = {
           -- Tell the language server which version of Lua you're using
           -- (most likely LuaJIT in the case of Neovim)
@@ -377,12 +377,12 @@ vim.lsp.config("lua_ls", {
       },
     },
   },
-})
+}
 vim.lsp.enable("lua_ls")
 
 -- Settings values:
 -- https://github.com/golang/tools/blob/master/gopls/doc/settings.md
-vim.lsp.config("gopls", {
+vim.lsp.config.gopls = {
   on_attach = on_attach_func,
   -- For debug run `gopls -listen="unix;/tmp/gopls-daemon-socket" -logfile=auto
   -- -rpc.trace` and uncomment below
@@ -457,7 +457,7 @@ vim.lsp.config("gopls", {
       },
     },
   },
-})
+}
 vim.lsp.enable("gopls")
 
 -- To make it work with arduino:
@@ -469,7 +469,7 @@ vim.lsp.enable("gopls")
 --
 -- Then createa a `.clangd` file in the project dir
 -- TODO: add example
-vim.lsp.config("clangd", {
+vim.lsp.config.clangd = {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
   on_attach = on_attach_func,
   cmd = {
@@ -492,47 +492,47 @@ vim.lsp.config("clangd", {
     "library.properties",
     ".git",
   },
-})
+}
 vim.lsp.enable("clangd")
 
 -- JavaScript/TypeScript
-vim.lsp.config("ts_ls", {
+vim.lsp.config.ts_ls = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("ts_ls")
 
 -- `npm init @eslint/config` to make this work
-vim.lsp.config("eslint", {
+vim.lsp.config.eslint = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("eslint")
-vim.lsp.config("biome", {
+vim.lsp.config.biome = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("biome")
 -- `npm install --save-dev flow-bin && npm run flow init`
 -- require("lspconfig").flow.setup({})
-vim.lsp.config("quick_lint_js", {
+vim.lsp.config.quick_lint_js = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("quick_lint_js")
 
 -- Proto files
-vim.lsp.config("buf_ls", {
+vim.lsp.config.buf_ls = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("buf_ls")
 
 -- nixos configs
-vim.lsp.config("nixd", {
+vim.lsp.config.nixd = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("nixd")
 
 -- php
-vim.lsp.config("phpactor", {
+vim.lsp.config.phpactor = {
   on_attach = on_attach_func,
-})
+}
 vim.lsp.enable("phpactor")
 
 local luacheck = {
@@ -544,7 +544,7 @@ local luacheck = {
   lintIgnoreExitCode = true,
 }
 
-vim.lsp.config("efm", {
+vim.lsp.config.efm = {
   on_attach = on_attach_func,
   init_options = { documentFormatting = true }, -- Enable if you want formatting
   filetypes = { "lua" },
@@ -554,7 +554,7 @@ vim.lsp.config("efm", {
       lua = { luacheck }, -- Both linters will run
     },
   },
-})
+}
 vim.lsp.enable("efm")
 
 return {
