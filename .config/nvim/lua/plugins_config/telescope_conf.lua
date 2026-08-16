@@ -28,7 +28,7 @@ local function make_go_up_one_dir(reopen_fn)
     -- Get the current cwd from the picker
     -- (file_browser stores it in finder.cwd)
     local current_cwd = assert(
-      picker.cwd or (picker.finder and picker.finder.cwd) or vim.loop.cwd()
+      picker.cwd or (picker.finder and picker.finder.cwd) or vim.uv.cwd()
     )
 
     -- Don't go above root

@@ -3,7 +3,7 @@
 local strip_cwd = function(path)
   local cwd = vim.fn.getcwd()
   -- Strip the last / from the cwd
-  cwd = cwd:match("^(.-)/?$")
+  cwd = assert(cwd:match("^(.-)/?$"))
 
   -- If path starts with cwd, remove it fromt the string
   if string.sub(path, 1, string.len(cwd)) == cwd then

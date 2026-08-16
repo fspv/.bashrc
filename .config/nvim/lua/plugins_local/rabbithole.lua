@@ -1,32 +1,30 @@
 -- Inspired by https://news.ycombinator.com/item?id=41738502
 
 ---@class WindowList
----@field window_map table<number, ListNode>  -- Map of window IDs to list nodes
+---@field window_map table<integer, ListNode>  -- Map of window IDs to nodes
 local WindowList = {
   window_map = {}, -- Hashmap to map window IDs to list nodes
 }
 
 ---@class ListNode
----@field value number|nil       -- Window ID
+---@field value integer|nil       -- Window ID
 ---@field next ListNode|nil       -- Next node in the list
 ---@field prev ListNode|nil       -- Previous node in the list
 local ListNode = {}
 ListNode.__index = ListNode
 
----@param value number|nil
+---@param value integer|nil
 ---@return ListNode
-function ListNode:new(value) -- luacheck: ignore
-  ---@type ListNode
-  local node = {
+function ListNode.new(value)
+  local node = setmetatable({
     value = value, -- Value
     next = nil, -- Next node in the list
     prev = nil, -- Previous node in the list
-  }
-  setmetatable(node, ListNode)
+  }, ListNode)
   return node
 end
 
----@param win_id number
+---@param win_id integer
 local function close_window(win_id)
   if vim.api.nvim_win_is_valid(win_id) then
     vim.api.nvim_win_close(win_id, true)
@@ -48,7 +46,7 @@ local function remove_node(node)
 
   -- TODO: move this to a custom destructor to make linked list implementation
   -- independent of windows
-  close_window(node.value)
+  close_window(assert(node.value))
 end
 
 ---@param node ListNode
@@ -73,7 +71,7 @@ end
 
 -- Function to get all windows in double linked list
 ---@param node ListNode|nil
----@return number[] windows
+---@return integer[] windows
 local function get_all_values(node)
   local windows = {}
   local start_node = node
@@ -123,7 +121,7 @@ function OpenWindow(f)
   local prev_win_id = vim.api.nvim_get_current_win()
 
   if not WindowList.window_map[prev_win_id] then
-    local new_root_node = ListNode:new(prev_win_id)
+    local new_root_node = ListNode.new(prev_win_id)
     WindowList.window_map[prev_win_id] = new_root_node
   end
 
@@ -136,14 +134,14 @@ function OpenWindow(f)
   f()
 
   local new_win_id = vim.api.nvim_get_current_win()
-  add_node(WindowList.window_map[prev_win_id], ListNode:new(new_win_id))
+  add_node(WindowList.window_map[prev_win_id], ListNode.new(new_win_id))
 
   ResizeWindows(prev_win_id, new_win_id)
 end
 
 -- Function to resize windows based on list relationships
----@param prev_win_id number
----@param cur_win_id number
+---@param prev_win_id integer
+---@param cur_win_id integer
 ---@return nil
 function ResizeWindows(prev_win_id, cur_win_id)
   if prev_win_id == cur_win_id then
@@ -190,6 +188,7 @@ function ResizeWindows(prev_win_id, cur_win_id)
 end
 
 -- Track the previous window
+---@type integer?
 local prev_win_id = nil
 
 -- Autocommand to track window changes and trigger ResizeWindows
