@@ -261,6 +261,7 @@
             unstablePkgs.yaml-language-server
             unstablePkgs.bash-language-server
             unstablePkgs.lua-language-server
+            unstablePkgs.emmylua-check
             unstablePkgs.stylua
             unstablePkgs.luajitPackages.luacheck
             unstablePkgs.tree-sitter
@@ -327,6 +328,8 @@
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
                 export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
+                export NVIM_RUNTIME_LUA=${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua
+                export TELESCOPE_NVIM_LUA=${unstablePkgs.vimPlugins.telescope-nvim}/lua
                 export TMUX_PLUGINS=${tmuxPluginsDir}
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim

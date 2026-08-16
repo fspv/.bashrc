@@ -104,8 +104,10 @@ jobs:
       - name: Install emmylua_check
         run: |
           sudo mkdir -p /opt/emmylua
+          version=$(basename "$(curl -sSL -o /dev/null -w '%{url_effective}' \
+            https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/latest)")
           curl -sSL \
-            "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/0.25.1/emmylua_check-linux-x64.tar.gz" \
+            "https://github.com/EmmyLuaLs/emmylua-analyzer-rust/releases/download/${version}/emmylua_check-linux-x64.tar.gz" \
             | sudo tar -xz -C /opt/emmylua
 
       - name: Install the libraries the config is written against
@@ -116,31 +118,11 @@ jobs:
             | sudo tar -xz -C /opt/nvim --strip-components=1
           sudo git clone --depth=1 https://github.com/nvim-telescope/telescope.nvim.git /opt/telescope.nvim
 
-      - name: Write emmyrc
+      - name: Check own config using the repo .emmyrc.json
+        env:
+          NVIM_RUNTIME_LUA: /opt/nvim/share/nvim/runtime/lua
+          TELESCOPE_NVIM_LUA: /opt/telescope.nvim/lua
         run: |
-          cat > /tmp/emmyrc.json <<'JSON'
-          {
-            "runtime": { "version": "LuaJIT" },
-            "workspace": {
-              "library": [
-                "/opt/nvim/share/nvim/runtime/lua",
-                "/opt/telescope.nvim/lua"
-              ]
-            },
-            "diagnostics": {
-              "globals": ["vim", "MiniIcons"],
-              "disable": ["unresolved-require", "unnecessary-if"]
-            }
-          }
-          JSON
-
-      - name: Check own config, leaving the vendored plugins alone
-        run: |
-          /opt/emmylua/emmylua_check "$PWD/.config/nvim/lua" \
-            -c /tmp/emmyrc.json \
-            --output-format github \
-            --warnings-as-errors
-          /opt/emmylua/emmylua_check "$PWD/.config/nvim/after" \
-            -c /tmp/emmyrc.json \
+          /opt/emmylua/emmylua_check "$PWD/.config/nvim" \
             --output-format github \
             --warnings-as-errors
