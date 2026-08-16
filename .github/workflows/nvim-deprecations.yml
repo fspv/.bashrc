@@ -57,3 +57,15 @@ jobs:
             -e XDG_CACHE_HOME=/tmp/nvim-cache \
             nvim-deprecations \
             nvim --headless +"luafile ~/.config/nvim/lua/deprecation_check.lua"
+
+      - name: Run lsp config check
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/root" \
+            -w /root \
+            -e BWRAPPED=1 \
+            -e NEOVIM_LAZY_PATH=/tmp/lazy-nvim \
+            -e HOME=/root \
+            -e XDG_CACHE_HOME=/tmp/nvim-cache \
+            nvim-deprecations \
+            nvim --headless +"luafile ~/.config/nvim/lua/lsp_config_check.lua"
