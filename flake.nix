@@ -97,6 +97,11 @@
             ];
           };
 
+          nvimLuaLibs = stablePkgs.linkFarm "nvim-lua-libs" {
+            nvim-runtime = "${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua";
+            telescope-nvim = "${unstablePkgs.vimPlugins.telescope-nvim}/lua";
+          };
+
           tmuxPluginsDir = stablePkgs.linkFarm "tmux-plugins" {
             sensible = builtins.dirOf unstablePkgs.tmuxPlugins.sensible.rtp;
             resurrect = builtins.dirOf unstablePkgs.tmuxPlugins.resurrect.rtp;
@@ -328,8 +333,7 @@
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
                 export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
-                export NVIM_RUNTIME_LUA=${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua
-                export TELESCOPE_NVIM_LUA=${unstablePkgs.vimPlugins.telescope-nvim}/lua
+                export NVIM_LUA_LIBS=${nvimLuaLibs}
                 export TMUX_PLUGINS=${tmuxPluginsDir}
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim

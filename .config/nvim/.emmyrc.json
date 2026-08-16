@@ -2,7 +2,7 @@
   "runtime": { "version": "LuaJIT" },
   "workspace": {
     "ignoreDir": ["plugins"],
-    "library": ["$NVIM_RUNTIME_LUA", "$TELESCOPE_NVIM_LUA"]
+    "library": ["$NVIM_LUA_LIBS"]
   },
   "diagnostics": {
     "globals": ["vim", "MiniIcons"],

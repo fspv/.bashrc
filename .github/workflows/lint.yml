@@ -112,16 +112,17 @@ jobs:
 
       - name: Install the libraries the config is written against
         run: |
-          sudo mkdir -p /opt/nvim /opt/telescope.nvim
+          sudo mkdir -p /opt/nvim /opt/telescope.nvim /opt/nvim-lua-libs
           curl -sSL \
             "https://github.com/neovim/neovim/releases/download/stable/nvim-linux-$(uname -m).tar.gz" \
             | sudo tar -xz -C /opt/nvim --strip-components=1
           sudo git clone --depth=1 https://github.com/nvim-telescope/telescope.nvim.git /opt/telescope.nvim
+          sudo ln -s /opt/nvim/share/nvim/runtime/lua /opt/nvim-lua-libs/nvim-runtime
+          sudo ln -s /opt/telescope.nvim/lua /opt/nvim-lua-libs/telescope-nvim
 
       - name: Check own config using the repo .emmyrc.json
         env:
-          NVIM_RUNTIME_LUA: /opt/nvim/share/nvim/runtime/lua
-          TELESCOPE_NVIM_LUA: /opt/telescope.nvim/lua
+          NVIM_LUA_LIBS: /opt/nvim-lua-libs
         run: |
           /opt/emmylua/emmylua_check "$PWD/.config/nvim" \
             --output-format github \
