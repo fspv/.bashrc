@@ -1,0 +1,4 @@
+/lazy-lock.json
+/lua/plugins_config_manual/
+/lua/plugins_local/*
+!/lua/plugins_local/rabbithole.lua

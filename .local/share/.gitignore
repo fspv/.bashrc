@@ -1,0 +1,8 @@
+/*
+!/.gitignore
+!/bin/
+!/dbus-1/
+!/flatpak/
+!/fonts/
+!/tampermonkey/
+!/vim/

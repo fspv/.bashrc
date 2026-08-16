@@ -1,0 +1,5 @@
+/*
+!/.gitignore
+!/extension/
+/extension/*
+!/extension/org.chromium.Chromium.Extension.system-policies/

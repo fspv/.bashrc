@@ -1,0 +1,9 @@
+/*
+!/.gitignore
+!/app/
+/app/*
+!/app/org.chromium.Chromium/
+/app/org.chromium.Chromium/*
+!/app/org.chromium.Chromium/config/
+/app/org.chromium.Chromium/config/*
+!/app/org.chromium.Chromium/config/chromium-flags.conf

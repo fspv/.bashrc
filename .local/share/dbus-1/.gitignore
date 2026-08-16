@@ -1,0 +1,5 @@
+/*
+!/.gitignore
+!/services/
+/services/*
+!/services/org.xfce.Notifyd.service
