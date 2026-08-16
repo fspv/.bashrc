@@ -1,8 +1,3 @@
-/*
-!/.gitignore
-!/fonts/
-/fonts/*
-!/fonts/.gitkeep
-!/fonts/nerdfonts/
-/fonts/nerdfonts/*
-!/fonts/nerdfonts/.gitkeep
+*.ttf
+*.otf
+*.ttc

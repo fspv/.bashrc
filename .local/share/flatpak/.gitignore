@@ -1,5 +1,8 @@
-/*
-!/.gitignore
-!/extension/
-/extension/*
-!/extension/org.chromium.Chromium.Extension.system-policies/
+/repo/
+/runtime/
+/app/
+/appstream/
+/db/
+/exports/
+/overrides/
+/.changed
