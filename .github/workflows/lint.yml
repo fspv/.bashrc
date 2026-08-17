@@ -93,3 +93,18 @@ jobs:
             --checklevel=Warning \
             --configpath=/tmp/luarc.json \
             --logpath=/tmp/lua-language-server-log
+
+  emmylua-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+
+      - name: Set up Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run flake checks
+        run: nix flake check

@@ -9,12 +9,6 @@
 ---@class GhLink
 local M = {}
 
----Opts table neovim hands to a `nvim_create_user_command` callback. Only the
----fields we actually consume are listed.
----@class GhLink.UserCommandOpts
----@field line1 integer
----@field line2 integer
-
 ---Run a `git` subcommand inside `cwd`. Returns stdout as a list of lines, or
 ---nil if git exited non-zero.
 ---@param args string[]
@@ -227,7 +221,7 @@ local function copy(line1, line2)
   vim.notify(link)
 end
 
----@param opts GhLink.UserCommandOpts
+---@param opts vim.api.keyset.create_user_command.command_args
 ---@return nil
 local function on_gh_link(opts)
   copy(opts.line1, opts.line2)

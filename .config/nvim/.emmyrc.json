@@ -1,0 +1,11 @@
+{
+  "runtime": { "version": "LuaJIT" },
+  "workspace": {
+    "ignoreDir": ["plugins"],
+    "library": ["$NVIM_LUA_LIBS"]
+  },
+  "diagnostics": {
+    "globals": ["vim", "MiniIcons"],
+    "disable": ["unresolved-require", "unnecessary-if"]
+  }
+}

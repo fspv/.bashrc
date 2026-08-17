@@ -424,7 +424,7 @@ require("lazy").setup({
             return vim.lsp.rpc.connect("127.0.0.1", 27631)
           end or nil,
           ---@param client vim.lsp.Client
-          ---@param bufnr number
+          ---@param bufnr integer
           ---@return nil
           on_attach = function(client, bufnr)
             -- this is needed because the plugin initializes lsp on its own
@@ -480,7 +480,7 @@ require("lazy").setup({
   {
     "marcuscaisey/please.nvim",
     lazy = true,
-    init = function(self) -- luacheck: no unused args
+    init = function(_self)
       require("plugins_config/please_init")
     end,
     cmd = "Please",
@@ -718,7 +718,7 @@ require("lazy").setup({
   -- Automatically saves session by cwd
   {
     "rmagatti/auto-session",
-    init = function(self) -- luacheck: no unused args
+    init = function(_self)
       vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos," -- luacheck: ignore line-too-long
         .. "terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
@@ -728,7 +728,7 @@ require("lazy").setup({
         "tabdo Trouble diagnostics close",
       }
     end,
-    config = function(self, opts) -- luacheck: no unused args
+    config = function(_self, _opts)
       -- TODO: just a hack to make statuscol load before auto-session, to
       -- make sure the `statuscol` (`stc`) option is set for auto-loaded
       -- windows
