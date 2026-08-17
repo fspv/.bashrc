@@ -3,6 +3,8 @@
 -- runtimepath directory with `parser/<lang>.so` and `queries/<lang>/*.scm`.
 -- ============================================================================
 
+require("plugins_config/treesitter_locals_predicates").setup()
+
 -- This is a workaround to prevent an error when we open file with an existing
 -- .swp file.
 -- https://github.com/neovim/neovim/issues/26192
