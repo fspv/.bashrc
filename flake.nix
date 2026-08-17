@@ -328,10 +328,6 @@
           };
 
           toInstallBasic = [
-            # Allow to go deeper
-            stablePkgs.nix
-            stablePkgs.nix.man
-            stablePkgs.nixd
             # Basic stuff
             stablePkgs.coreutils-full
             stablePkgs.gnupg
@@ -405,7 +401,7 @@
             stablePkgs.fortune
             stablePkgs.zip
             stablePkgs.unixtools.xxd
-            stablePkgs.nixfmt-rfc-style
+            stablePkgs.nixfmt
             stablePkgs.nixpkgs-fmt
             stablePkgs.nix-index
             stablePkgs.vim
