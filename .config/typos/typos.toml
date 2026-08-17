@@ -1,0 +1,22 @@
+[files]
+ignore-hidden = false
+
+# Vendored mini.pairs: `vim.fn.charcol()`.
+[type.mini-pairs]
+extend-glob = ["pairs.lua"]
+[type.mini-pairs.extend-identifiers]
+charcol = "charcol"
+
+# Vendored mini.icons: vim filetype keys.
+[type.mini-icons]
+extend-glob = ["icons.lua"]
+[type.mini-icons.extend-identifiers]
+ist = "ist"
+routeros = "routeros"
+tak = "tak"
+
+# Vendored smart-open.nvim: `*.ser` ignore glob.
+[type.smart-open-config]
+extend-glob = ["default_config.lua"]
+[type.smart-open-config.extend-identifiers]
+ser = "ser"

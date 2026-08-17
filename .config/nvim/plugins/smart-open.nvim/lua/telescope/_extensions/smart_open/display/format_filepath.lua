@@ -1,5 +1,5 @@
 local Path = require("plenary.path")
-local os_home = vim.loop.os_homedir()
+local os_home = assert(vim.uv.os_homedir())
 local len = vim.fn.strdisplaywidth
 local table_util = require("smart-open.util.table")
 local max = table_util.max
@@ -51,7 +51,8 @@ end
 -- and finally displayed as absolute in all other cases
 local function normalize_path(path, cwd)
   local p = Path:new(path)
-  local abspath = p:absolute(cwd)
+  ---@cast p Path
+  local abspath = p:absolute()
   if vim.startswith(abspath, os_home) and not vim.startswith(cwd, os_home) then
     return "~/" .. p:make_relative(os_home)
   else

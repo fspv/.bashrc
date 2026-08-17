@@ -51,19 +51,26 @@ repos:
         always_run: true
         entry: nix flake check --no-write-lock-file --print-build-logs --keep-going
 
+      - id: nix-eval-checks
+        name: nix eval checks (all systems)
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: "nix eval --no-write-lock-file --raw .#checks --apply 'checks: builtins.deepSeq (map (system: map (check: check.drvPath) (builtins.attrValues checks.${system})) [ \"x86_64-linux\" \"aarch64-linux\" \"aarch64-darwin\" ]) \"ok\"'"
+
+      - id: nix-eval-dev-shells
+        name: nix eval dev shells (all systems)
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: "nix eval --no-write-lock-file --raw .#devShells --apply 'shells: builtins.deepSeq (map (system: map (shell: shell.drvPath) (builtins.attrValues shells.${system})) [ \"x86_64-linux\" \"aarch64-linux\" \"aarch64-darwin\" ]) \"ok\"'"
+
       - id: gitleaks
         name: gitleaks
         language: system
         pass_filenames: false
         always_run: true
         entry: nix-shell --pure -p gitleaks git --run 'gitleaks git . --config .config/gitleaks/gitleaks.toml --redact --no-banner --log-opts=HEAD'
-
-      - id: act-sway-config
-        name: act / sway-config.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/sway-config.yml
 
       - id: act-systemd-lint
         name: act / systemd-lint.yml

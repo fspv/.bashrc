@@ -7,7 +7,7 @@ If you have noticed that the user or somebody else changed code or some other co
 - Don't write excessive comments. Code should be self-documenting. Better select a good descriptive function name and use good types for inputs and outputs than write a huge comment explaining what it does.
 - If possible diffs to the existing code should be minimal. When you finish the change run `git diff` and check if the change you made is easy to understand.
 - Avoid defensive programming and excessive branching and error handling. In most of the cases we should assume the preconditions are already met when we run the code. If they're not - the best thing we can do is to fail. So no `try/catch` or "if file not found let's create it" or "if env var doesn't exist let's assume default value".
-- Do not introduce global constants unnecessarily. Just inline values, unless they're used in many places when constant is geniunely justified. If you really need to explain what variable means (for example, timeout value or some external URL) just create a local variable.
+- Do not introduce global constants unnecessarily. Just inline values, unless they're used in many places when constant is genuinely justified. If you really need to explain what variable means (for example, timeout value or some external URL) just create a local variable.
 - When programming in not strictly typed language like `python` or `typescript` use types always. No "any" or "unknown" or returning dicts or passing jsons around. In python specifically use dataclasses or ideally pydantic if it is available in the project.
 - No short variable names or acronyms (apart from conventional like `i` for iterator position). We're not in 1980 and it is not that hard to auto-complete long variable names now.
 - All variable names should align. So for example don't call variable `s3_client` in one place, but `client` in another.
@@ -26,14 +26,14 @@ Also, remember that you can spawn parallel agents, which is useful when you doin
 
 When you have a for loop
 
-```
+```python
 for thing in ["one", "two", "three"]:
     do_something(thing)
 ```
 
 Instead it is usually better to write
 
-```
+```python
 do_something("one")
 do_something("two")
 do_something("three")
@@ -42,6 +42,7 @@ do_something("three")
 This is simpler to read and easier to copy-paste if needed later.
 
 # Commands you run
+
 When running commands format them for human, so they can understand what the command does:
 
 - Split complex commands into multiple lines instead of using one like with ;

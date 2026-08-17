@@ -39,6 +39,7 @@ backup
 .config/agents/settings.local.json
 .config/agents/plugins/
 !.config/autostart
+!.config/biome
 !.config/containers
 !.config/direnv
 !.config/dunst
@@ -62,6 +63,7 @@ backup
 .config/jjui/types.lua
 .config/jjui/.luarc.json
 !.config/lazygit
+!.config/markdownlint
 !.config/mimeapps.list
 !.config/nix
 !.config/npm
@@ -76,6 +78,7 @@ backup
 !.config/taplo
 !.config/terminator
 !.config/tmux
+!.config/typos
 !.config/vim
 !.config/waybar
 !.config/wezterm

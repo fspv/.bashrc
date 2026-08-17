@@ -77,8 +77,9 @@ local function from_canonical(filepath)
   return filepath
 end
 
+---@class SmartOpenHistory
+---@field db DbClient
 local M = {
-  db = nil,
   opts = {
     ignore_patterns = { "*.git/*", "*/tmp/*", "*.pdf" },
   },
@@ -232,7 +233,9 @@ end
 function M:handle_open(original_filepath, batch_mode, now)
   now = now or os.time()
 
-  local filepath = Path:new(original_filepath):absolute()
+  local path_object = Path:new(original_filepath)
+  ---@cast path_object Path
+  local filepath = path_object:absolute()
 
   if filepath == "" or not filepath then
     print("[smart-open] Encountered a blank filepath:", original_filepath)

@@ -18,13 +18,12 @@ if [[ "$(uname)" == "Linux" ]] && ! test -f /.dockerenv; then
 fi
 
 if [[ -z "${GITHUB_ACTIONS:-}" ]] && test -f /.dockerenv; then
-  exit 0
+    exit 0
 fi
 
 which flatpak && flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-if which flatpak && which dpkg && dpkg -l | grep ubuntu-desktop
-then
+if which flatpak && which dpkg && dpkg -l | grep ubuntu-desktop; then
     flatpak install -y --user flathub org.telegram.desktop || true
     flatpak override --user org.telegram.desktop --filesystem="${HOME}/Pictures"
     flatpak override --user org.telegram.desktop --filesystem="${HOME}/Downloads"
@@ -46,7 +45,7 @@ fi
 
 # Install pre-commit hooks if in the dotfiles repo
 if [[ -f "${DOTFILES_DIR}/.pre-commit-config.yaml" ]] && command -v pre-commit &>/dev/null; then
-  bash -c "cd ${DOTFILES_DIR} && pre-commit install"
+    bash -c "cd ${DOTFILES_DIR} && pre-commit install"
 fi
 
 NERDFONTS_PATH=${DOTFILES_DIR}/.local/share/fonts/fonts/nerdfonts/

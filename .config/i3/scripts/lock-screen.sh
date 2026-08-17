@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script forces i3lock to switch keyboard to $DEFAULT_LAYOUT and then
-# after unlock swith layout back to saved
+# after unlock switch layout back to saved
 
 DEFAULT_LAYOUT=0
 

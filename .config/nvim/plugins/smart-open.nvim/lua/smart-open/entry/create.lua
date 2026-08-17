@@ -39,6 +39,7 @@ end
 local function create_entry_data(path, history, context)
   local weights = context.weights
 
+  ---@type table<string, number>
   local scores = {
     open = 0,
     alt = 0,
@@ -51,7 +52,7 @@ local function create_entry_data(path, history, context)
   local entry = {
     path = path,
     scores = scores,
-    base_score = 0,
+    base_score = 0.0,
     current = path == context.current_buffer,
     modified = false,
   }

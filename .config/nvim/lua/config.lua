@@ -1,4 +1,4 @@
--- Added 'A' option to prvent swp file messages, I never acted on them anyway
+-- Added 'A' option to prevent swp file messages, I never acted on them anyway
 vim.o.shortmess = "ltToOCFA"
 
 if vim.fn.has("nvim-0.12") == 0 then
@@ -586,7 +586,7 @@ require("lazy").setup({
   {
     "nvim-telescope/telescope-live-grep-args.nvim",
   },
-  -- Identation indication
+  -- Indentation indication
   {
     "HiPhish/rainbow-delimiters.nvim",
   },

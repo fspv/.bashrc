@@ -15,7 +15,7 @@
     'use strict';
 
     function getProductId() {
-        const regex = /(?:\/.+\/)?(?:dp|gp\/product|ASIN)\/([^\/?]+)/;
+        const regex = /(?:\/.+\/)?(?:dp|gp\/product|ASIN)\/([^/?]+)/;
         const match = document.location.href.match(regex);
         return match ? match[1] : null;
     }

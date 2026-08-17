@@ -1,0 +1,9 @@
+{
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "complexity": { "useArrowFunction": "off" },
+      "suspicious": { "noRedundantUseStrict": "off" }
+    }
+  }
+}

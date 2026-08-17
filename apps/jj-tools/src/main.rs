@@ -8,12 +8,12 @@ use std::time::Duration;
 use clap::{Args, Parser, Subcommand};
 use common::Result;
 use github::{
-    create_pr, current_user, pr_for_branch, set_pr_base, BranchName, PrState, PullRequest,
+    BranchName, PrState, PullRequest, create_pr, current_user, pr_for_branch, set_pr_base,
 };
 use jj::{
-    bookmarks_in_range, colocated_repo_root, conflicted_bookmarks, current_stack_tips, git_export,
-    git_fetch, git_push, git_track, is_ancestor, is_diff_empty, local_bookmarks, parent_bookmark,
-    untracked_origin_bookmarks, working_copy_change, BookmarkName, Revset,
+    BookmarkName, Revset, bookmarks_in_range, colocated_repo_root, conflicted_bookmarks,
+    current_stack_tips, git_export, git_fetch, git_push, git_track, is_ancestor, is_diff_empty,
+    local_bookmarks, parent_bookmark, untracked_origin_bookmarks, working_copy_change,
 };
 
 #[derive(Parser)]
@@ -154,7 +154,11 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
 
     let bookmarks = bookmarks_in_range(&trunk, &tips)?;
     if bookmarks.is_empty() {
-        eprintln!("No bookmarks found in {}..{}", trunk.as_str(), tips.as_str());
+        eprintln!(
+            "No bookmarks found in {}..{}",
+            trunk.as_str(),
+            tips.as_str()
+        );
         return Ok(1);
     }
 
@@ -354,7 +358,11 @@ fn apply(plan: &[PlanEntry], trunk: &BranchName, ready: bool) -> Result<()> {
         match (&entry.action, &entry.pr) {
             (Action::Update, Some(pr)) => set_pr_base(pr.number, &entry.parent)?,
             (Action::Create, _) => {
-                create_pr(&BranchName::new(entry.bookmark.as_str()), &entry.parent, ready)?;
+                create_pr(
+                    &BranchName::new(entry.bookmark.as_str()),
+                    &entry.parent,
+                    ready,
+                )?;
             }
             _ => {}
         }

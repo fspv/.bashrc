@@ -80,6 +80,7 @@ function M.setup()
   })
 
   local timer = vim.uv.new_timer()
+    or error("(lsp-retirement) could not create timer")
   timer:start(check_interval_ms, check_interval_ms, vim.schedule_wrap(scan))
 end
 

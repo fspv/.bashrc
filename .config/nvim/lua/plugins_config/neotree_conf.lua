@@ -5,7 +5,7 @@ local strip_cwd = function(path)
   -- Strip the last / from the cwd
   cwd = assert(cwd:match("^(.-)/?$"))
 
-  -- If path starts with cwd, remove it fromt the string
+  -- If path starts with cwd, remove it from the string
   if string.sub(path, 1, string.len(cwd)) == cwd then
     return "./" .. path:sub(cwd:len() + 2)
   end

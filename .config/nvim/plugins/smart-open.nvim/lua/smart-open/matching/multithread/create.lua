@@ -11,8 +11,11 @@ local function create_matcher(opts, context)
   local matching_algorithm = opts.match_algorithm
   local cancel_token = 0
   local complete = false
-  local prompt = nil
+  ---@type string
+  local prompt
+  ---@type fun(entry: table): boolean?
   local process_result
+  ---@type fun()
   local process_complete
   local slot_count = 4 -- threadpool thread count
   local last_processed_index = 0
@@ -66,10 +69,9 @@ local function create_matcher(opts, context)
         context
       )
 
-      -- stylua: ignore
-      process_result(
-        vim.tbl_deep_extend("keep", entry_to_add, entry)
-      )
+      local combined = vim.tbl_deep_extend("keep", entry_to_add, entry)
+      ---@cast combined table
+      process_result(combined)
     end
   end
 
@@ -83,6 +85,7 @@ local function create_matcher(opts, context)
       return
     end
 
+    ---@type uv.luv_work_ctx_t
     local pool
 
     local function queue_next()
@@ -95,16 +98,17 @@ local function create_matcher(opts, context)
       last_processed_index = last_processed_index + 1
 
       -- stylua: ignore
-      vim.loop.queue_work(
+      vim.uv.queue_work(
         pool, prompt, cancel_token,
         options, packed[last_processed_index]
       )
     end
 
     -- Divide the work and send to queues
-    pool = vim.loop.new_work(process, function(encoded)
+    pool = vim.uv.new_work(process, function(encoded)
       waiting_threads = waiting_threads - 1
 
+      ---@cast encoded string
       local work_result = vim.mpack.decode(encoded)
       assert(work_result)
 

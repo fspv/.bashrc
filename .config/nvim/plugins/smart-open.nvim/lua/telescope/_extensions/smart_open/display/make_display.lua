@@ -51,7 +51,8 @@ local function score_display(entry)
 end
 
 local function make_display(opts)
-  local results_width = nil
+  ---@type integer
+  local results_width
 
   local filename_opts = {
     cwd = opts.cwd,

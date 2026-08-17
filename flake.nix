@@ -90,6 +90,8 @@
         unstablePkgs.linkFarm "nvim-lua-libs" {
           nvim-runtime = "${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua";
           telescope-nvim = "${unstablePkgs.vimPlugins.telescope-nvim}/lua";
+          plenary-nvim = "${unstablePkgs.vimPlugins.plenary-nvim}/lua";
+          sqlite-lua = "${unstablePkgs.vimPlugins.sqlite-lua}/lua";
         };
 
       nvimPluginsFor =
@@ -285,6 +287,8 @@
         );
     in
     {
+      formatter = forAllSystems (system: (import nixpkgs-unstable { inherit system; }).nixfmt-tree);
+
       devShells = forAllSystems (
         system:
         let
@@ -666,17 +670,15 @@
                   "workspace.library" = [
                     "${nvimLuaLibs}/nvim-runtime"
                     "${nvimLuaLibs}/telescope-nvim"
+                    "${nvimLuaLibs}/plenary-nvim"
+                    "${nvimLuaLibs}/sqlite-lua"
                   ];
                 };
               }
               ''
                 export HOME=$TMPDIR
                 cd ${self}
-                lua-language-server --check "$PWD/.config/nvim/lua" \
-                  --checklevel=Warning \
-                  --configpath=$LUARC \
-                  --logpath=$TMPDIR/lua-language-server-log
-                lua-language-server --check "$PWD/.config/nvim/after" \
+                lua-language-server --check "$PWD/.config/nvim" \
                   --checklevel=Warning \
                   --configpath=$LUARC \
                   --logpath=$TMPDIR/lua-language-server-log
@@ -694,6 +696,12 @@
           zizmor = unstablePkgs.runCommand "zizmor" { nativeBuildInputs = [ unstablePkgs.zizmor ]; } ''
             cd ${self}
             zizmor --no-online-audits .github/workflows/
+            touch $out
+          '';
+
+          nixfmt = unstablePkgs.runCommand "nixfmt" { nativeBuildInputs = [ unstablePkgs.nixfmt ]; } ''
+            cd ${self}
+            find . -type f -name '*.nix' -print0 | xargs -0 nixfmt --check
             touch $out
           '';
 
@@ -720,6 +728,16 @@
                   | xargs shellcheck
                 touch $out
               '';
+
+          shfmt = unstablePkgs.runCommand "shfmt" { nativeBuildInputs = [ unstablePkgs.shfmt ]; } ''
+            cd ${self}
+            find . -type f -print0 \
+              | xargs -0 file --mime-type \
+              | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' \
+              | grep -v '^\./\.config/zsh/' \
+              | xargs shfmt --indent 4 --case-indent --diff
+            touch $out
+          '';
 
           zsh-syntax = unstablePkgs.runCommand "zsh-syntax" { nativeBuildInputs = [ unstablePkgs.zsh ]; } ''
             cd ${self}
@@ -757,6 +775,106 @@
                 cd ${self}
                 find . -type f -name '*.py' -print0 \
                   | xargs -0 mypy --strict --cache-dir=$TMPDIR/mypy
+                touch $out
+              '';
+
+          rustfmt =
+            unstablePkgs.runCommand "rustfmt"
+              {
+                nativeBuildInputs = [
+                  unstablePkgs.cargo
+                  unstablePkgs.rustfmt
+                ];
+              }
+              ''
+                export HOME=$TMPDIR
+                cd ${self}
+                cargo fmt --manifest-path apps/Cargo.toml --all --check
+                touch $out
+              '';
+
+          json = unstablePkgs.runCommand "json" { nativeBuildInputs = [ unstablePkgs.jq ]; } ''
+            cd ${self}
+            find . -type f -name '*.json' -not -path './.config/Code/User/*' -print0 \
+              | xargs -0 -n1 jq empty
+            touch $out
+          '';
+
+          markdownlint =
+            unstablePkgs.runCommand "markdownlint" { nativeBuildInputs = [ unstablePkgs.markdownlint-cli ]; }
+              ''
+                cd ${self}
+                find . -type f -name '*.md' -print0 \
+                  | xargs -0 markdownlint --config .config/markdownlint/config.yaml
+                touch $out
+              '';
+
+          desktop-entries =
+            unstablePkgs.runCommand "desktop-entries"
+              { nativeBuildInputs = [ unstablePkgs.desktop-file-utils ]; }
+              ''
+                cd ${self}
+                desktop-file-validate .config/autostart/*.desktop
+                touch $out
+              '';
+
+          vint = unstablePkgs.runCommand "vint" { nativeBuildInputs = [ unstablePkgs.vim-vint ]; } ''
+            cd ${self}
+            vint --warning --enable-neovim .config/vim/vimrc .config/nvim/init.vim
+            touch $out
+          '';
+
+          dangling-symlinks = unstablePkgs.runCommand "dangling-symlinks" { } ''
+            cd ${self}
+            find . -type l -not -lname '/*' -xtype l \
+              | awk '{print "dangling symlink: " $0} END {exit NR > 0}'
+            touch $out
+          '';
+
+          shell-exec-bit = unstablePkgs.runCommand "shell-exec-bit" { } ''
+            cd ${self}
+            find . -type f ! -perm -u+x -print0 \
+              | xargs -0 file --mime-type \
+              | awk -F: '$2 ~ /text\/x-shellscript/ {print "not executable: " $1; found = 1} END {exit found}'
+            touch $out
+          '';
+
+          typos = unstablePkgs.runCommand "typos" { nativeBuildInputs = [ unstablePkgs.typos ]; } ''
+            cd ${self}
+            typos --isolated --config .config/typos/typos.toml .
+            touch $out
+          '';
+
+          pre-commit-config =
+            unstablePkgs.runCommand "pre-commit-config" { nativeBuildInputs = [ unstablePkgs.pre-commit ]; }
+              ''
+                export HOME=$TMPDIR
+                cd ${self}
+                pre-commit validate-config .pre-commit-config.yaml
+                touch $out
+              '';
+
+          biome = unstablePkgs.runCommand "biome" { nativeBuildInputs = [ unstablePkgs.biome ]; } ''
+            export HOME=$TMPDIR
+            cd ${self}
+            biome lint --config-path=.config/biome/biome.json --error-on-warnings \
+              .local/share/tampermonkey/*.user.js
+            touch $out
+          '';
+
+          apps-packages = unstablePkgs.linkFarm "apps-packages" apps.packages.${system};
+        }
+        // nixpkgs-stable.lib.optionalAttrs unstablePkgs.stdenv.hostPlatform.isLinux {
+          sway-config =
+            unstablePkgs.runCommand "sway-config" { nativeBuildInputs = [ unstablePkgs.sway-unwrapped ]; }
+              ''
+                export XDG_RUNTIME_DIR=$TMPDIR/run
+                mkdir -p "$XDG_RUNTIME_DIR"
+                export WLR_BACKENDS=headless
+                export WLR_RENDERER=pixman
+                cd ${self}
+                sway --validate --config .config/sway/config
+                sway --validate --config .config/sway/config-minimal
                 touch $out
               '';
         }

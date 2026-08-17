@@ -1,3 +1,10 @@
+---@class FzyAlgorithm
+---@field has_match fun(needle: string, haystack: string): boolean
+---@field score fun(needle: string, haystack: string): number
+---@field get_score_min fun(): number
+---@field get_score_floor fun(): number
+
+---@type FzyAlgorithm
 local fzy
 
 local function normalize_fzy_score(fzy_score)
@@ -9,7 +16,7 @@ local function normalize_fzy_score(fzy_score)
 end
 
 local function score(prompt, line)
-  -- Check for actual matches before running the scoring alogrithm.
+  -- Check for actual matches before running the scoring algorithm.
   if not fzy.has_match(prompt, line) then
     return -1
   end
@@ -33,7 +40,9 @@ end
 return {
   init = function(options)
     if options.native_fzy_path then
-      fzy = loadfile(options.native_fzy_path)()
+      local load_native = loadfile(options.native_fzy_path)
+      ---@cast load_native function
+      fzy = load_native()
     else
       fzy = require("smart-open.matching.algorithms.fzy_implementation")
     end

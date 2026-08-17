@@ -467,7 +467,7 @@ vim.lsp.enable("gopls")
 -- arduino-cli board attach -p /dev/ttyACM0 -b arduino:avr:uno test.ino
 -- ```
 --
--- Then createa a `.clangd` file in the project dir
+-- Then create a `.clangd` file in the project dir
 -- TODO: add example
 vim.lsp.config("clangd", {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },

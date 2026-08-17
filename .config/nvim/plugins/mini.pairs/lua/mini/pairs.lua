@@ -200,9 +200,9 @@ MiniPairs.config = {
 ---@param mode string `mode` for |nvim_set_keymap()|.
 ---@param lhs string `lhs` for |nvim_set_keymap()|.
 ---@param pair_info table Table with pair information. Fields:
----   - <action> - one of "open" for |MiniPairs.open()|,
----     "close" for |MiniPairs.close()|, or "closeopen" for
----     |MiniPairs.closeopen()|.
+---   - <action> - action function to use:
+---     "open" for |MiniPairs.open()|, "close" for |MiniPairs.close()|,
+---     "closeopen" for |MiniPairs.closeopen()|.
 ---   - <pair> - two character string to be passed to an action function.
 ---     Can contain multibyte characters.
 ---   - <neigh_pattern> - optional neighborhood pattern to be passed to an
@@ -213,12 +213,13 @@ MiniPairs.config = {
 ---     will be recognized by <BS> (in |MiniPairs.bs()|) and/or <CR>
 ---     (in |MiniPairs.cr()|).
 ---     Should have boolean fields <bs> and <cr> (both `true` by default).
----@param opts table|nil Optional table `opts` for |nvim_set_keymap()|. Elements
----   `expr` and `noremap` won't be recognized (`true` by default).
+---@param opts vim.api.keyset.keymap|nil `opts` for |nvim_set_keymap()|.
+---   Elements `expr` and `noremap` won't be recognized (`true` by default).
 MiniPairs.map = function(mode, lhs, pair_info, opts)
   pair_info = H.validate_pair_info(pair_info)
   opts =
     vim.tbl_deep_extend("force", opts or {}, { expr = true, noremap = true })
+  ---@cast opts vim.api.keyset.keymap
   opts.desc = H.infer_mapping_description(pair_info)
 
   vim.api.nvim_set_keymap(mode, lhs, H.pair_info_to_map_rhs(pair_info), opts)
@@ -238,16 +239,17 @@ end
 --- registration of pairs which will be recognized by <BS> and <CR>.
 --- It also infers mapping description from `pair_info`.
 ---
----@param buffer number `buffer` for |nvim_buf_set_keymap()|.
+---@param buffer integer `buffer` for |nvim_buf_set_keymap()|.
 ---@param mode string `mode` for |nvim_buf_set_keymap()|.
 ---@param lhs string `lhs` for |nvim_buf_set_keymap()|.
 ---@param pair_info table Table with pair information.
----@param opts table|nil Optional table `opts` for |nvim_buf_set_keymap()|.
+---@param opts vim.api.keyset.keymap|nil `opts` for |nvim_buf_set_keymap()|.
 ---   Elements `expr` and `noremap` won't be recognized (`true` by default).
 MiniPairs.map_buf = function(buffer, mode, lhs, pair_info, opts)
   pair_info = H.validate_pair_info(pair_info)
   opts =
     vim.tbl_deep_extend("force", opts or {}, { expr = true, noremap = true })
+  ---@cast opts vim.api.keyset.keymap
   opts.desc = H.infer_mapping_description(pair_info)
 
   vim.api.nvim_buf_set_keymap(
@@ -296,7 +298,7 @@ end
 ---   -- Map `X` key to do the same it does by default
 ---   vim.keymap.set('i', 'X', 'X', { buffer = true })
 --- <
----@param buffer number `buffer` for |nvim_buf_del_keymap()|.
+---@param buffer integer `buffer` for |nvim_buf_del_keymap()|.
 ---@param mode string `mode` for |nvim_buf_del_keymap()|.
 ---@param lhs string `lhs` for |nvim_buf_del_keymap()|.
 ---@param pair __pairs_unregistered_pair
@@ -472,6 +474,8 @@ H.default_pair_info =
 
 -- Pair sets registered *per mode-buffer-key*. Buffer `'all'` contains pairs
 -- registered for all buffers.
+---@alias MiniPairs.PairSets table<string, table<string, boolean>>
+---@type table<string, table<string|integer, MiniPairs.PairSets>>
 H.registered_pairs = {
   i = { all = { bs = {}, cr = {} } },
   c = { all = { bs = {}, cr = {} } },
