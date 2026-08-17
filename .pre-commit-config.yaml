@@ -61,21 +61,14 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        entry: nix develop --ignore-environment --keep HOME --command echo "ok"
+        entry: nix develop --no-write-lock-file --ignore-environment --keep HOME --command echo "ok"
 
-      - id: act-nvim-deprecations
-        name: act / nvim-deprecations.yml
+      - id: nix-flake-check
+        name: nix flake check
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/nvim-deprecations.yml
-
-      - id: act-nvim-plugins
-        name: act / nvim-plugins.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/nvim-plugins.yml
+        entry: nix flake check --no-write-lock-file --print-build-logs
 
       - id: act-python-lint
         name: act / python-lint.yml

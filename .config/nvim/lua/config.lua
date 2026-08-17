@@ -11,16 +11,6 @@ if vim.fn.executable("node") == 0 then
   return
 end
 
-if vim.fn.executable("make") == 0 then
-  print("make is required to use plugins")
-  return
-end
-
-if vim.fn.executable("cmake") == 0 then
-  print("cmake is required to use plugins")
-  return
-end
-
 if os.getenv("BWRAPPED") ~= "1" then
   print("BWRAPPED is required to use plugins")
   return
@@ -31,6 +21,12 @@ if lazypath then
   vim.opt.rtp:prepend(lazypath)
 else
   print("NEOVIM_LAZY_PATH is required to use plugins")
+  return
+end
+
+local pluginspath = os.getenv("NEOVIM_PLUGINS_PATH")
+if not pluginspath then
+  print("NEOVIM_PLUGINS_PATH is required to use plugins")
   return
 end
 
@@ -132,14 +128,11 @@ require("lazy").setup({
     end,
   },
   -- Syntax highlighting and code navigation.
-  -- nvim-treesitter (the parser manager / install framework) was archived in
-  -- April 2026. Parser installation is now done in-place in
-  -- `plugins_config/treesitter_conf.lua` against upstream parser repos.
+  -- nvim-treesitter (the parser manager) was archived in April 2026.
   -- nvim-treesitter-textobjects works standalone and is the entry point that
   -- loads our treesitter config.
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
-    branch = "main",
     lazy = false,
     init = function()
       -- Disable entire built-in ftplugin mappings to avoid conflicts.
@@ -167,7 +160,6 @@ require("lazy").setup({
   {
     "saghen/blink.cmp",
     lazy = false,
-    version = "1.*",
     dependencies = {
       "rafamadriz/friendly-snippets",
     },
@@ -320,7 +312,6 @@ require("lazy").setup({
   {
     "nvim-neo-tree/neo-tree.nvim",
     cmd = "Neotree",
-    branch = "v3.x",
     keys = {
       { "<leader>nn" },
     },
@@ -346,7 +337,6 @@ require("lazy").setup({
     lazy = false,
     enabled = false,
     ft = "go",
-    build = ":GoUpdateBinaries",
     init = function()
       vim.cmd([[
           let g:go_def_mapping_enabled = 0
@@ -384,45 +374,16 @@ require("lazy").setup({
     end,
     event = { "CmdlineEnter" },
     ft = { "go", "gomod" },
-    -- if you need to install/update all binaries
-    build = ':lua require("go.install").update_all_sync()',
   },
   -- sudo snap install rustup --classic,
   -- sudo snap install rust-analyzer --beta,
   {
     "mrcjkb/rustaceanvim",
-    version = "^5",
     init = function()
-      -- Check if lspmux is available and running
-      local function is_lspmux_available()
-        -- Check if lspmux binary exists in PATH
-        if vim.fn.executable("lspmux") ~= 1 then
-          return false
-        end
-        -- Check if lspmux is running
-        local handle = io.popen("pgrep lspmux 2>/dev/null")
-        if handle then
-          local result = handle:read("*a")
-          handle:close()
-          return result ~= nil and result ~= ""
-        end
-        return false
-      end
-
-      local use_lspmux = is_lspmux_available()
-
-      if not use_lspmux then
-        vim.notify(
-          "lspmux not found or not running, falling back to rust-analyzer",
-          vim.log.levels.WARN
-        )
-      end
-
+      -- rustaceanvim connects to a running lspmux on its own, but only while
+      -- `server.cmd` is unset.
       vim.g.rustaceanvim = {
         server = {
-          cmd = use_lspmux and function()
-            return vim.lsp.rpc.connect("127.0.0.1", 27631)
-          end or nil,
           ---@param client vim.lsp.Client
           ---@param bufnr integer
           ---@return nil
@@ -440,13 +401,7 @@ require("lazy").setup({
             end
           end,
           default_settings = {
-            ["rust-analyzer"] = vim.tbl_deep_extend("force", use_lspmux and {
-              lspMux = {
-                version = "1",
-                method = "connect",
-                server = "rust-analyzer",
-              },
-            } or {}, {
+            ["rust-analyzer"] = {
               checkOnSave = false,
               check = {
                 -- only check the crate you're editing,
@@ -459,7 +414,7 @@ require("lazy").setup({
                   rebuildOnSave = false,
                 },
               },
-            }),
+            },
           },
         },
       }
@@ -497,7 +452,6 @@ require("lazy").setup({
   -- alternatives: barbar.nvim, mini.tabline, or going tab-less.
   {
     "akinsho/bufferline.nvim",
-    version = "*",
     lazy = false,
     dependencies = {
       "echasnovski/mini.icons",
@@ -609,7 +563,6 @@ require("lazy").setup({
     "nvim-telescope/telescope.nvim",
     -- Go to definition is broken:
     -- https://github.com/nvim-telescope/telescope.nvim/issues/2690
-    -- commit = "443e5a6802849f9e4611a2d91db01b8a37350524",
     config = function()
       require("plugins_config/telescope_conf")
     end,
@@ -628,8 +581,6 @@ require("lazy").setup({
   -- Fzf interface for telescope
   {
     "nvim-telescope/telescope-fzf-native.nvim",
-    -- luacheck: ignore
-    build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
   },
   -- Live grep with args
   {
@@ -638,7 +589,6 @@ require("lazy").setup({
   -- Identation indication
   {
     "HiPhish/rainbow-delimiters.nvim",
-    submodules = false,
   },
   {
     "lukas-reineke/indent-blankline.nvim",
@@ -719,8 +669,8 @@ require("lazy").setup({
   {
     "rmagatti/auto-session",
     init = function(_self)
-      vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,winsize,winpos," -- luacheck: ignore line-too-long
-        .. "terminal,localoptions"
+      vim.o.sessionoptions = "blank,buffers,curdir,help,tabpages,"
+        .. "winsize,winpos,terminal,localoptions"
       vim.g.auto_session_pre_save_cmds = {
         "tabdo Neotree close",
         "tabdo Undotree close",
@@ -762,6 +712,15 @@ require("lazy").setup({
       { "nvim-telescope/telescope-fzf-native.nvim" },
     },
   },
+}, {
+  -- Resolve every GitHub spec to a pre-installed directory instead of cloning.
+  dev = {
+    path = pluginspath,
+    patterns = { "https://github.com/" },
+    fallback = false,
+  },
+  install = { missing = false },
+  rocks = { enabled = false },
 })
 
 -- Native undotree (nvim 0.12+), replaces mbbill/undotree

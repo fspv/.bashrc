@@ -47,6 +47,14 @@
       url = "github:b0o/tmux-autoreload";
       flake = false;
     };
+    please-nvim = {
+      url = "github:marcuscaisey/please.nvim";
+      flake = false;
+    };
+    vim-quickui = {
+      url = "github:skywind3000/vim-quickui";
+      flake = false;
+    };
   };
 
   outputs =
@@ -65,6 +73,8 @@
       you-should-use,
       fzf-tab,
       tmux-autoreload,
+      please-nvim,
+      vim-quickui,
     }:
     let
       supportedSystems = [
@@ -81,6 +91,198 @@
           nvim-runtime = "${unstablePkgs.neovim-unwrapped}/share/nvim/runtime/lua";
           telescope-nvim = "${unstablePkgs.vimPlugins.telescope-nvim}/lua";
         };
+
+      nvimPluginsFor =
+        unstablePkgs:
+        unstablePkgs.linkFarm "nvim-plugins" {
+          "gruvbox.nvim" = unstablePkgs.vimPlugins.gruvbox-nvim;
+          "nvim-treesitter-textobjects" = unstablePkgs.vimPlugins.nvim-treesitter-textobjects;
+          "friendly-snippets" = unstablePkgs.vimPlugins.friendly-snippets;
+          "blink.cmp" = unstablePkgs.vimPlugins.blink-cmp;
+          "nvim-lspconfig" = unstablePkgs.vimPlugins.nvim-lspconfig;
+          "conform.nvim" = unstablePkgs.vimPlugins.conform-nvim;
+          "flash.nvim" = unstablePkgs.vimPlugins.flash-nvim;
+          "ctrlp.vim" = unstablePkgs.vimPlugins.ctrlp-vim;
+          "vim-fugitive" = unstablePkgs.vimPlugins.vim-fugitive;
+          "gitsigns.nvim" = unstablePkgs.vimPlugins.gitsigns-nvim;
+          "diffview-plus.nvim" = unstablePkgs.vimPlugins.diffview-plus-nvim;
+          "neogit" = unstablePkgs.vimPlugins.neogit;
+          "neo-tree.nvim" = unstablePkgs.vimPlugins.neo-tree-nvim;
+          "nui.nvim" = unstablePkgs.vimPlugins.nui-nvim;
+          "go.nvim" = unstablePkgs.vimPlugins.go-nvim;
+          "guihua.lua" = unstablePkgs.vimPlugins.guihua-lua;
+          "rustaceanvim" = unstablePkgs.vimPlugins.rustaceanvim;
+          "plenary.nvim" = unstablePkgs.vimPlugins.plenary-nvim;
+          "nvim-dap" = unstablePkgs.vimPlugins.nvim-dap;
+          "bufferline.nvim" = unstablePkgs.vimPlugins.bufferline-nvim;
+          "lualine.nvim" = unstablePkgs.vimPlugins.lualine-nvim;
+          "statuscol.nvim" = unstablePkgs.vimPlugins.statuscol-nvim;
+          "dropbar.nvim" = unstablePkgs.vimPlugins.dropbar-nvim;
+          "telescope.nvim" = unstablePkgs.vimPlugins.telescope-nvim;
+          "telescope-fzf-native.nvim" = unstablePkgs.vimPlugins.telescope-fzf-native-nvim;
+          "telescope-live-grep-args.nvim" = unstablePkgs.vimPlugins.telescope-live-grep-args-nvim;
+          "rainbow-delimiters.nvim" = unstablePkgs.vimPlugins.rainbow-delimiters-nvim;
+          "indent-blankline.nvim" = unstablePkgs.vimPlugins.indent-blankline-nvim;
+          "vim-matchup" = unstablePkgs.vimPlugins.vim-matchup;
+          "trouble.nvim" = unstablePkgs.vimPlugins.trouble-nvim;
+          "which-key.nvim" = unstablePkgs.vimPlugins.which-key-nvim;
+          "treesj" = unstablePkgs.vimPlugins.treesj;
+          "auto-session" = unstablePkgs.vimPlugins.auto-session;
+          "sqlite.lua" = unstablePkgs.vimPlugins.sqlite-lua;
+          "please.nvim" = please-nvim;
+          "vim-quickui" = vim-quickui;
+        };
+
+      # Each grammar's own queries, so parser and queries revisions match.
+      nvimTreesitterFor =
+        unstablePkgs:
+        let
+          inherit (nixpkgs-stable) lib;
+
+          duplicateGrammars = [
+            "tree-sitter-go-template" # same rev as tree-sitter-gotmpl
+            "tree-sitter-org-nvim" # same rev as tree-sitter-org
+          ];
+
+          # ~56 MiB of the ~227 MiB of all parsers.
+          oversizedGrammars = [
+            "tree-sitter-fsharp"
+            "tree-sitter-lean"
+            "tree-sitter-razor"
+            "tree-sitter-verilog"
+          ];
+
+          # The language id is the `tree_sitter_<id>` symbol the parser exports.
+          languageIdOverrides = {
+            "tree-sitter-go-template-helm" = "helm";
+            "tree-sitter-sshclientconfig" = "ssh_client_config";
+          };
+
+          # Defaults to the repo's first grammar, which is another copy of php.
+          grammarOverrides = {
+            "tree-sitter-php-only" = unstablePkgs.tree-sitter-grammars.tree-sitter-php-only.override {
+              language = "php_only";
+            };
+          };
+
+          nestedQueryDirs = {
+            cpon = "vim";
+            ghostty = "ghostty";
+            glimmer = "glimmer";
+            graphql = "graphql";
+            hyprlang = "hyprlang";
+            just = "just";
+            mail = "mail";
+            matlab = "neovim";
+            nu = "nu";
+            query = "query";
+            snakemake = "snakemake";
+            tcl = "tcl";
+            templ = "templ";
+            typst = "typst";
+            vhdl = "Neovim";
+            vim = "vim";
+            vue = "vue";
+            werk = "werk";
+          };
+
+          languagesWithUncompilableQueries = [
+            "hurl"
+            "mojo"
+            "scss"
+            "supercollider"
+          ];
+
+          languagesWithoutQueries = [
+            "amber"
+            "beancount"
+            "comment"
+            "commonlisp" # only tags.scm, which neovim does not use
+            "csv"
+            "dbml"
+            "dtd"
+            "edoc"
+            "fennel"
+            "gdscript"
+            "gitignore"
+            "gn"
+            "godot_resource"
+            "haskell_persistent"
+            "hcl"
+            "helm"
+            "hosts"
+            "jq"
+            "latex"
+            "ledger"
+            "lpf"
+            "luau"
+            "norg"
+            "ocaml"
+            "ocaml_interface"
+            "org"
+            "passwd"
+            "perl"
+            "php"
+            "php_only"
+            "phpdoc"
+            "pioasm"
+            "ql_dbscheme"
+            "rst"
+            "rust_format_args"
+            "slang"
+            "slint"
+            "spade"
+            "sparql"
+            "surface"
+            "talon"
+            "task"
+            "tsq"
+            "tsx"
+            "turtle"
+            "typescript"
+            "wast"
+            "wat"
+            "wren"
+            "xit"
+            "xml"
+          ];
+
+          languagesWithoutUsableQueries = languagesWithoutQueries ++ languagesWithUncompilableQueries;
+
+          languageIdFor =
+            name: languageIdOverrides.${name} or (lib.replaceStrings [ "tree-sitter-" "-" ] [ "" "_" ] name);
+
+          queryPathFor =
+            language: grammar:
+            if nestedQueryDirs ? ${language} then
+              "${grammar}/queries/${nestedQueryDirs.${language}}"
+            else
+              "${grammar}/queries";
+
+          grammars = lib.filterAttrs (
+            name: grammar:
+            !lib.elem name (duplicateGrammars ++ oversizedGrammars)
+            && lib.meta.availableOn unstablePkgs.stdenv.hostPlatform grammar
+          ) (unstablePkgs.tree-sitter-grammars.derivations // grammarOverrides);
+        in
+        unstablePkgs.linkFarm "nvim-treesitter-parsers" (
+          {
+            # Sourced explicitly by treesitter_conf.lua, so not under plugin/.
+            "filetypes.lua" = "${unstablePkgs.vimPlugins.nvim-treesitter}/plugin/filetypes.lua";
+          }
+          // lib.concatMapAttrs (
+            name: grammar:
+            let
+              language = languageIdFor name;
+            in
+            {
+              "parser/${language}.so" = "${grammar}/parser";
+            }
+            // lib.optionalAttrs (!lib.elem language languagesWithoutUsableQueries) {
+              "queries/${language}" = queryPathFor language grammar;
+            }
+          ) grammars
+        );
     in
     {
       devShells = forAllSystems (
@@ -105,6 +307,8 @@
           };
 
           nvimLuaLibs = nvimLuaLibsFor unstablePkgs;
+          nvimPlugins = nvimPluginsFor unstablePkgs;
+          nvimTreesitter = nvimTreesitterFor unstablePkgs;
 
           tmuxPluginsDir = stablePkgs.linkFarm "tmux-plugins" {
             sensible = builtins.dirOf unstablePkgs.tmuxPlugins.sensible.rtp;
@@ -227,7 +431,6 @@
             # Watcher used by tmux-autoreload
             stablePkgs.entr
             unstablePkgs.neovim
-            unstablePkgs.vimPlugins.lazy-nvim
             unstablePkgs.atuin
           ];
 
@@ -319,7 +522,7 @@
           );
 
           makeShell =
-            packages:
+            { packages, extraShellHook }:
             stablePkgs.mkShell {
               inherit packages;
 
@@ -336,8 +539,8 @@
                 export ZSH=${stablePkgs.oh-my-zsh}/share/oh-my-zsh
                 export ZSH_CUSTOM=${zshCustom}
                 export GITSTATUS_DAEMON=${stablePkgs.gitstatus}/bin/gitstatusd
-                export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
                 export NVIM_LUA_LIBS=${nvimLuaLibs}
+                ${extraShellHook}
                 export TMUX_PLUGINS=${tmuxPluginsDir}
                 export TMPPREFIX="$HOME/.cache/zsh"
                 export EDITOR=nvim
@@ -352,8 +555,19 @@
             };
         in
         {
-          default = makeShell (toInstallBasic ++ toInstallExtra);
-          basic = makeShell toInstallBasic;
+          default = makeShell {
+            packages = toInstallBasic ++ toInstallExtra;
+            # The plugin set needs the language servers from toInstallExtra.
+            extraShellHook = ''
+              export NEOVIM_LAZY_PATH=${unstablePkgs.vimPlugins.lazy-nvim}
+              export NEOVIM_PLUGINS_PATH=${nvimPlugins}
+              export NEOVIM_TREESITTER_PATH=${nvimTreesitter}
+            '';
+          };
+          basic = makeShell {
+            packages = toInstallBasic;
+            extraShellHook = "";
+          };
         }
       );
 
@@ -361,8 +575,39 @@
         system:
         let
           unstablePkgs = import nixpkgs-unstable { inherit system; };
+
+          nvimCheck =
+            name: script:
+            unstablePkgs.runCommand name
+              {
+                nativeBuildInputs = [
+                  unstablePkgs.neovim
+                  unstablePkgs.nodejs_22
+                  unstablePkgs.git
+                ];
+                NEOVIM_LAZY_PATH = unstablePkgs.vimPlugins.lazy-nvim;
+                NEOVIM_PLUGINS_PATH = nvimPluginsFor unstablePkgs;
+                NEOVIM_TREESITTER_PATH = nvimTreesitterFor unstablePkgs;
+                BWRAPPED = 1;
+              }
+              ''
+                export HOME=$TMPDIR/home
+                export XDG_CONFIG_HOME=$HOME/.config
+                export XDG_CACHE_HOME=$TMPDIR/cache
+                export XDG_DATA_HOME=$TMPDIR/data
+                export XDG_STATE_HOME=$TMPDIR/state
+                mkdir -p "$XDG_CONFIG_HOME"
+                # init.vim sources `~/.config/vim`, so the config has to sit under $HOME
+                cp -r --no-preserve=mode ${self}/.config/nvim "$XDG_CONFIG_HOME/nvim"
+                cp -r --no-preserve=mode ${self}/.config/vim "$XDG_CONFIG_HOME/vim"
+                nvim --headless +"luafile $XDG_CONFIG_HOME/nvim/lua/${script}"
+                touch $out
+              '';
         in
         {
+          nvim-smoke-test = nvimCheck "nvim-smoke-test" "smoke_test.lua";
+          nvim-deprecations = nvimCheck "nvim-deprecations" "deprecation_check.lua";
+
           emmylua =
             unstablePkgs.runCommand "emmylua-check"
               {
