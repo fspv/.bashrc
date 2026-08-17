@@ -103,6 +103,6 @@ repos:
       - id: act-systemd-lint
         name: act / systemd-lint.yml
         language: system
+        files: ^\.config/systemd/|^\.github/workflows/systemd-lint\.yml$
         pass_filenames: false
-        always_run: true
         entry: .local/share/bin/act-staged -W .github/workflows/systemd-lint.yml
