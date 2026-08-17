@@ -1,4 +1,13 @@
 repos:
+  - repo: local
+    hooks:
+      - id: act-flake-lock
+        name: act / format-lint.yml (flake-lock)
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: .local/share/bin/act-staged -W .github/workflows/format-lint.yml -j flake-lock
+
   - repo: https://github.com/JohnnyMorganz/StyLua
     rev: v2.4.0
     hooks:
