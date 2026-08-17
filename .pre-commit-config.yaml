@@ -2,14 +2,14 @@ repos:
   - repo: local
     hooks:
       - id: act-flake-lock
-        name: act / format-lint.yml (flake-lock)
+        name: act / flake-lock.yml
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/format-lint.yml -j flake-lock
+        entry: .local/share/bin/act-staged -W .github/workflows/flake-lock.yml
 
   - repo: https://github.com/JohnnyMorganz/StyLua
-    rev: v2.4.0
+    rev: v2.5.2
     hooks:
       - id: stylua
         types: [lua]
@@ -30,40 +30,12 @@ repos:
         pass_filenames: false
         entry: env NIX_ENFORCE_PURITY=0 cargo test --manifest-path apps/Cargo.toml
 
-      - id: act-actionlint
-        name: act / actionlint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/actionlint.yml
-
-      - id: act-actions-security
-        name: act / actions-security.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/actions-security.yml
-
       - id: act-dependency-audit
         name: act / dependency-audit.yml
         language: system
         pass_filenames: false
         always_run: true
         entry: .local/share/bin/act-staged -W .github/workflows/dependency-audit.yml
-
-      - id: act-format-lint
-        name: act / format-lint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/format-lint.yml
-
-      - id: act-lint
-        name: act / lint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/lint.yml
 
       - id: nix-develop
         name: nix develop
@@ -77,14 +49,7 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        entry: nix flake check --no-write-lock-file --print-build-logs
-
-      - id: act-python-lint
-        name: act / python-lint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/python-lint.yml
+        entry: nix flake check --no-write-lock-file --print-build-logs --keep-going
 
       - id: gitleaks
         name: gitleaks

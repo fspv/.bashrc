@@ -1,0 +1,30 @@
+name: Flake Lock
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '*.md'
+      - '**/*.md'
+
+permissions:
+  contents: read
+
+jobs:
+  flake-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Check flake.lock has no locked inputs
+        run: git show :flake.lock | jq --exit-status '.nodes == {}'

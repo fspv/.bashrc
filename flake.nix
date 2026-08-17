@@ -599,6 +599,8 @@
                 nvim --headless +"luafile $XDG_CONFIG_HOME/nvim/lua/${script}"
                 touch $out
               '';
+
+          nvimLuaLibs = nvimLuaLibsFor unstablePkgs;
         in
         {
           nvim-smoke-test = nvimCheck "nvim-smoke-test" "smoke_test.lua";
@@ -613,6 +615,148 @@
               ''
                 export HOME=$TMPDIR
                 emmylua_check ${self}/.config/nvim --warnings-as-errors
+                touch $out
+              '';
+
+          yamllint = unstablePkgs.runCommand "yamllint" { nativeBuildInputs = [ unstablePkgs.yamllint ]; } ''
+            cd ${self}
+            yamllint -c .config/yamllint/config.yaml .
+            touch $out
+          '';
+
+          taplo = unstablePkgs.runCommand "taplo" { nativeBuildInputs = [ unstablePkgs.taplo ]; } ''
+            cd ${self}
+            taplo lint --config .config/taplo/taplo.toml
+            touch $out
+          '';
+
+          editorconfig =
+            unstablePkgs.runCommand "editorconfig"
+              { nativeBuildInputs = [ unstablePkgs.editorconfig-checker ]; }
+              ''
+                cd ${self}
+                editorconfig-checker -config .config/editorconfig-checker/config.json
+                touch $out
+              '';
+
+          stylua = unstablePkgs.runCommand "stylua" { nativeBuildInputs = [ unstablePkgs.stylua ]; } ''
+            cd ${self}
+            stylua --check .
+            touch $out
+          '';
+
+          luacheck =
+            unstablePkgs.runCommand "luacheck" { nativeBuildInputs = [ unstablePkgs.luajitPackages.luacheck ]; }
+              ''
+                cd ${self}
+                luacheck .
+                touch $out
+              '';
+
+          lua-language-server =
+            unstablePkgs.runCommand "lua-language-server"
+              {
+                nativeBuildInputs = [ unstablePkgs.lua-language-server ];
+                LUARC = unstablePkgs.writers.writeJSON "luarc.json" {
+                  "runtime.version" = "LuaJIT";
+                  "diagnostics.globals" = [
+                    "vim"
+                    "MiniIcons"
+                  ];
+                  "workspace.library" = [
+                    "${nvimLuaLibs}/nvim-runtime"
+                    "${nvimLuaLibs}/telescope-nvim"
+                  ];
+                };
+              }
+              ''
+                export HOME=$TMPDIR
+                cd ${self}
+                lua-language-server --check "$PWD/.config/nvim/lua" \
+                  --checklevel=Warning \
+                  --configpath=$LUARC \
+                  --logpath=$TMPDIR/lua-language-server-log
+                lua-language-server --check "$PWD/.config/nvim/after" \
+                  --checklevel=Warning \
+                  --configpath=$LUARC \
+                  --logpath=$TMPDIR/lua-language-server-log
+                touch $out
+              '';
+
+          actionlint =
+            unstablePkgs.runCommand "actionlint" { nativeBuildInputs = [ unstablePkgs.actionlint ]; }
+              ''
+                cd ${self}
+                actionlint .github/workflows/*
+                touch $out
+              '';
+
+          zizmor = unstablePkgs.runCommand "zizmor" { nativeBuildInputs = [ unstablePkgs.zizmor ]; } ''
+            cd ${self}
+            zizmor --no-online-audits .github/workflows/
+            touch $out
+          '';
+
+          statix = unstablePkgs.runCommand "statix" { nativeBuildInputs = [ unstablePkgs.statix ]; } ''
+            cd ${self}
+            statix check .
+            touch $out
+          '';
+
+          deadnix = unstablePkgs.runCommand "deadnix" { nativeBuildInputs = [ unstablePkgs.deadnix ]; } ''
+            cd ${self}
+            deadnix --fail --no-lambda-pattern-names .
+            touch $out
+          '';
+
+          shellcheck =
+            unstablePkgs.runCommand "shellcheck" { nativeBuildInputs = [ unstablePkgs.shellcheck ]; }
+              ''
+                cd ${self}
+                find . -type f -print0 \
+                  | xargs -0 file --mime-type \
+                  | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' \
+                  | grep -v '^\./\.config/zsh/' \
+                  | xargs shellcheck
+                touch $out
+              '';
+
+          zsh-syntax = unstablePkgs.runCommand "zsh-syntax" { nativeBuildInputs = [ unstablePkgs.zsh ]; } ''
+            cd ${self}
+            find .config/zsh -type f -print0 | xargs -0 -n1 zsh -n
+            zsh -n .zshenv
+            touch $out
+          '';
+
+          ruff-format =
+            unstablePkgs.runCommand "ruff-format" { nativeBuildInputs = [ unstablePkgs.ruff ]; }
+              ''
+                cd ${self}
+                ruff format --check --no-cache .
+                touch $out
+              '';
+
+          ruff-lint = unstablePkgs.runCommand "ruff-lint" { nativeBuildInputs = [ unstablePkgs.ruff ]; } ''
+            cd ${self}
+            ruff check --no-cache .
+            touch $out
+          '';
+
+          mypy =
+            unstablePkgs.runCommand "mypy"
+              {
+                nativeBuildInputs = [
+                  (unstablePkgs.python3.withPackages (pythonPackages: [
+                    pythonPackages.i3ipc
+                    pythonPackages.mypy
+                    pythonPackages.pytest
+                  ]))
+                ];
+              }
+              ''
+                cd ${self}
+                find . -type f -name '*.py' -print0 \
+                  | xargs -0 mypy --strict --cache-dir=$TMPDIR/mypy
                 touch $out
               '';
         }

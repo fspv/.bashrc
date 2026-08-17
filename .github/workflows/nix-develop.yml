@@ -45,7 +45,7 @@ jobs:
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
       - name: Run flake checks
         run: |
-          nix flake check --print-build-logs
+          nix flake check --print-build-logs --keep-going
   build-ubuntu-22-04:
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -73,7 +73,7 @@ jobs:
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
       - name: Run flake checks
         run: |
-          nix flake check --print-build-logs
+          nix flake check --print-build-logs --keep-going
   build-macos-arm64:
     runs-on: macos-latest
     timeout-minutes: 40
@@ -101,7 +101,7 @@ jobs:
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
       - name: Run flake checks
         run: |
-          nix flake check --print-build-logs
+          nix flake check --print-build-logs --keep-going
   build-ubuntu-24-04-arm64:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 40
@@ -129,4 +129,4 @@ jobs:
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
       - name: Run flake checks
         run: |
-          nix flake check --print-build-logs
+          nix flake check --print-build-logs --keep-going
