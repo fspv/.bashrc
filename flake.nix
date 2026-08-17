@@ -1,4 +1,10 @@
 # nix develop -i
+# `flake.lock` is intentionally empty in git to avoid dealing with merge
+# conflicts on multiple machines. It does cause problems though, because you
+# need to remember to not accidentally commit it and also it leads to a
+# guaranteed update on a new machine. It is a source of known problems in CI
+# such as world rebuild when the package is not cached in Hydra. Happens often
+# for MacOS build and there is no good solution yet.
 {
   description = "Development shell with stable and unstable packages";
 

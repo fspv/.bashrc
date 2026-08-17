@@ -4,7 +4,7 @@ If you have noticed that the user or somebody else changed code or some other co
 
 - Don't run `find /` as it will never finish on most of the systems. I mean it. Do never run any command which uses `find /`. Use more scoped finds instead.
 - Use `fd` instead of `find` and `rg` instead of `grep` if you want things to go faster.
-- Don't write excessive comments. Code should be self-documenting. Better select a good descriptive function name and use good types for inputs and outputs than write a huge comment explaining what it does.
+- No comments allowed. At all. Don't write any comments, unless the user explicitly told you to do so. Code should be self-documenting. Better select a good descriptive function name and use good types for inputs and outputs than write a huge comment explaining what it does.
 - If possible diffs to the existing code should be minimal. When you finish the change run `git diff` and check if the change you made is easy to understand.
 - Avoid defensive programming and excessive branching and error handling. In most of the cases we should assume the preconditions are already met when we run the code. If they're not - the best thing we can do is to fail. So no `try/catch` or "if file not found let's create it" or "if env var doesn't exist let's assume default value".
 - Do not introduce global constants unnecessarily. Just inline values, unless they're used in many places when constant is genuinely justified. If you really need to explain what variable means (for example, timeout value or some external URL) just create a local variable.
