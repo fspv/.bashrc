@@ -1,0 +1,12 @@
+{
+  "runtime": { "version": "LuaJIT" },
+  "workspace": {
+    "library": ["$NVIM_LUA_LIBS"],
+    "//": "plenary's busted.lua assigns the global `assert = require 'luassert'`, which retypes assert workspace-wide and makes every assert() call look non-callable",
+    "ignoreGlobs": ["**/plenary/busted.lua"]
+  },
+  "diagnostics": {
+    "globals": ["vim", "MiniIcons"],
+    "disable": ["unresolved-require", "unnecessary-if"]
+  }
+}

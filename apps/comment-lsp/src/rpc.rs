@@ -26,7 +26,8 @@ pub fn read_message(reader: &mut impl BufRead) -> Result<Option<Value>> {
     let length = content_length.ok_or_else(|| Error::Parse("missing Content-Length".into()))?;
     let mut body = vec![0; length];
     reader.read_exact(&mut body)?;
-    let message = serde_json::from_slice(&body).map_err(|source| Error::Parse(source.to_string()))?;
+    let message =
+        serde_json::from_slice(&body).map_err(|source| Error::Parse(source.to_string()))?;
     Ok(Some(message))
 }
 

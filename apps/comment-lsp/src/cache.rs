@@ -39,8 +39,8 @@ pub fn store(path: &Path, comments: &[Comment]) -> Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
-    let raw =
-        serde_json::to_string_pretty(comments).map_err(|source| Error::Parse(source.to_string()))?;
+    let raw = serde_json::to_string_pretty(comments)
+        .map_err(|source| Error::Parse(source.to_string()))?;
     fs::write(path, raw)?;
     Ok(())
 }

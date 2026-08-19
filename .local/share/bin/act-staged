@@ -8,4 +8,4 @@ git -C "$temp_dir" init --quiet
 git -C "$temp_dir" add -A -f
 git -C "$temp_dir" -c user.email=pre-commit -c user.name=pre-commit commit --quiet --no-verify -m staged
 # shellcheck disable=SC2046 # actrc contents are split into separate act flags on purpose
-act -C "$temp_dir" $(< .config/act/actrc) "$@"
+act -C "$temp_dir" $(<.config/act/actrc) "$@"

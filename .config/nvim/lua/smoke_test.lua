@@ -1,4 +1,7 @@
-require("lazy").install({ wait = true })
+-- Force-load every plugin so config errors surface
+require("lazy").load({
+  plugins = vim.tbl_keys(require("lazy.core.config").plugins),
+})
 
 -- Check for plugin config/load errors
 local errors = {}
@@ -13,19 +16,17 @@ if #errors > 0 then
   vim.cmd("cquit 1")
 end
 
--- Check for build task failures
-local build_failures = {}
+-- Catch plugins that were never installed
+local missing_dirs = {}
 for name, plugin in pairs(require("lazy.core.config").plugins) do
-  for _, task in ipairs(plugin._.tasks or {}) do
-    if task.name == "build" and task.error then
-      table.insert(build_failures, name .. ": " .. task.error)
-    end
+  if not vim.uv.fs_stat(plugin.dir) then
+    table.insert(missing_dirs, name .. ": " .. plugin.dir)
   end
 end
 
-if #build_failures > 0 then
-  print("FAIL builds:")
-  for _, msg in ipairs(build_failures) do
+if #missing_dirs > 0 then
+  print("FAIL plugin dirs:")
+  for _, msg in ipairs(missing_dirs) do
     print("  " .. msg)
   end
   vim.cmd("cquit 1")
@@ -37,20 +38,23 @@ print(string.format("OK: %d/%d plugins loaded", s.loaded, s.count))
 -- Check treesitter parsers (list comes from treesitter_conf)
 local ts = require("plugins_config/treesitter_conf")
 
--- Wait for async parser installs (up to 120s)
-vim.wait(120000, function()
-  for _, lang in ipairs(ts.ensure_installed) do
-    if not pcall(vim.treesitter.language.add, lang) then
-      return false
-    end
-  end
-  return true
-end, 2000)
+local query_types = { "highlights", "injections", "locals", "folds", "indents" }
 
--- Verify all parsers compiled
 local failed = {}
+local broken_queries = {}
 for _, lang in ipairs(ts.ensure_installed) do
-  if not pcall(vim.treesitter.language.add, lang) then
+  if pcall(vim.treesitter.language.add, lang) then
+    -- A missing query returns nil, a broken one throws.
+    for _, query in ipairs(query_types) do
+      local ok, err = pcall(vim.treesitter.query.get, lang, query)
+      if not ok then
+        table.insert(
+          broken_queries,
+          string.format("%s/%s: %s", lang, query, err)
+        )
+      end
+    end
+  else
     table.insert(failed, lang)
   end
 end
@@ -60,5 +64,15 @@ if #failed > 0 then
   vim.cmd("cquit 1")
 end
 
-print(string.format("OK: %d treesitter parsers", #ts.ensure_installed))
+if #broken_queries > 0 then
+  print("FAIL queries:")
+  for _, msg in ipairs(broken_queries) do
+    print("  " .. msg)
+  end
+  vim.cmd("cquit 1")
+end
+
+print(
+  string.format("OK: %d treesitter parsers and queries", #ts.ensure_installed)
+)
 vim.cmd("quit")

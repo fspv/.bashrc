@@ -67,7 +67,9 @@ local function adjust_weights(
     return entry.scores[key] and entry.scores[key] / original_weight
   end
 
+  ---@type number
   local to_deduct = 0
+  ---@type number
   local to_add = 0
 
   -- Total up the amounts to add and deduct

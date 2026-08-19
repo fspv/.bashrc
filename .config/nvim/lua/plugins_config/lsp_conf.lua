@@ -40,7 +40,7 @@ local on_attach_func = function(client, bufnr)
 
   -- Disable formatting for tsserver and enable eslint. Tsserver formatting
   -- doesn't work well
-  if client.name == "tsserver" then
+  if client.name == "tsserver" and client.server_capabilities then
     client.server_capabilities.documentFormattingProvider = nil
   end
 
@@ -308,7 +308,7 @@ vim.lsp.config("lua_ls", {
     end
 
     client.config.settings.Lua =
-      vim.tbl_deep_extend("force", client.config.settings.Lua, {
+      vim.tbl_deep_extend("force", client.config.settings.Lua --[[@as table]], {
         runtime = {
           -- Tell the language server which version of Lua you're using
           -- (most likely LuaJIT in the case of Neovim)
@@ -467,7 +467,7 @@ vim.lsp.enable("gopls")
 -- arduino-cli board attach -p /dev/ttyACM0 -b arduino:avr:uno test.ino
 -- ```
 --
--- Then createa a `.clangd` file in the project dir
+-- Then create a `.clangd` file in the project dir
 -- TODO: add example
 vim.lsp.config("clangd", {
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },

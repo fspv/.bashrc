@@ -6,6 +6,7 @@
 !/atuin/
 !/autostart/
 !/bash/
+!/biome/
 !/chromium-flags.conf
 !/containers/
 !/direnv/
@@ -25,6 +26,7 @@
 !/jj/
 !/jjui/
 !/lazygit/
+!/markdownlint/
 !/mimeapps.list
 !/nix/
 !/npm/
@@ -41,6 +43,7 @@
 !/taplo/
 !/terminator/
 !/tmux/
+!/typos/
 !/vim/
 !/waybar/
 !/wezterm/

@@ -109,7 +109,7 @@ else
     AT_COLOR=$BIGreen
 fi
 
-# Move cursor to the begining of the next line.
+# Move cursor to the beginning of the next line.
 # This is a hack! Will break on lines longer than 999999
 #LINE_BREAK='\n\[\033[1B\]\[\033[999D\]'
 #LINE_BREAK='\n\n'

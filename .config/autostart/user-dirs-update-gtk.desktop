@@ -1,3 +1,5 @@
 [Desktop Entry]
+Type=Application
+Name=User folders update
 X-GNOME-Autostart-enabled=false
 Hidden=true

@@ -9,7 +9,7 @@ local virtual_name = require("smart-open.util.virtual_name")
 
 --- Creates a finder that combines entries from our smart_open db and
 --- output from ripgrep
----@param history object: History instance
+---@param history SmartOpenHistory: History instance
 ---@param opts table: Finder options...
 --- * display function
 --- * cwd string

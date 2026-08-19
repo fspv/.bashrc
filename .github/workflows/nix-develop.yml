@@ -20,7 +20,7 @@ permissions:
 jobs:
   build-ubuntu-24-04:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -43,9 +43,12 @@ jobs:
       - name: Test zsh
         run: |
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+      - name: Run flake checks
+        run: |
+          nix flake check --print-build-logs --keep-going
   build-ubuntu-22-04:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -68,9 +71,17 @@ jobs:
       - name: Test zsh
         run: |
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+      - name: Run flake checks
+        run: |
+          nix flake check --print-build-logs --keep-going
+  # TODO: failing since 2026-08-17 because the empty flake.lock re-resolves
+  # nixpkgs on every run, and when the resolved revision is not yet cached in
+  # Hydra for darwin, nix rebuilds the world from source (e.g. swift) and hits
+  # the 5 minute "Init user env" timeout. Fix by pinning nixpkgs for CI or
+  # waiting out cache misses some other way.
   build-macos-arm64:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -93,9 +104,12 @@ jobs:
       - name: Test zsh
         run: |
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+      - name: Run flake checks
+        run: |
+          nix flake check --print-build-logs --keep-going
   build-ubuntu-24-04-arm64:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout repository
         uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
@@ -118,3 +132,6 @@ jobs:
       - name: Test zsh
         run: |
           nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+      - name: Run flake checks
+        run: |
+          nix flake check --print-build-logs --keep-going

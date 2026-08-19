@@ -1,3 +1,5 @@
 [Desktop Entry]
+Type=Application
+Name=Spice vdagent
 X-GNOME-Autostart-enabled=false
 Hidden=true

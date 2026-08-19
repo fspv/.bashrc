@@ -16,7 +16,7 @@ local SCORE_MATCH_WORD = 0.8
 local SCORE_MATCH_CAPITAL = 0.7
 local SCORE_MATCH_DOT = 0.6
 local SCORE_MAX = math.huge
-local SCORE_MIN = -math.huge
+local SCORE_MIN = -SCORE_MAX
 local MATCH_MAX_LENGTH = 1024
 
 local path_sep = "/"
@@ -27,6 +27,7 @@ function fzy.has_match(needle, haystack)
   needle = string.lower(needle)
   haystack = string.lower(haystack)
 
+  ---@type integer?
   local j = 1
   for i = 1, string.len(needle) do
     j = string.find(haystack, needle:sub(i, i), j, true)
@@ -48,6 +49,7 @@ local function is_upper(c)
   return c:match("%u")
 end
 
+---@return table<integer, number>
 local function precompute_bonus(haystack)
   local match_bonus = {}
 
@@ -96,6 +98,7 @@ local function compute(needle, haystack, D, M)
 
     for j = 1, m do
       if needle_char == haystack_chars[j] then
+        ---@type number
         local score = SCORE_MIN
         if i == 1 then
           score = ((j - 1) * SCORE_GAP_LEADING) + match_bonus[j]

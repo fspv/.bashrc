@@ -1,10 +1,10 @@
 use std::fmt;
 
-use common::{run_output_env, run_streaming_checked, Error, Result};
+use common::{Error, Result, run_output_env, run_streaming_checked};
 use serde::Deserialize;
 
-// gh honours CLICOLOR_FORCE even for `--json` output, which would make it
-// unparseable. Setting CLICOLOR_FORCE=0 forces plain output.
+// gh honours CLICOLOR_FORCE even for `--json` output, which would break JSON
+// parsing. Setting CLICOLOR_FORCE=0 forces plain output.
 const PLAIN_OUTPUT: &[(&str, &str)] = &[("CLICOLOR_FORCE", "0"), ("NO_COLOR", "1")];
 
 /// A git branch name used as a pull request's head or base ref.
@@ -267,12 +267,19 @@ pub fn unresolved_threads(number: u64) -> Result<Vec<UnresolvedThread>> {
         .into_iter()
         .filter(|thread| !thread.is_resolved)
         .filter_map(|thread| {
-            thread.comments.nodes.into_iter().next().map(|comment| UnresolvedThread {
-                path: thread.path,
-                line: thread.line,
-                author: comment.author.map_or_else(|| "ghost".to_string(), |a| a.login),
-                body: comment.body,
-            })
+            thread
+                .comments
+                .nodes
+                .into_iter()
+                .next()
+                .map(|comment| UnresolvedThread {
+                    path: thread.path,
+                    line: thread.line,
+                    author: comment
+                        .author
+                        .map_or_else(|| "ghost".to_string(), |a| a.login),
+                    body: comment.body,
+                })
         })
         .collect();
     Ok(threads)

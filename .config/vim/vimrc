@@ -3,7 +3,7 @@ if filereadable($HOME . '/.vim/manual/before.vim')
     execute 'source' $HOME . '/.vim/manual/before.vim'
 endif
 
-if filereadable("/etc/vim/vimrc")
+if filereadable('/etc/vim/vimrc')
   source /etc/vim/vimrc
 endif
 
@@ -26,15 +26,18 @@ set autoindent
 set tabstop=4
 set shiftwidth=4
 set smarttab
-if has("autocmd")
+if has('autocmd')
   filetype plugin indent on
-  autocmd BufRead * if getline(1) =~ "^#!/usr/bin/env python" | set filetype=python | endif
+  augroup python_shebang_filetype
+    autocmd!
+    autocmd BufRead * if getline(1) =~ "^#!/usr/bin/env python" | set filetype=python | endif
+  augroup END
 endif
 " Autoreplace tab by default
 set et
 
 " Disable automatic visual mode on mouse select
-" (breaks identation and other stuff)
+" (breaks indentation and other stuff)
 " set mouse-=a
 " set mouse=
 set mouse=nv
@@ -100,8 +103,11 @@ if &t_Co == 8 && $TERM !~# '^Eterm'
 endif
 
 " Save position in file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+if has('autocmd')
+  augroup restore_cursor_position
+    autocmd!
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+  augroup END
 endif
 
 " Use X clipboard
@@ -115,7 +121,7 @@ set ignorecase
 " Don't jump to the next search item on *
 nnoremap * *``
 
-" Order of encondings application
+" Order of encodings application
 set ffs=unix,dos,mac
 set fencs=utf-8,cp1251,koi8-r,ucs-2,cp866
 set encoding=UTF-8
@@ -123,9 +129,6 @@ set encoding=UTF-8
 " Enable syntax highlighting
 syntax on
 let python_highlight_all=1
-
-" Necesary for lots of cool vim things
-set nocompatible
 
 " Enable reading config from file header
 set modeline
@@ -145,7 +148,7 @@ set conceallevel=2
 map q <Nop>
 
 " Remap leader
-let mapleader = ","
+let mapleader = ','
 
 "split navigations
 nnoremap <C-J> <C-W><C-J>
@@ -156,7 +159,7 @@ nnoremap <C-H> <C-W><C-H>
 " Enable folding with the spacebar
 nnoremap <space> za
 
-if !empty(glob("~/.vim/bundle/Vundle.vim"))
+if !empty(glob('~/.vim/bundle/Vundle.vim'))
     " set the runtime path to include Vundle and initialize
     set rtp+=~/.vim/bundle/Vundle.vim
     call vundle#begin()
@@ -165,24 +168,33 @@ if !empty(glob("~/.vim/bundle/Vundle.vim"))
 endif
 
 " Disable expandtab for Makefiles
-autocmd FileType make set noexpandtab
+augroup makefile_indent
+  autocmd!
+  autocmd FileType make set noexpandtab
+augroup END
 
 " Set some filetypes
-au BufNewFile,BufRead *.sls setf yaml
-au BufNewFile,BufRead *.build_defs setf python
+augroup extra_filetypes
+  autocmd!
+  au BufNewFile,BufRead *.sls setf yaml
+  au BufNewFile,BufRead *.build_defs setf python
+augroup END
 
 " Set yaml tab indentation to 2
-au BufNewFile,BufRead *.js setl sw=2 sts=2 et
-au BufNewFile,BufRead *.ts setl sw=2 sts=2 et
-autocmd BufWritePost *.ts EslintFixAll
-au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
-au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
-au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
-au BufNewFile,BufRead *.php setl sw=2 sts=2 et
-au BufNewFile,BufRead *.cpp setl sw=2 sts=2 et
-au BufNewFile,BufRead *.lua setl sw=2 sts=2 et
-au BufNewFile,BufRead *.go setl noet
-au BufNewFile,BufRead tnsnames.ora setl sw=2 sts=2 et syn=lisp
+augroup per_filetype_indent
+  autocmd!
+  au BufNewFile,BufRead *.js setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.ts setl sw=2 sts=2 et
+  autocmd BufWritePost *.ts EslintFixAll
+  au BufNewFile,BufRead *.sls setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.yaml setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.yml setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.php setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.cpp setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.lua setl sw=2 sts=2 et
+  au BufNewFile,BufRead *.go setl noexpandtab
+  au BufNewFile,BufRead tnsnames.ora setl sw=2 sts=2 et syn=lisp
+augroup END
 
 " json
 augroup json_autocmd
@@ -201,7 +213,10 @@ set viminfo='20,<1000
 set tabpagemax=999
 
 " Close preview window when done with completions
-autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+augroup close_completion_preview
+  autocmd!
+  autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | silent! pclose | endif
+augroup END
 
 " Read custom after configuration
 if filereadable($HOME . '/.vim/manual/after.vim')

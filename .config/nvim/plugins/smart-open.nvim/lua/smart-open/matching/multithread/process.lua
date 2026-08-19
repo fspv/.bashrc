@@ -42,7 +42,7 @@ local function process(prompt, cancel_token, encoded_options, encoded_entries)
 
     set_relevance.destroy()
 
-    return results, cancel_token
+    return results
   end)
 
   -- stylua: ignore

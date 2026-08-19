@@ -18,12 +18,12 @@ log_message() {
 # Function to read services from config file
 read_config_file() {
     local config="$1"
-    
+
     if [ ! -f "$config" ]; then
         log_message "Config file $config not found."
         return 1
     fi
-    
+
     # Read services from config file (one service per line, ignoring comments and empty lines)
     while IFS= read -r line || [[ -n "$line" ]]; do
         # Remove leading/trailing whitespace and ignore comments and empty lines
@@ -31,8 +31,8 @@ read_config_file() {
         if [ -n "$line" ]; then
             SERVICES+=("$line")
         fi
-    done < "$config"
-    
+    done <"$config"
+
     if [ ${#SERVICES[@]} -eq 0 ]; then
         log_message "No services found in config file."
         return 1
@@ -62,7 +62,7 @@ start_service() {
     else
         sudo systemctl start "$service_name"
     fi
-    
+
     if is_service_running "$service_name"; then
         log_message "$service_name started successfully."
     else
@@ -79,7 +79,7 @@ stop_service() {
     else
         sudo systemctl stop "$service_name"
     fi
-    
+
     if ! is_service_running "$service_name"; then
         log_message "$service_name stopped successfully."
     else
@@ -111,9 +111,9 @@ is_on_ac_power() {
     # On Ubuntu, this information is available in the /sys filesystem
     power_source=$(cat /sys/class/power_supply/*/online 2>/dev/null | grep "1")
     if [ -n "$power_source" ]; then
-        return 0  # On AC power
+        return 0 # On AC power
     else
-        return 1  # On battery power
+        return 1 # On battery power
     fi
 }
 
@@ -139,32 +139,32 @@ show_usage() {
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -c|--config)
+        -c | --config)
             CONFIG_FILE="$2"
             shift 2
             ;;
-        -s|--services)
+        -s | --services)
             # Convert space-separated string to array
-            IFS=' ' read -r -a SERVICES <<< "$2"
+            IFS=' ' read -r -a SERVICES <<<"$2"
             shift 2
             ;;
-        -i|--interval)
+        -i | --interval)
             CHECK_INTERVAL="$2"
             shift 2
             ;;
-        -l|--log)
+        -l | --log)
             LOG_FILE="$2"
             shift 2
             ;;
-        -u|--user)
+        -u | --user)
             USE_USER_SERVICES=true
             shift
             ;;
-        -S|--system)
+        -S | --system)
             USE_USER_SERVICES=false
             shift
             ;;
-        -h|--help)
+        -h | --help)
             show_usage
             ;;
         *)
@@ -193,16 +193,16 @@ fi
 log_message "Managing services: ${SERVICES[*]}"
 
 # Track previous power state to detect changes
-previous_ac_state=-1  # Initialize with an invalid state to force first check
+previous_ac_state=-1 # Initialize with an invalid state to force first check
 
 while true; do
     # Check current power state
     if is_on_ac_power; then
-        current_ac_state=1  # AC power
+        current_ac_state=1 # AC power
     else
-        current_ac_state=0  # Battery power
+        current_ac_state=0 # Battery power
     fi
-    
+
     # Check if power state has changed
     if [ "$current_ac_state" != "$previous_ac_state" ]; then
         if [ "$current_ac_state" -eq 1 ]; then
@@ -214,7 +214,7 @@ while true; do
         fi
         previous_ac_state=$current_ac_state
     fi
-    
+
     # Wait before checking again
     sleep "$CHECK_INTERVAL"
 done

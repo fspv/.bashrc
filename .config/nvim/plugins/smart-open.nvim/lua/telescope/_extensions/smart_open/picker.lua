@@ -78,6 +78,7 @@ function M.start(opts)
         end,
       })
 
+      ---@type table<string, table<string, boolean>>
       local applied_mappings = { n = {}, i = {} }
 
       if config.mappings then
@@ -122,9 +123,6 @@ function M.start(opts)
   })
   picker:find()
 
-  -- stylua: ignore
-  vim.api.nvim_buf_set_option(
-    picker.prompt_bufnr, "filetype", "TelescopePrompt"
-  )
+  vim.bo[picker.prompt_bufnr].filetype = "TelescopePrompt"
 end
 return M

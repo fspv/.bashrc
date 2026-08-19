@@ -1,6 +1,6 @@
 local M = {}
 
----@param bufnr number
+---@param bufnr integer
 ---@param command string
 local function run_command(bufnr, command)
   local client = vim.lsp.get_clients({ bufnr = bufnr, name = "comment_lsp" })[1]
@@ -13,7 +13,7 @@ local function run_command(bufnr, command)
   end
 end
 
----@param bufnr number
+---@param bufnr integer
 ---@return boolean
 local function is_shown_in_real_window(bufnr)
   for _, window in ipairs(vim.fn.win_findbuf(bufnr)) do
@@ -24,7 +24,7 @@ local function is_shown_in_real_window(bufnr)
   return false
 end
 
----@param bufnr number
+---@param bufnr integer
 local function generate_if_visible(bufnr)
   -- Deferred: during bufload, autocmds run inside nvim's temporary
   -- autocmd window, which would make background buffers look visible.
@@ -38,7 +38,7 @@ end
 local generate_group =
   vim.api.nvim_create_augroup("CommentLspGenerate", { clear = true })
 
----@param bufnr number
+---@param bufnr integer
 local function on_attach(bufnr)
   vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
   vim.api.nvim_buf_create_user_command(bufnr, "CommentLspRegenerate", function()

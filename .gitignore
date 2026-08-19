@@ -9,7 +9,6 @@
 __pycache__/
 .DS_Store
 .mypy_cache/
-flake.lock
 nohup.out
 testdisk.log
 .env*

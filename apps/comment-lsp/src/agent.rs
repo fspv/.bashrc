@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 
-use common::{run_output, Error, Result};
+use common::{Error, Result, run_output};
 
 use crate::cache::Comment;
 
@@ -60,6 +60,8 @@ fn parse_comments(output: &str) -> Result<Vec<Comment>> {
     let end = output
         .rfind(']')
         .filter(|&end| end > start)
-        .ok_or_else(|| Error::Parse(format!("unterminated JSON array in agent output: {output}")))?;
+        .ok_or_else(|| {
+            Error::Parse(format!("unterminated JSON array in agent output: {output}"))
+        })?;
     serde_json::from_str(&output[start..=end]).map_err(|source| Error::Parse(source.to_string()))
 }

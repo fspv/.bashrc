@@ -11,6 +11,7 @@ if not has_sqlite then
   )
 end
 
+---@class DbClient
 local DbClient = {
   path = "",
   is_empty = false,

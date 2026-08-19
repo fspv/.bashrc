@@ -1,6 +1,15 @@
 repos:
+  - repo: local
+    hooks:
+      - id: act-flake-lock
+        name: act / flake-lock.yml
+        language: system
+        pass_filenames: false
+        always_run: true
+        entry: .local/share/bin/act-staged -W .github/workflows/flake-lock.yml
+
   - repo: https://github.com/JohnnyMorganz/StyLua
-    rev: v2.4.0
+    rev: v2.5.2
     hooks:
       - id: stylua
         types: [lua]
@@ -21,20 +30,6 @@ repos:
         pass_filenames: false
         entry: env NIX_ENFORCE_PURITY=0 cargo test --manifest-path apps/Cargo.toml
 
-      - id: act-actionlint
-        name: act / actionlint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/actionlint.yml
-
-      - id: act-actions-security
-        name: act / actions-security.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/actions-security.yml
-
       - id: act-dependency-audit
         name: act / dependency-audit.yml
         language: system
@@ -42,47 +37,33 @@ repos:
         always_run: true
         entry: .local/share/bin/act-staged -W .github/workflows/dependency-audit.yml
 
-      - id: act-format-lint
-        name: act / format-lint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/format-lint.yml
-
-      - id: act-lint
-        name: act / lint.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/lint.yml
-
       - id: nix-develop
         name: nix develop
         language: system
         pass_filenames: false
         always_run: true
-        entry: nix develop --ignore-environment --keep HOME --command echo "ok"
+        entry: nix develop --no-write-lock-file --ignore-environment --keep HOME --command echo "ok"
 
-      - id: act-nvim-deprecations
-        name: act / nvim-deprecations.yml
+      - id: nix-flake-check
+        name: nix flake check
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/nvim-deprecations.yml
+        entry: nix flake check --no-write-lock-file --print-build-logs --keep-going
 
-      - id: act-nvim-plugins
-        name: act / nvim-plugins.yml
+      - id: nix-eval-checks
+        name: nix eval checks (all systems)
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/nvim-plugins.yml
+        entry: "nix eval --no-write-lock-file --raw .#checks --apply 'checks: builtins.deepSeq (map (system: map (check: check.drvPath) (builtins.attrValues checks.${system})) [ \"x86_64-linux\" \"aarch64-linux\" \"aarch64-darwin\" ]) \"ok\"'"
 
-      - id: act-python-lint
-        name: act / python-lint.yml
+      - id: nix-eval-dev-shells
+        name: nix eval dev shells (all systems)
         language: system
         pass_filenames: false
         always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/python-lint.yml
+        entry: "nix eval --no-write-lock-file --raw .#devShells --apply 'shells: builtins.deepSeq (map (system: map (shell: shell.drvPath) (builtins.attrValues shells.${system})) [ \"x86_64-linux\" \"aarch64-linux\" \"aarch64-darwin\" ]) \"ok\"'"
 
       - id: gitleaks
         name: gitleaks
@@ -91,16 +72,9 @@ repos:
         always_run: true
         entry: nix-shell --pure -p gitleaks git --run 'gitleaks git . --config .config/gitleaks/gitleaks.toml --redact --no-banner --log-opts=HEAD'
 
-      - id: act-sway-config
-        name: act / sway-config.yml
-        language: system
-        pass_filenames: false
-        always_run: true
-        entry: .local/share/bin/act-staged -W .github/workflows/sway-config.yml
-
       - id: act-systemd-lint
         name: act / systemd-lint.yml
         language: system
+        files: ^\.config/systemd/|^\.github/workflows/systemd-lint\.yml$
         pass_filenames: false
-        always_run: true
         entry: .local/share/bin/act-staged -W .github/workflows/systemd-lint.yml

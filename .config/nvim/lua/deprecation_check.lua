@@ -19,8 +19,6 @@ vim.deprecate = function(name, alternative, version, plugin, backtrace)
   end
 end
 
-require("lazy").install({ wait = true })
-
 -- Force-load every plugin so deprecations behind lazy-loaded entry points fire.
 require("lazy").load({
   plugins = vim.tbl_keys(require("lazy.core.config").plugins),

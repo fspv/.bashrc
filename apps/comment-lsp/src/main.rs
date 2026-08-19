@@ -5,13 +5,13 @@ mod rpc;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicI64, Ordering};
-use std::sync::mpsc::{channel, Sender};
+use std::sync::mpsc::{Sender, channel};
 use std::sync::{Arc, Mutex, PoisonError};
 use std::thread;
 
 use clap::Parser;
 use common::Result;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 #[derive(Parser)]
 #[command(
@@ -139,7 +139,10 @@ impl Server {
             return;
         };
         // Sync kind is Full, so the last change carries the whole document.
-        let Some(text) = params.pointer("/contentChanges/0/text").and_then(Value::as_str) else {
+        let Some(text) = params
+            .pointer("/contentChanges/0/text")
+            .and_then(Value::as_str)
+        else {
             return;
         };
         self.documents.insert(uri.to_string(), text.to_string());
@@ -149,8 +152,7 @@ impl Server {
         let Some(uri) = params.pointer("/textDocument/uri").and_then(Value::as_str) else {
             return self.respond(id, &Value::Null);
         };
-        let (Some(text), Some(relative_path)) =
-            (self.documents.get(uri), self.relative_path(uri))
+        let (Some(text), Some(relative_path)) = (self.documents.get(uri), self.relative_path(uri))
         else {
             return self.respond(id, &Value::Null);
         };
@@ -195,11 +197,7 @@ impl Server {
     fn execute_command(&self, id: Option<&Value>, params: &Value) {
         let command = params.get("command").and_then(Value::as_str);
         if command != Some("commentLsp.generate") && command != Some("commentLsp.regenerate") {
-            return self.respond_error(
-                id,
-                -32602,
-                &format!("unknown command: {command:?}"),
-            );
+            return self.respond_error(id, -32602, &format!("unknown command: {command:?}"));
         }
         if let Some(uri) = params.pointer("/arguments/0").and_then(Value::as_str) {
             if command == Some("commentLsp.regenerate")
@@ -213,8 +211,7 @@ impl Server {
     }
 
     fn schedule_generation(&self, uri: &str) {
-        let (Some(text), Some(relative_path)) =
-            (self.documents.get(uri), self.relative_path(uri))
+        let (Some(text), Some(relative_path)) = (self.documents.get(uri), self.relative_path(uri))
         else {
             return;
         };

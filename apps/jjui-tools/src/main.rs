@@ -6,8 +6,8 @@ use std::time::{Duration, SystemTime};
 
 use clap::{Parser, Subcommand};
 use common::Result;
-use github::{pr_for_branch, unresolved_threads, BranchName, PrState};
-use jj::{bookmarks, show, ChangeId};
+use github::{BranchName, PrState, pr_for_branch, unresolved_threads};
+use jj::{ChangeId, bookmarks, show};
 
 #[expect(
     clippy::duration_suboptimal_units,
@@ -74,11 +74,18 @@ fn render_pr_header(branch: &BranchName) -> Result<String> {
         if !threads.is_empty() {
             let _ = write!(header, "\n\x1b[1;33m{} unresolved:\x1b[0m", threads.len());
             for thread in threads {
-                let location = thread
-                    .line
-                    .map_or_else(|| thread.path.clone(), |line| format!("{}:{line}", thread.path));
-                let snippet: String =
-                    thread.body.lines().next().unwrap_or_default().chars().take(80).collect();
+                let location = thread.line.map_or_else(
+                    || thread.path.clone(),
+                    |line| format!("{}:{line}", thread.path),
+                );
+                let snippet: String = thread
+                    .body
+                    .lines()
+                    .next()
+                    .unwrap_or_default()
+                    .chars()
+                    .take(80)
+                    .collect();
                 let _ = write!(
                     header,
                     "\n  \x1b[33m{location}\x1b[0m \x1b[2m@{}:\x1b[0m {snippet}",
@@ -100,7 +107,10 @@ fn cached_pr_header(branch: &BranchName) -> Result<String> {
         let _ = fs::create_dir_all(cache_dir());
         let _ = fs::write(&path, header);
     }
-    Ok(fs::read_to_string(&path).unwrap_or_default().trim().to_string())
+    Ok(fs::read_to_string(&path)
+        .unwrap_or_default()
+        .trim()
+        .to_string())
 }
 
 fn pr_preview(change_id: &ChangeId) -> Result<i32> {

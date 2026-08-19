@@ -1,4 +1,6 @@
-#!/bin/bash -ue
+#!/bin/bash
+
+set -eu
 
 COMMAND=$(printf ' %q' "$@")
 _NAME=$(basename "$1")
@@ -11,11 +13,9 @@ LOG=${USER_TMP_DIR}/${APP}.log
 
 echo "[log_wrapper] Running ${COMMAND}, output log to ${LOG}"
 
-if ! sh -xc "${COMMAND}" >> "${LOG}" 2>&1
-then
+if ! sh -xc "${COMMAND}" >>"${LOG}" 2>&1; then
     echo "[log_wrapper] App terminated ${COMMAND}, see log ${LOG}"
-    if [ "$_NAME" != "waybar" ]
-    then
+    if [ "$_NAME" != "waybar" ]; then
         notify-send "App terminated ${COMMAND}, see log ${LOG}"
     fi
 fi

@@ -469,7 +469,7 @@ MiniIcons.config = {
 ---   - `'lsp'` - icon data for various "LSP kind" values.
 ---     Icon names:
 ---       - <Input>: any string.
----       - <Built-in>: only namesspace entries from LSP specification that are
+---       - <Built-in>: only namespace entries from LSP specification that are
 ---         can be displayed to user. Like `CompletionItemKind`, `SymbolKind`,
 ---         etc.
 ---
@@ -493,9 +493,11 @@ MiniIcons.config = {
 ---  icon
 ---   names which are explicitly supported for specific category.
 ---
----@return ... Tuple of icon string, highlight group name it is suggested to be
----   highlighted with, and boolean indicating whether this icon was returned
----   as a result of fallback to default. Example: >lua
+---@return string icon Icon string.
+---@return string hl Highlight group name it is suggested to be highlighted
+---   with.
+---@return boolean is_default Whether this icon was returned as a result of
+---   fallback to default. Example: >lua
 ---
 ---   -- Results into `icon='󰢱'`, `hl='MiniIconsAzure'`, `is_default=false`
 ---   local icon, hl, is_default = MiniIcons.get('file', 'file.lua')
@@ -513,6 +515,7 @@ MiniIcons.get = function(category, name)
   if getter == nil then
     H.error(vim.inspect(category) .. " is not a supported category.")
   end
+  ---@cast getter -?
 
   -- Try cache first
   name = category == "file" and name
@@ -549,10 +552,13 @@ MiniIcons.list = function(category)
 
   -- Output is a union of explicit built-in and custom icons
   local res_map = {}
+  ---@cast category_icons table
   for k, _ in pairs(category_icons) do
     res_map[k] = true
   end
-  for k, _ in pairs(MiniIcons.config[category]) do
+  local config_icons = MiniIcons.config[category]
+  ---@cast config_icons table
+  for k, _ in pairs(config_icons) do
     res_map[k] = true
   end
 
@@ -612,8 +618,15 @@ MiniIcons.mock_nvim_web_devicons = function()
   end
 
   -- Use default colors of default icon (#6d8086 and 66) by default
-  local get_hl_data = function(...)
-    return vim.api.nvim_get_hl_by_name(...)
+  local get_hl_data = function(hl, use_rgb)
+    if vim.fn.hlexists(hl) == 0 then
+      error(string.format("Invalid highlight name: '%s'", hl))
+    end
+    local hl_data = vim.api.nvim_get_hl(0, { name = hl, link = false })
+    if use_rgb then
+      return { foreground = hl_data.fg }
+    end
+    return { foreground = hl_data.ctermfg }
   end
   local get_hex = function(hl)
     if hl == nil then
@@ -804,6 +817,7 @@ H.cache_index_lookup = {}
 
 -- Default icons per supported category
 --stylua: ignore
+---@type table<string, { glyph: string, hl: string }>
 H.default_icons = {
   default   = { glyph = '󰟢', hl = 'MiniIconsGrey'   },
   directory = { glyph = '󰉋', hl = 'MiniIconsAzure'  },
@@ -815,7 +829,7 @@ H.default_icons = {
 }
 
 -- Directory icons. Keys are some popular *language-agnostic* directory
--- basenames. Use only "folder-shaped" glyphs while prefering `nf-md-folder-*`
+-- basenames. Use only "folder-shaped" glyphs while preferring `nf-md-folder-*`
 -- classes (unless glyph is designed specifically for the directory name)
 -- Common sets:
 -- - Use `MiniIconsOrange` for typical HOME directories.
@@ -2228,8 +2242,8 @@ H.resolve_icon_data = function(category, name, icon_data)
   local builtin_glyph, builtin_hl = "", ""
   if not (has_glyph and has_hl) then
     if category == "default" then
-      builtin_glyph, builtin_hl =
-        H.default_icons[name].glyph, H.default_icons[name].hl
+      local default_icon = H.default_icons[name]
+      builtin_glyph, builtin_hl = default_icon.glyph, default_icon.hl
     else
       builtin_glyph, builtin_hl = MiniIcons.get(category, name)
     end
@@ -2242,12 +2256,16 @@ H.cache_get = function(cat, name)
   return H.cache_index[H.cache[cat][name]]
 end
 
+---@return string icon
+---@return string hl
+---@return boolean is_default
 H.cache_set = function(cat, name, icon, hl)
-  -- Process category fallback icon separatly
+  -- Process category fallback icon separately
   if icon == nil then
     local fallback_id = H.cache[cat][true]
     H.cache[cat][name] = fallback_id
     local t = H.cache_index[fallback_id]
+    ---@cast t table
     return t[1], t[2], true
   end
 
@@ -2356,8 +2374,10 @@ H.str_byteindex = function(s, i)
   return vim.str_byteindex(s, "utf-32", i)
 end
 if vim.fn.has("nvim-0.11") == 0 then
+  ---@type function
+  local str_byteindex_pre_0_11 = vim.str_byteindex
   H.str_byteindex = function(s, i)
-    return vim.str_byteindex(s, i)
+    return str_byteindex_pre_0_11(s, i)
   end
 end
 
@@ -2384,6 +2404,8 @@ H.filetype_match = function(filename)
 end
 
 -- Utilities ------------------------------------------------------------------
+---@param msg string
+---@return never
 H.error = function(msg)
   error("(mini.icons) " .. msg, 0)
 end
@@ -2409,15 +2431,6 @@ end
 
 H.fs_basename = function(x)
   return vim.fn.fnamemodify(x:sub(-1, -1) == "/" and x:sub(1, -2) or x, ":t")
-end
-if vim.loop.os_uname().sysname == "Windows_NT" then
-  H.fs_basename = function(x)
-    local last = x:sub(-1, -1)
-    return vim.fn.fnamemodify(
-      (last == "/" or last == "\\") and x:sub(1, -2) or x,
-      ":t"
-    )
-  end
 end
 
 -- Initialize cache right away to allow using `get()` without `setup()`

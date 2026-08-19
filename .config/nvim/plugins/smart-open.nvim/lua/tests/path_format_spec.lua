@@ -3,7 +3,16 @@
 local format_filepath = require(
   "telescope._extensions.smart_open.display.format_filepath"
 )
-local os_home = vim.loop.os_homedir()
+local os_home = vim.uv.os_homedir()
+
+---@type Luassert
+local luassert = require("luassert")
+
+---@param expected any
+---@param actual any
+local function assert_equal(expected, actual)
+  luassert.are.equal(expected, actual)
+end
 
 describe("format_filepath with maxlen", function()
   it("doesn't truncate shorter paths", function()
@@ -13,7 +22,7 @@ describe("format_filepath with maxlen", function()
       "/etc/hosts", "hosts",
       { cwd = "/other", filename_first = true }, 30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 
   it("handles virtual filenames appropriately", function()
@@ -24,7 +33,7 @@ describe("format_filepath with maxlen", function()
       { cwd = "/base", filename_first = true },
       30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 
   it("uses relative path while shortening", function()
@@ -35,7 +44,7 @@ describe("format_filepath with maxlen", function()
       { cwd = "/base", filename_first = true },
       30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 
   -- stylua: ignore
@@ -48,7 +57,7 @@ describe("format_filepath with maxlen", function()
       { cwd = "/", filename_first = true },
       30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 
   -- stylua: ignore
@@ -61,7 +70,7 @@ describe("format_filepath with maxlen", function()
       { cwd = os_home .. "/code", filename_first = true },
       30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 
   it("displays the right number of characters", function()
@@ -73,7 +82,7 @@ describe("format_filepath with maxlen", function()
       path, "format_filepath.lua",
       { cwd = "/base", filename_first = true }, 61
     )
-    assert.are.equal(61, vim.fn.strdisplaywidth(result))
+    assert_equal(61, vim.fn.strdisplaywidth(result))
   end)
 
   -- stylua: ignore
@@ -86,6 +95,6 @@ describe("format_filepath with maxlen", function()
       { cwd = os_home .. "/other_dir", filename_first = true },
       30
     )
-    assert.are.equal(expected, result)
+    assert_equal(expected, result)
   end)
 end)
