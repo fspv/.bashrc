@@ -54,3 +54,33 @@ action = "edit-file"
 key = "e"
 scope = "revisions.details"
 desc = "open file in editor"
+
+[[actions]]
+name = "show-change-copies"
+lua = '''
+local change_id = jj("log", "--no-graph", "-r", context.commit_id(), "-T", "change_id")
+revset.set("change_id(" .. change_id .. ")")
+'''
+
+[[bindings]]
+action = "show-change-copies"
+seq = ["g", "d"]
+scope = "revisions"
+desc = "show all copies of this change"
+
+[[actions]]
+name = "move-change-bookmarks-here"
+lua = '''
+local kept_commit = context.commit_id()
+local change_id = jj("log", "--no-graph", "-r", kept_commit, "-T", "change_id")
+jj_async("bookmark", "move", "--from", "change_id(" .. change_id .. ")", "--to", kept_commit, "--allow-backwards")
+revisions.refresh()
+flash("bookmarks of " .. change_id .. " moved to " .. kept_commit)
+'''
+
+[[bindings]]
+action = "move-change-bookmarks-here"
+seq = ["g", "b"]
+scope = "revisions"
+desc = "move this change's bookmarks to the selected copy"
+
