@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs-stable";
     };
     # jj with git-lfs support: https://github.com/jj-vcs/jj/pull/9068
-    jj-with-lfs-support.url = "git+https://github.com/jj-vcs/jj?ref=refs/pull/9068/head";
+    jj-with-lfs-support.url = "git+https://github.com/jj-vcs/jj?ref=refs/pull/9068/head&rev=0d5fca956272813aaa904cf124b316a64b5d74da";
     apps = {
       url = "path:./apps";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
