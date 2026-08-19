@@ -27,4 +27,4 @@ jobs:
           persist-credentials: false
 
       - name: Check flake.lock has no locked inputs
-        run: git show :flake.lock | jq --exit-status '.nodes == {"root": {}}'
+        run: git show :flake.lock | jq --exit-status '.nodes == {"root":{}}'
