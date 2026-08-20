@@ -1,2 +1,4 @@
+include = ["**/*.toml", ".config/containers/*.conf"]
+
 [schema]
 enabled = false

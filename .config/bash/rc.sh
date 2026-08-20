@@ -1,15 +1,16 @@
 # vim: ft=bash
 # shellcheck shell=bash
 
+# shellcheck source=/dev/null
 source ~/.config/shell/rc.sh
 
 case "$-" in
-*i*)
-    ;;
-*)
-    # nothing more to do for non-interactive session
-    return
-    ;;
+    *i*)
+        ;;
+    *)
+        # nothing more to do for non-interactive session
+        return
+        ;;
 esac
 
 # check the window size after each command and, if necessary,
@@ -17,13 +18,13 @@ esac
 shopt -s checkwinsize
 
 # Load local rc file for this machine
+# shellcheck source=/dev/null
 [ -f ~/.bashrc.local ] && source "${HOME}/.bashrc.local"
 
 # Non-idempotent configs
 
 # Convert c1.h1.domain.com to c1.h1 except h1
-if command -v timeout >/dev/null 2>&1
-then
+if command -v timeout >/dev/null 2>&1; then
     FQDN=$(timeout -s 9 5 hostname -f)
 else
     FQDN=$(hostname -f)
@@ -49,17 +50,17 @@ which zoxide >/dev/null 2>&1 && eval "$(zoxide init bash)"
 resolv_search_domains=$(grep '^search .*$' /etc/resolv.conf | sed 's/^search //')
 
 _complete_ssh_get_hosts_from_bash_history() {
-    grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' ~/.bash_history | \
-        cut -f2 -d' ' | cut -f2 -d'@' | \
-        sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'"$d"'$|'; done))//g" | \
+    grep -Pa '^s [a-zA-Z0-9][a-zA-Z0-9@\.\-]*$' ~/.bash_history |
+        cut -f2 -d' ' | cut -f2 -d'@' |
+        sed -r "s/($(for d in $resolv_search_domains; do echo -n '\.'"$d"'$|'; done))//g" |
         sort | uniq
 }
 
 _complete_ssh() {
     _get_comp_words_by_ref cur prev
 
-    # shellcheck disable=SC2207
-    COMPREPLY=( $(compgen -W \
+    # shellcheck disable=SC2207,SC2154
+    COMPREPLY=($(compgen -W \
         "$opts $(_complete_ssh_get_hosts_from_bash_history)" \
         -- "${cur}")
     )
@@ -70,36 +71,34 @@ complete -F _complete_ssh s
 complete -F _complete_ssh ssh
 
 # Prevent double .bashrc sourcing in different files
-if { test "${TMUX}" != "" && test "${TMUX_BASHRC_ALREADY_EXECUTED}" = ""; } || test "$BASHRC_ALREADY_EXECUTED" = ""
-then
+if { test "${TMUX}" != "" && test "${TMUX_BASHRC_ALREADY_EXECUTED}" = ""; } || test "$BASHRC_ALREADY_EXECUTED" = ""; then
     # Interactive session
     export BASHRC_ALREADY_EXECUTED="yes"
-    if test "x${TMUX}" != "x"
-    then
+    if test "${TMUX}" != ""; then
         export TMUX_BASHRC_ALREADY_EXECUTED="yes"
     fi
+    # shellcheck source=/dev/null
     test -f /etc/profile && source /etc/profile
 else
     return
 fi
 
 # Reset
-Color_Off='\[\e[0m\]'       # Text Reset
+Color_Off='\[\e[0m\]' # Text Reset
 
 # Bold High Intensity
-BIRed='\[\e[1;91m\]'        # Red
-BIGreen='\[\e[1;92m\]'      # Green
-BIYellow='\[\e[1;93m\]'     # Yellow
-BIBlue='\[\e[1;94m\]'       # Blue
-BICyan='\[\e[1;96m\]'       # Cyan
+BIRed='\[\e[1;91m\]'    # Red
+BIGreen='\[\e[1;92m\]'  # Green
+BIYellow='\[\e[1;93m\]' # Yellow
+BIBlue='\[\e[1;94m\]'   # Blue
+BICyan='\[\e[1;96m\]'   # Cyan
 
 funsay
 
 echo -e "\e[1;36m     FQDN: $FQDN"
 echo -e "\e[1;36m       LA: $(cut -f 1-4 -d' ' /proc/loadavg 2>/dev/null)"
 
-if [[ $UID -ne 0 ]]
-then
+if [[ $UID -ne 0 ]]; then
     PROMPT='$'
     USERNAME_COLOR=$BIGreen
     AT_COLOR=$BIRed
@@ -133,8 +132,7 @@ PS1=$PS1"  then echo -ne '[ ${BIRed}'\${RET}' ${BIYellow};( ${Color_Off}]';"
 PS1=$PS1'fi)'
 # Set prompt
 PS1=$PS1"${USERNAME_COLOR}\u${AT_COLOR}@$BICyan${SHORT_HOSTNAME} "
-if which kubectl >/dev/null 2>&1
-then
+if which kubectl >/dev/null 2>&1; then
     PS1=$PS1'$(KUBECTL_CONTEXT=$(kubectl config current-context 2>/dev/null);'
     PS1=$PS1'KUBECTL_NAMESPACE=$(kubectl config view -o jsonpath="{.contexts[?(@.context.cluster == '"'"'${KUBECTL_CONTEXT}'"'"')].context.namespace}" 2>/dev/null);'
     PS1=$PS1'if ! test "x${KUBECTL_CONTEXT}/${KUBECTL_NAMESPACE}" = "x/";'

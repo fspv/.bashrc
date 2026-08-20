@@ -448,6 +448,7 @@
             stablePkgs.minikube
             stablePkgs.kubelogin-oidc
             stablePkgs.kubie
+            stablePkgs.kubectx
             stablePkgs.nodejs_22
             stablePkgs.yarn
             stablePkgs.gh
@@ -519,6 +520,8 @@
               [
                 stablePkgs.bubblewrap
                 stablePkgs.nsjail
+                stablePkgs.strace
+                stablePkgs.ltrace
                 (unstablePkgs.claude-code.overrideAttrs (_: {
                   doInstallCheck = false;
                 }))
@@ -729,7 +732,7 @@
                 cd ${self}
                 find . -type f -print0 \
                   | xargs -0 file --mime-type \
-                  | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' \
+                  | awk -F: '$2 ~ /text\/x-shellscript/ || $1 ~ /\.sh$|\/direnvrc$/ {print $1}' \
                   | grep -v '^\./\.config/zsh/' \
                   | xargs shellcheck
                 touch $out
@@ -739,7 +742,7 @@
             cd ${self}
             find . -type f -print0 \
               | xargs -0 file --mime-type \
-              | awk -F: '$2 ~ /text\/x-shellscript/ {print $1}' \
+              | awk -F: '$2 ~ /text\/x-shellscript/ || $1 ~ /\.sh$|\/direnvrc$/ {print $1}' \
               | grep -v '^\./\.config/zsh/' \
               | xargs shfmt --indent 4 --case-indent --diff
             touch $out
@@ -863,8 +866,11 @@
           biome = unstablePkgs.runCommand "biome" { nativeBuildInputs = [ unstablePkgs.biome ]; } ''
             export HOME=$TMPDIR
             cd ${self}
+            cp .config/waybar/config $TMPDIR/waybar-config.jsonc
             biome lint --config-path=.config/biome/biome.json --error-on-warnings \
-              .local/share/tampermonkey/*.user.js
+              .local/share/tampermonkey/*.user.js \
+              .config/Code/User/*.json \
+              $TMPDIR/waybar-config.jsonc
             touch $out
           '';
 

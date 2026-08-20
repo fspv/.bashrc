@@ -1,1 +1,5 @@
+# vim: ft=bash
+# shellcheck shell=bash
+
+# shellcheck source=/dev/null
 source "$(nix eval --raw nixpkgs#nix-direnv)/share/nix-direnv/direnvrc"

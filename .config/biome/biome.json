@@ -5,5 +5,11 @@
       "complexity": { "useArrowFunction": "off" },
       "suspicious": { "noRedundantUseStrict": "off" }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [".config/Code/User/*.json"],
+      "json": { "parser": { "allowComments": true, "allowTrailingCommas": true } }
+    }
+  ]
 }

@@ -55,7 +55,8 @@ export NIX_SHELL_BASE_LEVEL=0
 if [[ -z "$XDG_RUNTIME_DIR" ]]; then
     if [[ -d "/run/user/$(id -u)" ]]; then
         # Linux-only, doesn't work on MacOS
-        export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+        XDG_RUNTIME_DIR="/run/user/$(id -u)"
+        export XDG_RUNTIME_DIR
         if [[ -S "$XDG_RUNTIME_DIR/podman/podman.sock" ]]; then
             export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
         fi
@@ -76,12 +77,12 @@ export PAGER=less
 export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 
 case "$-" in
-*i*)
-    # execute the rest in interactive mode
-    ;;
-*)
-    return
-    ;;
+    *i*)
+        # execute the rest in interactive mode
+        ;;
+    *)
+        return
+        ;;
 esac
 
 # Autocompletion options
@@ -119,8 +120,7 @@ case $(uname) in
         export MD5SUM='md5'
         export STAT_TIME='stat -f%m'
         export LS_OPTIONS='-G'
-        if command -v dircolors >/dev/null 2>&1
-        then
+        if command -v dircolors >/dev/null 2>&1; then
             eval "$(dircolors)"
         fi
         ;;
@@ -147,16 +147,14 @@ alias sudo='sudo --preserve-env=PATH env '
 alias mkdir='mkdir -p -v'
 alias ls='ls $LS_OPTIONS'
 alias ll='ls -lA $LS_OPTIONS'
-if which eza >/dev/null 2>&1
-then
+if which eza >/dev/null 2>&1; then
     alias ls='eza $LS_OPTIONS'
     alias ll='eza -lA $LS_OPTIONS'
 else
     alias ls='ls $LS_OPTIONS'
     alias ll='ls -lA $LS_OPTIONS'
 fi
-if which nvim >/dev/null 2>&1
-then
+if which nvim >/dev/null 2>&1; then
     alias vi='nvim'
     alias vim='nvim'
 fi
@@ -171,7 +169,7 @@ alias sudoe='sudo -E -H'
 alias git-sup='git submodule init && git submodule update && git submodule status'
 
 csv_view() {
-    column -s, -t  "$1" | less -#2 -N -S
+    column -s, -t "$1" | less -#2 -N -S
 }
 
 # safety features
@@ -206,10 +204,8 @@ if rm -I "$rmtemp" &>/dev/null; then
     alias rm="rm -I"
 else
     alias rm="rm -i"
-    rm "$rmtemp";
+    rm "$rmtemp"
 fi
-
-
 
 if [ -n "$TMUX" ]; then
     alias clear='clear && tmux clear-history'
@@ -219,11 +215,10 @@ EDITOR="${EDITOR:-vi}"
 export EDITOR
 
 # kube config
-if [ "${KUBECONFIG/:*}" = "$HOME/.kube/config" ]
-then
+if [ "${KUBECONFIG/:*/}" = "$HOME/.kube/config" ]; then
     export KUBECONFIG=$HOME/.kube/config
     for file in "$HOME/.kube/configs"/*.yaml; do
-      export KUBECONFIG=$KUBECONFIG:$file
+        export KUBECONFIG=$KUBECONFIG:$file
     done
     export KUBE_FUZZY_PREVIEW_ENABLED=true
 fi
@@ -276,23 +271,20 @@ plz_path() {
     BASE_DIR_LEN=${#BASE_DIR}
 
     # Prune the base dir from the path if absolute
-    if [[ "${FILE}" == "${BASE_DIR}"* ]]
-    then
+    if [[ "${FILE}" == "${BASE_DIR}"* ]]; then
         B=${FILE:BASE_DIR_LEN}
     else
         B=${FILE}
-    fi;
+    fi
 
-    for path in $(plz query changes "$B" --include_dependees=transitive | grep -v ":_")
-    do
+    for path in $(plz query changes "$B" --include_dependees=transitive | grep -v ":_"); do
         AC_PATH=$(echo "$path" | tr : /)
         RELATIVE_PATH=$(realpath --relative-to="$BASE_DIR$B" "$BASE_DIR$AC_PATH")
         LENGTH=$(echo "$RELATIVE_PATH" | grep -o "../" | wc -l)
-        if (( SHORTEST > LENGTH ));
-        then
+        if ((SHORTEST > LENGTH)); then
             SHORTEST=$LENGTH
             SHORTEST_PATH=$path
-        fi;
+        fi
     done
 
     echo "${SHORTEST_PATH}"
@@ -311,10 +303,7 @@ plz_test() {
 # shellcheck source=/dev/null
 which plz >/dev/null 2>&1 && source <(plz --completion_script)
 
-[ -d "${KREW_ROOT:-$HOME/.krew}/bin" ] && path_push_left "${KREW_ROOT:-$HOME/.krew}/bin"
-
-if which fd >/dev/null 2>&1
-then
+if which fd >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 fi
@@ -323,17 +312,15 @@ FZF_BASE="$(which fzf)"
 export FZF_BASE
 
 funsay() {
-    if command -v ponysay >/dev/null 2>&1 && \
-       command -v fortune >/dev/null 2>&1 && \
-       command -v fmt >/dev/null 2>&1 && \
-       command -v shuf >/dev/null 2>&1
-    then
+    if command -v ponysay >/dev/null 2>&1 &&
+        command -v fortune >/dev/null 2>&1 &&
+        command -v fmt >/dev/null 2>&1 &&
+        command -v shuf >/dev/null 2>&1; then
         fortune -a | fmt -80 -s | ponysay -F 2>/dev/null
-    elif command -v cowsay >/dev/null 2>&1 && \
-         command -v fortune >/dev/null 2>&1 && \
-         command -v fmt >/dev/null 2>&1 && \
-         command -v shuf >/dev/null 2>&1
-    then
+    elif command -v cowsay >/dev/null 2>&1 &&
+        command -v fortune >/dev/null 2>&1 &&
+        command -v fmt >/dev/null 2>&1 &&
+        command -v shuf >/dev/null 2>&1; then
         # shellcheck disable=SC2046
         FORTUNE=$(fortune -a | fmt -80 -s | cowsay -"$(shuf -n 1 -e b d g p s t w y)" -f "$(shuf -n 1 -e $(cowsay -l | tail -n +2))" -n)
         echo -e "\e[1;36m$FORTUNE\n"
@@ -346,7 +333,7 @@ bzsh() {
         --unshare-ipc \
         --unshare-cgroup \
         --share-net \
-        --bind $HOME $HOME \
+        --bind "$HOME" "$HOME" \
         --ro-bind /bin /bin \
         --ro-bind /sbin /sbin \
         --ro-bind /lib /lib \
@@ -361,60 +348,57 @@ bzsh() {
         --dev /dev \
         --proc /proc \
         --tmpfs /tmp \
-        --tmpfs /run/user/$(id -u) \
-        --bind-try $TMP $TMP \
-        --tmpfs $HOME/.local \
-        --tmpfs $HOME/.config \
-        --tmpfs $HOME/.cache \
-        --tmpfs $HOME/.ssh \
+        --tmpfs "/run/user/$(id -u)" \
+        --bind-try "$TMP" "$TMP" \
+        --tmpfs "$HOME/.local" \
+        --tmpfs "$HOME/.config" \
+        --tmpfs "$HOME/.cache" \
+        --tmpfs "$HOME/.ssh" \
         --tmpfs /etc/ssh/ssh_config.d \
-        --bind-try $HOME/.cache/gopls $HOME/.cache/gopls \
-        --bind-try $HOME/.cache/clangd $HOME/.cache/clangd \
-        --bind-try $HOME/.cache/nix $HOME/.cache/nix \
-        --bind-try $HOME/.config/shell $HOME/.config/shell \
-        --bind-try $HOME/.config/bash $HOME/.config/bash \
-        --bind-try $HOME/.config/zsh $HOME/.config/zsh \
-        --bind-try $HOME/.config/environment.d $HOME/.config/environment.d \
-        --bind-try $HOME/.config/autostart $HOME/.config/autostart \
-        --bind-try $HOME/.config/atuin $HOME/.config/atuin \
-        --bind-try $HOME/.config/flake8 $HOME/.config/flake8 \
-        --bind-try $HOME/.config/gtk-3.0 $HOME/.config/gtk-3.0 \
-        --bind-try $HOME/.config/i3 $HOME/.config/i3 \
-        --bind-try $HOME/.config/i3status $HOME/.config/i3status \
-        --bind-try $HOME/.config/nix $HOME/.config/nix \
-        --bind-try $HOME/.config/nvim $HOME/.config/nvim \
-        --bind-try $HOME/.config/vim $HOME/.config/vim \
-        --bind-try $HOME/.config/github-copilot $HOME/.config/github-copilot \
-        --bind-try $HOME/.config/systemd $HOME/.config/systemd \
-        --bind-try $HOME/.config/pulse $HOME/.config/pulse \
-        --bind-try $HOME/.config/pycodestyle $HOME/.config/pycodestyle \
-        --bind-try $HOME/.config/sway $HOME/.config/sway \
-        --bind-try $HOME/.config/swaylock $HOME/.config/swaylock \
-        --bind-try $HOME/.config/terminator $HOME/.config/terminator \
-        --bind-try $HOME/.config/tmux $HOME/.config/tmux \
-        --bind-try $HOME/.config/waybar $HOME/.config/waybar \
-        --bind-try $HOME/.config/wezterm $HOME/.config/wezterm \
-        --bind-try $HOME/.config/lazygit $HOME/.config/lazygit \
-        --bind-try $HOME/.config/containers $HOME/.config/containers \
-        --bind-try $HOME/.config/Code $HOME/.config/Code \
-        --bind-try $HOME/.config/zsh $HOME/.config/zsh \
-        --bind-try $HOME/.local/bin $HOME/.local/bin \
-        --bind-try $HOME/.local/include $HOME/.local/include \
-        --bind-try $HOME/.local/lib $HOME/.local/lib \
-        --bind-try $HOME/.local/share/atuin $HOME/.local/share/atuin \
-        --bind-try $HOME/.local/share/oh-my-zsh $HOME/.local/share/oh-my-zsh \
-        --bind-try $HOME/.local/share/bin $HOME/.local/share/bin \
-        --bind-try $HOME/.local/share/nvim $HOME/.local/share/nvim \
-        --bind-try $HOME/.local/share/tampermonkey $HOME/.local/share/tampermonkey \
-        --bind-try $HOME/.local/share/fonts $HOME/.local/share/fonts \
-        --bind-try $HOME/.local/share/zoxide $HOME/.local/share/zoxide \
-        --bind-try $HOME/.local/share/direnv $HOME/.local/share/direnv \
-        --bind-try $HOME/.local/state/nvim $HOME/.local/state/nvim \
-        --bind-try $HOME/.local/state/nix $HOME/.local/state/nix \
-        --bind-try $HOME/.local/share/flatpak/extension $HOME/.local/share/flatpak/extension \
+        --bind-try "$HOME/.cache/gopls" "$HOME/.cache/gopls" \
+        --bind-try "$HOME/.cache/clangd" "$HOME/.cache/clangd" \
+        --bind-try "$HOME/.cache/nix" "$HOME/.cache/nix" \
+        --bind-try "$HOME/.config/shell" "$HOME/.config/shell" \
+        --bind-try "$HOME/.config/bash" "$HOME/.config/bash" \
+        --bind-try "$HOME/.config/zsh" "$HOME/.config/zsh" \
+        --bind-try "$HOME/.config/environment.d" "$HOME/.config/environment.d" \
+        --bind-try "$HOME/.config/autostart" "$HOME/.config/autostart" \
+        --bind-try "$HOME/.config/atuin" "$HOME/.config/atuin" \
+        --bind-try "$HOME/.config/flake8" "$HOME/.config/flake8" \
+        --bind-try "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-3.0" \
+        --bind-try "$HOME/.config/nix" "$HOME/.config/nix" \
+        --bind-try "$HOME/.config/nvim" "$HOME/.config/nvim" \
+        --bind-try "$HOME/.config/vim" "$HOME/.config/vim" \
+        --bind-try "$HOME/.config/github-copilot" "$HOME/.config/github-copilot" \
+        --bind-try "$HOME/.config/systemd" "$HOME/.config/systemd" \
+        --bind-try "$HOME/.config/pulse" "$HOME/.config/pulse" \
+        --bind-try "$HOME/.config/pycodestyle" "$HOME/.config/pycodestyle" \
+        --bind-try "$HOME/.config/sway" "$HOME/.config/sway" \
+        --bind-try "$HOME/.config/swaylock" "$HOME/.config/swaylock" \
+        --bind-try "$HOME/.config/terminator" "$HOME/.config/terminator" \
+        --bind-try "$HOME/.config/tmux" "$HOME/.config/tmux" \
+        --bind-try "$HOME/.config/waybar" "$HOME/.config/waybar" \
+        --bind-try "$HOME/.config/wezterm" "$HOME/.config/wezterm" \
+        --bind-try "$HOME/.config/lazygit" "$HOME/.config/lazygit" \
+        --bind-try "$HOME/.config/containers" "$HOME/.config/containers" \
+        --bind-try "$HOME/.config/Code" "$HOME/.config/Code" \
+        --bind-try "$HOME/.config/zsh" "$HOME/.config/zsh" \
+        --bind-try "$HOME/.local/bin" "$HOME/.local/bin" \
+        --bind-try "$HOME/.local/include" "$HOME/.local/include" \
+        --bind-try "$HOME/.local/lib" "$HOME/.local/lib" \
+        --bind-try "$HOME/.local/share/atuin" "$HOME/.local/share/atuin" \
+        --bind-try "$HOME/.local/share/oh-my-zsh" "$HOME/.local/share/oh-my-zsh" \
+        --bind-try "$HOME/.local/share/bin" "$HOME/.local/share/bin" \
+        --bind-try "$HOME/.local/share/nvim" "$HOME/.local/share/nvim" \
+        --bind-try "$HOME/.local/share/tampermonkey" "$HOME/.local/share/tampermonkey" \
+        --bind-try "$HOME/.local/share/fonts" "$HOME/.local/share/fonts" \
+        --bind-try "$HOME/.local/share/zoxide" "$HOME/.local/share/zoxide" \
+        --bind-try "$HOME/.local/share/direnv" "$HOME/.local/share/direnv" \
+        --bind-try "$HOME/.local/state/nvim" "$HOME/.local/state/nvim" \
+        --bind-try "$HOME/.local/state/nix" "$HOME/.local/state/nix" \
+        --bind-try "$HOME/.local/share/flatpak/extension" "$HOME/.local/share/flatpak/extension" \
         -- zsh
 }
-
 
 path_debug() {
     echo "=== PATH ==="

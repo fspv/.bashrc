@@ -53,8 +53,6 @@ backup
 !.config/github-copilot/.gitkeep
 !.config/gitleaks
 !.config/gtk-3.0/settings.ini
-!.config/i3
-!.config/i3status
 !.config/jj
 .config/jj/conf.d/*
 !.config/jj/conf.d/.gitkeep
