@@ -345,38 +345,28 @@
             stablePkgs.locale
             stablePkgs.gnutar.info
             stablePkgs.gzip
-            stablePkgs.gzip.man
             stablePkgs.gawk
-            stablePkgs.gawk.man
             stablePkgs.gnugrep
             stablePkgs.which
             stablePkgs.cacert
             stablePkgs.ncurses
-            stablePkgs.ncurses.man
             stablePkgs.util-linux
-            stablePkgs.util-linux.man
             stablePkgs.nssTools
             stablePkgs.openssh
             stablePkgs.glib
             stablePkgs.less
-            stablePkgs.less.man
             stablePkgs.nettools
             stablePkgs.netcat
-            stablePkgs.netcat.man
             stablePkgs.inetutils
-            stablePkgs.inetutils.man
             stablePkgs.ps
             stablePkgs.e2fsprogs
-            stablePkgs.e2fsprogs.man
             stablePkgs.curl
-            stablePkgs.curl.man
             stablePkgs.wget
             stablePkgs.htop
             stablePkgs.procps
             stablePkgs.automake
             stablePkgs.cmake
             stablePkgs.gnumake
-            stablePkgs.gnumake.man
             stablePkgs.more
             stablePkgs.nano
             stablePkgs.man
@@ -386,26 +376,21 @@
             stablePkgs.man-pages-posix
             # Other
             stablePkgs.bashInteractive
-            stablePkgs.bashInteractive.man
             stablePkgs.bash-completion
             stablePkgs.bat
             stablePkgs.pwgen
             stablePkgs.zsh
-            stablePkgs.zsh.man
             stablePkgs.zsh-completions
             stablePkgs.git
             stablePkgs.git-lfs
             stablePkgs.jq
-            stablePkgs.jq.man
             stablePkgs.yq
             stablePkgs.ripgrep
             stablePkgs.oh-my-zsh
             stablePkgs.fzf
-            stablePkgs.fzf.man
             stablePkgs.fzf-git-sh
             stablePkgs.docker-client
             stablePkgs.skopeo
-            stablePkgs.skopeo.man
             stablePkgs.ponysay
             stablePkgs.openssl
             stablePkgs.openssl.dev
@@ -421,21 +406,18 @@
             stablePkgs.libvirt
             stablePkgs.git
             stablePkgs.eza
-            stablePkgs.eza.man
             stablePkgs.fd
             stablePkgs.mc
             stablePkgs.tcpdump
             stablePkgs.tree
             stablePkgs.rlwrap
             stablePkgs.dnsutils
-            stablePkgs.dnsutils.man
             stablePkgs.nasm
             stablePkgs.fping
             stablePkgs.whois
             stablePkgs.sqlite
             unstablePkgs.eternal-terminal
             unstablePkgs.tmux
-            unstablePkgs.tmux.man
             # Watcher used by tmux-autoreload
             stablePkgs.entr
             unstablePkgs.neovim
@@ -446,7 +428,6 @@
             stablePkgs.go
             stablePkgs.gotags
             stablePkgs.kubectl
-            stablePkgs.kubectl.man
             stablePkgs.minikube
             stablePkgs.kubelogin-oidc
             stablePkgs.kubie
@@ -534,10 +515,37 @@
 
           makeShell =
             { packages, extraShellHook }:
+            let
+              manualPages = stablePkgs.buildEnv {
+                name = "manual-pages";
+                paths = packages;
+                pathsToLink = [ "/share/man" ];
+                extraOutputsToInstall = [ "man" ];
+                ignoreCollisions = true;
+              };
+
+              indexedManualPages =
+                stablePkgs.runCommand "indexed-manual-pages"
+                  {
+                    nativeBuildInputs = [ stablePkgs.man-db ];
+                    preferLocalBuild = true;
+                  }
+                  ''
+                    mkdir -p $out/share/man
+                    mkdir -p $out/share/man
+                    cp -RL ${manualPages}/share/man/. $out/share/man/
+                    chmod -R u+w $out/share/man
+                    gzip -d -r $out/share/man
+                    echo "MANDB_MAP $out/share/man $out/share/man" > man.conf
+                    mandb -C man.conf -pscq $out/share/man
+                  '';
+            in
             stablePkgs.mkShell {
               inherit packages;
 
               LIBCLANG_PATH = "${stablePkgs.llvmPackages.libclang.lib}/lib";
+
+              MANPATH = "${indexedManualPages}/share/man:";
 
               NIX_ENFORCE_PURITY = "";
 
