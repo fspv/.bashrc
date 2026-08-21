@@ -254,6 +254,7 @@ path_push_right /usr/games
 path_push_right /usr/local/games
 path_push_right /usr/lib/wsl/lib
 path_push_right "${HOME}/.local/share/bin"
+path_push_right "${HOME}/.local/bin"
 
 # Add WSL lib directory to LD_LIBRARY_PATH
 ld_library_path_push_right /usr/lib/wsl/lib
