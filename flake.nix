@@ -363,6 +363,8 @@
             stablePkgs.nettools
             stablePkgs.netcat
             stablePkgs.netcat.man
+            stablePkgs.inetutils
+            stablePkgs.inetutils.man
             stablePkgs.ps
             stablePkgs.e2fsprogs
             stablePkgs.e2fsprogs.man
@@ -431,7 +433,7 @@
             stablePkgs.fping
             stablePkgs.whois
             stablePkgs.sqlite
-            stablePkgs.eternal-terminal
+            unstablePkgs.eternal-terminal
             unstablePkgs.tmux
             unstablePkgs.tmux.man
             # Watcher used by tmux-autoreload
@@ -774,7 +776,10 @@
               {
                 nativeBuildInputs = [
                   (unstablePkgs.python3.withPackages (pythonPackages: [
-                    pythonPackages.i3ipc
+                    # TODO: python tests in this package fail on macos. Submit fix upstream
+                    (pythonPackages.i3ipc.overridePythonAttrs (_: {
+                      doCheck = false;
+                    }))
                     pythonPackages.mypy
                     pythonPackages.pytest
                   ]))
