@@ -532,7 +532,6 @@
                   }
                   ''
                     mkdir -p $out/share/man
-                    mkdir -p $out/share/man
                     cp -RL ${manualPages}/share/man/. $out/share/man/
                     chmod -R u+w $out/share/man
                     gzip -d -r $out/share/man
