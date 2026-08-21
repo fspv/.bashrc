@@ -429,10 +429,6 @@ require("lazy").setup({
     lazy = true,
   },
   {
-    "mfussenegger/nvim-dap",
-    lazy = true,
-  },
-  {
     "marcuscaisey/please.nvim",
     lazy = true,
     init = function(_self)
@@ -546,7 +542,6 @@ require("lazy").setup({
       })
     end,
     dependencies = {
-      "mfussenegger/nvim-dap",
       "lewis6991/gitsigns.nvim",
     },
   },
