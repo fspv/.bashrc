@@ -121,7 +121,6 @@
           "guihua.lua" = unstablePkgs.vimPlugins.guihua-lua;
           "rustaceanvim" = unstablePkgs.vimPlugins.rustaceanvim;
           "plenary.nvim" = unstablePkgs.vimPlugins.plenary-nvim;
-          "nvim-dap" = unstablePkgs.vimPlugins.nvim-dap;
           "bufferline.nvim" = unstablePkgs.vimPlugins.bufferline-nvim;
           "lualine.nvim" = unstablePkgs.vimPlugins.lualine-nvim;
           "statuscol.nvim" = unstablePkgs.vimPlugins.statuscol-nvim;
@@ -499,18 +498,12 @@
           ]
           ++ (builtins.filter
             (package: nixpkgs-stable.lib.meta.availableOn stablePkgs.stdenv.hostPlatform package)
-            (
-              [
-                stablePkgs.bubblewrap
-                stablePkgs.nsjail
-                stablePkgs.strace
-                stablePkgs.ltrace
-                (unstablePkgs.claude-code.overrideAttrs (_: {
-                  doInstallCheck = false;
-                }))
-              ]
-              ++ nixpkgs-stable.lib.optional stablePkgs.stdenv.hostPlatform.isx86_64 stablePkgs.steam-run
-            )
+            [
+              stablePkgs.bubblewrap
+              stablePkgs.nsjail
+              stablePkgs.strace
+              stablePkgs.ltrace
+            ]
           );
 
           makeShell =
