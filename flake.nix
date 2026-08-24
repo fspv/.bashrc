@@ -480,6 +480,7 @@
             stablePkgs.llvmPackages.libclang.lib
             unstablePkgs.jjui
             unstablePkgs.delta
+            unstablePkgs.spacectl
             (unstablePkgs.google-cloud-sdk.withExtraComponents (
               with unstablePkgs.google-cloud-sdk.components;
               [
