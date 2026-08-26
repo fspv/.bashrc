@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -eu
+export CUPS_SERVER=localhost:10631
+lpstat -r | grep -q "scheduler is running"
+output_file=$(mktemp)
+lpadmin -p cups-user-test -E -v "file:$output_file" -m drv:///sample.drv/generic.ppd
+echo "cups user service test page" | lp -d cups-user-test -
+deadline=$((SECONDS + 30))
+while [ ! -s "$output_file" ]; do
+    [ $SECONDS -lt $deadline ]
+    sleep 1
+done
+lpadmin -x cups-user-test
+rm "$output_file"
+echo "cups user service prints successfully"

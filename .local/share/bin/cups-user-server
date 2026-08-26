@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eu
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/cups"
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/cups"
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/cups"
+runtime_dir="$XDG_RUNTIME_DIR/cups"
+mkdir -p "$cache_dir" "$state_dir/spool" "$state_dir/log" "$runtime_dir/tmp"
+cat > "$runtime_dir/cups-files.conf" <<CONF
+ServerRoot $config_dir
+CacheDir $cache_dir
+StateDir $runtime_dir
+RequestRoot $state_dir/spool
+TempDir $runtime_dir/tmp
+AccessLog $state_dir/log/access_log
+ErrorLog $state_dir/log/error_log
+PageLog $state_dir/log/page_log
+SystemGroup $(id -gn)
+FileDevice Yes
+CONF
+exec /usr/sbin/cupsd -f -c "$config_dir/cupsd.conf" -s "$runtime_dir/cups-files.conf"

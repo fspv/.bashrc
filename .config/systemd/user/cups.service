@@ -1,0 +1,11 @@
+[Unit]
+Description=CUPS Scheduler (user instance)
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/bin/cups-user-server
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
