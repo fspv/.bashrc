@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eu
-config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/cups"
-cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/cups"
-state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/cups"
+config_dir="$HOME/.config/cups"
+cache_dir="$HOME/.cache/cups"
+state_dir="$HOME/.local/state/cups"
 runtime_dir="$XDG_RUNTIME_DIR/cups"
 mkdir -p "$cache_dir" "$state_dir/spool" "$state_dir/log" "$runtime_dir/tmp"
 cat > "$runtime_dir/cups-files.conf" <<CONF
