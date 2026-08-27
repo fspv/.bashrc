@@ -1,0 +1,22 @@
+Clamp inlay hint columns to the line length.
+
+Inlay hints are cached per client but their version is tracked per buffer, so
+when one client bumps the version while another client's hints are still stale,
+those stale columns can point past the end of a line that has been shortened,
+and nvim_buf_set_extmark fails with "Invalid col: out of range".
+
+https://github.com/neovim/neovim/issues/36318
+
+--- a/runtime/lua/vim/lsp/inlay_hint.lua
++++ b/runtime/lua/vim/lsp/inlay_hint.lua
+@@ -358,8 +358,9 @@
+           end
+         end
+ 
++        local line_length = #(api.nvim_buf_get_lines(bufnr, lnum, lnum + 1, false)[1] or '')
+         for pos, vt in pairs(hint_virtual_texts) do
+-          api.nvim_buf_set_extmark(bufnr, namespace, lnum, pos, {
++          api.nvim_buf_set_extmark(bufnr, namespace, lnum, math.min(pos, line_length), {
+             virt_text_pos = 'inline',
+             ephemeral = false,
+             virt_text = vt,

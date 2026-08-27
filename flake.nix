@@ -91,6 +91,14 @@
       ];
       forAllSystems = nixpkgs-stable.lib.genAttrs supportedSystems;
 
+      neovimInlayHintFixOverlay = _: prev: {
+        neovim-unwrapped = prev.neovim-unwrapped.overrideAttrs (previousAttrs: {
+          patches = (previousAttrs.patches or [ ]) ++ [
+            ./.config/nix/neovim-clamp-inlay-hint-column.patch
+          ];
+        });
+      };
+
       nvimLuaLibsFor =
         unstablePkgs:
         unstablePkgs.linkFarm "nvim-lua-libs" {
@@ -194,9 +202,13 @@
           };
 
           languagesWithUncompilableQueries = [
+            "basic"
+            "flatbuffers"
+            "haxe"
             "hurl"
             "mojo"
             "scss"
+            "solidity"
             "supercollider"
           ];
 
@@ -306,6 +318,7 @@
           unstablePkgs = import nixpkgs-unstable {
             inherit system;
             config.allowUnfree = true;
+            overlays = [ neovimInlayHintFixOverlay ];
           };
 
           rustToolchain = stablePkgs.rust-bin.stable.latest.default.override {
@@ -586,7 +599,10 @@
       checks = forAllSystems (
         system:
         let
-          unstablePkgs = import nixpkgs-unstable { inherit system; };
+          unstablePkgs = import nixpkgs-unstable {
+            inherit system;
+            overlays = [ neovimInlayHintFixOverlay ];
+          };
 
           nvimCheck =
             name: script:
