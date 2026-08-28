@@ -43,6 +43,7 @@ backup
 !.config/containers
 !.config/cups
 .config/cups/*
+!.config/cups/client.conf
 !.config/cups/cupsd.conf
 !.config/direnv
 !.config/dunst
