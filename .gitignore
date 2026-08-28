@@ -86,7 +86,7 @@ backup
 !.config/wezterm
 !.config/yamllint
 .continue
-.cups
+!.cups
 .cursor
 .cursor-server/
 .cursor-tutor
