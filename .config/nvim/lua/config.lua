@@ -563,6 +563,7 @@ require("lazy").setup({
     end,
     cmd = "Telescope",
     keys = {
+      { "g/", mode = { "n", "v" } },
       "ts/",
       "tf/",
       "tc/",

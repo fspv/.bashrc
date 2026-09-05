@@ -304,7 +304,7 @@ vim.keymap.set("n", "z/", function()
 end, { desc = "Fuzzy search word under cursor in the current buffer" })
 vim.keymap.set(
   "n",
-  "f",
+  "g/",
   require("telescope-live-grep-args.shortcuts").grep_word_under_cursor,
   {
     desc = "Search Word Under cursor",
@@ -312,7 +312,7 @@ vim.keymap.set(
 )
 vim.keymap.set(
   "v",
-  "f",
+  "g/",
   require("telescope-live-grep-args.shortcuts").grep_visual_selection,
   { desc = "Search Visual Selection" }
 )
