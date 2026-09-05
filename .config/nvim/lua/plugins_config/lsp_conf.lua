@@ -293,6 +293,27 @@ vim.lsp.enable("pyright")
 
 vim.lsp.config("lua_ls", {
   on_attach = on_attach_func,
+  ---@param bufnr integer
+  ---@param on_dir fun(root_dir?: string)
+  root_dir = function(bufnr, on_dir)
+    local config_dir = vim.fn.stdpath("config") --[[@as string]]
+    if vim.startswith(vim.api.nvim_buf_get_name(bufnr), config_dir) then
+      on_dir(config_dir)
+      return
+    end
+    local root = vim.fs.root(bufnr, {
+      ".luarc.json",
+      ".luarc.jsonc",
+      ".emmyrc.json",
+      ".luacheckrc",
+      ".stylua.toml",
+      "stylua.toml",
+      ".git",
+    })
+    if root then
+      on_dir(root)
+    end
+  end,
   on_init = function(client)
     if client.workspace_folders then
       local path = client.workspace_folders[1].name
@@ -313,21 +334,15 @@ vim.lsp.config("lua_ls", {
           -- Tell the language server which version of Lua you're using
           -- (most likely LuaJIT in the case of Neovim)
           version = "LuaJIT",
+          -- Resolve requires the way Neovim does: only against the `lua`
+          -- directories listed in the library below
+          path = { "?.lua", "?/init.lua" },
+          pathStrict = true,
         },
         -- Make the server aware of Neovim runtime files
         workspace = {
           checkThirdParty = false,
-          -- library = {
-          --   vim.env.VIMRUNTIME
-          --   -- Depending on the usage, you might want to add additional paths
-          --   -- here.
-          --   -- "${3rd}/luv/library"
-          --   -- "${3rd}/busted/library",
-          -- }
-          -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and
-          -- will cause issues when working on your own configuration
-          -- (see https://github.com/neovim/nvim-lspconfig/issues/3189)
-          library = vim.api.nvim_get_runtime_file("", true),
+          library = vim.api.nvim_get_runtime_file("lua", true),
         },
         diagnostics = {
           -- Get the language server to recognize the `vim` global
@@ -341,6 +356,8 @@ vim.lsp.config("lua_ls", {
         -- Tell the language server which version of Lua you're using (most
         -- likely LuaJIT in the case of Neovim)
         version = "LuaJIT",
+        path = { "?.lua", "?/init.lua" },
+        pathStrict = true,
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
@@ -349,16 +366,8 @@ vim.lsp.config("lua_ls", {
       workspace = {
         checkThirdParty = false,
         library = {
-          vim.env.VIMRUNTIME,
-          -- Depending on the usage, you might want to add additional paths
-          -- here.
-          -- "${3rd}/luv/library"
-          -- "${3rd}/busted/library",
+          vim.env.VIMRUNTIME .. "/lua",
         },
-        -- or pull in all of 'runtimepath'. NOTE: this is a lot slower and will
-        -- cause issues when working on your own configuration
-        -- (see https://github.com/neovim/nvim-lspconfig/issues/3189)
-        -- library = vim.api.nvim_get_runtime_file("", true)
       },
       -- Do not send telemetry data containing a randomized but unique
       -- identifier
