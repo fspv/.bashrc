@@ -12,10 +12,75 @@ local _append_to_telescope_prompt = function(suffix)
   end
 end
 
+-- luacheck: ignore 631
+---@class SearchOpts : telescope.builtin.live_grep.opts, telescope.builtin.git_files.opts
+---@field bufnr? integer
+---@field winnr? integer
+---@field _is_bare? boolean
+---@field prompt_title? string
+---@field results_title? string
+---@field default_text? string
+---@field path? string
+
+---@param opts SearchOpts
+---@return telescope.builtin.git_files.opts
+---@return telescope.builtin.live_grep.opts
+local function assert_search_opts_match_telescope(opts)
+  ---@type telescope.builtin.git_files.opts
+  local git_files = {
+    bufnr = assert(opts.bufnr),
+    winnr = assert(opts.winnr),
+    _is_bare = assert(opts._is_bare),
+    cwd = opts.cwd,
+    use_file_path = opts.use_file_path,
+    use_git_root = opts.use_git_root,
+    show_untracked = opts.show_untracked,
+    recurse_submodules = opts.recurse_submodules,
+    git_command = opts.git_command,
+    file_encoding = opts.file_encoding,
+  }
+  ---@type telescope.builtin.live_grep.opts
+  local live_grep = {
+    bufnr = assert(opts.bufnr),
+    winnr = assert(opts.winnr),
+    cwd = opts.cwd,
+    grep_open_files = opts.grep_open_files,
+    search_dirs = opts.search_dirs,
+    glob_pattern = opts.glob_pattern,
+    type_filter = opts.type_filter,
+    additional_args = opts.additional_args,
+    disable_coordinates = opts.disable_coordinates,
+    file_encoding = opts.file_encoding,
+  }
+  return git_files, live_grep
+end
+
+---@return boolean
+local function always_false()
+  return false
+end
+
+if always_false() then
+  assert_search_opts_match_telescope({
+    bufnr = 0,
+    winnr = 0,
+    _is_bare = false,
+  })
+end
+
+---@param title string
+---@param cwd string
+---@return string
+---@return string
+local function search_dir_titles(title, cwd)
+  local display = vim.fn.fnamemodify(cwd, ":~")
+  return string.format("%s [%s]", title, display), display
+end
+
 --- Go one directory up in a telescope picker session.
 --- This closes the current picker and reopens it with the parent
 --- directory as cwd.
----@param reopen_fn fun(opts: table) Function to reopen the picker with
+---@param reopen_fn fun(opts: SearchOpts) Function to reopen the picker with
 --- new options
 ---@return fun(prompt_bufnr: integer)
 local function make_go_up_one_dir(reopen_fn)
@@ -56,9 +121,13 @@ local function make_go_up_one_dir(reopen_fn)
 end
 
 local live_grep_go_up_one_dir = make_go_up_one_dir(
-  ---@param opts table
+  ---@param opts SearchOpts
   ---@return nil
   function(opts)
+    local prompt_title, results_title =
+      search_dir_titles("Live Grep (Args)", assert(opts.cwd))
+    opts.prompt_title = prompt_title
+    opts.results_title = results_title
     require("telescope").extensions.live_grep_args.live_grep_args(opts)
   end
 )
@@ -103,6 +172,21 @@ local function buffer_search_root()
   }) or vim.fn.getcwd()
 end
 
+---@param title string
+---@param extra? SearchOpts
+---@return SearchOpts
+local function search_opts(title, extra)
+  ---@type SearchOpts
+  local opts = extra or {}
+  opts.cwd = buffer_search_root()
+  opts.bufnr = vim.api.nvim_get_current_buf()
+  opts.winnr = vim.api.nvim_get_current_win()
+  local prompt_title, results_title = search_dir_titles(title, opts.cwd)
+  opts.prompt_title = prompt_title
+  opts.results_title = results_title
+  return opts
+end
+
 --- Gathers, de-duplicates, and displays a list of files from git, open buffers,
 --- and the current directory.
 ---
@@ -112,13 +196,14 @@ end
 --- 3. Files from currently open and listed buffers.
 --- 4. Files in the same directory as the current buffer.
 ---
----@param opts? table Optional Telescope configuration to pass
+---@param opts? SearchOpts Optional Telescope configuration to pass
 ---to the picker.
 ---@return nil
 local function recent_and_modified_files(opts)
+  ---@type SearchOpts
   opts = opts or {}
-  opts.cwd = opts.cwd or buffer_search_root()
-  local project_root = opts.cwd
+  local project_root = opts.cwd or buffer_search_root()
+  opts.cwd = project_root
   ---@type table<string, boolean>
   local file_set = {}
   local path_sep = vim.fn.has("win32") == 1 and "\\" or "/"
@@ -228,9 +313,12 @@ local function recent_and_modified_files(opts)
   end
 
   -- Now, create and launch the Telescope picker
+  local prompt_title, results_title =
+    search_dir_titles("Recent & Modified Files", opts.cwd)
   require("telescope.pickers")
     .new(opts, {
-      prompt_title = "Recent & Modified Files",
+      prompt_title = prompt_title,
+      results_title = results_title,
       finder = require("telescope.finders").new_table({
         results = final_files,
         entry_maker = require("telescope.make_entry").gen_from_file(opts),
@@ -338,9 +426,9 @@ vim.keymap.set(
   "g/",
   ---@return nil
   function()
-    require("telescope-live-grep-args.shortcuts").grep_word_under_cursor({
-      cwd = buffer_search_root(),
-    })
+    require("telescope-live-grep-args.shortcuts").grep_word_under_cursor(
+      search_opts("Search Word")
+    )
   end,
   { desc = "Search Word Under cursor" }
 )
@@ -349,9 +437,9 @@ vim.keymap.set(
   "g/",
   ---@return nil
   function()
-    require("telescope-live-grep-args.shortcuts").grep_visual_selection({
-      cwd = buffer_search_root(),
-    })
+    require("telescope-live-grep-args.shortcuts").grep_visual_selection(
+      search_opts("Search Selection")
+    )
   end,
   { desc = "Search Visual Selection" }
 )
@@ -366,10 +454,9 @@ vim.keymap.set(
   "ff/",
   ---@return nil
   function()
-    require("telescope.builtin").git_files({
-      cwd = buffer_search_root(),
-      use_git_root = false,
-    })
+    require("telescope.builtin").git_files(
+      search_opts("Git Files", { use_git_root = false })
+    )
   end,
   { desc = "Search Git Files" }
 )
@@ -378,9 +465,9 @@ vim.keymap.set(
   "fc/",
   ---@return nil
   function()
-    require("telescope").extensions.live_grep_args.live_grep_args({
-      cwd = buffer_search_root(),
-    })
+    require("telescope").extensions.live_grep_args.live_grep_args(
+      search_opts("Live Grep (Args)")
+    )
   end,
   { desc = "Live Grep (with args)" }
 )
@@ -401,10 +488,9 @@ vim.keymap.set(
   "fo/",
   ---@return nil
   function()
-    require("telescope.builtin").live_grep({
-      grep_open_files = true,
-      cwd = buffer_search_root(),
-    })
+    require("telescope.builtin").live_grep(
+      search_opts("Open Files", { grep_open_files = true })
+    )
   end,
   { desc = "Search Open Files" }
 )
@@ -413,9 +499,9 @@ vim.keymap.set(
   "<C-e>",
   ---@return nil
   function()
-    require("telescope").extensions.smart_open.smart_open({
-      cwd = buffer_search_root(),
-    })
+    require("telescope").extensions.smart_open.smart_open(
+      search_opts("Smart Open")
+    )
   end,
   { desc = "Smart Open" }
 )
