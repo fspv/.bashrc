@@ -1,0 +1,5 @@
+# TODO: remove once https://github.com/rhysd/actionlint/pull/683 is released
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      - 'label "ubuntu-26\.04" is unknown'

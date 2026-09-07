@@ -18,6 +18,34 @@ permissions:
   contents: read
 
 jobs:
+  build-ubuntu-26-04:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: taiki-e/checkout-action@7d1e50e93dc4fb3bba58f85018fadf77898aee8b # v1.4.2
+      - name: Set up Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Init user env
+        timeout-minutes: 5
+        run: |
+          ./.local/share/bin/init-nix.sh
+          ./.local/share/bin/init-user-env.sh
+      - name: Build nix develop environment
+        run: |
+          nix develop --ignore-environment --keep HOME --command echo "Nix develop initialised successfully!"
+      - name: Test bash
+        run: |
+          nix develop --ignore-environment --keep HOME --command bash -c 'echo hello'
+      - name: Test zsh
+        run: |
+          nix develop --ignore-environment --keep HOME --command zsh -c 'echo hello'
+      - name: Run flake checks
+        run: |
+          nix flake check --print-build-logs --keep-going
   build-ubuntu-24-04:
     runs-on: ubuntu-24.04
     timeout-minutes: 40

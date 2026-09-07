@@ -720,7 +720,7 @@
             unstablePkgs.runCommand "actionlint" { nativeBuildInputs = [ unstablePkgs.actionlint ]; }
               ''
                 cd ${self}
-                actionlint .github/workflows/*
+                actionlint -config-file .github/actionlint.yaml .github/workflows/*
                 touch $out
               '';
 
