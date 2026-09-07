@@ -2,4 +2,4 @@
 # shellcheck shell=bash
 
 # shellcheck source=/dev/null
-source "$(nix eval --raw nixpkgs#nix-direnv)/share/nix-direnv/direnvrc"
+source "$(nix build --no-link --print-out-paths "$HOME#nix-direnv")/share/nix-direnv/direnvrc"

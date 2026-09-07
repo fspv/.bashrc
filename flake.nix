@@ -309,6 +309,10 @@
     {
       formatter = forAllSystems (system: (import nixpkgs-unstable { inherit system; }).nixfmt-tree);
 
+      packages = forAllSystems (system: {
+        inherit (import nixpkgs-unstable { inherit system; }) nix-direnv;
+      });
+
       devShells = forAllSystems (
         system:
         let
