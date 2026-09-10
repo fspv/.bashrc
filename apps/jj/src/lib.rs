@@ -1,3 +1,4 @@
+use std::collections::{HashSet, VecDeque};
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -33,7 +34,7 @@ impl fmt::Display for ChangeId {
 }
 
 /// A local bookmark (branch) name.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct BookmarkName(String);
 
 impl BookmarkName {
@@ -105,58 +106,108 @@ pub fn bookmarks(change_id: &ChangeId) -> Result<Vec<BookmarkName>> {
     Ok(names(&output))
 }
 
-/// Local bookmarks in `trunk..tips`, ordered bottom (near trunk) to top, deduped.
-///
-/// # Errors
-/// Returns an error if the `jj` command fails.
-pub fn bookmarks_in_range(trunk: &Revset, tips: &Revset) -> Result<Vec<BookmarkName>> {
-    let revset = format!("({})..({}) & bookmarks()", trunk.as_str(), tips.as_str());
-    let output = run_output(
-        "jj",
-        &[
-            "--ignore-working-copy",
-            "log",
-            "--no-graph",
-            "--reversed",
-            "-r",
-            &revset,
-            "-T",
-            "local_bookmarks.map(|b| b.name()).join(\" \") ++ \"\\n\"",
-        ],
-    )?;
-    let mut ordered: Vec<BookmarkName> = Vec::new();
-    for name in output.split_whitespace() {
-        if !ordered.iter().any(|b| b.as_str() == name) {
-            ordered.push(BookmarkName(name.to_string()));
-        }
-    }
-    Ok(ordered)
+#[derive(Deserialize)]
+struct StackCommit {
+    id: ObjectId,
+    parents: Vec<ObjectId>,
+    empty: bool,
+    bookmarks: Vec<BookmarkName>,
 }
 
-/// The nearest bookmarked ancestor of `bookmark` above `trunk`, if any.
-///
-/// # Errors
-/// Returns an error if the `jj` command fails.
-pub fn parent_bookmark(trunk: &Revset, bookmark: &BookmarkName) -> Result<Option<BookmarkName>> {
-    let revset = format!(
-        "heads((({})..{} ~ {}) & bookmarks())",
-        trunk.as_str(),
-        bookmark.as_str(),
-        bookmark.as_str()
-    );
-    let output = run_output(
-        "jj",
-        &[
-            "--ignore-working-copy",
-            "log",
-            "--no-graph",
-            "-r",
-            &revset,
-            "-T",
-            BOOKMARK_NAMES,
-        ],
-    )?;
-    Ok(names(&output).into_iter().next())
+/// The commits in `trunk..tips`, ordered bottom (near trunk) to top, read with
+/// a single `jj log` so that per-bookmark questions need no further commands.
+pub struct StackGraph {
+    commits: Vec<StackCommit>,
+}
+
+impl StackGraph {
+    /// # Errors
+    /// Returns an error if the `jj` command fails or its output cannot be parsed.
+    pub fn load(trunk: &Revset, tips: &Revset) -> Result<Self> {
+        let revset = format!("({})..({})", trunk.as_str(), tips.as_str());
+        let output = run_output(
+            "jj",
+            &[
+                "--ignore-working-copy",
+                "log",
+                "--no-graph",
+                "--reversed",
+                "-r",
+                &revset,
+                "-T",
+                r#"'{"id":' ++ json(commit_id) ++ ',"parents":' ++ json(parents.map(|p| p.commit_id())) ++ ',"empty":' ++ json(empty) ++ ',"bookmarks":' ++ json(local_bookmarks.map(|b| b.name())) ++ "}\n""#,
+            ],
+        )?;
+        let commits = output
+            .lines()
+            .map(serde_json::from_str)
+            .collect::<serde_json::Result<_>>()
+            .map_err(|e| Error::Parse(e.to_string()))?;
+        Ok(Self { commits })
+    }
+
+    /// Local bookmarks in the stack, ordered bottom (near trunk) to top.
+    #[must_use]
+    pub fn bookmarks(&self) -> Vec<Bookmark> {
+        self.commits
+            .iter()
+            .flat_map(|commit| {
+                commit.bookmarks.iter().map(|name| Bookmark {
+                    name: name.clone(),
+                    target: commit.id.clone(),
+                })
+            })
+            .collect()
+    }
+
+    /// The nearest bookmarked ancestor of `bookmark` above trunk, if any.
+    #[must_use]
+    pub fn parent_bookmark(&self, bookmark: &Bookmark) -> Option<Bookmark> {
+        self.ancestors_below(&bookmark.target, None)
+            .into_iter()
+            .find_map(|commit| {
+                commit.bookmarks.first().map(|name| Bookmark {
+                    name: name.clone(),
+                    target: commit.id.clone(),
+                })
+            })
+    }
+
+    /// Whether every commit between `from` (trunk when `None`) and `bookmark`
+    /// is empty, so a PR between them would show no changes.
+    #[must_use]
+    pub fn is_diff_empty(&self, from: Option<&Bookmark>, bookmark: &Bookmark) -> bool {
+        let stop = from.map(|from| &from.target);
+        self.commit(&bookmark.target).empty
+            && self
+                .ancestors_below(&bookmark.target, stop)
+                .iter()
+                .all(|commit| commit.empty)
+    }
+
+    fn commit(&self, id: &ObjectId) -> &StackCommit {
+        self.commits
+            .iter()
+            .find(|commit| &commit.id == id)
+            .unwrap_or_else(|| unreachable!("{id} is in the stack"))
+    }
+
+    /// Ancestors of `id` within the stack, nearest first, stopping at `stop`.
+    fn ancestors_below(&self, id: &ObjectId, stop: Option<&ObjectId>) -> Vec<&StackCommit> {
+        let mut pending: VecDeque<&ObjectId> = self.commit(id).parents.iter().collect();
+        let mut seen: HashSet<&ObjectId> = HashSet::new();
+        let mut ancestors = Vec::new();
+        while let Some(id) = pending.pop_front() {
+            if Some(id) == stop || !seen.insert(id) {
+                continue;
+            }
+            if let Some(commit) = self.commits.iter().find(|commit| &commit.id == id) {
+                ancestors.push(commit);
+                pending.extend(commit.parents.iter());
+            }
+        }
+        ancestors
+    }
 }
 
 /// The change id of the working-copy commit.
@@ -214,52 +265,6 @@ pub fn untracked_origin_bookmarks() -> Result<Vec<BookmarkName>> {
         &["--all-remotes"],
         "if(remote == \"origin\" && !tracked, name ++ \"\\n\", \"\")",
     )
-}
-
-/// Whether the diff from `from` to the `bookmark` tip has no file changes
-/// (i.e. it would produce an empty pull request).
-///
-/// # Errors
-/// Returns an error if the `jj diff` command fails.
-pub fn is_diff_empty(from: &Revset, bookmark: &BookmarkName) -> Result<bool> {
-    let output = run_output(
-        "jj",
-        &[
-            "--ignore-working-copy",
-            "diff",
-            "--from",
-            from.as_str(),
-            "--to",
-            bookmark.as_str(),
-            "--name-only",
-        ],
-    )?;
-    Ok(output.is_empty())
-}
-
-/// Whether `ancestor` resolves at or below `descendant` in the local DAG
-/// (its commit is contained in `descendant`'s ancestry, equality included).
-///
-/// Used to detect a push that GitHub would treat as a merge: when a PR head
-/// is pushed at or below its base branch, GitHub auto-closes the PR as merged.
-///
-/// # Errors
-/// Returns an error if the `jj log` command fails.
-pub fn is_ancestor(ancestor: &Revset, descendant: &Revset) -> Result<bool> {
-    let revset = format!("({}) & ::({})", ancestor.as_str(), descendant.as_str());
-    let output = run_output(
-        "jj",
-        &[
-            "--ignore-working-copy",
-            "log",
-            "--no-graph",
-            "-r",
-            &revset,
-            "-T",
-            "commit_id",
-        ],
-    )?;
-    Ok(!output.is_empty())
 }
 
 /// Push the given bookmarks to origin (force-updates rewrites).

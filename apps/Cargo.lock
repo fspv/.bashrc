@@ -376,6 +376,7 @@ dependencies = [
  "common",
  "git",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -400,6 +401,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "common",
+ "git",
  "github",
  "jj",
  "tracing",

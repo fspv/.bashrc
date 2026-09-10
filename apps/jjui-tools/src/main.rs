@@ -9,10 +9,6 @@ use common::Result;
 use github::{BranchName, PrState, pr_for_branch, unresolved_threads};
 use jj::{ChangeId, bookmarks, show};
 
-#[expect(
-    clippy::duration_suboptimal_units,
-    reason = "Duration::from_mins is unstable on stable Rust"
-)]
 const CACHE_TTL: Duration = Duration::from_secs(60);
 
 #[derive(Parser)]

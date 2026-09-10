@@ -7,13 +7,14 @@ use std::time::Duration;
 
 use clap::{Args, Parser, Subcommand};
 use common::Result;
+use git::ObjectId;
 use github::{
-    BranchName, PrState, PullRequest, create_pr, current_user, pr_for_branch, set_pr_base,
+    BranchName, PrState, PullRequest, create_pr, current_user, prs_for_branches, set_pr_base,
 };
 use jj::{
-    BookmarkName, Revset, bookmarks_in_range, colocated_repo_root, conflicted_bookmarks,
-    current_stack_tips, git_export, git_fetch, git_push, git_track, is_ancestor, is_diff_empty,
-    local_bookmarks, parent_bookmark, untracked_origin_bookmarks, working_copy_change,
+    Bookmark, BookmarkName, ChangeId, Revset, StackGraph, colocated_repo_root,
+    conflicted_bookmarks, current_stack_tips, git_export, git_fetch, git_push, git_track,
+    local_bookmarks, untracked_origin_bookmarks, working_copy_change,
 };
 
 #[derive(Parser)]
@@ -66,8 +67,8 @@ enum Action {
 
 struct PlanEntry {
     bookmark: BookmarkName,
+    commit: ObjectId,
     parent: BranchName,
-    base_revset: Revset,
     pr: Option<PullRequest>,
     action: Action,
     empty: bool,
@@ -108,21 +109,9 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     let trunk = Revset::new(args.trunk);
     let base = BranchName::new(args.base);
 
-    // Resolve tips against @ *before* moving into the colocated repo, so they
-    // reflect the workspace the user actually ran from.
-    // Explicit `tips` wins. Otherwise default to ascendants of @ only; offer the
-    // full stack tree when its PR topology differs from GitHub.
-    let explicit_tips = args.tips.is_some();
-    let (ascendant_tips, full_tree_tips) = if let Some(tips) = args.tips {
-        let tips = Revset::new(tips);
-        (tips.clone(), tips)
-    } else {
-        let anchor = working_copy_change()?.as_str().to_string();
-        (
-            Revset::new(anchor.as_str()),
-            current_stack_tips(&trunk, anchor.as_str()),
-        )
-    };
+    // Resolve @ *before* moving into the colocated repo, so it reflects the
+    // workspace the user actually ran from.
+    let anchor = working_copy_change()?;
 
     // gh (and ref export) must run in the colocated workspace; cd there once.
     let repo_root = colocated_repo_root()?;
@@ -130,29 +119,16 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
 
     let me = current_user()?;
 
-    let mut plan_already_printed = false;
-    let tips = if explicit_tips {
-        ascendant_tips
-    } else {
-        let full_bookmarks = bookmarks_in_range(&trunk, &full_tree_tips)?;
-        let full_plan = build_plan(&trunk, &base, &full_bookmarks, &me)?;
-        if tree_differs_from_github(&full_plan) {
-            println!(
-                "Local stack tree differs from GitHub PR topology (new PRs, reordered bases, etc.)."
-            );
-            print_plan(&me, &full_plan, &repo_root);
-            if !confirm("Submit the entire related tree? [y/N] ")? {
-                eprintln!("Aborted: tree differs from GitHub and full-tree submit was declined.");
-                return Ok(1);
-            }
-            plan_already_printed = true;
-            full_tree_tips
-        } else {
-            ascendant_tips
-        }
+    let Some(SyncScope {
+        tips,
+        plan_already_printed,
+    }) = sync_scope(args.tips, &anchor, &trunk, &base, &me, &repo_root)?
+    else {
+        return Ok(1);
     };
 
-    let bookmarks = bookmarks_in_range(&trunk, &tips)?;
+    let graph = StackGraph::load(&trunk, &tips)?;
+    let bookmarks = graph.bookmarks();
     if bookmarks.is_empty() {
         eprintln!(
             "No bookmarks found in {}..{}",
@@ -162,15 +138,20 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         return Ok(1);
     }
 
-    if let Some(blocked) = blocked_bookmarks(&bookmarks)? {
+    let blocked = blocked_bookmarks(&bookmarks)?;
+    if !blocked.is_empty() {
         eprintln!(
             "Resolve these bookmarks first (conflicted or untracked @origin): {}",
-            blocked.join(", ")
+            blocked
+                .iter()
+                .map(BookmarkName::as_str)
+                .collect::<Vec<_>>()
+                .join(", ")
         );
         return Ok(1);
     }
 
-    let plan = build_plan(&trunk, &base, &bookmarks, &me)?;
+    let plan = build_plan(&graph, &base, &me)?;
     if !plan_already_printed {
         print_plan(&me, &plan, &repo_root);
     }
@@ -179,7 +160,11 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     if !empty.is_empty() {
         eprintln!(
             "These bookmarks have an empty diff against their base (would be empty PRs): {}",
-            empty.join(", ")
+            empty
+                .iter()
+                .map(|bookmark| bookmark.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
         );
         return Ok(1);
     }
@@ -193,12 +178,16 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
         return Ok(1);
     }
 
-    let would_merge = would_auto_merge(&plan)?;
-    if !would_merge.is_empty() {
+    let duplicates = bookmarks_sharing_a_commit(&plan);
+    if !duplicates.is_empty() {
         eprintln!(
-            "Refusing to push: these bookmarks sit at or below their PR base, so GitHub would \
-             auto-close their PRs as merged: {}",
-            would_merge.join(", ")
+            "Refusing to push: these bookmarks point at the same commit as another bookmark in \
+             the stack, which would create duplicate PRs: {}",
+            duplicates
+                .iter()
+                .map(|bookmark| bookmark.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
         );
         return Ok(1);
     }
@@ -222,11 +211,54 @@ fn pr_sync(args: PrSyncArgs) -> Result<i32> {
     Ok(0)
 }
 
+struct SyncScope {
+    tips: Revset,
+    plan_already_printed: bool,
+}
+
+/// Which stack leaves to sync. Explicit `tips` win. Otherwise only the
+/// ascendants of `anchor`, widened to the whole stack tree (after showing it and
+/// asking) when that tree's PR topology differs from GitHub. `None` when the
+/// user declines.
+fn sync_scope(
+    explicit_tips: Option<String>,
+    anchor: &ChangeId,
+    trunk: &Revset,
+    base: &BranchName,
+    me: &str,
+    repo_root: &Path,
+) -> Result<Option<SyncScope>> {
+    if let Some(tips) = explicit_tips {
+        return Ok(Some(SyncScope {
+            tips: Revset::new(tips),
+            plan_already_printed: false,
+        }));
+    }
+    let full_tree_tips = current_stack_tips(trunk, anchor.as_str());
+    let full_plan = build_plan(&StackGraph::load(trunk, &full_tree_tips)?, base, me)?;
+    if !tree_differs_from_github(&full_plan) {
+        return Ok(Some(SyncScope {
+            tips: Revset::new(anchor.as_str()),
+            plan_already_printed: false,
+        }));
+    }
+    println!("Local stack tree differs from GitHub PR topology (new PRs, reordered bases, etc.).");
+    print_plan(me, &full_plan, repo_root);
+    if !confirm("Submit the entire related tree? [y/N] ")? {
+        eprintln!("Aborted: tree differs from GitHub and full-tree submit was declined.");
+        return Ok(None);
+    }
+    Ok(Some(SyncScope {
+        tips: full_tree_tips,
+        plan_already_printed: true,
+    }))
+}
+
 /// Bookmarks that would be pushed as a pull request containing no changes.
-fn bookmarks_with_an_empty_diff(plan: &[PlanEntry]) -> Vec<&str> {
+fn bookmarks_with_an_empty_diff(plan: &[PlanEntry]) -> Vec<&BookmarkName> {
     plan.iter()
         .filter(|entry| matches!(entry.action, Action::Create | Action::Update) && entry.empty)
-        .map(|entry| entry.bookmark.as_str())
+        .map(|entry| &entry.bookmark)
         .collect()
 }
 
@@ -239,69 +271,71 @@ fn tree_differs_from_github(plan: &[PlanEntry]) -> bool {
         .any(|entry| matches!(entry.action, Action::Create | Action::Update))
 }
 
-/// Bookmarks whose push would make their head an ancestor of (or equal to) their
-/// PR base, which GitHub treats as a merge and auto-closes the PR.
-fn would_auto_merge(plan: &[PlanEntry]) -> Result<Vec<String>> {
-    let mut flagged = Vec::new();
-    for entry in plan {
-        let open = matches!(
-            entry.pr.as_ref().map(|pr| pr.state),
-            Some(PrState::Open | PrState::Draft)
-        );
-        if open && is_ancestor(&Revset::new(entry.bookmark.as_str()), &entry.base_revset)? {
-            flagged.push(entry.bookmark.as_str().to_string());
-        }
-    }
-    Ok(flagged)
+/// Bookmarks to be pushed that share their commit with another pushed bookmark,
+/// typically after squashing one bookmark's change into another.
+fn bookmarks_sharing_a_commit(plan: &[PlanEntry]) -> Vec<&BookmarkName> {
+    let pushed: Vec<&PlanEntry> = plan
+        .iter()
+        .filter(|entry| entry.action != Action::Skip)
+        .collect();
+    pushed
+        .iter()
+        .filter(|entry| {
+            pushed
+                .iter()
+                .any(|other| other.bookmark != entry.bookmark && other.commit == entry.commit)
+        })
+        .map(|entry| &entry.bookmark)
+        .collect()
 }
 
-fn blocked_bookmarks(bookmarks: &[BookmarkName]) -> Result<Option<Vec<String>>> {
-    let stack: HashSet<&str> = bookmarks.iter().map(BookmarkName::as_str).collect();
-    let mut blocked: Vec<String> = Vec::new();
+fn blocked_bookmarks(bookmarks: &[Bookmark]) -> Result<Vec<BookmarkName>> {
+    let stack: HashSet<&BookmarkName> = bookmarks.iter().map(|bookmark| &bookmark.name).collect();
+    let mut blocked: Vec<BookmarkName> = Vec::new();
     for bookmark in conflicted_bookmarks()?
         .into_iter()
         .chain(untracked_origin_bookmarks()?)
     {
-        if stack.contains(bookmark.as_str()) && !blocked.iter().any(|b| b == bookmark.as_str()) {
-            blocked.push(bookmark.as_str().to_string());
+        if stack.contains(&bookmark) && !blocked.contains(&bookmark) {
+            blocked.push(bookmark);
         }
     }
-    Ok((!blocked.is_empty()).then_some(blocked))
+    Ok(blocked)
 }
 
-fn build_plan(
-    trunk: &Revset,
-    base: &BranchName,
-    bookmarks: &[BookmarkName],
-    me: &str,
-) -> Result<Vec<PlanEntry>> {
-    let mut plan = Vec::with_capacity(bookmarks.len());
-    for bookmark in bookmarks {
-        let parent_mark = parent_bookmark(trunk, bookmark)?;
-        let parent = parent_mark
-            .as_ref()
-            .map_or_else(|| base.clone(), |p| BranchName::new(p.as_str()));
-        let from = parent_mark
-            .as_ref()
-            .map_or_else(|| trunk.clone(), |p| Revset::new(p.as_str()));
-        let empty = is_diff_empty(&from, bookmark)?;
-        let pr = pr_for_branch(&BranchName::new(bookmark.as_str()))?;
-        let action = match &pr {
-            None => Action::Create,
-            Some(pr) if pr.author != me => Action::Skip,
-            Some(pr) if matches!(pr.state, PrState::Merged | PrState::Closed) => Action::Skip,
-            Some(pr) if pr.base != parent => Action::Update,
-            Some(_) => Action::Noop,
-        };
-        plan.push(PlanEntry {
-            bookmark: bookmark.clone(),
-            parent,
-            base_revset: from,
-            pr,
-            action,
-            empty,
-        });
-    }
+fn build_plan(graph: &StackGraph, base: &BranchName, me: &str) -> Result<Vec<PlanEntry>> {
+    let bookmarks = graph.bookmarks();
+    let branches: Vec<BranchName> = bookmarks
+        .iter()
+        .map(|bookmark| BranchName::new(bookmark.name.as_str()))
+        .collect();
+    let prs = prs_for_branches(&branches)?;
+    let plan = bookmarks
+        .into_iter()
+        .zip(prs)
+        .map(|(bookmark, pr)| {
+            let parent_mark = graph.parent_bookmark(&bookmark);
+            let parent = parent_mark
+                .as_ref()
+                .map_or_else(|| base.clone(), |p| BranchName::new(p.name.as_str()));
+            let empty = graph.is_diff_empty(parent_mark.as_ref(), &bookmark);
+            let action = match &pr {
+                None => Action::Create,
+                Some(pr) if pr.author != me => Action::Skip,
+                Some(pr) if matches!(pr.state, PrState::Merged | PrState::Closed) => Action::Skip,
+                Some(pr) if pr.base != parent => Action::Update,
+                Some(_) => Action::Noop,
+            };
+            PlanEntry {
+                bookmark: bookmark.name,
+                commit: bookmark.target,
+                parent,
+                pr,
+                action,
+                empty,
+            }
+        })
+        .collect();
     Ok(plan)
 }
 
