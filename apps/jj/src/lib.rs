@@ -65,6 +65,14 @@ impl Revset {
     }
 }
 
+impl FromStr for Revset {
+    type Err = std::convert::Infallible;
+
+    fn from_str(expression: &str) -> std::result::Result<Self, Self::Err> {
+        Ok(Self::new(expression))
+    }
+}
+
 const BOOKMARK_NAMES: &str = "local_bookmarks.map(|b| b.name()).join(\" \")";
 
 fn names(output: &str) -> Vec<BookmarkName> {

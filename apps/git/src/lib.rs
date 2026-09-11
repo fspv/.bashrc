@@ -136,6 +136,117 @@ impl fmt::Display for ObjectId {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(transparent)]
+pub struct PullRequestNumber(u64);
+
+impl PullRequestNumber {
+    #[must_use]
+    pub const fn new(number: u64) -> Self {
+        Self(number)
+    }
+}
+
+impl FromStr for PullRequestNumber {
+    type Err = std::num::ParseIntError;
+
+    fn from_str(number: &str) -> std::result::Result<Self, Self::Err> {
+        number.parse().map(Self)
+    }
+}
+
+impl fmt::Display for PullRequestNumber {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(formatter)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(transparent)]
+pub struct AuthorName(String);
+
+impl AuthorName {
+    #[must_use]
+    pub fn new(name: impl Into<String>) -> Self {
+        Self(name.into())
+    }
+
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl fmt::Display for AuthorName {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum Provider {
+    GitHub,
+    Origin,
+}
+
+impl Provider {
+    /// # Errors
+    /// Returns an error if the remote has no supported GitHub or Origin host.
+    pub fn from_remote(remote: &str) -> Result<Self> {
+        let authority = match remote.split_once("://") {
+            Some(("http" | "https" | "ssh" | "git", address)) => {
+                address.split(['/', '?', '#']).next()
+            }
+            None => remote
+                .split_once(':')
+                .filter(|(host, _)| !host.contains('/'))
+                .map(|(host, _)| host),
+            Some(_) => None,
+        }
+        .filter(|authority| !authority.contains(char::is_whitespace))
+        .unwrap_or_default();
+        let host = authority.rsplit('@').next().unwrap_or_default();
+        match host.split(':').next().unwrap_or_default() {
+            host if host.eq_ignore_ascii_case("origin.cursor.com") => Ok(Self::Origin),
+            host if host.eq_ignore_ascii_case("github.com") => Ok(Self::GitHub),
+            _ => Err(Error::Parse(
+                "cannot determine remote provider: expected a remote URL with host github.com or origin.cursor.com"
+                    .to_string(),
+            )),
+        }
+    }
+}
+
+/// A git branch name.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(transparent)]
+pub struct BranchName(String);
+
+impl BranchName {
+    #[must_use]
+    pub fn new(name: impl Into<String>) -> Self {
+        Self(name.into())
+    }
+    #[must_use]
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl FromStr for BranchName {
+    type Err = std::convert::Infallible;
+
+    fn from_str(name: &str) -> std::result::Result<Self, Self::Err> {
+        Ok(Self::new(name))
+    }
+}
+
+impl fmt::Display for BranchName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
 /// A fully qualified ref name, such as `refs/heads/main`.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct RefName(String);
@@ -248,6 +359,12 @@ impl Repo {
         };
         all.extend(arguments.iter().map(|argument| (*argument).to_string()));
         Ok(all)
+    }
+
+    /// # Errors
+    /// Returns an error if `git remote get-url` fails.
+    pub fn remote_url(&self, name: &str) -> Result<String> {
+        self.git(&["remote", "get-url", name])
     }
 
     /// Every ref in the repository, loose and packed alike, sorted by name.

@@ -27,9 +27,9 @@ name = "pr-stack"
 lua = '''
 local number = input({ title = "PR number", prompt = "#" })
 if not number or number == "" then return end
-local branch, err = jj("util", "exec", "--", "gh", "pr", "view", number, "--json", "headRefName", "-q", ".headRefName")
+local branch, err = jj("util", "exec", "--", "jjui-tools", "pr-head", number)
 if not branch then
-  flash({ text = "gh pr view " .. number .. " failed: " .. (err or "?"), error = true })
+  flash({ text = "PR #" .. number .. " lookup failed: " .. (err or "?"), error = true })
   return
 end
 branch = branch:gsub("%s+$", "")
@@ -43,7 +43,7 @@ flash("PR #" .. number .. ": " .. branch)
 action = "pr-stack"
 seq = ["g", "p"]
 scope = "revisions"
-desc = "fetch a GitHub PR and show its stack"
+desc = "fetch a PR and show its stack"
 
 [[actions]]
 name = "edit-file"

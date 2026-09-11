@@ -1,33 +1,17 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::num::NonZeroU64;
+use std::path::PathBuf;
 
 use common::{Error, Result, run_output_env, run_streaming_checked};
+pub use git::BranchName;
+use git::{AuthorName, PullRequestNumber};
 use serde::Deserialize;
+use url::Url;
 
 // gh honours CLICOLOR_FORCE even for `--json` output, which would break JSON
 // parsing. Setting CLICOLOR_FORCE=0 forces plain output.
 const PLAIN_OUTPUT: &[(&str, &str)] = &[("CLICOLOR_FORCE", "0"), ("NO_COLOR", "1")];
-
-/// A git branch name used as a pull request's head or base ref.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct BranchName(String);
-
-impl BranchName {
-    #[must_use]
-    pub fn new(name: impl Into<String>) -> Self {
-        Self(name.into())
-    }
-    #[must_use]
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for BranchName {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.0)
-    }
-}
 
 /// State of a pull request, with draft modeled explicitly.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,11 +53,11 @@ impl fmt::Display for ReviewDecision {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PullRequest {
-    pub number: u64,
+    pub number: PullRequestNumber,
     pub state: PrState,
-    pub url: String,
+    pub url: Url,
     pub base: BranchName,
-    pub author: String,
+    pub author: AuthorName,
     /// `None` when the repo requires no review and none was given.
     pub review_decision: Option<ReviewDecision>,
 }
@@ -89,21 +73,21 @@ impl fmt::Display for PullRequest {
 }
 
 #[derive(Deserialize)]
-struct Author {
-    login: String,
+struct RawAuthor {
+    login: AuthorName,
 }
 
 #[derive(Deserialize)]
 struct RawPullRequest {
-    number: u64,
+    number: PullRequestNumber,
     state: String,
     #[serde(rename = "isDraft")]
     is_draft: bool,
-    url: String,
+    url: Url,
     #[serde(rename = "baseRefName")]
-    base_ref_name: String,
+    base_ref_name: BranchName,
     /// `None` for pull requests whose author account was deleted.
-    author: Option<Author>,
+    author: Option<RawAuthor>,
     #[serde(rename = "reviewDecision")]
     review_decision: Option<String>,
 }
@@ -129,8 +113,10 @@ impl From<RawPullRequest> for PullRequest {
             number: raw.number,
             state,
             url: raw.url,
-            base: BranchName(raw.base_ref_name),
-            author: raw.author.map_or_else(|| "ghost".to_string(), |a| a.login),
+            base: raw.base_ref_name,
+            author: raw
+                .author
+                .map_or_else(|| AuthorName::new("ghost"), |author| author.login),
             review_decision,
         }
     }
@@ -158,6 +144,25 @@ pub fn pr_for_branch(branch: &BranchName) -> Result<Option<PullRequest>> {
     let raws: Vec<RawPullRequest> =
         serde_json::from_str(&json).map_err(|e| Error::Parse(e.to_string()))?;
     Ok(raws.into_iter().next().map(PullRequest::from))
+}
+
+#[derive(Deserialize)]
+struct HeadBranch {
+    #[serde(rename = "headRefName")]
+    name: BranchName,
+}
+
+/// # Errors
+/// Returns an error if `gh pr view` fails or its JSON cannot be parsed.
+pub fn pr_head(number: PullRequestNumber) -> Result<BranchName> {
+    let json = run_output_env(
+        "gh",
+        &["pr", "view", &number.to_string(), "--json", "headRefName"],
+        PLAIN_OUTPUT,
+    )?;
+    let head: HeadBranch =
+        serde_json::from_str(&json).map_err(|error| Error::Parse(error.to_string()))?;
+    Ok(head.name)
 }
 
 #[derive(Deserialize)]
@@ -231,10 +236,10 @@ pub fn prs_for_branches(branches: &[BranchName]) -> Result<Vec<Option<PullReques
 /// An unresolved review thread on a pull request, summarized by its first comment.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UnresolvedThread {
-    pub path: String,
+    pub path: PathBuf,
     /// `None` for outdated threads whose line no longer exists.
-    pub line: Option<u64>,
-    pub author: String,
+    pub line: Option<NonZeroU64>,
+    pub author: AuthorName,
     pub body: String,
 }
 
@@ -285,8 +290,8 @@ struct RawThreadNodes {
 struct RawThread {
     #[serde(rename = "isResolved")]
     is_resolved: bool,
-    path: String,
-    line: Option<u64>,
+    path: PathBuf,
+    line: Option<NonZeroU64>,
     comments: RawCommentNodes,
 }
 
@@ -298,7 +303,7 @@ struct RawCommentNodes {
 #[derive(Deserialize)]
 struct RawComment {
     /// `None` for comments whose author account was deleted.
-    author: Option<Author>,
+    author: Option<RawAuthor>,
     body: String,
 }
 
@@ -307,7 +312,7 @@ struct RawComment {
 /// # Errors
 /// Returns an error if the `gh api graphql` command fails or its JSON cannot
 /// be parsed.
-pub fn unresolved_threads(number: u64) -> Result<Vec<UnresolvedThread>> {
+pub fn unresolved_threads(number: PullRequestNumber) -> Result<Vec<UnresolvedThread>> {
     let query_arg = format!("query={REVIEW_THREADS_QUERY}");
     let number_arg = format!("number={number}");
     let json = run_output_env(
@@ -347,7 +352,7 @@ pub fn unresolved_threads(number: u64) -> Result<Vec<UnresolvedThread>> {
                     line: thread.line,
                     author: comment
                         .author
-                        .map_or_else(|| "ghost".to_string(), |a| a.login),
+                        .map_or_else(|| AuthorName::new("ghost"), |author| author.login),
                     body: comment.body,
                 })
         })
@@ -359,8 +364,8 @@ pub fn unresolved_threads(number: u64) -> Result<Vec<UnresolvedThread>> {
 ///
 /// # Errors
 /// Returns an error if the `gh api user` command fails.
-pub fn current_user() -> Result<String> {
-    run_output_env("gh", &["api", "user", "--jq", ".login"], PLAIN_OUTPUT)
+pub fn current_user() -> Result<AuthorName> {
+    run_output_env("gh", &["api", "user", "--jq", ".login"], PLAIN_OUTPUT).map(AuthorName::new)
 }
 
 /// Create a PR for `head` based on `base`, drafted unless `ready`.
@@ -387,7 +392,7 @@ pub fn create_pr(head: &BranchName, base: &BranchName, ready: bool) -> Result<()
 ///
 /// # Errors
 /// Returns an error if the `gh pr edit` command fails.
-pub fn set_pr_base(number: u64, base: &BranchName) -> Result<()> {
+pub fn set_pr_base(number: PullRequestNumber, base: &BranchName) -> Result<()> {
     let number = number.to_string();
     run_streaming_checked("gh", &["pr", "edit", &number, "--base", base.as_str()])
 }

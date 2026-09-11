@@ -17,3 +17,5 @@ common = { path = "../common" }
 tracing = "0.1"
 jj = { path = "../jj" }
 github = { path = "../github" }
+git = { path = "../git" }
+origin = { path = "../origin" }

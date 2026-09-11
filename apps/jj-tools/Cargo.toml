@@ -18,3 +18,4 @@ git = { path = "../git" }
 tracing = "0.1"
 jj = { path = "../jj" }
 github = { path = "../github" }
+origin = { path = "../origin" }

@@ -1,13 +1,15 @@
 use std::fmt::Write as _;
 use std::fs;
+use std::hash::{DefaultHasher, Hash, Hasher};
+use std::num::NonZeroU64;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::time::{Duration, SystemTime};
 
 use clap::{Parser, Subcommand};
-use common::Result;
-use github::{BranchName, PrState, pr_for_branch, unresolved_threads};
-use jj::{ChangeId, bookmarks, show};
+use common::{Result, run_output};
+use git::{AuthorName, BranchName, Provider, PullRequestNumber};
+use jj::{ChangeId, bookmarks, colocated_repo_root, show};
 
 const CACHE_TTL: Duration = Duration::from_secs(60);
 
@@ -20,17 +22,34 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Tool {
-    /// Print a commit's GitHub PR status, then its `jj show` diff.
+    #[command(about = "Print a commit's PR status, then its jj show diff")]
     PrPreview {
-        /// Change id of the commit to preview.
+        #[arg(help = "Change id of the commit to preview")]
         change_id: ChangeId,
     },
+    #[command(about = "Print a pull request's head branch")]
+    PrHead { number: PullRequestNumber },
+}
+
+struct UnresolvedThread {
+    path: PathBuf,
+    line: Option<NonZeroU64>,
+    author: AuthorName,
+    body: String,
 }
 
 fn main() {
     common::log_to_stderr(tracing::Level::DEBUG);
     let result = match Cli::parse().tool {
         Tool::PrPreview { change_id } => pr_preview(&change_id),
+        Tool::PrHead { number } => with_provider(|provider, _| {
+            let branch = match provider {
+                Provider::GitHub => github::pr_head(number)?,
+                Provider::Origin => origin::pr_head(number)?,
+            };
+            println!("{branch}");
+            Ok(0)
+        }),
     };
     match result {
         Ok(code) => exit(code),
@@ -39,6 +58,15 @@ fn main() {
             exit(1);
         }
     }
+}
+
+fn with_provider<T>(lookup: impl FnOnce(Provider, &str) -> Result<T>) -> Result<T> {
+    let workspace = std::env::current_dir()?;
+    std::env::set_current_dir(colocated_repo_root()?)?;
+    let result = run_output("git", &["remote", "get-url", "origin"])
+        .and_then(|remote| lookup(Provider::from_remote(&remote)?, &remote));
+    std::env::set_current_dir(workspace)?;
+    result
 }
 
 fn cache_dir() -> PathBuf {
@@ -58,55 +86,92 @@ fn is_fresh(path: &Path, ttl: Duration) -> bool {
         .is_ok_and(|age| age < ttl)
 }
 
-/// The rendered PR header (status line plus unresolved review comments) for a
-/// branch. Only open/draft PRs pay for the extra unresolved-threads lookup.
-fn render_pr_header(branch: &BranchName) -> Result<String> {
-    let Some(pr) = pr_for_branch(branch)? else {
-        return Ok(String::new());
+fn render_pr_header(provider: Provider, branch: &BranchName) -> Result<String> {
+    let (status, threads): (_, Vec<UnresolvedThread>) = match provider {
+        Provider::GitHub => {
+            let Some(pr) = github::pr_for_branch(branch)? else {
+                return Ok(String::new());
+            };
+            let threads = if matches!(pr.state, github::PrState::Open | github::PrState::Draft) {
+                github::unresolved_threads(pr.number)?
+                    .into_iter()
+                    .map(|thread| UnresolvedThread {
+                        path: thread.path,
+                        line: thread.line,
+                        author: thread.author,
+                        body: thread.body,
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            (pr.to_string(), threads)
+        }
+        Provider::Origin => {
+            let Some(pr) = origin::pr_for_branch(branch)? else {
+                return Ok(String::new());
+            };
+            let threads = if matches!(pr.state, origin::PrState::Open | origin::PrState::Draft) {
+                origin::unresolved_threads(pr.number)?
+                    .into_iter()
+                    .map(|thread| UnresolvedThread {
+                        path: thread.path,
+                        line: thread.line,
+                        author: thread.author,
+                        body: thread.body,
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            (pr.to_string(), threads)
+        }
     };
-    let mut header = format!("\x1b[1;36mPR {pr}\x1b[0m");
-    if matches!(pr.state, PrState::Open | PrState::Draft) {
-        let threads = unresolved_threads(pr.number)?;
-        if !threads.is_empty() {
-            let _ = write!(header, "\n\x1b[1;33m{} unresolved:\x1b[0m", threads.len());
-            for thread in threads {
-                let location = thread.line.map_or_else(
-                    || thread.path.clone(),
-                    |line| format!("{}:{line}", thread.path),
-                );
-                let snippet: String = thread
-                    .body
-                    .lines()
-                    .next()
-                    .unwrap_or_default()
-                    .chars()
-                    .take(80)
-                    .collect();
-                let _ = write!(
-                    header,
-                    "\n  \x1b[33m{location}\x1b[0m \x1b[2m@{}:\x1b[0m {snippet}",
-                    thread.author
-                );
+    let mut header = format!("\x1b[1;36mPR {status}\x1b[0m");
+    if !threads.is_empty() {
+        let _ = write!(header, "\n\x1b[1;33m{} unresolved:\x1b[0m", threads.len());
+        let author_prefix = match provider {
+            Provider::GitHub => "@",
+            Provider::Origin => "",
+        };
+        for thread in threads {
+            let mut location = thread.path.display().to_string();
+            if let Some(line) = thread.line {
+                let _ = write!(location, ":{line}");
             }
+            let snippet: String = thread
+                .body
+                .lines()
+                .next()
+                .unwrap_or_default()
+                .chars()
+                .take(80)
+                .collect();
+            let _ = write!(
+                header,
+                "\n  \x1b[33m{location}\x1b[0m \x1b[2m{author_prefix}{}:\x1b[0m {snippet}",
+                thread.author
+            );
         }
     }
     Ok(header)
 }
 
-/// The rendered PR header for a branch, cached briefly. Empty means "no PR"
-/// (also cached, so PR-less commits don't re-hit GitHub on every navigation).
-/// The cache itself is best-effort; only the GitHub lookup propagates errors.
 fn cached_pr_header(branch: &BranchName) -> Result<String> {
-    let path = cache_dir().join(format!("pr-{}", branch.as_str().replace('/', "_")));
-    if !is_fresh(&path, CACHE_TTL) {
-        let header = render_pr_header(branch)?;
+    with_provider(|provider, remote| {
+        let mut hasher = DefaultHasher::new();
+        (remote, branch.as_str()).hash(&mut hasher);
+        let path = cache_dir().join(format!("pr-{:016x}", hasher.finish()));
+        if is_fresh(&path, CACHE_TTL)
+            && let Ok(header) = fs::read_to_string(&path)
+        {
+            return Ok(header.trim().to_string());
+        }
+        let header = render_pr_header(provider, branch)?;
         let _ = fs::create_dir_all(cache_dir());
-        let _ = fs::write(&path, header);
-    }
-    Ok(fs::read_to_string(&path)
-        .unwrap_or_default()
-        .trim()
-        .to_string())
+        let _ = fs::write(&path, &header);
+        Ok(header)
+    })
 }
 
 fn pr_preview(change_id: &ChangeId) -> Result<i32> {

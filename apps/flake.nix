@@ -31,6 +31,7 @@
               ./git
               ./jj
               ./github
+              ./origin
               ./jjui-tools
               ./jj-tools
               ./jj-snapshot
