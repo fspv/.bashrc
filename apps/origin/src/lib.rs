@@ -1,6 +1,7 @@
 use std::fmt;
 use std::num::NonZeroU64;
 use std::path::PathBuf;
+use std::sync::{Mutex, PoisonError};
 
 use common::{Error, Result, run_output_env, run_streaming_checked};
 use git::{AuthorName, BranchName, ObjectId, PullRequestNumber};
@@ -91,7 +92,33 @@ pub fn pr_for_branch(branch: &BranchName) -> Result<Option<PullRequest>> {
 /// # Errors
 /// Returns an error if any branch's pull request lookup fails.
 pub fn prs_for_branches(branches: &[BranchName]) -> Result<Vec<Option<PullRequest>>> {
-    branches.iter().map(pr_for_branch).collect()
+    let mut results: Vec<Result<Option<PullRequest>>> = branches.iter().map(|_| Ok(None)).collect();
+    let pending = Mutex::new(Some(branches.iter().zip(&mut results)));
+    std::thread::scope(|scope| {
+        for _ in 0..branches.len().min(4) {
+            scope.spawn(|| {
+                loop {
+                    let next = pending
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .as_mut()
+                        .and_then(Iterator::next);
+                    let Some((branch, result)) = next else {
+                        break;
+                    };
+                    *result = pr_for_branch(branch);
+                    if result.is_err() {
+                        pending
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .take();
+                        break;
+                    }
+                }
+            });
+        }
+    });
+    results.into_iter().collect()
 }
 
 fn list_for_branch(branch: &BranchName, mine: bool, fields: &str) -> Result<String> {

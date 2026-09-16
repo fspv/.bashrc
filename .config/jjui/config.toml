@@ -1,5 +1,10 @@
 [preview]
-revision_command = ["util", "exec", "--", "jjui-tools", "pr-preview", "$change_id"]
+revision_command = [
+  "util", "exec", "--", "sh", "-c", '''
+timeout 120 jjui-tools pr-prefetch "$1" </dev/null >/dev/null 2>&1 &
+exec jjui-tools pr-preview "$1"
+''', "jjui-pr-preview", "$change_id",
+]
 evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1"]
 oplog_command = ["op", "show", "$operation_id", "--color", "always"]
 file_command = ["diff", "--color", "always", "-r", "$change_id", "$file"]
