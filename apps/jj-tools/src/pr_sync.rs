@@ -6,14 +6,14 @@ use clap::Args;
 use common::Result;
 use git::{AuthorName, BranchName, ObjectId, PullRequestNumber};
 use jj::{
-    Bookmark, BookmarkName, ChangeId, Revset, StackGraph, colocated_repo_root,
-    conflicted_bookmarks, current_stack_tips, untracked_origin_bookmarks, working_copy_change,
+    Bookmark, BookmarkName, Revset, StackGraph, colocated_repo_root, conflicted_bookmarks,
+    untracked_origin_bookmarks, working_copy_change,
 };
 
 #[derive(Args)]
 pub struct PrSyncArgs {
     #[arg(
-        help = "Revset of stack leaves (default: ascendants of @; if the full tree differs from the forge, requires confirming a full-tree submit or aborts)"
+        help = "Revset of stack leaves (default: @ and its ancestors toward trunk, excluding descendants)"
     )]
     tips: Option<Revset>,
     #[arg(long, default_value = "main", help = "Base branch for stack roots")]
@@ -93,13 +93,7 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
     let current_user = forge.current_user()?;
     let me = current_user.as_ref();
 
-    let Some(SyncScope {
-        tips,
-        plan_already_printed,
-    }) = sync_scope(args.tips, &anchor, &trunk, &base, me, &repo_root, forge)?
-    else {
-        return Ok(1);
-    };
+    let tips = args.tips.unwrap_or_else(|| Revset::new(anchor.as_str()));
 
     let graph = StackGraph::load(&trunk, &tips)?;
     let bookmarks = graph.bookmarks();
@@ -126,9 +120,7 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
     }
 
     let plan = build_plan(&graph, &base, me, forge)?;
-    if !plan_already_printed {
-        print_plan(me, &plan, &repo_root);
-    }
+    print_plan(me, &plan, &repo_root);
 
     let empty = bookmarks_with_an_empty_diff(&plan);
     if !empty.is_empty() {
@@ -188,63 +180,12 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
     Ok(0)
 }
 
-struct SyncScope {
-    tips: Revset,
-    plan_already_printed: bool,
-}
-
-fn sync_scope<Provider: Forge>(
-    explicit_tips: Option<Revset>,
-    anchor: &ChangeId,
-    trunk: &Revset,
-    base: &BranchName,
-    me: Option<&AuthorName>,
-    repo_root: &Path,
-    forge: &Provider,
-) -> Result<Option<SyncScope>> {
-    if let Some(tips) = explicit_tips {
-        return Ok(Some(SyncScope {
-            tips,
-            plan_already_printed: false,
-        }));
-    }
-    let full_tree_tips = current_stack_tips(trunk, anchor.as_str());
-    let full_plan = build_plan(&StackGraph::load(trunk, &full_tree_tips)?, base, me, forge)?;
-    if !tree_differs_from_forge(&full_plan) {
-        return Ok(Some(SyncScope {
-            tips: Revset::new(anchor.as_str()),
-            plan_already_printed: false,
-        }));
-    }
-    println!(
-        "Local stack tree differs from {} PR topology (new PRs, reordered bases, etc.).",
-        Provider::NAME
-    );
-    print_plan(me, &full_plan, repo_root);
-    if !confirm("Submit the entire related tree? [y/N] ")? {
-        eprintln!(
-            "Aborted: tree differs from {} and full-tree submit was declined.",
-            Provider::NAME
-        );
-        return Ok(None);
-    }
-    Ok(Some(SyncScope {
-        tips: full_tree_tips,
-        plan_already_printed: true,
-    }))
-}
-
 /// Bookmarks that would be pushed as a pull request containing no changes.
 fn bookmarks_with_an_empty_diff(plan: &[PlanEntry]) -> Vec<&BookmarkName> {
     plan.iter()
         .filter(|entry| matches!(entry.action, Action::Create | Action::Update) && entry.empty)
         .map(|entry| &entry.bookmark)
         .collect()
-}
-
-fn tree_differs_from_forge(plan: &[PlanEntry]) -> bool {
-    plan.iter()
-        .any(|entry| matches!(entry.action, Action::Create | Action::Update))
 }
 
 /// Bookmarks to be pushed that share their commit with another pushed bookmark,
