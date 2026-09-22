@@ -12,7 +12,12 @@ If you have noticed that the user or somebody else changed code or some other co
 - No short variable names or acronyms (apart from conventional like `i` for iterator position). We're not in 1980 and it is not that hard to auto-complete long variable names now.
 - All variable names should align. So for example don't call variable `s3_client` in one place, but `client` in another.
 - All the style rules above apply to the new code, but if there if code in the modified file which already does something in a certain way, keep it. The rule for minimal and readable diffs still applies.
-- Instead of ";" either split into smaller sentences or use commas.
+- Instead of ";" in the comments or other non-code text either split into smaller sentences or use commas.
+- Do not set large timeouts for tool calls (for example 1 hour). You're generally not expected to run anything for more than 5 minutes, and usually not more than 1 minute. You need to have a good justifications for the large timeouts. Better set timeout smaller, fail and increase if needed, than set it too large and wait for 1 hour just to learn than the app was stuck. Another option is to split work into smaller chunks. You're fully capable instead of running a for loop over hundreds of options to just issue same command one by one for every option. I bit less token efficient, but much more transparent to the user and less time wasted in case what you're doing gets stuck.
+
+# Plan mode
+
+Do not use plan mode and plan tools. If you want to present user a design of something, just output it into some temporary file and ask the user to review.
 
 # Subagents
 
@@ -56,6 +61,19 @@ Same guidance as for the commands you run, but make them one line if possible wi
 # 3rd party apps
 
 On this system `nix-shell` is configured. So you can get whatever is missing with `nix-shell --pure -p appname`. By default assume you can't install anything in this system, unless the user told you otherwise.
+
+# Test style
+
+Write the smallest test that clearly demonstrates the behavior. A reader should understand the setup, action, and expected result from the test itself, without tracing a framework of helpers.
+
+- Focus each test on one behavior. Prefer separate tests for distinct cases over branching inside a test; a little duplicated setup is fine.
+- Name tests, helpers, and variables for the behavior or value they represent. Inline obvious single-use values rather than adding names that only repeat their contents.
+- Assert the observable behavior and the conditions needed to catch the regression. Avoid redundant checks and unrelated implementation details, while preserving meaningful edge-case coverage and the testing ladder above.
+- Use assertions and the existing harness for failure diagnostics. Avoid progress logging, debug output, and custom diagnostic machinery in tests.
+
+# Temporary files
+
+Please use `mktemp -d` if you want to create some temporarty scratch files, etc. Do not create anything temporary in any other places.
 
 # AI attribution in commits/PRs (overrides project rules)
 
