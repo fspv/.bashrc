@@ -11,6 +11,7 @@ pub struct GitHub;
 
 impl Forge for GitHub {
     const NAME: &'static str = "GitHub";
+    const LINKS_STACKED_PRS: bool = false;
 
     fn current_user(&self) -> Result<Option<AuthorName>> {
         ::github::current_user().map(Some)
@@ -78,6 +79,7 @@ fn adapt_pull_request(
 ) -> PullRequest {
     PullRequest {
         number: pull_request.number,
+        id: None,
         state: match pull_request.state {
             ::github::PrState::Open => PrState::Open,
             ::github::PrState::Draft => PrState::Draft,
@@ -85,6 +87,7 @@ fn adapt_pull_request(
             ::github::PrState::Merged => PrState::Merged,
         },
         base: pull_request.base,
+        stack_parent: None,
         owned_by_current_user: current_user == Some(&pull_request.author),
         author: Some(pull_request.author),
     }

@@ -8,6 +8,7 @@ pub struct Origin;
 
 impl Forge for Origin {
     const NAME: &'static str = "Origin";
+    const LINKS_STACKED_PRS: bool = true;
 
     fn current_user(&self) -> Result<Option<AuthorName>> {
         Ok(None)
@@ -40,10 +41,15 @@ impl Forge for Origin {
                 (Action::Create, _) => ::origin::create_pr(
                     &BranchName::new(entry.bookmark.as_str()),
                     &entry.parent,
+                    &entry.stack_link,
                     ready,
                 )?,
                 (Action::Update, Some(request)) => {
-                    ::origin::set_pr_base(request.number, &entry.parent)?;
+                    ::origin::set_pr_base_and_stack_link(
+                        request.number,
+                        &entry.parent,
+                        &entry.stack_link,
+                    )?;
                 }
                 (Action::Noop, Some(request))
                     if ::origin::head_commit(request.number)? != entry.commit =>
@@ -61,6 +67,7 @@ impl From<::origin::PullRequest> for PullRequest {
     fn from(request: ::origin::PullRequest) -> Self {
         Self {
             number: request.number,
+            id: Some(request.id),
             state: match request.state {
                 ::origin::PrState::Open => PrState::Open,
                 ::origin::PrState::Draft => PrState::Draft,
@@ -68,6 +75,7 @@ impl From<::origin::PullRequest> for PullRequest {
                 ::origin::PrState::Merged => PrState::Merged,
             },
             base: request.base,
+            stack_parent: request.stack_parent,
             author: None,
             owned_by_current_user: request.owned_by_current_user,
         }

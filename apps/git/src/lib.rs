@@ -163,6 +163,26 @@ impl fmt::Display for PullRequestNumber {
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(transparent)]
+pub struct PullRequestId(String);
+
+impl PullRequestId {
+    #[must_use]
+    pub fn new(id: impl Into<String>) -> Self {
+        Self(id.into())
+    }
+}
+
+/// What a pull request's stack link should become.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StackLink {
+    Unchanged,
+    Clear,
+    LinkToPullRequest(PullRequestNumber),
+    LinkToBranch(BranchName),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(transparent)]
 pub struct AuthorName(String);
 
 impl AuthorName {
