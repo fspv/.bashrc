@@ -1,4 +1,8 @@
-{ pkgs, serviceRunner }:
+{
+  pkgs,
+  serviceRunner,
+  subordinateIdRanges,
+}:
 let
   passwd = pkgs.writeText "passwd" ''
     root:x:0:0:root:/root:${pkgs.bashInteractive}/bin/bash
@@ -12,9 +16,9 @@ let
     nogroup:x:65534:
   '';
 
-  subordinateIds = pkgs.writeText "subordinate-ids" ''
-    svc:100000:65536
-  '';
+  subordinateIds = pkgs.writeText "subordinate-ids" (
+    pkgs.lib.concatMapStrings (range: "svc:${range}\n") subordinateIdRanges
+  );
 
   policyJson = pkgs.writeText "policy.json" (
     builtins.toJSON {

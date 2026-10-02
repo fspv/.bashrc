@@ -15,12 +15,17 @@ jobs:
   build:
     strategy:
       matrix:
-        include:
+        platform:
           - architecture: amd64
             runner: ubuntu-24.04
           - architecture: arm64
             runner: ubuntu-24.04-arm
-    runs-on: ${{ matrix.runner }}
+        image:
+          - package: service-runner-image
+            tag-suffix: ''
+          - package: service-runner-image-rootless
+            tag-suffix: '-rootless'
+    runs-on: ${{ matrix.platform.runner }}
     timeout-minutes: 60
     steps:
       - name: Checkout repository
@@ -35,7 +40,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Build image
-        run: nix build ./apps#service-runner-image --print-build-logs
+        run: nix build ./apps#${{ matrix.image.package }} --print-build-logs
 
       - name: Push image
         env:
@@ -43,10 +48,17 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "$DOCKER_PASSWORD" | nix run nixpkgs#skopeo -- login docker.io --username "$DOCKER_USERNAME" --password-stdin
-          nix run nixpkgs#skopeo -- copy docker-archive:result "docker://docker.io/nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-${{ matrix.architecture }}"
+          nix run nixpkgs#skopeo -- copy docker-archive:result "docker://docker.io/nuhotetotniksvoboden/service-runner:${GITHUB_SHA}${{ matrix.image.tag-suffix }}-${{ matrix.platform.architecture }}"
 
   manifest:
     needs: build
+    strategy:
+      matrix:
+        include:
+          - tag-suffix: ''
+            floating-tag: latest
+          - tag-suffix: '-rootless'
+            floating-tag: rootless
     runs-on: ubuntu-24.04
     steps:
       - name: Publish multi-architecture tags
@@ -55,4 +67,4 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           echo "$DOCKER_PASSWORD" | docker login docker.io --username "$DOCKER_USERNAME" --password-stdin
-          docker buildx imagetools create --tag "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}" --tag nuhotetotniksvoboden/service-runner:latest "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-amd64" "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-arm64"
+          docker buildx imagetools create --tag "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}${{ matrix.tag-suffix }}" --tag "nuhotetotniksvoboden/service-runner:${{ matrix.floating-tag }}" "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}${{ matrix.tag-suffix }}-amd64" "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}${{ matrix.tag-suffix }}-arm64"

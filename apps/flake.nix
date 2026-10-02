@@ -64,6 +64,15 @@
           service-runner-image = import ./service-runner/image.nix {
             inherit pkgs;
             serviceRunner = self.packages.${system}.service-runner;
+            subordinateIdRanges = [ "100000:65536" ];
+          };
+          service-runner-image-rootless = import ./service-runner/image.nix {
+            inherit pkgs;
+            serviceRunner = self.packages.${system}.service-runner;
+            subordinateIdRanges = [
+              "1:999"
+              "1001:64535"
+            ];
           };
 
           default = self.packages.${system}.jjui-tools;
