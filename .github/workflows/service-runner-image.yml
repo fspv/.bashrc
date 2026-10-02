@@ -1,0 +1,58 @@
+name: Service Runner Image
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'apps/**'
+      - '.github/workflows/service-runner-image.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - architecture: amd64
+            runner: ubuntu-24.04
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build image
+        run: nix build ./apps#service-runner-image --print-build-logs
+
+      - name: Push image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | nix run nixpkgs#skopeo -- login docker.io --username "$DOCKER_USERNAME" --password-stdin
+          nix run nixpkgs#skopeo -- copy docker-archive:result "docker://docker.io/nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-${{ matrix.architecture }}"
+
+  manifest:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Publish multi-architecture tags
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login docker.io --username "$DOCKER_USERNAME" --password-stdin
+          docker buildx imagetools create --tag "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}" --tag nuhotetotniksvoboden/service-runner:latest "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-amd64" "nuhotetotniksvoboden/service-runner:${GITHUB_SHA}-arm64"
