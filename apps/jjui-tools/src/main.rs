@@ -10,7 +10,7 @@ use std::sync::{Mutex, PoisonError};
 use std::time::{Duration, SystemTime};
 
 use clap::{Parser, Subcommand};
-use common::{Result, run_output};
+use common::{Result, run_output_sync};
 use git::{AuthorName, BranchName, Provider, PullRequestNumber};
 use jj::{ChangeId, Revset, StackGraph, bookmarks, colocated_repo_root, current_stack_tips, show};
 
@@ -69,7 +69,7 @@ fn main() {
 fn with_provider<T>(lookup: impl FnOnce(Provider, &str) -> Result<T>) -> Result<T> {
     let workspace = std::env::current_dir()?;
     std::env::set_current_dir(colocated_repo_root()?)?;
-    let result = run_output("git", &["remote", "get-url", "origin"])
+    let result = run_output_sync("git", &["remote", "get-url", "origin"])
         .and_then(|remote| lookup(Provider::from_remote(&remote)?, &remote));
     std::env::set_current_dir(workspace)?;
     result

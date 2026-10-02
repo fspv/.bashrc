@@ -5,7 +5,9 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use common::files;
-use common::{Error, Result, ToolVersion, run_output, run_streaming, run_streaming_checked};
+use common::{
+    Error, Result, ToolVersion, run_output_sync, run_streaming_checked_sync, run_streaming_sync,
+};
 use git::ObjectId;
 use serde::{Deserialize, Serialize};
 
@@ -86,7 +88,7 @@ fn bookmark_list(extra_args: &[&str], template: &str) -> Result<Vec<BookmarkName
     let mut args = vec!["--ignore-working-copy", "bookmark", "list"];
     args.extend_from_slice(extra_args);
     args.extend_from_slice(&["-T", template]);
-    let output = run_output("jj", &args)?;
+    let output = run_output_sync("jj", &args)?;
     Ok(output
         .lines()
         .filter(|line| !line.is_empty())
@@ -99,7 +101,7 @@ fn bookmark_list(extra_args: &[&str], template: &str) -> Result<Vec<BookmarkName
 /// # Errors
 /// Returns an error if the `jj` command fails.
 pub fn bookmarks(change_id: &ChangeId) -> Result<Vec<BookmarkName>> {
-    let output = run_output(
+    let output = run_output_sync(
         "jj",
         &[
             "--ignore-working-copy",
@@ -133,7 +135,7 @@ impl StackGraph {
     /// Returns an error if the `jj` command fails or its output cannot be parsed.
     pub fn load(trunk: &Revset, tips: &Revset) -> Result<Self> {
         let revset = format!("({})..({})", trunk.as_str(), tips.as_str());
-        let output = run_output(
+        let output = run_output_sync(
             "jj",
             &[
                 "--ignore-working-copy",
@@ -223,7 +225,7 @@ impl StackGraph {
 /// # Errors
 /// Returns an error if the `jj` command fails.
 pub fn working_copy_change() -> Result<ChangeId> {
-    let id = run_output(
+    let id = run_output_sync(
         "jj",
         &[
             "--ignore-working-copy",
@@ -291,7 +293,7 @@ pub fn git_push(bookmarks: &[BookmarkName]) -> Result<()> {
         args.push(bookmark.as_str().to_string());
     }
     let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
-    run_streaming_checked("jj", &arg_refs)
+    run_streaming_checked_sync("jj", &arg_refs)
 }
 
 /// Fetch only the given bookmarks from origin, updating their remote-tracking refs.
@@ -312,7 +314,7 @@ pub fn git_fetch(bookmarks: &[BookmarkName]) -> Result<()> {
         args.push(bookmark.as_str().to_string());
     }
     let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
-    run_streaming_checked("jj", &arg_refs)
+    run_streaming_checked_sync("jj", &arg_refs)
 }
 
 /// Start tracking the `@origin` remote of each given bookmark.
@@ -332,7 +334,7 @@ pub fn git_track(bookmarks: &[BookmarkName]) -> Result<()> {
         args.push(format!("{}@origin", bookmark.as_str()));
     }
     let arg_refs: Vec<&str> = args.iter().map(String::as_str).collect();
-    run_streaming_checked("jj", &arg_refs)
+    run_streaming_checked_sync("jj", &arg_refs)
 }
 
 /// Export jj bookmarks to the colocated git refs (works on a stale workspace).
@@ -340,7 +342,7 @@ pub fn git_track(bookmarks: &[BookmarkName]) -> Result<()> {
 /// # Errors
 /// Returns an error if the `jj git export` command fails.
 pub fn git_export() -> Result<()> {
-    run_streaming_checked(
+    run_streaming_checked_sync(
         "jj",
         &["--no-pager", "--ignore-working-copy", "git", "export"],
     )
@@ -352,7 +354,7 @@ pub fn git_export() -> Result<()> {
 /// Returns an error if `jj workspace root` fails, the `.jj/repo` pointer cannot be
 /// read, or the resolved path has an unexpected shape.
 pub fn colocated_repo_root() -> Result<PathBuf> {
-    let workspace_root = PathBuf::from(run_output("jj", &["workspace", "root"])?);
+    let workspace_root = PathBuf::from(run_output_sync("jj", &["workspace", "root"])?);
     let repo_pointer = workspace_root.join(".jj").join("repo");
     if repo_pointer.is_dir() {
         return Ok(workspace_root);
@@ -372,7 +374,7 @@ pub fn colocated_repo_root() -> Result<PathBuf> {
 /// # Errors
 /// Returns an error if `jj show` cannot be started.
 pub fn show(change_id: &ChangeId) -> Result<i32> {
-    run_streaming(
+    run_streaming_sync(
         "jj",
         &["show", "--color", "always", "-r", change_id.as_str()],
     )
@@ -381,7 +383,7 @@ pub fn show(change_id: &ChangeId) -> Result<i32> {
 /// # Errors
 /// Returns an error if `jj --version` fails.
 pub fn version() -> Result<ToolVersion> {
-    Ok(ToolVersion::new(run_output("jj", &["--version"])?))
+    Ok(ToolVersion::new(run_output_sync("jj", &["--version"])?))
 }
 
 /// Where jj keeps its state in a workspace.
@@ -644,7 +646,7 @@ impl Workspace {
     /// # Errors
     /// Returns an error if the snapshot fails.
     pub fn snapshot_working_copy(&self) -> Result<()> {
-        run_output(
+        run_output_sync(
             "jj",
             &[
                 "-R",
@@ -678,7 +680,7 @@ impl Workspace {
             all.extend_from_slice(&["--at-operation", operation.as_str()]);
         }
         all.extend_from_slice(arguments);
-        run_output("jj", &all)
+        run_output_sync("jj", &all)
     }
 
     fn path(&self) -> Result<&str> {

@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use common::files::{self, CopyReport};
-use common::{Error, Result, ToolVersion, run_output};
+use common::{Error, Result, ToolVersion, run_output_sync};
 use serde::{Deserialize, Serialize};
 
 /// Where git keeps its state in a checkout.
@@ -366,7 +366,7 @@ impl Repo {
 
     fn git(&self, arguments: &[&str]) -> Result<String> {
         let all = self.arguments_addressing_this_repo(arguments)?;
-        run_output(
+        run_output_sync(
             "git",
             &all.iter().map(String::as_str).collect::<Vec<&str>>(),
         )
@@ -483,5 +483,5 @@ fn require_utf8_path(path: &Path) -> Result<String> {
 /// # Errors
 /// Returns an error if `git --version` fails.
 pub fn version() -> Result<ToolVersion> {
-    Ok(ToolVersion::new(run_output("git", &["--version"])?))
+    Ok(ToolVersion::new(run_output_sync("git", &["--version"])?))
 }

@@ -1,6 +1,6 @@
 use std::fmt::Write as _;
 
-use common::{Error, Result, run_output};
+use common::{Error, Result, run_output_sync};
 
 use crate::cache::Comment;
 
@@ -13,7 +13,7 @@ pub fn generate_comments(
 ) -> Result<Vec<Comment>> {
     let prompt = build_prompt(relative_path, text);
     let command = agent_cmd_template.replace("%s", &escape_for_double_quotes(&prompt));
-    let output = run_output("sh", &["-c", &command])?;
+    let output = run_output_sync("sh", &["-c", &command])?;
     parse_comments(&output)
 }
 

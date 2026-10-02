@@ -1,0 +1,19 @@
+[package]
+name = "service-runner"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[[bin]]
+name = "service-runner"
+path = "src/main.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+common = { path = "../common", features = ["async"] }
+podman = { path = "../podman" }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

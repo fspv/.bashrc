@@ -3,7 +3,7 @@ use std::fmt;
 use std::num::NonZeroU64;
 use std::path::PathBuf;
 
-use common::{Error, Result, run_output_env, run_streaming_checked};
+use common::{Error, Result, run_output_env_sync, run_streaming_checked_sync};
 pub use git::BranchName;
 use git::{AuthorName, PullRequestNumber};
 use serde::Deserialize;
@@ -127,7 +127,7 @@ impl From<RawPullRequest> for PullRequest {
 /// # Errors
 /// Returns an error if the `gh` command fails or its JSON cannot be parsed.
 pub fn pr_for_branch(branch: &BranchName) -> Result<Option<PullRequest>> {
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "gh",
         &[
             "pr",
@@ -155,7 +155,7 @@ struct HeadBranch {
 /// # Errors
 /// Returns an error if `gh pr view` fails or its JSON cannot be parsed.
 pub fn pr_head(number: PullRequestNumber) -> Result<BranchName> {
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "gh",
         &["pr", "view", &number.to_string(), "--json", "headRefName"],
         PLAIN_OUTPUT,
@@ -218,7 +218,7 @@ pub fn prs_for_branches(branches: &[BranchName]) -> Result<Vec<Option<PullReques
         args.extend_from_slice(&["-f", branch_arg]);
     }
     args.extend_from_slice(&["-f", &query]);
-    let json = run_output_env("gh", &args, PLAIN_OUTPUT)?;
+    let json = run_output_env_sync("gh", &args, PLAIN_OUTPUT)?;
     let mut response: BranchPullRequestsResponse =
         serde_json::from_str(&json).map_err(|e| Error::Parse(e.to_string()))?;
     indices
@@ -315,7 +315,7 @@ struct RawComment {
 pub fn unresolved_threads(number: PullRequestNumber) -> Result<Vec<UnresolvedThread>> {
     let query_arg = format!("query={REVIEW_THREADS_QUERY}");
     let number_arg = format!("number={number}");
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "gh",
         &[
             "api",
@@ -365,7 +365,7 @@ pub fn unresolved_threads(number: PullRequestNumber) -> Result<Vec<UnresolvedThr
 /// # Errors
 /// Returns an error if the `gh api user` command fails.
 pub fn current_user() -> Result<AuthorName> {
-    run_output_env("gh", &["api", "user", "--jq", ".login"], PLAIN_OUTPUT).map(AuthorName::new)
+    run_output_env_sync("gh", &["api", "user", "--jq", ".login"], PLAIN_OUTPUT).map(AuthorName::new)
 }
 
 /// Create a PR for `head` based on `base`, drafted unless `ready`.
@@ -385,7 +385,7 @@ pub fn create_pr(head: &BranchName, base: &BranchName, ready: bool) -> Result<()
     if !ready {
         args.push("--draft");
     }
-    run_streaming_checked("gh", &args)
+    run_streaming_checked_sync("gh", &args)
 }
 
 /// Retarget an existing PR's base branch.
@@ -394,5 +394,5 @@ pub fn create_pr(head: &BranchName, base: &BranchName, ready: bool) -> Result<()
 /// Returns an error if the `gh pr edit` command fails.
 pub fn set_pr_base(number: PullRequestNumber, base: &BranchName) -> Result<()> {
     let number = number.to_string();
-    run_streaming_checked("gh", &["pr", "edit", &number, "--base", base.as_str()])
+    run_streaming_checked_sync("gh", &["pr", "edit", &number, "--base", base.as_str()])
 }

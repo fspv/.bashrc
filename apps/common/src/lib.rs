@@ -110,17 +110,17 @@ fn log_command(program: &str, args: &[&str]) {
 /// # Errors
 /// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
 /// (with the captured stderr) if it exits with a non-zero status.
-pub fn run_output(program: &str, args: &[&str]) -> Result<String> {
-    run_output_env(program, args, &[])
+pub fn run_output_sync(program: &str, args: &[&str]) -> Result<String> {
+    run_output_env_sync(program, args, &[])
 }
 
-/// Like [`run_output`], but sets the given environment variables on the child,
+/// Like [`run_output_sync`], but sets the given environment variables on the child,
 /// overriding any inherited values.
 ///
 /// # Errors
 /// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
 /// (with the captured stderr) if it exits with a non-zero status.
-pub fn run_output_env(program: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String> {
+pub fn run_output_env_sync(program: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String> {
     log_command(program, args);
     let mut command = Command::new(program);
     command.args(args);
@@ -146,7 +146,7 @@ pub fn run_output_env(program: &str, args: &[&str], env: &[(&str, &str)]) -> Res
 ///
 /// # Errors
 /// Returns [`Error::Spawn`] if the process cannot be started.
-pub fn run_streaming(program: &str, args: &[&str]) -> Result<i32> {
+pub fn run_streaming_sync(program: &str, args: &[&str]) -> Result<i32> {
     log_command(program, args);
     let status = Command::new(program)
         .args(args)
@@ -163,8 +163,81 @@ pub fn run_streaming(program: &str, args: &[&str]) -> Result<i32> {
 /// # Errors
 /// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
 /// if it exits with a non-zero status.
-pub fn run_streaming_checked(program: &str, args: &[&str]) -> Result<()> {
-    let code = run_streaming(program, args)?;
+pub fn run_streaming_checked_sync(program: &str, args: &[&str]) -> Result<()> {
+    let code = run_streaming_sync(program, args)?;
+    if code != 0 {
+        return Err(Error::Failed {
+            program: program.to_string(),
+            code: code.to_string(),
+            stderr: String::new(),
+        });
+    }
+    Ok(())
+}
+
+/// Async counterpart of [`run_output_sync`].
+///
+/// # Errors
+/// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
+/// (with the captured stderr) if it exits with a non-zero status.
+#[cfg(feature = "async")]
+pub async fn run_output(program: &str, args: &[&str]) -> Result<String> {
+    run_output_env(program, args, &[]).await
+}
+
+/// Async counterpart of [`run_output_env_sync`].
+///
+/// # Errors
+/// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
+/// (with the captured stderr) if it exits with a non-zero status.
+#[cfg(feature = "async")]
+pub async fn run_output_env(program: &str, args: &[&str], env: &[(&str, &str)]) -> Result<String> {
+    log_command(program, args);
+    let mut command = tokio::process::Command::new(program);
+    command.args(args);
+    for (key, value) in env {
+        command.env(key, value);
+    }
+    let output = command.output().await.map_err(|source| Error::Spawn {
+        program: program.to_string(),
+        source,
+    })?;
+    if !output.status.success() {
+        return Err(Error::Failed {
+            program: program.to_string(),
+            code: exit_label(output.status.code()),
+            stderr: String::from_utf8_lossy(&output.stderr).trim().to_string(),
+        });
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+/// Async counterpart of [`run_streaming_sync`].
+///
+/// # Errors
+/// Returns [`Error::Spawn`] if the process cannot be started.
+#[cfg(feature = "async")]
+pub async fn run_streaming(program: &str, args: &[&str]) -> Result<i32> {
+    log_command(program, args);
+    let status = tokio::process::Command::new(program)
+        .args(args)
+        .status()
+        .await
+        .map_err(|source| Error::Spawn {
+            program: program.to_string(),
+            source,
+        })?;
+    Ok(status.code().unwrap_or(1))
+}
+
+/// Async counterpart of [`run_streaming_checked_sync`].
+///
+/// # Errors
+/// Returns [`Error::Spawn`] if the process cannot be started, or [`Error::Failed`]
+/// if it exits with a non-zero status.
+#[cfg(feature = "async")]
+pub async fn run_streaming_checked(program: &str, args: &[&str]) -> Result<()> {
+    let code = run_streaming(program, args).await?;
     if code != 0 {
         return Err(Error::Failed {
             program: program.to_string(),

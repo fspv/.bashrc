@@ -1,0 +1,12 @@
+[package]
+name = "podman"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+common = { path = "../common", features = ["async"] }
+tokio = { version = "1", features = ["process", "io-util"] }

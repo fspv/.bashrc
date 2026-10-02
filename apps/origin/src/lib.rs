@@ -3,7 +3,7 @@ use std::num::NonZeroU64;
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
-use common::{Error, Result, run_output_env, run_streaming_checked};
+use common::{Error, Result, run_output_env_sync, run_streaming_checked_sync};
 use git::{AuthorName, BranchName, ObjectId, PullRequestId, PullRequestNumber, StackLink};
 use serde::Deserialize;
 use url::Url;
@@ -144,7 +144,7 @@ fn list_for_branch(branch: &BranchName, mine: bool, fields: &str) -> Result<Stri
     if mine {
         arguments.push("--mine");
     }
-    run_output_env(
+    run_output_env_sync(
         "origin",
         &arguments,
         &[("CLICOLOR_FORCE", "0"), ("NO_COLOR", "1")],
@@ -175,7 +175,7 @@ pub fn create_pr(
         arguments.push("--stack-on");
         arguments.push(stack_on);
     }
-    run_streaming_checked("origin", &arguments)
+    run_streaming_checked_sync("origin", &arguments)
 }
 
 fn stack_on_target(stack_link: &StackLink) -> Option<String> {
@@ -202,7 +202,7 @@ pub fn set_pr_base_and_stack_link(
     } else if *stack_link == StackLink::Clear {
         arguments.push("--clear-stack");
     }
-    run_streaming_checked("origin", &arguments)
+    run_streaming_checked_sync("origin", &arguments)
 }
 
 #[derive(Deserialize)]
@@ -214,7 +214,7 @@ struct HeadBranch {
 /// # Errors
 /// Returns an error if `origin pr view` fails or its JSON cannot be parsed.
 pub fn pr_head(number: PullRequestNumber) -> Result<BranchName> {
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "origin",
         &["pr", "view", &number.to_string(), "--json", "headRef"],
         &[("CLICOLOR_FORCE", "0"), ("NO_COLOR", "1")],
@@ -259,7 +259,7 @@ struct RawAuthor {
 /// # Errors
 /// Returns an error if `origin pr thread list` fails or its JSON cannot be parsed.
 pub fn unresolved_threads(number: PullRequestNumber) -> Result<Vec<UnresolvedThread>> {
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "origin",
         &[
             "pr",
@@ -303,7 +303,7 @@ struct HeadCommit {
 /// # Errors
 /// Returns an error if `origin pr view` fails or its JSON cannot be parsed.
 pub fn head_commit(number: PullRequestNumber) -> Result<ObjectId> {
-    let json = run_output_env(
+    let json = run_output_env_sync(
         "origin",
         &["pr", "view", &number.to_string(), "--json", "headSha"],
         &[("CLICOLOR_FORCE", "0"), ("NO_COLOR", "1")],
@@ -316,7 +316,7 @@ pub fn head_commit(number: PullRequestNumber) -> Result<ObjectId> {
 /// # Errors
 /// Returns an error if `origin pr refresh` fails.
 pub fn refresh_pr(number: PullRequestNumber) -> Result<()> {
-    run_streaming_checked("origin", &["pr", "refresh", &number.to_string()])
+    run_streaming_checked_sync("origin", &["pr", "refresh", &number.to_string()])
 }
 
 #[cfg(test)]

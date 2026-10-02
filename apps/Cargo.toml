@@ -11,6 +11,8 @@ members = [
     "jj-tools",
     "jj-snapshot",
     "snapshot-store",
+    "podman",
+    "service-runner",
 ]
 
 [workspace.package]

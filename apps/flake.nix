@@ -36,6 +36,8 @@
               ./jj-tools
               ./jj-snapshot
               ./snapshot-store
+              ./podman
+              ./service-runner
             ];
           };
           tool =
@@ -58,6 +60,11 @@
           jj-tools = tool "jj-tools";
           jj-snapshot = tool "jj-snapshot";
           snapshot-store = tool "snapshot-store";
+          service-runner = tool "service-runner";
+          service-runner-image = import ./service-runner/image.nix {
+            inherit pkgs;
+            serviceRunner = self.packages.${system}.service-runner;
+          };
 
           default = self.packages.${system}.jjui-tools;
         }
