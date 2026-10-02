@@ -435,7 +435,7 @@
             stablePkgs.fping
             stablePkgs.whois
             stablePkgs.sqlite
-            unstablePkgs.eternal-terminal
+            stablePkgs.eternal-terminal
             unstablePkgs.tmux
             # Watcher used by tmux-autoreload
             stablePkgs.entr
