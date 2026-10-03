@@ -71,6 +71,24 @@ pkgs.dockerTools.buildLayeredImage {
     coreutils
     findutils
     cacert
+    iproute2
+    nettools
+    iputils
+    procps
+    psmisc
+    util-linux
+    lsof
+    strace
+    tcpdump
+    dnsutils
+    curl
+    netcat-openbsd
+    less
+    gnugrep
+    gnused
+    gawk
+    jq
+    htop
   ];
   fakeRootCommands = ''
     mkdir -p etc/containers usr/bin tmp var/tmp run/user/1000 home/svc/.config/containers home/svc/.local/share/containers/storage
