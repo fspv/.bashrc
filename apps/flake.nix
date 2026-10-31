@@ -61,6 +61,10 @@
           jj-snapshot = tool "jj-snapshot";
           snapshot-store = tool "snapshot-store";
           service-runner = tool "service-runner";
+
+          default = self.packages.${system}.jjui-tools;
+        }
+        // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           service-runner-image = import ./service-runner/image.nix {
             inherit pkgs;
             serviceRunner = self.packages.${system}.service-runner;
@@ -74,8 +78,6 @@
               "1001:64535"
             ];
           };
-
-          default = self.packages.${system}.jjui-tools;
         }
       );
     };

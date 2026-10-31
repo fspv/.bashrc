@@ -429,7 +429,10 @@ mod tests {
 
         assert_eq!(generation.id(), id);
         assert_eq!(store.current_generation().unwrap().unwrap().id(), id);
-        assert!(store.unfinished_staging_directories().unwrap().is_empty());
+        assert_eq!(
+            store.unfinished_staging_directories().unwrap(),
+            Vec::<std::path::PathBuf>::new()
+        );
         assert!(generation.path().join("manifest.toml").is_file());
     }
 

@@ -132,7 +132,10 @@ mod tests {
             TimeDelta::seconds(60),
             TimeDelta::minutes(59),
         ]);
-        assert!(Retention::default().expired(&all, now()).is_empty());
+        assert_eq!(
+            Retention::default().expired(&all, now()),
+            Vec::<GenerationId>::new()
+        );
     }
 
     #[test]
