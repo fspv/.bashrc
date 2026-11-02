@@ -16,7 +16,6 @@ width_increment_percentage = 5.0
 [[actions]]
 name = "fetch-and-rebase"
 lua = '''
-jj_async("git", "fetch", "--tracked")
 jj_async("rebase", "-b", "@", "--skip-emptied", "-o", "main")
 revisions.refresh()
 '''
