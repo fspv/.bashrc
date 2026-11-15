@@ -128,7 +128,8 @@ require("lazy").setup({
     end,
   },
   -- Syntax highlighting and code navigation.
-  -- nvim-treesitter (the parser manager) was archived in April 2026.
+  -- nvim-treesitter (the parser manager) was archived in April 2026, then
+  -- revived as an nvim-0.12 rewrite on `main`; the old `master` is frozen.
   -- nvim-treesitter-textobjects works standalone and is the entry point that
   -- loads our treesitter config.
   {
