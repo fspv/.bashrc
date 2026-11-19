@@ -8,9 +8,9 @@ use std::fmt;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use chrono::{DateTime, SecondsFormat, SubsecRound as _, Utc};
 use common::files;
 use common::{Error, Hostname, Result};
+use jiff::{SignedDuration, Timestamp};
 use serde::{Deserialize, Serialize};
 
 pub mod retention;
@@ -57,28 +57,28 @@ impl fmt::Display for StoreRoot {
 /// chronologically.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
-pub struct GenerationId(DateTime<Utc>);
+pub struct GenerationId(Timestamp);
 
 impl GenerationId {
     #[must_use]
-    pub fn at(moment: DateTime<Utc>) -> Self {
-        Self(moment.trunc_subsecs(0))
+    pub fn at(moment: Timestamp) -> Self {
+        Self(moment - SignedDuration::from_nanos(moment.subsec_nanosecond().into()))
     }
 
     #[must_use]
     pub fn now() -> Self {
-        Self::at(Utc::now())
+        Self::at(Timestamp::now())
     }
 
     #[must_use]
-    pub const fn moment(&self) -> DateTime<Utc> {
+    pub const fn moment(&self) -> Timestamp {
         self.0
     }
 }
 
 impl fmt::Display for GenerationId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.0.to_rfc3339_opts(SecondsFormat::Secs, true))
+        write!(f, "{:.0}", self.0)
     }
 }
 
@@ -86,8 +86,8 @@ impl FromStr for GenerationId {
     type Err = Error;
 
     fn from_str(text: &str) -> Result<Self> {
-        DateTime::parse_from_rfc3339(text)
-            .map(|moment| Self::at(moment.with_timezone(&Utc)))
+        text.parse::<Timestamp>()
+            .map(Self::at)
             .map_err(|_| Error::Parse(format!("`{text}` is not a generation id")))
     }
 }
@@ -172,18 +172,12 @@ impl Staging {
 pub struct Holder {
     pub host: Hostname,
     pub pid: u32,
-    pub since: DateTime<Utc>,
+    pub since: Timestamp,
 }
 
 impl fmt::Display for Holder {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{} pid {} since {}",
-            self.host,
-            self.pid,
-            self.since.to_rfc3339_opts(SecondsFormat::Secs, true)
-        )
+        write!(f, "{} pid {} since {:.0}", self.host, self.pid, self.since)
     }
 }
 
@@ -293,7 +287,7 @@ impl Store {
         let holder = Holder {
             host: Hostname::of_this_machine()?,
             pid: std::process::id(),
-            since: Utc::now(),
+            since: Timestamp::now(),
         };
         let recorded = toml::to_string(&holder)
             .map_err(|error| Error::State(format!("cannot record the lock holder: {error}")))?;
@@ -360,7 +354,7 @@ impl Store {
     ///
     /// # Errors
     /// Returns [`Error::File`] if a generation cannot be removed.
-    pub fn prune(&self, retention: &Retention, now: DateTime<Utc>) -> Result<Vec<GenerationId>> {
+    pub fn prune(&self, retention: &Retention, now: Timestamp) -> Result<Vec<GenerationId>> {
         let published: Vec<GenerationId> = self.generations()?.iter().map(Generation::id).collect();
         let current = self.current_generation()?.as_ref().map(Generation::id);
         let mut removed = Vec::new();
@@ -392,7 +386,7 @@ impl Store {
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::panic)]
 mod tests {
-    use chrono::{DateTime, TimeDelta, Utc};
+    use jiff::{SignedDuration, Timestamp};
 
     use super::{GenerationId, Store, StoreRoot};
 
@@ -402,8 +396,8 @@ mod tests {
         (root, store)
     }
 
-    fn fixed_now() -> DateTime<Utc> {
-        DateTime::from_timestamp(1_800_000_000, 0).unwrap()
+    fn fixed_now() -> Timestamp {
+        Timestamp::from_second(1_800_000_000).unwrap()
     }
 
     #[test]
@@ -442,7 +436,9 @@ mod tests {
         let published = store.stage(GenerationId::now()).unwrap().publish().unwrap();
 
         let abandoned = store
-            .stage(GenerationId::at(Utc::now() + TimeDelta::seconds(30)))
+            .stage(GenerationId::at(
+                Timestamp::now() + SignedDuration::from_secs(30),
+            ))
             .unwrap();
         std::fs::write(abandoned.path().join("half-written"), "...").unwrap();
         drop(abandoned);
@@ -487,9 +483,9 @@ mod tests {
     fn pruning_keeps_the_current_generation_even_when_it_has_expired() {
         let (_root, store) = store();
         let now = fixed_now();
-        let newest = GenerationId::at(now - TimeDelta::days(400));
-        let middle = GenerationId::at(now - TimeDelta::days(401));
-        let oldest = GenerationId::at(now - TimeDelta::days(402));
+        let newest = GenerationId::at(now - SignedDuration::from_hours(24 * 400));
+        let middle = GenerationId::at(now - SignedDuration::from_hours(24 * 401));
+        let oldest = GenerationId::at(now - SignedDuration::from_hours(24 * 402));
         store.stage(newest).unwrap().publish().unwrap();
         store.stage(middle).unwrap().publish().unwrap();
         store.stage(oldest).unwrap().publish().unwrap();

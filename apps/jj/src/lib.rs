@@ -46,6 +46,14 @@ impl BookmarkName {
     }
 }
 
+impl FromStr for BookmarkName {
+    type Err = std::convert::Infallible;
+
+    fn from_str(name: &str) -> std::result::Result<Self, Self::Err> {
+        Ok(Self(name.to_string()))
+    }
+}
+
 impl fmt::Display for BookmarkName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.0)

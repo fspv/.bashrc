@@ -16,6 +16,12 @@ pub struct PrSyncArgs {
         help = "Revset of stack leaves (default: @ and its ancestors toward trunk, excluding descendants)"
     )]
     tips: Option<Revset>,
+    #[arg(
+        long,
+        conflicts_with = "tips",
+        help = "Sync only this bookmark's PR, based on its nearest bookmarked ancestor, leaving the rest of its stack untouched"
+    )]
+    bookmark: Option<BookmarkName>,
     #[arg(long, default_value = "main", help = "Base branch for stack roots")]
     base: BranchName,
     #[arg(long, default_value = "trunk()", help = "jj revset for trunk")]
@@ -97,7 +103,10 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
     let current_user = forge.current_user()?;
     let me = current_user.as_ref();
 
-    let tips = args.tips.unwrap_or_else(|| Revset::new(anchor.as_str()));
+    let tips = match &args.bookmark {
+        Some(bookmark) => Revset::new(bookmark.as_str()),
+        None => args.tips.unwrap_or_else(|| Revset::new(anchor.as_str())),
+    };
 
     let graph = StackGraph::load(&trunk, &tips)?;
     let bookmarks = graph.bookmarks();
@@ -123,7 +132,16 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
         return Ok(1);
     }
 
-    let plan = build_plan(&graph, &base, me, forge)?;
+    let mut plan = build_plan(&graph, &base, me, forge)?;
+    if let Some(bookmark) = &args.bookmark {
+        if let Some(parent) = parent_without_pull_request(&plan, bookmark) {
+            eprintln!(
+                "{bookmark} is based on {parent}, which has no PR yet. Sync its stack first."
+            );
+            return Ok(1);
+        }
+        plan.retain(|entry| entry.bookmark == *bookmark);
+    }
     print_plan(me, &plan, &repo_root);
 
     let empty = bookmarks_with_an_empty_diff(&plan);
@@ -182,6 +200,19 @@ pub fn run(args: PrSyncArgs, forge: &impl Forge) -> Result<i32> {
 
     forge.apply(&plan, &base, args.ready)?;
     Ok(0)
+}
+
+/// The parent bookmark of `bookmark` when that parent has no pull request to base on yet.
+fn parent_without_pull_request<'a>(
+    plan: &'a [PlanEntry],
+    bookmark: &BookmarkName,
+) -> Option<&'a BookmarkName> {
+    let entry = plan.iter().find(|entry| entry.bookmark == *bookmark)?;
+    plan.iter()
+        .find(|parent| {
+            parent.action == Action::Create && parent.bookmark.as_str() == entry.parent.as_str()
+        })
+        .map(|parent| &parent.bookmark)
 }
 
 /// Bookmarks that would be pushed as a pull request containing no changes.
@@ -414,11 +445,55 @@ fn confirm(prompt: &str) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::{
-        Action, DesiredStackParent, PrState, PullRequest, active_pull_request_ids,
-        desired_stack_link, desired_stack_parent, plan_action, stack_link_outdated,
+        Action, DesiredStackParent, PlanEntry, PrState, PullRequest, active_pull_request_ids,
+        desired_stack_link, desired_stack_parent, parent_without_pull_request, plan_action,
+        stack_link_outdated,
     };
     use crate::origin::Origin;
-    use git::{BranchName, PullRequestId, PullRequestNumber, StackLink};
+    use common::Result;
+    use git::{BranchName, ObjectId, PullRequestId, PullRequestNumber, StackLink};
+    use jj::BookmarkName;
+    use std::str::FromStr;
+
+    fn bookmark(name: &str) -> BookmarkName {
+        let Ok(bookmark) = BookmarkName::from_str(name);
+        bookmark
+    }
+
+    fn plan_entry(name: &str, parent: &str, action: Action) -> Result<PlanEntry> {
+        Ok(PlanEntry {
+            bookmark: bookmark(name),
+            commit: ObjectId::from_str(&"a".repeat(40))?,
+            parent: BranchName::new(parent),
+            stack_link: StackLink::Unchanged,
+            pr: None,
+            action,
+            empty: false,
+        })
+    }
+
+    #[test]
+    fn a_parent_still_to_be_created_has_no_pull_request() -> Result<()> {
+        let plan = [
+            plan_entry("parent", "main", Action::Create)?,
+            plan_entry("child", "parent", Action::Create)?,
+        ];
+        assert_eq!(
+            Some(&bookmark("parent")),
+            parent_without_pull_request(&plan, &bookmark("child"))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn a_parent_with_a_pull_request_can_be_based_on() -> Result<()> {
+        let plan = [
+            plan_entry("parent", "main", Action::Noop)?,
+            plan_entry("child", "parent", Action::Create)?,
+        ];
+        assert_eq!(None, parent_without_pull_request(&plan, &bookmark("child")));
+        Ok(())
+    }
 
     #[test]
     fn missing_pull_requests_are_created() {

@@ -2,10 +2,10 @@
 
 use std::path::Path;
 
-use chrono::Utc;
 use common::files::{self, CopyReport};
 use common::{Error, Hostname, Result, ToolVersion};
 use git::{GitDirectory, ObjectId, Repo};
+use jiff::Timestamp;
 use jj::{JjDirectory, Revset, Workspace};
 use snapshot_store::{Generation, GenerationId, Retention, Store};
 
@@ -45,7 +45,7 @@ pub fn run(request: &Request) -> Result<Outcome> {
         retention,
     } = *request;
     let _lock = store.lock()?;
-    let started = Utc::now();
+    let started = Timestamp::now();
     workspace.snapshot_working_copy()?;
 
     let repo = Repo::in_worktree(workspace.root().as_path());
@@ -89,7 +89,7 @@ pub fn run(request: &Request) -> Result<Outcome> {
         source: workspace.root().clone(),
         host: Hostname::of_this_machine()?,
         started,
-        finished: Utc::now(),
+        finished: Timestamp::now(),
         trunk,
         ref_count: pointers.refs.len(),
         verified_object_count: checked.object_count,
@@ -107,7 +107,7 @@ pub fn run(request: &Request) -> Result<Outcome> {
     Ok(Outcome {
         manifest,
         reused: previous.as_ref().map(Generation::id),
-        pruned: store.prune(retention, Utc::now())?,
+        pruned: store.prune(retention, Timestamp::now())?,
     })
 }
 

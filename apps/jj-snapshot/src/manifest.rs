@@ -1,12 +1,12 @@
 //! What a generation records about itself.
 
-use chrono::{DateTime, Utc};
 use common::files;
 use std::path::{Path, PathBuf};
 
 use common::files::CopyReport;
 use common::{Error, Hostname, Result, ToolVersion};
 use git::{Head, ObjectId};
+use jiff::Timestamp;
 use jj::{Bookmark, OperationId, WorkingCopy, WorkspaceRoot};
 use serde::{Deserialize, Serialize};
 use snapshot_store::GenerationId;
@@ -40,8 +40,8 @@ pub struct Manifest {
     pub git_version: ToolVersion,
     pub source: WorkspaceRoot,
     pub host: Hostname,
-    pub started: DateTime<Utc>,
-    pub finished: DateTime<Utc>,
+    pub started: Timestamp,
+    pub finished: Timestamp,
     pub trunk: ObjectId,
     pub ref_count: usize,
     pub verified_object_count: usize,

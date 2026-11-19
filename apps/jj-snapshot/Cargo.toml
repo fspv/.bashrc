@@ -16,10 +16,10 @@ path = "src/main.rs"
 workspace = true
 
 [dependencies]
-chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
 clap = { version = "4", features = ["derive"] }
 common = { path = "../common" }
 git = { path = "../git" }
+jiff = { version = "1", default-features = false, features = ["std", "serde"] }
 jj = { path = "../jj" }
 serde = { version = "1", features = ["derive"] }
 snapshot-store = { path = "../snapshot-store" }
